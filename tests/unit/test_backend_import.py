@@ -11,4 +11,3 @@ def test_pinned_backend_import_and_constructor_contract():
     assert {"bias", "precisions", "device", "dtype"}.issubset(parameters)
     assert callable(dequant_kbit)
     assert callable(matmul_kbit)
-

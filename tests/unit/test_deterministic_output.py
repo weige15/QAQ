@@ -31,4 +31,3 @@ def test_four_and_eight_bit_paths_are_genuinely_distinct():
     assert torch.count_nonzero(case.linear.qweight[4:]).item() > 0
     assert not torch.equal(weight4, weight8)
     assert torch.max((weight4.float() - weight8.float()).abs()).item() > 0
-

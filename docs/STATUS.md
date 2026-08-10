@@ -1,6 +1,6 @@
 Current stage: S01
 Status: COMPLETE
-Last passing commit: to be recorded immediately after the S01 evidence commit.
+Last passing commit: `660ff1a` (`qaq: validate pinned S01 Any-Precision backend`).
 
 S00 is COMPLETE. Its environment, target identity, architecture mapping, and
 Any-Precision provenance are recorded in the S00 documents. The exact pinned
