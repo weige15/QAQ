@@ -117,6 +117,22 @@ Unspecified details must not be silently filled in.
 
 **Reversal path:** Replace the target only after recording contradictory source evidence or a separately justified model decision with a new immutable repository revision and tokenizer identity.
 
+### D015 — Qwen3 architecture mapping and Transformers-version boundary
+
+**Source fact:** The pinned `Qwen/Qwen3-4B` configuration declares `architectures: [Qwen3ForCausalLM]`, `model_type: qwen3`, and `transformers_version: 4.51.0`. The official Transformers `4.51.0` source at commit `0720e206c6ba28887e4d60ef60a6a089f6c1cc76` defines the Qwen3 class hierarchy and the seven standard linear projections used by this mapping.
+
+**Observed environment fact:** The current project environment contains Transformers `4.39.3` and has no `transformers.models.qwen3` source package. It cannot instantiate Qwen3 until a later dependency/runtime validation addresses this version boundary.
+
+**Mapping choice:** Treat `model.layers.<i>.self_attn` and `model.layers.<i>.mlp` as separate QAQ routing units. Replace only `q_proj`, `k_proj`, `v_proj`, `o_proj`, `gate_proj`, `up_proj`, and `down_proj`; retain embeddings, the tied LM head, all RMS norms, rotary processing, activation/gating, and KV-cache state outside packed linear replacement.
+
+**Any-Precision status:** The pinned Any-Precision revision explicitly configures Llama, Mistral, OPT, and Phi architectures, but has no Qwen3 configuration. Qwen3 is structurally mappable to `AnyPrecisionLinear` because all seven modules are standard linear layers, have no bias, and have input dimensions divisible by 32. This is not an official Qwen3 support claim; later work must add an explicit mapping without modifying the pinned upstream source and validate it under a Transformers version containing Qwen3.
+
+**Evidence:** `docs/model_structure.json`, `docs/QWEN3_MAPPING.md`, and `scripts/inspect_model.py`. No model object, random full-model tensors, or weight shard was loaded.
+
+**Consequence:** The S00 architecture and mapping specification is resolved. The known Transformers runtime mismatch and Any-Precision execution behavior remain explicit S01 validation work; do not execute that work in this pass.
+
+**Reversal path:** If later source or runtime checks contradict the module paths, revise the mapping specification and keep S00 open rather than switching models silently.
+
 ## Decision protocol
 
 A worker must add a dated or commit-linked entry when a stage resolves an unknown or introduces a new assumption.

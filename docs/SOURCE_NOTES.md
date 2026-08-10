@@ -87,6 +87,19 @@ The source review therefore supports the choice to investigate Any-Precision as 
 - **Implementation choices:** Pin the current `main` resolution as our reproducibility revision, use the same revision for the tokenizer, set `trust_remote_code: false`, and leave `local_weight_path` null. The exact revision used by QAQ authors remains unknown unless future source evidence states it.
 - **Compatibility boundary:** Any-Precision/Qwen3 compatibility remains unproven until architecture inspection and backend mapping; repository accessibility does not establish compatibility.
 
+## Qwen3 structure and backend-mapping evidence (S00 final pass)
+
+- **Pinned model-derived source:** `Qwen/Qwen3-4B` configuration at revision `1cfa9a7208912126459214e8b04321603b3df60c`; exact URL and captured output are represented in `docs/model_structure.json`.
+- **Configuration facts:** `Qwen3ForCausalLM`, `model_type: qwen3`, 36 layers, hidden size 2560, intermediate size 9728, vocabulary 151936, 32 attention heads, 8 key/value heads, head dimension 128, maximum position embeddings 40960, BF16 configured dtype, no attention bias, and tied word embeddings.
+- **Transformers source:** Official Transformers `4.51.0` Qwen3 implementation at commit `0720e206c6ba28887e4d60ef60a6a089f6c1cc76`, with `configuration_qwen3.py` and `modeling_qwen3.py` inspected without importing or instantiating the model.
+- **Runtime comparison:** The project environment's recorded Transformers version is `4.39.3`; its installed source has no `transformers.models.qwen3` package. This is an explicit runtime compatibility limitation, not an architecture ambiguity.
+- **Observed classes and paths:** `Qwen3ForCausalLM` → `model: Qwen3Model` → `layers: ModuleList[Qwen3DecoderLayer]`; each layer contains `self_attn: Qwen3Attention`, `mlp: Qwen3MLP`, two `Qwen3RMSNorm` layer norms, and the attention's Q/K RMS norms. The base model also contains `embed_tokens`, `rotary_emb`, and final `norm`; the wrapper contains `lm_head`.
+- **Target enumeration:** Four attention projections and three FFN projections per layer produce 144 attention targets, 108 FFN targets, and 252 unique total targets. All seven are bias-free standard linear modules and all input dimensions are divisible by 32.
+- **Non-target behavior:** Q/K normalization, rotary position processing, activation/gating, all RMS norms, embeddings, tied output head, and KV-cache state remain outside packed linear replacement.
+- **Any-Precision source facts:** The pinned revision has explicit architecture YAMLs for `LlamaForCausalLM`, `MistralForCausalLM`, `OPTForCausalLM`, and `PhiForCausalLM`, but no Qwen3 YAML. Its fallback analyzer scans first-layer `torch.nn.Linear` modules and warns that automatic detection may be incorrect. Therefore Qwen3 is structurally mappable but not explicitly supported.
+- **Inspection artifacts:** `docs/model_structure.json`, `docs/QWEN3_MAPPING.md`, `scripts/inspect_model.py`, and `tests/unit/test_model_inspection.py`.
+- **Weight safety:** The inspection fetched only the pinned configuration and small source files. No model object, full-model tensor allocation, `.safetensors`, `.bin`, or snapshot was downloaded.
+
 ## S00 reproducibility command record
 
 The environment snapshot was regenerated with:

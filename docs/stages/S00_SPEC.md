@@ -45,14 +45,14 @@ Do not quantize the full model.
 | Any-Precision package import and CUDA/backend compatibility check | COMPLETE | D002; `docs/SOURCE_NOTES.md` exact command block | None; no model quantization or full benchmark was run. |
 | Clean-checkout reproducibility without untracked current-directory files | COMPLETE | `docs/SOURCE_NOTES.md`; clean recursive clone check recorded below | None once the documented recursive-clone check passes. |
 | Source-paper review separating supported claims from assumptions | COMPLETE | `docs/SOURCE_NOTES.md`, `S00 source review`; D001-D012 | The local `QAQ.pdf` remains a local artifact without independently verified public provenance. |
-| D001-D012 decision ledger and source-supported-versus-implementation distinction | COMPLETE | `docs/DECISIONS.md` | None; D003-D012 remain implementation choices. |
+| D001-D015 decision ledger and source-supported-versus-implementation distinction | COMPLETE | `docs/DECISIONS.md` | None; D003-D012 remain implementation choices and D015 records the architecture/runtime boundary. |
 | S00 proposed next-stage command set | COMPLETE | `S01_BACKEND.md`; command set below | Commands are a proposal only and must not be run in this task. |
 | Target model repository and exact target-model revision | COMPLETE | `configs/model.yaml`; D014; `docs/SOURCE_NOTES.md` | The exact revision used by QAQ authors is not identified by the local paper; the pinned revision is our implementation choice. |
 | Target tokenizer, evaluation inputs, and reproducibility identifiers | PARTIAL | `configs/model.yaml`; D014; `docs/SOURCE_NOTES.md` | Tokenizer repository/revision and files are recorded; evaluation inputs remain for a later S00 step. |
-| Target architecture class and Transformer layer count | DEFERRED_BY_INSTRUCTION | S00 task list and known uncertainties | Architecture inspection is explicitly deferred; no model was instantiated. |
-| Target hidden size, attention projection names, and FFN projection names | DEFERRED_BY_INSTRUCTION | S00 task list and known uncertainties | Architecture inspection is explicitly deferred. |
-| Target tied-weight, bias, embedding, and output-head behavior | DEFERRED_BY_INSTRUCTION | S00 task list and known uncertainties | Architecture inspection is explicitly deferred. |
-| Backend/model combination viability and target-model structure summary | DEFERRED_BY_INSTRUCTION | S00 required outputs and CONTINUE condition | Any-Precision/Qwen compatibility remains unproven until architecture mapping. |
+| Target architecture class and Transformer layer count | COMPLETE | `docs/model_structure.json`; `docs/QWEN3_MAPPING.md`; D015 | Established from pinned config and official Transformers 4.51.0 source without model instantiation. |
+| Target hidden size, attention projection names, and FFN projection names | COMPLETE | `docs/model_structure.json`; `docs/QWEN3_MAPPING.md`; D015 | All seven projections and dimensions are explicitly recorded. |
+| Target tied-weight, bias, embedding, and output-head behavior | COMPLETE | `docs/model_structure.json`; `docs/QWEN3_MAPPING.md`; D015 | Configuration and source markers establish tied embeddings/output head and bias behavior. |
+| Backend/model combination viability and target-model structure summary | COMPLETE_WITH_LIMITATION | `docs/model_structure.json`; `docs/QWEN3_MAPPING.md`; D015 | Structurally mappable, but current Transformers 4.39.3 lacks Qwen3 and Any-Precision has no explicit Qwen3 YAML; runtime validation belongs to S01. |
 | No full-model quantization, implementation-stage experiment, target-model artifact, or S01 code | COMPLETE | `docs/environment.json`; tracked-file audit; current tree | None. |
 | Tracked repository cleanliness for generated caches, build artifacts, temporary files, and papers | COMPLETE | `.gitignore`; `git ls-files`; paper hashes; current Git status | Ignored build/cache files are not tracked; no cleanup was needed. |
 
@@ -82,13 +82,13 @@ Result: PASS after evidence commit `279ae2137f8a2c6017feeb2cda8660b5ed79214c`; t
 
 ## Known uncertainties
 
-- The target repository revision and tokenizer identity are established, but the exact revision used by QAQ authors remains unknown.
-- Evaluation inputs, target architecture behavior, and model-specific backend viability remain unverified until the next authorized S00 step.
+- The exact revision used by QAQ authors remains unknown.
+- The active Transformers 4.39.3 environment lacks Qwen3; runtime loading and Any-Precision execution require later S01 validation under a compatible Transformers version.
 - The papers do not establish several QAQ implementation details, including exact route features, hard-route timing, loader lifetime, and the initial 4/8-bit scope.
 
 ## CONTINUE condition
 
-The environment, target-model identity, and source revision are documented with reproducible evidence; full S00 completion still requires the separately authorized architecture and backend/model viability checks.
+The environment, target identity, architecture, complete target list, and structural backend mapping are documented with reproducible evidence. The known runtime-version limitation and absence of an explicit Any-Precision Qwen3 YAML are recorded as S01 validation work, not silently treated as support.
 
 ## PAUSE condition
 
