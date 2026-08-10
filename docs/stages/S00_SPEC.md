@@ -47,12 +47,12 @@ Do not quantize the full model.
 | Source-paper review separating supported claims from assumptions | COMPLETE | `docs/SOURCE_NOTES.md`, `S00 source review`; D001-D012 | The local `QAQ.pdf` remains a local artifact without independently verified public provenance. |
 | D001-D012 decision ledger and source-supported-versus-implementation distinction | COMPLETE | `docs/DECISIONS.md` | None; D003-D012 remain implementation choices. |
 | S00 proposed next-stage command set | COMPLETE | `S01_BACKEND.md`; command set below | Commands are a proposal only and must not be run in this task. |
-| Target model repository and exact target-model revision | BLOCKED_BY_MODEL_STEP | S00 task list and known uncertainties | Target model has not been selected, by instruction. |
-| Target tokenizer, evaluation inputs, and reproducibility identifiers | BLOCKED_BY_MODEL_STEP | S00 task list and known uncertainties | Requires target-model decision. |
-| Target architecture class and Transformer layer count | BLOCKED_BY_MODEL_STEP | S00 task list and known uncertainties | Requires loading or inspecting the target model. |
-| Target hidden size, attention projection names, and FFN projection names | BLOCKED_BY_MODEL_STEP | S00 task list and known uncertainties | Requires target-model inspection. |
-| Target tied-weight, bias, embedding, and output-head behavior | BLOCKED_BY_MODEL_STEP | S00 task list and known uncertainties | Requires target-model inspection. |
-| Backend/model combination viability and target-model structure summary | BLOCKED_BY_MODEL_STEP | S00 required outputs and CONTINUE condition | Backend-only smoke evidence exists; model-specific viability is intentionally deferred. |
+| Target model repository and exact target-model revision | COMPLETE | `configs/model.yaml`; D014; `docs/SOURCE_NOTES.md` | The exact revision used by QAQ authors is not identified by the local paper; the pinned revision is our implementation choice. |
+| Target tokenizer, evaluation inputs, and reproducibility identifiers | PARTIAL | `configs/model.yaml`; D014; `docs/SOURCE_NOTES.md` | Tokenizer repository/revision and files are recorded; evaluation inputs remain for a later S00 step. |
+| Target architecture class and Transformer layer count | DEFERRED_BY_INSTRUCTION | S00 task list and known uncertainties | Architecture inspection is explicitly deferred; no model was instantiated. |
+| Target hidden size, attention projection names, and FFN projection names | DEFERRED_BY_INSTRUCTION | S00 task list and known uncertainties | Architecture inspection is explicitly deferred. |
+| Target tied-weight, bias, embedding, and output-head behavior | DEFERRED_BY_INSTRUCTION | S00 task list and known uncertainties | Architecture inspection is explicitly deferred. |
+| Backend/model combination viability and target-model structure summary | DEFERRED_BY_INSTRUCTION | S00 required outputs and CONTINUE condition | Any-Precision/Qwen compatibility remains unproven until architecture mapping. |
 | No full-model quantization, implementation-stage experiment, target-model artifact, or S01 code | COMPLETE | `docs/environment.json`; tracked-file audit; current tree | None. |
 | Tracked repository cleanliness for generated caches, build artifacts, temporary files, and papers | COMPLETE | `.gitignore`; `git ls-files`; paper hashes; current Git status | Ignored build/cache files are not tracked; no cleanup was needed. |
 
@@ -82,13 +82,13 @@ Result: PASS after evidence commit `279ae2137f8a2c6017feeb2cda8660b5ed79214c`; t
 
 ## Known uncertainties
 
-- The target model, revision, tokenizer, evaluation inputs, and reproducibility identifiers are not established.
-- Model-specific backend viability and target architecture behavior remain unverified until the target-model step.
+- The target repository revision and tokenizer identity are established, but the exact revision used by QAQ authors remains unknown.
+- Evaluation inputs, target architecture behavior, and model-specific backend viability remain unverified until the next authorized S00 step.
 - The papers do not establish several QAQ implementation details, including exact route features, hard-route timing, loader lifetime, and the initial 4/8-bit scope.
 
 ## CONTINUE condition
 
-The environment, target model, source revision, and backend/model viability are documented with reproducible evidence and no blocking unknown remains for S01.
+The environment, target-model identity, and source revision are documented with reproducible evidence; full S00 completion still requires the separately authorized architecture and backend/model viability checks.
 
 ## PAUSE condition
 

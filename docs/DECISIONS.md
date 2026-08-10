@@ -99,6 +99,24 @@ Unspecified details must not be silently filled in.
 
 **Reversal path:** Re-run the inspection after an explicitly authorized environment change and preserve the new command output as the current snapshot.
 
+### D014 — QAQ baseline target-model identity and immutable revision
+
+**Source fact:** The local `papers/QAQ.pdf` reports evaluation on Qwen3-4B, Qwen3-8B, and Llama3.1-8B. The implementation plan selects the smaller reported Qwen3-4B model for the initial baseline. The paper does not identify an exact Hugging Face repository revision.
+
+**Choice:** Select the official `Qwen/Qwen3-4B` repository for the initial QAQ baseline. Do not substitute `Qwen/Qwen3-4B-Base`, a later 2507 variant, a quantized derivative, or a community mirror.
+
+**Pinned revision:** Resolve `main` to immutable commit `1cfa9a7208912126459214e8b04321603b3df60c`, dated `2025-07-26T03:46:39Z` by the Hugging Face commits API. The repository metadata identifies owner `Qwen`, license `apache-2.0`, and an approximate repository size of 8,060,926,626 bytes including the three weight shards.
+
+**Implementation choice:** The pinned revision is our reproduction choice because the QAQ source does not state the authors' exact Hugging Face revision. It must not be described as the author-used revision.
+
+**Tokenizer identity:** Use tokenizer files from `Qwen/Qwen3-4B` at the same immutable revision. The identity record names `tokenizer.json`, `tokenizer_config.json`, `vocab.json`, and `merges.txt` without downloading or storing model weights.
+
+**Compatibility status:** Compatibility with the pinned Any-Precision backend remains **UNPROVEN** until the target architecture is inspected and its backend module mapping is verified. Repository accessibility is not compatibility evidence.
+
+**Consequence:** S00 remains in progress. The next authorized action is to inspect the pinned Qwen3-4B architecture and map target modules without loading full weights.
+
+**Reversal path:** Replace the target only after recording contradictory source evidence or a separately justified model decision with a new immutable repository revision and tokenizer identity.
+
 ## Decision protocol
 
 A worker must add a dated or commit-linked entry when a stage resolves an unknown or introduces a new assumption.

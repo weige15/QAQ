@@ -1,0 +1,19 @@
+# S00 target-model identity only; architecture mappings are intentionally deferred.
+repository: Qwen/Qwen3-4B
+owner: Qwen
+license: apache-2.0
+revision: 1cfa9a7208912126459214e8b04321603b3df60c
+revision_date: 2025-07-26T03:46:39Z
+revision_source: https://huggingface.co/api/models/Qwen/Qwen3-4B/commits/main
+tokenizer:
+  repository: Qwen/Qwen3-4B
+  revision: 1cfa9a7208912126459214e8b04321603b3df60c
+  files:
+    tokenizer: tokenizer.json
+    tokenizer_config: tokenizer_config.json
+    vocab: vocab.json
+    merges: merges.txt
+model_family: Qwen3
+trust_remote_code: false
+local_weight_path: null
+weights_downloaded: false

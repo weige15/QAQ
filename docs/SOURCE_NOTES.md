@@ -55,10 +55,37 @@ The following claims are limited to the preserved local PDFs and their cited pub
 | --- | --- | --- |
 | `papers/Any_Precision_LLM.pdf`, pp. 1, 3–5; https://arxiv.org/abs/2402.10517 | Any-Precision LLM describes PTQ incremental upscaling from a seed bit-width to a parent bit-width, overlaying multiple bit-width variants, and a bitplane-oriented software engine for reduced-bit memory access. | The paper does not select QAQ's target model, 4/8-bit-only scope, route granularity, loader lifetime, or Python 3.12 support. |
 | `papers/dp_llm.pdf`, pp. 1–4; https://arxiv.org/abs/2508.06041 | DP-LLM describes changing layer sensitivity across decoding steps, uses relative error as a precision-selection proxy, and discusses lightweight runtime selectors over candidate precision pairs. | It does not establish QAQ's query feature, teacher-student objective, hard argmax policy, or separate attention/FFN route contract. |
-| `papers/QAQ.pdf`, pp. 1–4; local workshop artifact | The local artifact describes query-conditioned routing, bit-plane storage, block-level MHA/FFN organization, teacher-student router training, and CPU-to-GPU on-demand loading. | This local PDF has no independently verified public record in this repository; its reported target models, metrics, and system details are not treated as validated evidence for S00. |
+| `papers/QAQ.pdf`, pp. 1–4; local workshop artifact | The local artifact describes query-conditioned routing, bit-plane storage, block-level MHA/FFN organization, teacher-student router training, CPU-to-GPU on-demand loading, and reports Qwen3-4B, Qwen3-8B, and Llama3.1-8B evaluations. | This local PDF has no independently verified public record in this repository and does not identify an exact Hugging Face repository revision. Its reported metrics and system details are not treated as validated evidence for S00. |
 | `papers/PMPD.pdf`, pp. 2–3; local paper artifact | PMPD describes phase-aware and progressively lowering precision during decoding, motivated by differing error resilience across prefill and decoding. | PMPD does not authorize adding phase schedulers or progressive precision to the QAQ baseline before the documented freeze boundary. |
 
 The source review therefore supports the choice to investigate Any-Precision as a storage/backend substrate and to keep paper claims separate from QAQ implementation choices. D003–D012 remain implementation choices unless later evidence explicitly changes them.
+
+## Target-model provenance (S00 identity pass)
+
+- **Source-supported model fact:** `papers/QAQ.pdf` reports Qwen3-4B as one of the evaluated models. The QAQ implementation plan chooses this smaller reported model for the initial baseline.
+- **Selected repository:** `Qwen/Qwen3-4B`, the official Qwen repository. This exact repository identity is an implementation selection informed by the paper's `Qwen3-4B` name; the paper does not state the Hugging Face repository ID or revision.
+- **Repository owner:** `Qwen`.
+- **License:** Apache-2.0 (`license: apache-2.0` in official Hugging Face model metadata and the repository `LICENSE`).
+- **Immutable revision:** `1cfa9a7208912126459214e8b04321603b3df60c`.
+- **Revision date:** `2025-07-26T03:46:39Z`, from the first entry of the official Hugging Face commits API for `main`.
+- **Tokenizer identity:** `Qwen/Qwen3-4B` at revision `1cfa9a7208912126459214e8b04321603b3df60c`; relevant files are `tokenizer.json`, `tokenizer_config.json`, `vocab.json`, and `merges.txt`.
+- **Other relevant repository files:** `config.json`, `generation_config.json`, `README.md`, and `LICENSE`.
+- **Approximate repository size:** `8,060,926,626` bytes (`8.06 GB`, approximately `7.51 GiB`) according to the official Hugging Face tree API at the pinned revision. This includes three `.safetensors` weight shards; none were downloaded.
+- **Revision-resolution commands:**
+  ```bash
+  source ~/.venv/bin/activate
+  which python
+  python --version
+  curl --fail --silent --show-error --location \
+    'https://huggingface.co/api/models/Qwen/Qwen3-4B/commits/main'
+  curl --fail --silent --show-error --location \
+    'https://huggingface.co/api/models/Qwen/Qwen3-4B/revision/main'
+  ```
+- **Exact-file verification:** The pinned `config.json`, `generation_config.json`, `tokenizer_config.json`, `tokenizer.json`, `README.md`, and `LICENSE` endpoints returned HTTP 200 at the immutable revision. Weight-shard endpoints were not downloaded; HEAD metadata only reported their sizes.
+- **Task download accounting:** Ten temporary API/metadata files were downloaded under `/tmp` for this identity check, totaling `11,498,399` bytes. No weight shard or full snapshot was downloaded, and no model artifact was written into the project.
+- **Resolution date:** `2026-08-10` UTC.
+- **Implementation choices:** Pin the current `main` resolution as our reproducibility revision, use the same revision for the tokenizer, set `trust_remote_code: false`, and leave `local_weight_path` null. The exact revision used by QAQ authors remains unknown unless future source evidence states it.
+- **Compatibility boundary:** Any-Precision/Qwen3 compatibility remains unproven until architecture inspection and backend mapping; repository accessibility does not establish compatibility.
 
 ## S00 reproducibility command record
 
