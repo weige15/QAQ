@@ -1,6 +1,6 @@
 Current stage: S00
 Status: IN_PROGRESS
-Last passing commit: none; evidence audit commit: `279ae2137f8a2c6017feeb2cda8660b5ed79214c`.
+Last passing commit: none; evidence commits: `279ae2137f8a2c6017feeb2cda8660b5ed79214c`, `df443c6`.
 Completed in this pass:
 - Environment evidence was re-audited and corrected to the active Python 3.12.3 / PyTorch 2.2.2+cu121 / Transformers 4.39.3 snapshot in `docs/environment.json`.
 - Any-Precision provenance, compatibility, and exact-revision evidence remain internally consistent.

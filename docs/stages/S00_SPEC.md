@@ -72,10 +72,10 @@ Clean recursive-clone verification command:
 ```bash
 rm -rf /tmp/qaq-s00-clean
 git clone --recurse-submodules /nfs/home/s314511048/firstmate/projects/QAQ /tmp/qaq-s00-clean
- test -z "$(git -C /tmp/qaq-s00-clean status --porcelain=v1)"
- test -z "$(git -C /tmp/qaq-s00-clean/third_party/any-precision-llm status --porcelain=v1)"
- test "$(git -C /tmp/qaq-s00-clean/third_party/any-precision-llm rev-parse HEAD)" = a3257d02740cc5757c78673da534b0630ff3a4ea
- rm -rf /tmp/qaq-s00-clean
+test -z "$(git -C /tmp/qaq-s00-clean status --porcelain=v1)"
+test -z "$(git -C /tmp/qaq-s00-clean/third_party/any-precision-llm status --porcelain=v1)"
+test "$(git -C /tmp/qaq-s00-clean/third_party/any-precision-llm rev-parse HEAD)" = a3257d02740cc5757c78673da534b0630ff3a4ea
+rm -rf /tmp/qaq-s00-clean
 ```
 
 Result: PASS after evidence commit `279ae2137f8a2c6017feeb2cda8660b5ed79214c`; the clean clone and initialized submodule were both clean, and the submodule resolved to `a3257d02740cc5757c78673da534b0630ff3a4ea`.
