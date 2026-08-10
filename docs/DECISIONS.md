@@ -78,6 +78,18 @@ Unspecified details must not be silently filled in.
 **Status:** Baseline boundary.
 **Source basis:** Implementation-control choice, not a claim about the papers.
 
+### D013 — Environment capture (S00, 2026-08-10)
+
+**Observation:** The captured host has Python 3.12.3 in `/nfs/home/s314511048/.venv`, CUDA Toolkit 12.4 from `/usr/local/cuda-12.4/bin/nvcc`, GCC 12.4.0, eight NVIDIA GeForce RTX 3090 GPUs with 24,576 MiB each, and PyTorch 2.4.0+cu124. The PyTorch CUDA smoke check passed. `transformers` 5.12.1 is present.
+
+**Preliminary prerequisite results:** Python 3.11 — **FAIL** because the active interpreter is 3.12.3; CUDA Toolkit 12 or newer — **PASS**; GCC 9 or newer — **PASS**. This is only a documented-prerequisite comparison and does not establish Any-Precision or extension-build compatibility.
+
+**Evidence:** `docs/environment.json`; exact inspection commands are recorded there. No packages were installed or upgraded, no model was downloaded, no CUDA extension was compiled, and no quantization or implementation work was performed.
+
+**Consequence:** The remaining S00 evidence is still required. Do not begin S01 or modify the environment as part of this capture.
+
+**Reversal path:** Re-run the inspection after an explicitly authorized environment change; do not change the environment during this task.
+
 ## Decision protocol
 
 A worker must add a dated or commit-linked entry when a stage resolves an unknown or introduces a new assumption.

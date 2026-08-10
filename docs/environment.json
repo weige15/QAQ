@@ -1,0 +1,272 @@
+{
+  "commands_executed": [
+    "source ~/.venv/bin/activate",
+    "which python",
+    "python --version",
+    "uname -a",
+    ". /etc/os-release; printf 'NAME=%s\\nVERSION=%s\\nPRETTY_NAME=%s\\n' \"$NAME\" \"$VERSION\" \"$PRETTY_NAME\"",
+    "lscpu",
+    "cat /proc/meminfo",
+    "df -P -k /nfs/home/s314511048/firstmate/projects/QAQ",
+    "command -v nvidia-smi",
+    "nvidia-smi --query-gpu=name,memory.total --format=csv,noheader,nounits",
+    "nvidia-smi",
+    "command -v nvcc",
+    "nvcc --version",
+    "printf '%s\\n' \"$CUDA_HOME\" \"$PATH\"",
+    "command -v gcc; gcc --version",
+    "command -v g++; g++ --version",
+    "which python",
+    "python --version",
+    "python -m pip --version",
+    "python -c 'import sys; print(sys.prefix)'",
+    "python -c 'import torch; ...'",
+    "python -c 'import transformers; ...'"
+  ],
+  "compiler": {
+    "g++": {
+      "available": true,
+      "executable": "/usr/bin/g++",
+      "raw_output": "g++ (Ubuntu 12.4.0-2ubuntu1~24.04.1) 12.4.0\nCopyright (C) 2022 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+      "version": "12.4.0"
+    },
+    "gcc": {
+      "available": true,
+      "executable": "/usr/bin/gcc",
+      "raw_output": "gcc (Ubuntu 12.4.0-2ubuntu1~24.04.1) 12.4.0\nCopyright (C) 2022 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+      "version": "12.4.0"
+    }
+  },
+  "cpu": {
+    "cores_per_socket": 16,
+    "logical_count": 64,
+    "lscpu_output": "Architecture:                            x86_64\nCPU op-mode(s):                          32-bit, 64-bit\nAddress sizes:                           46 bits physical, 48 bits virtual\nByte Order:                              Little Endian\nCPU(s):                                  64\nOn-line CPU(s) list:                     0-63\nVendor ID:                               GenuineIntel\nModel name:                              Intel(R) Xeon(R) Gold 6226R CPU @ 2.90GHz\nCPU family:                              6\nModel:                                   85\nThread(s) per core:                      2\nCore(s) per socket:                      16\nSocket(s):                               2\nStepping:                                7\nCPU(s) scaling MHz:                      32%\nCPU max MHz:                             3900.0000\nCPU min MHz:                             1200.0000\nBogoMIPS:                                5800.00\nFlags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb cat_l3 cdp_l3 intel_ppin ssbd mba ibrs ibpb stibp ibrs_enhanced tpr_shadow flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid cqm mpx rdt_a avx512f avx512dq rdseed adx smap clflushopt clwb intel_pt avx512cd avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local dtherm ida arat pln pts hwp hwp_act_window hwp_epp hwp_pkg_req vnmi pku ospke avx512_vnni md_clear flush_l1d arch_capabilities ibpb_exit_to_user\nVirtualization:                          VT-x\nL1d cache:                               1 MiB (32 instances)\nL1i cache:                               1 MiB (32 instances)\nL2 cache:                                32 MiB (32 instances)\nL3 cache:                                44 MiB (2 instances)\nNUMA node(s):                            2\nNUMA node0 CPU(s):                       0-15,32-47\nNUMA node1 CPU(s):                       16-31,48-63\nVulnerability Gather data sampling:      Mitigation; Microcode\nVulnerability Indirect target selection: Mitigation; Aligned branch/return thunks\nVulnerability Itlb multihit:             KVM: Mitigation: VMX disabled\nVulnerability L1tf:                      Not affected\nVulnerability Mds:                       Not affected\nVulnerability Meltdown:                  Not affected\nVulnerability Mmio stale data:           Mitigation; Clear CPU buffers; SMT vulnerable\nVulnerability Reg file data sampling:    Not affected\nVulnerability Retbleed:                  Mitigation; Enhanced IBRS\nVulnerability Spec rstack overflow:      Not affected\nVulnerability Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl\nVulnerability Spectre v1:                Mitigation; usercopy/swapgs barriers and __user pointer sanitization\nVulnerability Spectre v2:                Mitigation; Enhanced / Automatic IBRS; IBPB conditional; PBRSB-eIBRS SW sequence; BHI SW loop, KVM SW loop\nVulnerability Srbds:                     Not affected\nVulnerability Tsa:                       Not affected\nVulnerability Tsx async abort:           Mitigation; TSX disabled\nVulnerability Vmscape:                   Mitigation; IBPB before exit to userspace",
+    "model": "Intel(R) Xeon(R) Gold 6226R CPU @ 2.90GHz",
+    "physical_count": 32,
+    "sockets": 2
+  },
+  "cuda_toolkit": {
+    "available": true,
+    "executable": "/usr/local/cuda-12.4/bin/nvcc",
+    "raw_output": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2024 NVIDIA Corporation\nBuilt on Tue_Feb_27_16:19:38_PST_2024\nCuda compilation tools, release 12.4, V12.4.99\nBuild cuda_12.4.r12.4/compiler.33961263_0",
+    "version": "12.4"
+  },
+  "disk": {
+    "available_bytes": 6650470531072,
+    "available_gib": 6193.73,
+    "filesystem": "192.168.88.100:/nfs/home",
+    "mount_point": "/nfs/home",
+    "path": "/nfs/home/s314511048/firstmate/projects/QAQ",
+    "size_bytes": 35860569849856,
+    "use_percent": "81%",
+    "used_bytes": 27589894799360
+  },
+  "environment": {
+    "CUDA_HOME": "/usr/local/cuda-12.4",
+    "PATH": "/nfs/home/s314511048/.venv/bin:/nfs/home/s314511048/.pi/agent/bin:/nfs/home/s314511048/.local/bin:/usr/local/cuda-12.4/bin:/nfs/home/s314511048/.local/bin:/nfs/home/s314511048/.nvm/versions/node/v24.18.0/bin:/usr/local/cuda-12.4/bin:/nfs/home/s314511048/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin"
+  },
+  "environment_check_results": {
+    "cuda_toolkit_12_or_newer": {
+      "observed": "12.4",
+      "reason": "nvcc reports CUDA Toolkit 12 or newer",
+      "result": "PASS"
+    },
+    "gcc_9_or_newer": {
+      "observed": "12.4.0",
+      "reason": "GCC is version 9 or newer",
+      "result": "PASS"
+    },
+    "python_3_11": {
+      "observed": "3.12.3",
+      "reason": "documented prerequisite is Python 3.11",
+      "result": "FAIL"
+    },
+    "pytorch_cuda_smoke_test": {
+      "reason": "two small CUDA tensors were added successfully",
+      "result": "PASS",
+      "result_values": [
+        4.0,
+        6.0
+      ]
+    }
+  },
+  "gpu": {
+    "count": 8,
+    "devices": [
+      {
+        "index": 0,
+        "model": "NVIDIA GeForce RTX 3090",
+        "total_vram_mib": 24576
+      },
+      {
+        "index": 1,
+        "model": "NVIDIA GeForce RTX 3090",
+        "total_vram_mib": 24576
+      },
+      {
+        "index": 2,
+        "model": "NVIDIA GeForce RTX 3090",
+        "total_vram_mib": 24576
+      },
+      {
+        "index": 3,
+        "model": "NVIDIA GeForce RTX 3090",
+        "total_vram_mib": 24576
+      },
+      {
+        "index": 4,
+        "model": "NVIDIA GeForce RTX 3090",
+        "total_vram_mib": 24576
+      },
+      {
+        "index": 5,
+        "model": "NVIDIA GeForce RTX 3090",
+        "total_vram_mib": 24576
+      },
+      {
+        "index": 6,
+        "model": "NVIDIA GeForce RTX 3090",
+        "total_vram_mib": 24576
+      },
+      {
+        "index": 7,
+        "model": "NVIDIA GeForce RTX 3090",
+        "total_vram_mib": 24576
+      }
+    ]
+  },
+  "host": {
+    "architecture": "x86_64",
+    "kernel": "6.8.0-124-generic",
+    "operating_system": "Linux",
+    "os_release": {
+      "BUG_REPORT_URL": "https://bugs.launchpad.net/ubuntu/",
+      "HOME_URL": "https://www.ubuntu.com/",
+      "ID": "ubuntu",
+      "ID_LIKE": "debian",
+      "LOGO": "ubuntu-logo",
+      "NAME": "Ubuntu",
+      "PRETTY_NAME": "Ubuntu 24.04.4 LTS",
+      "PRIVACY_POLICY_URL": "https://www.ubuntu.com/legal/terms-and-policies/privacy-policy",
+      "SUPPORT_URL": "https://help.ubuntu.com/",
+      "UBUNTU_CODENAME": "noble",
+      "VERSION": "24.04.4 LTS (Noble Numbat)",
+      "VERSION_CODENAME": "noble",
+      "VERSION_ID": "24.04"
+    },
+    "platform": "Linux-6.8.0-124-generic-x86_64-with-glibc2.39"
+  },
+  "memory": {
+    "available_bytes": 245367955456,
+    "available_gib": 228.52,
+    "total_bytes": 270041264128,
+    "total_gib": 251.5
+  },
+  "nvidia_driver": {
+    "available": true,
+    "cuda_version_reported_by_driver": "13.0",
+    "driver_version": "580.159.03",
+    "executable": "/usr/bin/nvidia-smi",
+    "query_output": "NVIDIA GeForce RTX 3090, 24576\nNVIDIA GeForce RTX 3090, 24576\nNVIDIA GeForce RTX 3090, 24576\nNVIDIA GeForce RTX 3090, 24576\nNVIDIA GeForce RTX 3090, 24576\nNVIDIA GeForce RTX 3090, 24576\nNVIDIA GeForce RTX 3090, 24576\nNVIDIA GeForce RTX 3090, 24576"
+  },
+  "python": {
+    "base_prefix": "/usr",
+    "executable": "/nfs/home/s314511048/.venv/bin/python",
+    "is_virtual_environment": true,
+    "pip": "pip 24.0 from /nfs/home/s314511048/.venv/lib/python3.12/site-packages/pip (python 3.12)",
+    "prefix": "/nfs/home/s314511048/.venv",
+    "version": "3.12.3",
+    "version_info": [
+      3,
+      12,
+      3
+    ]
+  },
+  "pytorch": {
+    "built_with_cuda": "12.4",
+    "cuda_available": true,
+    "cuda_smoke_test": {
+      "reason": "two small CUDA tensors were added successfully",
+      "result": "PASS",
+      "result_values": [
+        4.0,
+        6.0
+      ]
+    },
+    "device_count": 8,
+    "devices": [
+      {
+        "compute_capability": [
+          8,
+          6
+        ],
+        "index": 0,
+        "name": "NVIDIA GeForce RTX 3090"
+      },
+      {
+        "compute_capability": [
+          8,
+          6
+        ],
+        "index": 1,
+        "name": "NVIDIA GeForce RTX 3090"
+      },
+      {
+        "compute_capability": [
+          8,
+          6
+        ],
+        "index": 2,
+        "name": "NVIDIA GeForce RTX 3090"
+      },
+      {
+        "compute_capability": [
+          8,
+          6
+        ],
+        "index": 3,
+        "name": "NVIDIA GeForce RTX 3090"
+      },
+      {
+        "compute_capability": [
+          8,
+          6
+        ],
+        "index": 4,
+        "name": "NVIDIA GeForce RTX 3090"
+      },
+      {
+        "compute_capability": [
+          8,
+          6
+        ],
+        "index": 5,
+        "name": "NVIDIA GeForce RTX 3090"
+      },
+      {
+        "compute_capability": [
+          8,
+          6
+        ],
+        "index": 6,
+        "name": "NVIDIA GeForce RTX 3090"
+      },
+      {
+        "compute_capability": [
+          8,
+          6
+        ],
+        "index": 7,
+        "name": "NVIDIA GeForce RTX 3090"
+      }
+    ],
+    "imports": true,
+    "version": "2.4.0+cu124"
+  },
+  "report_scope": "S00 environment capture only; no package installation, model download, compilation, quantization, or implementation",
+  "transformers": {
+    "imports": true,
+    "status": "present",
+    "version": "5.12.1"
+  }
+}
