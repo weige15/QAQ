@@ -1,6 +1,6 @@
 Current stage: S00
 Status: COMPLETE
-Last passing commit: to be recorded immediately after this evidence commit.
+Last passing commit: `7d386ee` (`qaq: close S00 Qwen3 architecture mapping`).
 Completed in this pass:
 - Environment evidence was re-audited and corrected to the active Python 3.12.3 / PyTorch 2.2.2+cu121 / Transformers 4.39.3 snapshot in `docs/environment.json`.
 - Any-Precision provenance, compatibility, and exact-revision evidence remain internally consistent.
