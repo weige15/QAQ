@@ -78,7 +78,7 @@ git clone --recurse-submodules /nfs/home/s314511048/firstmate/projects/QAQ /tmp/
  rm -rf /tmp/qaq-s00-clean
 ```
 
-This command is run after the evidence commit so the clean clone tests the committed repository state.
+Result: PASS after evidence commit `279ae2137f8a2c6017feeb2cda8660b5ed79214c`; the clean clone and initialized submodule were both clean, and the submodule resolved to `a3257d02740cc5757c78673da534b0630ff3a4ea`.
 
 ## Known uncertainties
 
