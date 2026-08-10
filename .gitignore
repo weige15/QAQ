@@ -1,0 +1,37 @@
+__pycache__/
+*.py[cod]
+*.so
+*.dylib
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+.venv/
+venv/
+env/
+
+# Local configuration and run outputs
+*.local
+.env
+configs/local*
+runs/
+outputs/
+checkpoints/
+logs/
+
+# Model and data artifacts
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.ckpt
+*.npz
+*.parquet
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
