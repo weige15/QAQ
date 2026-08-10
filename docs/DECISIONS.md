@@ -8,15 +8,24 @@ Unspecified details must not be silently filled in.
 
 ### D001 — Any-Precision backend
 
-**Choice:** Use the official Any-Precision LLM implementation as the starting nested-quantization, packing, and CUDA-kernel backend.
-**Status:** Open until S00 verifies source, compatibility, and viability.
-**Source basis:** Not established by this scaffold; source review must document what the papers do and do not specify.
+**Choice:** Use the official Any-Precision LLM implementation as the selected baseline backend for nested quantization, bitplane packing, and CUDA-kernel execution.
+**Status:** Resolved for the Any-Precision source-pinning portion of S00; overall S00 remains open.
+**Evidence:** The clean checkout at `/tmp/qaq-any-precision-test` identifies the official upstream repository and was the source used to build the locally installed CUDA extension. The same revision was copied into `third_party/any-precision-llm` as a pinned submodule and passed the package-import and CUDA backend smoke checks.
+**Source basis:** This is an implementation choice. The source papers do not by themselves establish QAQ's complete backend contract.
+**Consequence:** Later QAQ backend work must use the pinned submodule revision and must not modify upstream source during this stage.
+**Reversal path:** Replace the submodule only after a new compatibility probe and a new D002 provenance record establish a different exact revision.
 
 ### D002 — Pin upstream revision
 
 **Choice:** Pin the exact Any-Precision commit before modifying or wrapping it.
-**Status:** Open until S00 records the revision and provenance.
-**Source basis:** Implementation-control requirement, not a paper-established fact.
+**Status:** Resolved for the Any-Precision source-pinning portion of S00; overall S00 remains open.
+**Evidence:** Upstream `https://github.com/SNU-ARC/any-precision-llm.git`, full commit `a3257d02740cc5757c78673da534b0630ff3a4ea`, commit date `2025-07-04T16:00:35+09:00`, branch `main`, and clean checkout status. The existing checkout's reflog records its clone from that upstream URL, and the installed extension's `direct_url.json` points to that checkout. No separate prior test log was present, so the identification relies on those local provenance records plus the successful rerun below.
+**Why selected:** This is the revision that passed the local Python 3.12/CUDA compatibility probe; it is not a latest-commit substitution.
+**Representation:** Git submodule at `third_party/any-precision-llm`, with `.gitmodules` recording the upstream URL and the gitlink recording the exact commit.
+**Compatibility rerun:** With `source ~/.venv/bin/activate`, `which python` resolving to `/nfs/home/s314511048/.venv/bin/python`, and Python `3.12.3`, `import any_precision` passed and the real `any_precision_ext.dequant_kbit` plus `matmul_kbit` CUDA smoke check passed on an RTX 3090. No model quantization or full benchmark was run.
+**Python support statement:** Python 3.12.3 compatibility is an empirical result from this machine, not an upstream support claim. The upstream README lists Python 3.11 as its prerequisite.
+**Consequence:** Stateless workers must initialize the submodule and use commit `a3257d02740cc5757c78673da534b0630ff3a4ea`; floating branches are not sufficient.
+**Reversal path:** Remove or replace the submodule only after preserving the current provenance and completing a separately recorded compatibility probe for the replacement.
 
 ### D003 — Supported routes
 
@@ -78,17 +87,17 @@ Unspecified details must not be silently filled in.
 **Status:** Baseline boundary.
 **Source basis:** Implementation-control choice, not a claim about the papers.
 
-### D013 — Environment capture (S00, 2026-08-10)
+### D013 — Environment capture (S00, 2026-08-11)
 
-**Observation:** The captured host has Python 3.12.3 in `/nfs/home/s314511048/.venv`, CUDA Toolkit 12.4 from `/usr/local/cuda-12.4/bin/nvcc`, GCC 12.4.0, eight NVIDIA GeForce RTX 3090 GPUs with 24,576 MiB each, and PyTorch 2.4.0+cu124. The PyTorch CUDA smoke check passed. `transformers` 5.12.1 is present.
+**Observation:** The audited host has Python 3.12.3 in `/nfs/home/s314511048/.venv`, Ubuntu 24.04.4 LTS on kernel 6.8.0-124-generic, CUDA Toolkit 12.4 from `/usr/local/cuda-12.4/bin/nvcc`, GCC 12.4.0, eight NVIDIA GeForce RTX 3090 GPUs with 24,576 MiB each, 251.5 GiB RAM, and 6,185.27 GiB available disk space. The active PyTorch is 2.2.2+cu121 with CUDA available, and `transformers` 4.39.3 is present. The minimal PyTorch CUDA operation passed.
 
 **Preliminary prerequisite results:** Python 3.11 — **FAIL** because the active interpreter is 3.12.3; CUDA Toolkit 12 or newer — **PASS**; GCC 9 or newer — **PASS**. This is only a documented-prerequisite comparison and does not establish Any-Precision or extension-build compatibility.
 
-**Evidence:** `docs/environment.json`; exact inspection commands are recorded there. No packages were installed or upgraded, no model was downloaded, no CUDA extension was compiled, and no quantization or implementation work was performed.
+**Evidence:** `docs/environment.json`, generated by `source ~/.venv/bin/activate`, `which python`, `python --version`, and `python scripts/inspect_environment.py`. The earlier S00 snapshot recorded PyTorch 2.4.0+cu124 and `transformers` 5.12.1; this current audit supersedes that snapshot so the repository has one internally consistent environment record. No model was selected, downloaded, loaded, or inspected.
 
-**Consequence:** The remaining S00 evidence is still required. Do not begin S01 or modify the environment as part of this capture.
+**Consequence:** Environment evidence is complete, but target-model selection and inspection remain required before S00 can close. Do not begin S01.
 
-**Reversal path:** Re-run the inspection after an explicitly authorized environment change; do not change the environment during this task.
+**Reversal path:** Re-run the inspection after an explicitly authorized environment change and preserve the new command output as the current snapshot.
 
 ## Decision protocol
 

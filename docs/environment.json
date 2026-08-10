@@ -40,7 +40,7 @@
   "cpu": {
     "cores_per_socket": 16,
     "logical_count": 64,
-    "lscpu_output": "Architecture:                            x86_64\nCPU op-mode(s):                          32-bit, 64-bit\nAddress sizes:                           46 bits physical, 48 bits virtual\nByte Order:                              Little Endian\nCPU(s):                                  64\nOn-line CPU(s) list:                     0-63\nVendor ID:                               GenuineIntel\nModel name:                              Intel(R) Xeon(R) Gold 6226R CPU @ 2.90GHz\nCPU family:                              6\nModel:                                   85\nThread(s) per core:                      2\nCore(s) per socket:                      16\nSocket(s):                               2\nStepping:                                7\nCPU(s) scaling MHz:                      32%\nCPU max MHz:                             3900.0000\nCPU min MHz:                             1200.0000\nBogoMIPS:                                5800.00\nFlags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb cat_l3 cdp_l3 intel_ppin ssbd mba ibrs ibpb stibp ibrs_enhanced tpr_shadow flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid cqm mpx rdt_a avx512f avx512dq rdseed adx smap clflushopt clwb intel_pt avx512cd avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local dtherm ida arat pln pts hwp hwp_act_window hwp_epp hwp_pkg_req vnmi pku ospke avx512_vnni md_clear flush_l1d arch_capabilities ibpb_exit_to_user\nVirtualization:                          VT-x\nL1d cache:                               1 MiB (32 instances)\nL1i cache:                               1 MiB (32 instances)\nL2 cache:                                32 MiB (32 instances)\nL3 cache:                                44 MiB (2 instances)\nNUMA node(s):                            2\nNUMA node0 CPU(s):                       0-15,32-47\nNUMA node1 CPU(s):                       16-31,48-63\nVulnerability Gather data sampling:      Mitigation; Microcode\nVulnerability Indirect target selection: Mitigation; Aligned branch/return thunks\nVulnerability Itlb multihit:             KVM: Mitigation: VMX disabled\nVulnerability L1tf:                      Not affected\nVulnerability Mds:                       Not affected\nVulnerability Meltdown:                  Not affected\nVulnerability Mmio stale data:           Mitigation; Clear CPU buffers; SMT vulnerable\nVulnerability Reg file data sampling:    Not affected\nVulnerability Retbleed:                  Mitigation; Enhanced IBRS\nVulnerability Spec rstack overflow:      Not affected\nVulnerability Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl\nVulnerability Spectre v1:                Mitigation; usercopy/swapgs barriers and __user pointer sanitization\nVulnerability Spectre v2:                Mitigation; Enhanced / Automatic IBRS; IBPB conditional; PBRSB-eIBRS SW sequence; BHI SW loop, KVM SW loop\nVulnerability Srbds:                     Not affected\nVulnerability Tsa:                       Not affected\nVulnerability Tsx async abort:           Mitigation; TSX disabled\nVulnerability Vmscape:                   Mitigation; IBPB before exit to userspace",
+    "lscpu_output": "Architecture:                            x86_64\nCPU op-mode(s):                          32-bit, 64-bit\nAddress sizes:                           46 bits physical, 48 bits virtual\nByte Order:                              Little Endian\nCPU(s):                                  64\nOn-line CPU(s) list:                     0-63\nVendor ID:                               GenuineIntel\nModel name:                              Intel(R) Xeon(R) Gold 6226R CPU @ 2.90GHz\nCPU family:                              6\nModel:                                   85\nThread(s) per core:                      2\nCore(s) per socket:                      16\nSocket(s):                               2\nStepping:                                7\nCPU(s) scaling MHz:                      34%\nCPU max MHz:                             3900.0000\nCPU min MHz:                             1200.0000\nBogoMIPS:                                5800.00\nFlags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb cat_l3 cdp_l3 intel_ppin ssbd mba ibrs ibpb stibp ibrs_enhanced tpr_shadow flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid cqm mpx rdt_a avx512f avx512dq rdseed adx smap clflushopt clwb intel_pt avx512cd avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local dtherm ida arat pln pts hwp hwp_act_window hwp_epp hwp_pkg_req vnmi pku ospke avx512_vnni md_clear flush_l1d arch_capabilities ibpb_exit_to_user\nVirtualization:                          VT-x\nL1d cache:                               1 MiB (32 instances)\nL1i cache:                               1 MiB (32 instances)\nL2 cache:                                32 MiB (32 instances)\nL3 cache:                                44 MiB (2 instances)\nNUMA node(s):                            2\nNUMA node0 CPU(s):                       0-15,32-47\nNUMA node1 CPU(s):                       16-31,48-63\nVulnerability Gather data sampling:      Mitigation; Microcode\nVulnerability Indirect target selection: Mitigation; Aligned branch/return thunks\nVulnerability Itlb multihit:             KVM: Mitigation: VMX disabled\nVulnerability L1tf:                      Not affected\nVulnerability Mds:                       Not affected\nVulnerability Meltdown:                  Not affected\nVulnerability Mmio stale data:           Mitigation; Clear CPU buffers; SMT vulnerable\nVulnerability Reg file data sampling:    Not affected\nVulnerability Retbleed:                  Mitigation; Enhanced IBRS\nVulnerability Spec rstack overflow:      Not affected\nVulnerability Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl\nVulnerability Spectre v1:                Mitigation; usercopy/swapgs barriers and __user pointer sanitization\nVulnerability Spectre v2:                Mitigation; Enhanced / Automatic IBRS; IBPB conditional; PBRSB-eIBRS SW sequence; BHI SW loop, KVM SW loop\nVulnerability Srbds:                     Not affected\nVulnerability Tsa:                       Not affected\nVulnerability Tsx async abort:           Mitigation; TSX disabled\nVulnerability Vmscape:                   Mitigation; IBPB before exit to userspace",
     "model": "Intel(R) Xeon(R) Gold 6226R CPU @ 2.90GHz",
     "physical_count": 32,
     "sockets": 2
@@ -52,14 +52,14 @@
     "version": "12.4"
   },
   "disk": {
-    "available_bytes": 6650470531072,
-    "available_gib": 6193.73,
+    "available_bytes": 6641381998592,
+    "available_gib": 6185.27,
     "filesystem": "192.168.88.100:/nfs/home",
     "mount_point": "/nfs/home",
     "path": "/nfs/home/s314511048/firstmate/projects/QAQ",
     "size_bytes": 35860569849856,
     "use_percent": "81%",
-    "used_bytes": 27589894799360
+    "used_bytes": 27598983266304
   },
   "environment": {
     "CUDA_HOME": "/usr/local/cuda-12.4",
@@ -157,8 +157,8 @@
     "platform": "Linux-6.8.0-124-generic-x86_64-with-glibc2.39"
   },
   "memory": {
-    "available_bytes": 245367955456,
-    "available_gib": 228.52,
+    "available_bytes": 245716779008,
+    "available_gib": 228.84,
     "total_bytes": 270041264128,
     "total_gib": 251.5
   },
@@ -183,7 +183,7 @@
     ]
   },
   "pytorch": {
-    "built_with_cuda": "12.4",
+    "built_with_cuda": "12.1",
     "cuda_available": true,
     "cuda_smoke_test": {
       "reason": "two small CUDA tensors were added successfully",
@@ -261,12 +261,12 @@
       }
     ],
     "imports": true,
-    "version": "2.4.0+cu124"
+    "version": "2.2.2+cu121"
   },
   "report_scope": "S00 environment capture only; no package installation, model download, compilation, quantization, or implementation",
   "transformers": {
     "imports": true,
     "status": "present",
-    "version": "5.12.1"
+    "version": "4.39.3"
   }
 }

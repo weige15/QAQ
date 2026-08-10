@@ -33,11 +33,58 @@ Do not quantize the full model.
 - S00 viability report and a proposed next-stage command set.
 - Updated `docs/DECISIONS.md` and `docs/STATUS.md`.
 
+## Current evidence audit
+
+| Requirement | Status | Evidence location | Unresolved issue |
+| --- | --- | --- | --- |
+| Mandatory `~/.venv` activation, Python path, and Python version | COMPLETE | `docs/environment.json`; `scripts/inspect_environment.py` command record | None; Python 3.12.3 is the observed interpreter. |
+| Operating system, kernel, CPU RAM, disk availability, GPU model/count/VRAM, CUDA toolkit, compiler, PyTorch, CUDA availability, and Transformers evidence | COMPLETE | `docs/environment.json`; D013 | The snapshot is dated by D013 (2026-08-11); Python 3.11 remains an upstream-documented prerequisite comparison that is not met. |
+| Minimal PyTorch CUDA operation | COMPLETE | `docs/environment.json` (`result_values`: 4.0 and 6.0) | None. |
+| Python 3.12 compatibility wording | COMPLETE | D002; `docs/SOURCE_NOTES.md` | Local empirical result only; upstream Any-Precision README still lists Python 3.11 and is not rewritten. |
+| Any-Precision upstream URL, full SHA, commit date, representation, branch state, and clean dependency state | COMPLETE | D001-D002; `docs/SOURCE_NOTES.md`; `.gitmodules`; submodule gitlink | None; the exact SHA is pinned even though the checkout currently has branch `main`. |
+| Any-Precision package import and CUDA/backend compatibility check | COMPLETE | D002; `docs/SOURCE_NOTES.md` exact command block | None; no model quantization or full benchmark was run. |
+| Clean-checkout reproducibility without untracked current-directory files | COMPLETE | `docs/SOURCE_NOTES.md`; clean recursive clone check recorded below | None once the documented recursive-clone check passes. |
+| Source-paper review separating supported claims from assumptions | COMPLETE | `docs/SOURCE_NOTES.md`, `S00 source review`; D001-D012 | The local `QAQ.pdf` remains a local artifact without independently verified public provenance. |
+| D001-D012 decision ledger and source-supported-versus-implementation distinction | COMPLETE | `docs/DECISIONS.md` | None; D003-D012 remain implementation choices. |
+| S00 proposed next-stage command set | COMPLETE | `S01_BACKEND.md`; command set below | Commands are a proposal only and must not be run in this task. |
+| Target model repository and exact target-model revision | BLOCKED_BY_MODEL_STEP | S00 task list and known uncertainties | Target model has not been selected, by instruction. |
+| Target tokenizer, evaluation inputs, and reproducibility identifiers | BLOCKED_BY_MODEL_STEP | S00 task list and known uncertainties | Requires target-model decision. |
+| Target architecture class and Transformer layer count | BLOCKED_BY_MODEL_STEP | S00 task list and known uncertainties | Requires loading or inspecting the target model. |
+| Target hidden size, attention projection names, and FFN projection names | BLOCKED_BY_MODEL_STEP | S00 task list and known uncertainties | Requires target-model inspection. |
+| Target tied-weight, bias, embedding, and output-head behavior | BLOCKED_BY_MODEL_STEP | S00 task list and known uncertainties | Requires target-model inspection. |
+| Backend/model combination viability and target-model structure summary | BLOCKED_BY_MODEL_STEP | S00 required outputs and CONTINUE condition | Backend-only smoke evidence exists; model-specific viability is intentionally deferred. |
+| No full-model quantization, implementation-stage experiment, target-model artifact, or S01 code | COMPLETE | `docs/environment.json`; tracked-file audit; current tree | None. |
+| Tracked repository cleanliness for generated caches, build artifacts, temporary files, and papers | COMPLETE | `.gitignore`; `git ls-files`; paper hashes; current Git status | Ignored build/cache files are not tracked; no cleanup was needed. |
+
+The proposed S01 command set is documentation only:
+
+```bash
+source ~/.venv/bin/activate
+which python
+python --version
+CUDA_VISIBLE_DEVICES=0 python -m pytest tests/unit tests/integration -q
+```
+
+The final command is intentionally not executable yet because S01 must first add the focused packed 4-bit and 8-bit tests and their reference contract. No S01 command was run during this audit.
+
+Clean recursive-clone verification command:
+
+```bash
+rm -rf /tmp/qaq-s00-clean
+git clone --recurse-submodules /nfs/home/s314511048/firstmate/projects/QAQ /tmp/qaq-s00-clean
+ test -z "$(git -C /tmp/qaq-s00-clean status --porcelain=v1)"
+ test -z "$(git -C /tmp/qaq-s00-clean/third_party/any-precision-llm status --porcelain=v1)"
+ test "$(git -C /tmp/qaq-s00-clean/third_party/any-precision-llm rev-parse HEAD)" = a3257d02740cc5757c78673da534b0630ff3a4ea
+ rm -rf /tmp/qaq-s00-clean
+```
+
+This command is run after the evidence commit so the clean clone tests the committed repository state.
+
 ## Known uncertainties
 
-- The target model and revision are not established by this scaffold.
-- Backend/model compatibility, CUDA prerequisites, and source revision remain unverified.
-- The papers' precise packing, routing, training, and loading details remain to be extracted.
+- The target model, revision, tokenizer, evaluation inputs, and reproducibility identifiers are not established.
+- Model-specific backend viability and target architecture behavior remain unverified until the target-model step.
+- The papers do not establish several QAQ implementation details, including exact route features, hard-route timing, loader lifetime, and the initial 4/8-bit scope.
 
 ## CONTINUE condition
 
