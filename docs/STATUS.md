@@ -28,6 +28,6 @@ corrected read-only packed artifact passed the unchanged S04 regressions and
 S05 all-4/all-8 request-prefill parity (`10 passed in 422.84s`); S03 static
 4-bit/8-bit regressions also passed (`2 passed in 218.23s`).
 
-Passing S05 implementation commit: `PENDING_COMMIT_HASH`.
+Passing S05 implementation commit: `7ec07e6`.
 
 Next action: Begin S06: implement the trainable soft router and differentiable 4-bit/8-bit mixture path.
