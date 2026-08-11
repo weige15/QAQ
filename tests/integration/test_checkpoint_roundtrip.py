@@ -4,7 +4,7 @@ import hashlib
 
 import torch
 
-from qaq.s03_static import load_static_model, source_commit
+from qaq.s03_static import load_static_model, run_static_smoke, smoke_inputs, source_commit
 
 
 def _sha256(path):
@@ -31,3 +31,17 @@ def test_fresh_process_loader_constructs_the_quantized_graph(artifact):
     model = load_static_model(artifact, "cuda:3" if torch.cuda.is_available() else "cpu")
     quantized = [module for module in model.modules() if module.__class__.__name__ == "AnyPrecisionLinear"]
     assert len(quantized) == 252
+
+
+def test_fresh_process_static_smoke_matches_recorded_digests(artifact, manifest):
+    if not torch.cuda.is_available():
+        return
+    device = "cuda:3"
+    model = load_static_model(artifact, device)
+    inputs, _ = smoke_inputs(artifact, device)
+    for precision in (4, 8):
+        first = run_static_smoke(model, inputs, precision, torch)
+        second = run_static_smoke(model, inputs, precision, torch)
+        assert first["finite_values"]
+        assert first["logits_sha256"] == second["logits_sha256"]
+        assert first["logits_sha256"] == manifest["static_smoke"][str(precision)]["logits_sha256"]

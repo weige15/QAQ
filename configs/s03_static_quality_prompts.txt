@@ -1,0 +1,5 @@
+Explain why the sky appears blue in one concise paragraph.
+Write a Python function that returns the first n Fibonacci numbers.
+A train leaves at 09:15 and travels 180 kilometers in 2 hours. What is its average speed?
+In a quiet library, the old clock stopped just before midnight.
+List three practical ways to reduce household water usage.

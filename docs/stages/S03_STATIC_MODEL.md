@@ -51,7 +51,7 @@ Static 4-bit or 8-bit inference cannot be made trustworthy, or the implementatio
 
 ## S03-A — Actual target-model verification
 
-**Status: IN_PROGRESS — CONTINUE to S03-B, which is not executed here.**
+**Status: COMPLETE — CONTINUE evidence recorded for S03-B.**
 
 ### Exact identity and acquisition
 
@@ -98,7 +98,7 @@ The S03-A gate is **CONTINUE**. The pinned model loaded and executed, the concre
 
 ## S03-B — Nested Qwen3 4/8-bit packed baseline
 
-**Status: IN_PROGRESS.** S03-B produced and validated the static nested checkpoint; the broader S03 static-baseline quality requirements remain open.
+**Status: COMPLETE — CONTINUE evidence recorded for S03-C.** S03-B produced and validated the static nested checkpoint.
 
 - Pinned quantizer entry point: `any_precision.quantization.any_precision_quantize`, with its `any_precision.quantization.pack.pack` packing stage.
 - Exact mapping: `configs/qwen3_any_precision.yaml`, checked against the S03-A records in `docs/actual_model_modules.json` by exact set and count equality before quantization.
@@ -117,4 +117,37 @@ The S03-A gate is **CONTINUE**. The pinned model loaded and executed, the concre
 - Numerical sanity: FP-vs-4 mean/max absolute logit error `0.38069865107536316` / `3.34375`; FP-vs-8 `0.04913947731256485` / `0.6796875`. The 8-bit result is at least as faithful on both recorded measures.
 - Round-trip: the fresh-process integration checkpoint reload and manifest/hash checks passed.
 - Checkpoint hashes and complete tensor inventory are tracked in `docs/quantized_model_manifest.json`; weight payloads remain ignored and untracked.
-- Limitations: calibration is intentionally a one-sample smoke baseline, no generation or quality benchmark was run, peak quantization RAM was not measured, and S03 has not been declared complete. Routing, CPU-to-GPU on-demand loading, training, and S04 were not started.
+- Limitations: calibration is intentionally a one-sample smoke baseline, and peak quantization RAM was not captured. Routing, CPU-to-GPU on-demand loading, training, and S04 were not started.
+
+## S03-C — Broader static-quality evaluation and closeout
+
+**Status: COMPLETE — CONTINUE.** Exact result evidence is in [`../results/s03_static_quality.json`](../results/s03_static_quality.json), using the unchanged S03-B checkpoint and unchanged pinned source revisions.
+
+### Fixed prompt set
+
+The committed prompt set is [`../../configs/s03_static_quality_prompts.txt`](../../configs/s03_static_quality_prompts.txt) and contains five materially different prompts. Every mode used tokenizer revision `1cfa9a7208912126459214e8b04321603b3df60c`, `add_special_tokens=true`, truncation at 128 tokens, and no padding. The reference prompt remained `QAQ full-precision smoke test.` from S03-B.
+
+For every prompt, FP, static 4-bit, and static 8-bit logits were finite and repeatable. The comparison metric was mean absolute logit error plus maximum absolute logit error against FP logits. The aggregate criterion was: the mean of per-prompt mean absolute errors for 8-bit must be no greater than the corresponding 4-bit aggregate. Aggregate mean errors were `0.5141653061` for 4-bit and `0.0578794084` for 8-bit; aggregate maximum-per-prompt maxima were `7.7890625` and `1.0078125`.
+
+### Perplexity sample
+
+The same evaluator was used for all modes on `Salesforce/wikitext`, config `wikitext-2-raw-v1`, dataset revision `b08601e04326c79dfdd32d625aee71d232d685c3`, split `test`. It concatenated non-empty rows in source order and evaluated the first four non-overlapping 129-token windows as 128-token inputs with next-token labels, for 512 weighted tokens total. No padding, generated tokens, or random sampling was used. Mean negative log likelihood and perplexity were accumulated token-weighted. Results were FP `3.2209646702` / `25.0522757118`, static 4-bit `3.3002486229` / `27.1193805814`, and static 8-bit `3.2140788436` / `24.8803626466`. The predefined development quality criterion was static 8-bit perplexity no greater than 110% of static 4-bit; it passed.
+
+This is a development sample, not a final benchmark or paper-score reproduction.
+
+### Generation, reload, coverage, and resources
+
+Greedy batch-one generation used two committed prompts and `max_new_tokens=8`. All three modes executed without non-finite generation scores, stayed within the token limit, and produced deterministic repeated sequences. A fresh pytest process ran the checkpoint round-trip tests: `3 passed`; static 4-bit and 8-bit smoke digests matched the recorded S03-B digests.
+
+Peak development memory observations were FP `8,325,107,712` allocated / `8,355,053,568` reserved bytes, static 4-bit `5,780,443,136` / `5,823,791,104`, and static 8-bit `5,780,443,136` / `5,823,791,104`. These are not final memory-savings claims and no transfer savings were measured.
+
+The verified target set remained complete at 252 projections with no omissions, unexpected targets, or duplicate independent precision models. Full project regression was `50 passed, 1 skipped`; the resource-heavy S03-A model check was `1 passed`. No routing, training, or on-demand loading was added.
+
+### Exact commands and limitations
+
+- Quality evaluation: `source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:third_party/any-precision-llm QAQ_MODEL_DEVICE=cuda:3 python scripts/run_s03c.py`.
+- Fresh checkpoint reload: `source ~/.venv/bin/activate && which python && python --version && QAQ_S03_ARTIFACT=<artifact> pytest -q tests/integration/test_checkpoint_roundtrip.py`.
+- Full regression: `source ~/.venv/bin/activate && which python && python --version && QAQ_S03_ARTIFACT=<artifact> pytest -q tests`.
+- Resource-heavy S03-A check: `source ~/.venv/bin/activate && which python && python --version && QAQ_RUN_RESOURCE_HEAVY=1 QAQ_MODEL_DEVICE=cuda:3 pytest -q tests/system/test_actual_model_load.py`.
+
+The small prompt and perplexity samples are only static-baseline trust evidence. They do not establish final language-model quality, adaptive routing quality, transfer behavior, or on-demand residency behavior.

@@ -171,6 +171,18 @@ Unspecified details must not be silently filled in.
 
 **Reversal path:** If the S03 static quality gate requires a larger or different calibration set, record a new dated decision and regenerate the artifact without changing the pinned model or Any-Precision revision.
 
+### D020 — S03-C development-quality evaluation contract (2026-08-11)
+
+**Choice:** Close S03 using five committed prompts, a deterministic 512-token WikiText-2 test sample, and two fixed greedy generation prompts. Compare static logits against the full-precision teacher with mean and maximum absolute error. Require aggregate mean 8-bit logit error to be no greater than aggregate 4-bit error. For the small language-model sample, define unexpected 8-bit degradation as perplexity greater than 110% of static 4-bit perplexity.
+
+**Evidence:** `docs/results/s03_static_quality.json`; all three modes produced finite deterministic outputs, aggregate prompt errors were `0.5141653061` (4-bit) and `0.0578794084` (8-bit), and perplexities were `25.0522757118` (FP), `27.1193805814` (4-bit), and `24.8803626466` (8-bit). Fresh-process checkpoint reload and target coverage checks passed.
+
+**Alternatives rejected:** A full benchmark suite was excluded because S03-C is a deliberately small development evaluation. Subjective generation quality was not used as a gate. No paper-score target was imposed because this sample is not a reproduction claim.
+
+**Consequence:** S03 is complete and may continue to S04. The result does not establish routing, transfer, on-demand residency, or final model quality.
+
+**Reversal path:** If a later implementation changes the model, tokenizer, checkpoint, evaluator accounting, or static representation, reopen S03 and rerun this evidence rather than carrying the result forward.
+
 ## Decision protocol
 
 A worker must add a dated or commit-linked entry when a stage resolves an unknown or introduces a new assumption.

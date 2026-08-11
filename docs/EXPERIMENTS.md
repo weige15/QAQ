@@ -49,6 +49,19 @@ Every result must include the exact command, environment versions, model and dat
 - Artifact: `quantized/s03b_qwen3_4b/backend_cache/packed/anyprec-(1cfa9a7208912126459214e8b04321603b3df60c)-w8_orig4-gc1-c4_s1_blk64`; complete hashes are in `docs/quantized_model_manifest.json`.
 - Fresh-process round-trip and manifest integration tests: `9 passed`. Relevant S01/S02 regression tests: `27 passed`. Ruff: clean.
 
+## S03-C broader static-quality evaluation (2026-08-11)
+
+- Scope: full-precision teacher, the one nested static 4/8-bit checkpoint, and no routing, training, or on-demand loading.
+- Fixed prompt file: `configs/s03_static_quality_prompts.txt`, five prompts. Tokenizer revision `1cfa9a7208912126459214e8b04321603b3df60c`; `add_special_tokens=true`, truncation `128`, no padding. Reference prompt remained `QAQ full-precision smoke test.`.
+- Quality command: `source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:third_party/any-precision-llm QAQ_MODEL_DEVICE=cuda:3 python scripts/run_s03c.py`.
+- Prompt metric: mean and maximum absolute logit error against FP, with deterministic repeats. Five prompts completed with finite outputs. Aggregate mean-of-prompt mean error: 4-bit `0.5141653061`, 8-bit `0.0578794084`; maximum prompt maximum error: 4-bit `7.7890625`, 8-bit `1.0078125`. Criterion was aggregate 8-bit error `<=` aggregate 4-bit error; passed.
+- Perplexity: `Salesforce/wikitext`, config `wikitext-2-raw-v1`, revision `b08601e04326c79dfdd32d625aee71d232d685c3`, split `test`; concatenate non-empty rows in source order, first four non-overlapping windows, sequence length `128`, window width/stride `129`, `512` evaluated tokens, tokenizer revision `1cfa9a7208912126459214e8b04321603b3df60c`, no random seed. FP `25.0522757118`, static 4-bit `27.1193805814`, static 8-bit `24.8803626466`; 8-bit <= 110% of 4-bit, passed.
+- Generation command is included in the quality command; two fixed prompts, greedy batch size 1, `max_new_tokens=8`. All modes generated finite-score deterministic repeats within the limit.
+- Round-trip command: `source ~/.venv/bin/activate && which python && python --version && QAQ_S03_ARTIFACT=<artifact> pytest -q tests/integration/test_checkpoint_roundtrip.py`; fresh process result `3 passed`, with both static smoke digests matching.
+- Peak development memory: FP `8325107712` allocated / `8355053568` reserved bytes; static 4-bit `5780443136` / `5823791104`; static 8-bit `5780443136` / `5823791104`. These are not final savings claims; no transfer savings were measured.
+- Regression commands: full project suite `50 passed, 1 skipped`; resource-heavy S03-A model load `1 passed`. Target coverage remained 252/252 with no duplicate independent precision models.
+- Result file: `docs/results/s03_static_quality.json`. Limitations: this is a deliberately small development sample, not a final benchmark or paper-score reproduction.
+
 ## Boundaries before baseline freeze
 
 Do not introduce asynchronous transfers, prefetching, transfer prediction, bit-width cost penalties, cross-request caching, multi-query batching, or unrelated research improvements.

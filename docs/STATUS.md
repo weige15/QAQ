@@ -1,5 +1,5 @@
 Current stage: S03
-Status: IN_PROGRESS
+Status: COMPLETE
 
 S00, S01, and S02 are COMPLETE. S03-A and S03-B are complete with CONTINUE evidence:
 - The exact pinned `Qwen/Qwen3-4B` revision `1cfa9a7208912126459214e8b04321603b3df60c` is cached locally.
@@ -14,4 +14,6 @@ Evidence: `docs/actual_model_modules.json` and `docs/stages/S03_STATIC_MODEL.md`
 
 S03-B produced one verified nested 4-bit/8-bit packed artifact and passed its target, byte-accounting, reload, static smoke, and numerical sanity checks. Evidence: `docs/quantized_model_manifest.json`, `docs/stages/S03_STATIC_MODEL.md`, and `docs/EXPERIMENTS.md`.
 
-Remaining S03 action: complete the repository's existing static-baseline quality requirements and record their reproducible evidence. Do not begin routing or S04.
+S03-C static-baseline quality requirements are complete. Five fixed prompts, a 512-token WikiText-2 development perplexity sample, deterministic generation, fresh-process checkpoint reload, and full regression evidence all passed. Passing S03-C commit: `5ddc56e`. Do not begin routing or S04.
+
+Next action: Begin S04: implement explicit manual MHA and FFN precision plans over the verified static packed model.

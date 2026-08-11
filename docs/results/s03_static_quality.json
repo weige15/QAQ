@@ -1,0 +1,548 @@
+{
+  "checkpoint_reload": {
+    "command": "source ~/.venv/bin/activate && which python && python --version && QAQ_S03_ARTIFACT=<artifact> pytest -q tests/integration/test_checkpoint_roundtrip.py",
+    "parity": "fresh-process static 4-bit and 8-bit digests matched the recorded S03-B outputs",
+    "static_4_digest": "8b28d8ae1cf0d27462b0704d2661ebe90f67073c4435bbd8e21ad2ef19a6aa5d",
+    "static_8_digest": "9337bad41bf1f9294aca8ba7721a313ad5abfe14e279970e2cf45142946f04c3",
+    "status": "passed in a fresh pytest process",
+    "tests_passed": 3
+  },
+  "commands": {
+    "artifact": "source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:third_party/any-precision-llm python scripts/run_s03b.py --overwrite-artifact",
+    "quality": "source ~/.venv/bin/activate && which python && python --version && python scripts/run_s03c.py"
+  },
+  "format": "qaq-s03c-static-quality-v1",
+  "generation": {
+    "file": "configs/s03_static_generation_prompts.txt",
+    "full_precision": {
+      "batch_size": 1,
+      "decoding": "greedy (do_sample=false, num_beams=1)",
+      "max_new_tokens": 8,
+      "records": [
+        {
+          "deterministic_repeat": true,
+          "first": {
+            "generated_token_count": 8,
+            "sequence_sha256": "0c50eff47ea47953c9e60a202601d25c6826ae812338f9f4f33020c6e1b1a9db",
+            "stopped_by_eos": false,
+            "text": "Complete this sentence: The most useful experiment is the one that...\n\nThe most useful experiment is the one"
+          },
+          "index": 0,
+          "prompt": "Complete this sentence: The most useful experiment is the one that",
+          "repeat": {
+            "generated_token_count": 8,
+            "sequence_sha256": "0c50eff47ea47953c9e60a202601d25c6826ae812338f9f4f33020c6e1b1a9db",
+            "stopped_by_eos": false,
+            "text": "Complete this sentence: The most useful experiment is the one that...\n\nThe most useful experiment is the one"
+          }
+        },
+        {
+          "deterministic_repeat": true,
+          "first": {
+            "generated_token_count": 8,
+            "sequence_sha256": "9bdd991e0626ae9eea4b31b3cbbaecfc096ae7dfb4f8fbfc6888a1fd0be73e10",
+            "stopped_by_eos": false,
+            "text": "Give a one-line definition of a packed bit plane. Also, define the term \"bit plane"
+          },
+          "index": 1,
+          "prompt": "Give a one-line definition of a packed bit plane.",
+          "repeat": {
+            "generated_token_count": 8,
+            "sequence_sha256": "9bdd991e0626ae9eea4b31b3cbbaecfc096ae7dfb4f8fbfc6888a1fd0be73e10",
+            "stopped_by_eos": false,
+            "text": "Give a one-line definition of a packed bit plane. Also, define the term \"bit plane"
+          }
+        }
+      ]
+    },
+    "prompts": [
+      "Complete this sentence: The most useful experiment is the one that",
+      "Give a one-line definition of a packed bit plane."
+    ],
+    "static_4": {
+      "batch_size": 1,
+      "decoding": "greedy (do_sample=false, num_beams=1)",
+      "max_new_tokens": 8,
+      "records": [
+        {
+          "deterministic_repeat": true,
+          "first": {
+            "generated_token_count": 8,
+            "sequence_sha256": "0c50eff47ea47953c9e60a202601d25c6826ae812338f9f4f33020c6e1b1a9db",
+            "stopped_by_eos": false,
+            "text": "Complete this sentence: The most useful experiment is the one that...\n\nThe most useful experiment is the one"
+          },
+          "index": 0,
+          "prompt": "Complete this sentence: The most useful experiment is the one that",
+          "repeat": {
+            "generated_token_count": 8,
+            "sequence_sha256": "0c50eff47ea47953c9e60a202601d25c6826ae812338f9f4f33020c6e1b1a9db",
+            "stopped_by_eos": false,
+            "text": "Complete this sentence: The most useful experiment is the one that...\n\nThe most useful experiment is the one"
+          }
+        },
+        {
+          "deterministic_repeat": true,
+          "first": {
+            "generated_token_count": 8,
+            "sequence_sha256": "465a17f8ced1248f086e784075ff75a15d74e3450be49f5eeaf7ebb1255e6923",
+            "stopped_by_eos": false,
+            "text": "Give a one-line definition of a packed bit plane. Also, give a one-line definition of"
+          },
+          "index": 1,
+          "prompt": "Give a one-line definition of a packed bit plane.",
+          "repeat": {
+            "generated_token_count": 8,
+            "sequence_sha256": "465a17f8ced1248f086e784075ff75a15d74e3450be49f5eeaf7ebb1255e6923",
+            "stopped_by_eos": false,
+            "text": "Give a one-line definition of a packed bit plane. Also, give a one-line definition of"
+          }
+        }
+      ]
+    },
+    "static_8": {
+      "batch_size": 1,
+      "decoding": "greedy (do_sample=false, num_beams=1)",
+      "max_new_tokens": 8,
+      "records": [
+        {
+          "deterministic_repeat": true,
+          "first": {
+            "generated_token_count": 8,
+            "sequence_sha256": "0c50eff47ea47953c9e60a202601d25c6826ae812338f9f4f33020c6e1b1a9db",
+            "stopped_by_eos": false,
+            "text": "Complete this sentence: The most useful experiment is the one that...\n\nThe most useful experiment is the one"
+          },
+          "index": 0,
+          "prompt": "Complete this sentence: The most useful experiment is the one that",
+          "repeat": {
+            "generated_token_count": 8,
+            "sequence_sha256": "0c50eff47ea47953c9e60a202601d25c6826ae812338f9f4f33020c6e1b1a9db",
+            "stopped_by_eos": false,
+            "text": "Complete this sentence: The most useful experiment is the one that...\n\nThe most useful experiment is the one"
+          }
+        },
+        {
+          "deterministic_repeat": true,
+          "first": {
+            "generated_token_count": 8,
+            "sequence_sha256": "9bdd991e0626ae9eea4b31b3cbbaecfc096ae7dfb4f8fbfc6888a1fd0be73e10",
+            "stopped_by_eos": false,
+            "text": "Give a one-line definition of a packed bit plane. Also, define the term \"bit plane"
+          },
+          "index": 1,
+          "prompt": "Give a one-line definition of a packed bit plane.",
+          "repeat": {
+            "generated_token_count": 8,
+            "sequence_sha256": "9bdd991e0626ae9eea4b31b3cbbaecfc096ae7dfb4f8fbfc6888a1fd0be73e10",
+            "stopped_by_eos": false,
+            "text": "Give a one-line definition of a packed bit plane. Also, define the term \"bit plane"
+          }
+        }
+      ]
+    }
+  },
+  "memory_observations": {
+    "full_precision": {
+      "peak_allocated_gpu_bytes": 8325107712,
+      "peak_reserved_gpu_bytes": 8355053568
+    },
+    "note": "Development-only peak measurements; no transfer-savings claim.",
+    "static_4": {
+      "peak_allocated_gpu_bytes": 5780443136,
+      "peak_reserved_gpu_bytes": 5823791104
+    },
+    "static_8": {
+      "peak_allocated_gpu_bytes": 5780443136,
+      "peak_reserved_gpu_bytes": 5823791104
+    }
+  },
+  "perplexity": {
+    "config": "wikitext-2-raw-v1",
+    "dataset": "Salesforce/wikitext",
+    "evaluated_token_count": 512,
+    "full_precision": {
+      "evaluated_token_count": 512,
+      "mean_negative_log_likelihood": 3.2209646701812744,
+      "perplexity": 25.052275711756813
+    },
+    "implementation": "same causal cross-entropy implementation for every mode; input is the first 128 tokens of each 129-token window and labels are the next 128 tokens; no padding and no generated tokens",
+    "quality_criterion": "static 8-bit perplexity must be <= static 4-bit perplexity * 1.10",
+    "random_seed": null,
+    "revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+    "sample_count": 4,
+    "sample_selection": "concatenate non-empty test rows in source order and take the first 4 non-overlapping windows",
+    "sequence_length": 128,
+    "split": "test",
+    "static_4": {
+      "evaluated_token_count": 512,
+      "mean_negative_log_likelihood": 3.300248622894287,
+      "perplexity": 27.119380581448986
+    },
+    "static_8": {
+      "evaluated_token_count": 512,
+      "mean_negative_log_likelihood": 3.2140788435935974,
+      "perplexity": 24.880362646621666
+    },
+    "stride": 129,
+    "tokenizer_revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "window_width": 129
+  },
+  "prompt_set": {
+    "aggregate": {
+      "maximum_prompt_maximum_absolute_logit_error": {
+        "4": 7.7890625,
+        "8": 1.0078125
+      },
+      "mean_of_prompt_mean_absolute_logit_error": {
+        "4": 0.5141653060913086,
+        "8": 0.057879408448934556
+      }
+    },
+    "comparison_metric": "mean absolute logit error and maximum absolute logit error",
+    "count": 5,
+    "fidelity_criterion": "aggregate mean 8-bit error must be <= aggregate mean 4-bit error",
+    "file": "configs/s03_static_quality_prompts.txt",
+    "prompts": [
+      "Explain why the sky appears blue in one concise paragraph.",
+      "Write a Python function that returns the first n Fibonacci numbers.",
+      "A train leaves at 09:15 and travels 180 kilometers in 2 hours. What is its average speed?",
+      "In a quiet library, the old clock stopped just before midnight.",
+      "List three practical ways to reduce household water usage."
+    ],
+    "records": [
+      {
+        "full_precision": {
+          "deterministic_repeat": true,
+          "finite_values": true,
+          "logits_sha256": "50a269ec881945a09c77ec53382eaf5af7cea3891805f8b63e3faa17a8cb2461",
+          "logits_shape": [
+            1,
+            12,
+            151936
+          ]
+        },
+        "index": 0,
+        "prompt": "Explain why the sky appears blue in one concise paragraph.",
+        "static_4": {
+          "deterministic_repeat": true,
+          "finite_values": true,
+          "logits_sha256": "de0c006d8484a5a823b628c40e38d3c46d4efb13e9a6afb33dfde9b5833ef86a",
+          "logits_shape": [
+            1,
+            12,
+            151936
+          ],
+          "maximum_absolute_logit_error": 4.6171875,
+          "mean_absolute_logit_error": 0.4980693757534027,
+          "token_count": 12
+        },
+        "static_8": {
+          "deterministic_repeat": true,
+          "finite_values": true,
+          "logits_sha256": "8d50e3b6dad57fcadcde0ef85a43cc610a82347550ea8208413fbdc3f42a8b4e",
+          "logits_shape": [
+            1,
+            12,
+            151936
+          ],
+          "maximum_absolute_logit_error": 0.8515625,
+          "mean_absolute_logit_error": 0.05539704114198685,
+          "token_count": 12
+        }
+      },
+      {
+        "full_precision": {
+          "deterministic_repeat": true,
+          "finite_values": true,
+          "logits_sha256": "c7888c632674842c721fa49dc0349b20780f14b28ca0c620bf0cb865a7ae0ba1",
+          "logits_shape": [
+            1,
+            12,
+            151936
+          ]
+        },
+        "index": 1,
+        "prompt": "Write a Python function that returns the first n Fibonacci numbers.",
+        "static_4": {
+          "deterministic_repeat": true,
+          "finite_values": true,
+          "logits_sha256": "105c0472c6ca188d56c33b10c0f26b66c364d822cf532cb9dc99c96de71d9a54",
+          "logits_shape": [
+            1,
+            12,
+            151936
+          ],
+          "maximum_absolute_logit_error": 4.2421875,
+          "mean_absolute_logit_error": 0.38665536046028137,
+          "token_count": 12
+        },
+        "static_8": {
+          "deterministic_repeat": true,
+          "finite_values": true,
+          "logits_sha256": "f38845b035b3cd5e2288eb63f1fc686646e99bcad680b3de557ea709afe4c4ca",
+          "logits_shape": [
+            1,
+            12,
+            151936
+          ],
+          "maximum_absolute_logit_error": 0.484375,
+          "mean_absolute_logit_error": 0.04809638112783432,
+          "token_count": 12
+        }
+      },
+      {
+        "full_precision": {
+          "deterministic_repeat": true,
+          "finite_values": true,
+          "logits_sha256": "d4ca8b7f45658c0f87268f602f902656757564552a89af2b62b8431d20d288b0",
+          "logits_shape": [
+            1,
+            28,
+            151936
+          ]
+        },
+        "index": 2,
+        "prompt": "A train leaves at 09:15 and travels 180 kilometers in 2 hours. What is its average speed?",
+        "static_4": {
+          "deterministic_repeat": true,
+          "finite_values": true,
+          "logits_sha256": "1642d069bc5d00366c34acbefc2dbc74f09ab74e732041ea665700f3e0775a19",
+          "logits_shape": [
+            1,
+            28,
+            151936
+          ],
+          "maximum_absolute_logit_error": 7.7890625,
+          "mean_absolute_logit_error": 0.7830254435539246,
+          "token_count": 28
+        },
+        "static_8": {
+          "deterministic_repeat": true,
+          "finite_values": true,
+          "logits_sha256": "776c6e7bce8422f248f03aaf0d312bf05c4d3b8efd0a87cd9e81bbb65054c912",
+          "logits_shape": [
+            1,
+            28,
+            151936
+          ],
+          "maximum_absolute_logit_error": 1.0078125,
+          "mean_absolute_logit_error": 0.06965646892786026,
+          "token_count": 28
+        }
+      },
+      {
+        "full_precision": {
+          "deterministic_repeat": true,
+          "finite_values": true,
+          "logits_sha256": "fd8c559a0183e0dafdf43b9b96545f47d94b26db5733608bee9d965033e1a615",
+          "logits_shape": [
+            1,
+            13,
+            151936
+          ]
+        },
+        "index": 3,
+        "prompt": "In a quiet library, the old clock stopped just before midnight.",
+        "static_4": {
+          "deterministic_repeat": true,
+          "finite_values": true,
+          "logits_sha256": "2cd1e4bc419a2bee1b039933c30093264503a52cc159f3ad52d3875af53de542",
+          "logits_shape": [
+            1,
+            13,
+            151936
+          ],
+          "maximum_absolute_logit_error": 4.6044921875,
+          "mean_absolute_logit_error": 0.502551794052124,
+          "token_count": 13
+        },
+        "static_8": {
+          "deterministic_repeat": true,
+          "finite_values": true,
+          "logits_sha256": "0f51dbf27c249b99c8d960da9fb80ada31b9c31f54fe75953779e6445810f938",
+          "logits_shape": [
+            1,
+            13,
+            151936
+          ],
+          "maximum_absolute_logit_error": 0.625,
+          "mean_absolute_logit_error": 0.06717561930418015,
+          "token_count": 13
+        }
+      },
+      {
+        "full_precision": {
+          "deterministic_repeat": true,
+          "finite_values": true,
+          "logits_sha256": "20032f496ac4759c6f4958ba2a5736f3749c2264253f2897dc45280d51120a69",
+          "logits_shape": [
+            1,
+            10,
+            151936
+          ]
+        },
+        "index": 4,
+        "prompt": "List three practical ways to reduce household water usage.",
+        "static_4": {
+          "deterministic_repeat": true,
+          "finite_values": true,
+          "logits_sha256": "7153947e9e69bb0bb5faaf4c053051ce8b27a3adfd64c58773459046818a9912",
+          "logits_shape": [
+            1,
+            10,
+            151936
+          ],
+          "maximum_absolute_logit_error": 3.0390625,
+          "mean_absolute_logit_error": 0.4005245566368103,
+          "token_count": 10
+        },
+        "static_8": {
+          "deterministic_repeat": true,
+          "finite_values": true,
+          "logits_sha256": "d7a049ca5a5635d1088ef90b57c22279d67e0014592334c1f4ce795e834fb99b",
+          "logits_shape": [
+            1,
+            10,
+            151936
+          ],
+          "maximum_absolute_logit_error": 0.6953125,
+          "mean_absolute_logit_error": 0.0490715317428112,
+          "token_count": 10
+        }
+      }
+    ],
+    "tokenization": {
+      "add_special_tokens": true,
+      "max_length": 128,
+      "padding": false,
+      "truncation": true
+    }
+  },
+  "reference_prompt": {
+    "full_precision": {
+      "deterministic_repeat": true,
+      "finite_values": true,
+      "logit_statistics": {
+        "maximum": 20.125,
+        "mean": 2.513002872467041,
+        "minimum": -9.0,
+        "std": 2.2930076122283936
+      },
+      "logits_sha256": "a59aa0c2a7d31a8e4a5e9687ce229f9fcaa461344d3ea68f506867355fd73a18",
+      "logits_shape": [
+        1,
+        8,
+        151936
+      ],
+      "peak_allocated_gpu_bytes": 8121169408,
+      "peak_reserved_gpu_bytes": 8124366848,
+      "prompt": "QAQ full-precision smoke test.",
+      "selected_logits": [
+        6.40625,
+        3.296875,
+        5.03125,
+        3.203125,
+        2.71875,
+        3.984375,
+        1.9375,
+        3.375
+      ],
+      "token_count": 8
+    },
+    "static_4": {
+      "deterministic_repeat": true,
+      "finite_values": true,
+      "logit_statistics": {
+        "maximum": 19.5,
+        "mean": 2.464977502822876,
+        "minimum": -8.671875,
+        "std": 2.2368361949920654
+      },
+      "logits_sha256": "8b28d8ae1cf0d27462b0704d2661ebe90f67073c4435bbd8e21ad2ef19a6aa5d",
+      "logits_shape": [
+        1,
+        8,
+        151936
+      ],
+      "peak_allocated_gpu_bytes": 5577455104,
+      "peak_reserved_gpu_bytes": 5603590144,
+      "prompt": "QAQ full-precision smoke test.",
+      "selected_logits": [
+        6.18359375,
+        3.12890625,
+        4.80078125,
+        3.169921875,
+        2.84375,
+        3.642578125,
+        2.1953125,
+        3.400390625
+      ],
+      "token_count": 8
+    },
+    "static_8": {
+      "deterministic_repeat": true,
+      "finite_values": true,
+      "logit_statistics": {
+        "maximum": 20.1875,
+        "mean": 2.5171971321105957,
+        "minimum": -8.484375,
+        "std": 2.2807793617248535
+      },
+      "logits_sha256": "9337bad41bf1f9294aca8ba7721a313ad5abfe14e279970e2cf45142946f04c3",
+      "logits_shape": [
+        1,
+        8,
+        151936
+      ],
+      "peak_allocated_gpu_bytes": 5577455104,
+      "peak_reserved_gpu_bytes": 5823791104,
+      "prompt": "QAQ full-precision smoke test.",
+      "selected_logits": [
+        6.4140625,
+        3.24609375,
+        5.01171875,
+        3.197265625,
+        2.69140625,
+        3.962890625,
+        1.939453125,
+        3.33203125
+      ],
+      "token_count": 8
+    },
+    "text": "QAQ full-precision smoke test."
+  },
+  "scope": "S03-C only; no routing, training, or on-demand loading",
+  "source_model": {
+    "any_precision_commit": "a3257d02740cc5757c78673da534b0630ff3a4ea",
+    "quantized_checkpoint": "quantized/s03b_qwen3_4b/backend_cache/packed/anyprec-(1cfa9a7208912126459214e8b04321603b3df60c)-w8_orig4-gc1-c4_s1_blk64",
+    "quantized_checkpoint_sha256": "29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee",
+    "repository": "Qwen/Qwen3-4B",
+    "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "tokenizer_revision": "1cfa9a7208912126459214e8b04321603b3df60c"
+  },
+  "stage_gate": {
+    "all_prompt_outputs_finite": true,
+    "all_prompt_repeats_deterministic": true,
+    "checkpoint_reload_passed": true,
+    "duplicate_model_check_passed": true,
+    "fidelity_passed": true,
+    "generation_repeats_deterministic": true,
+    "next_action": "Begin S04: implement explicit manual MHA and FFN precision plans over the verified static packed model.",
+    "quality_passed": true,
+    "regressions": {
+      "checkpoint_roundtrip": "3 passed",
+      "project_tests": "50 passed, 1 skipped",
+      "resource_heavy_s03a": "1 passed"
+    },
+    "result": "CONTINUE",
+    "status": "S03 COMPLETE after S03-C",
+    "target_coverage_passed": true
+  },
+  "target_invariant": {
+    "duplicate_precision_models": false,
+    "omitted_targets": [],
+    "target_count": 252,
+    "unexpected_targets": []
+  }
+}
