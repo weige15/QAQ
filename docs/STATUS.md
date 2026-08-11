@@ -77,5 +77,7 @@ S07-B evidence:
 
 Result artifact: `docs/results/s07_router_training.json`.
 
+Passing corrected D008-1 evidence commit: `33631f5`.
+
 Next action: begin the repository-defined S08 work in a later task. This task
 stops at the completed S07 gate and does not begin S08.
