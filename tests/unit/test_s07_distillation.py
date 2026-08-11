@@ -76,6 +76,20 @@ def test_causal_targets_and_completion_range_are_explicitly_aligned():
             prompt_token_range=TokenRange(2, 3),
             completion_token_range=TokenRange(1, 2),
         )
+    with pytest.raises(ValueError, match="prompt_attention_mask"):
+        DistillationExample(
+            example_id="prompt-mask-completion-overlap",
+            tokenizer_revision="tok-r1",
+            input_ids=torch.tensor([11, 12, 13, 14, 0]),
+            target_ids=torch.tensor(
+                [12, 13, 14, CAUSAL_TARGET_IGNORE_INDEX, CAUSAL_TARGET_IGNORE_INDEX]
+            ),
+            attention_mask=torch.tensor([1, 1, 1, 1, 0]),
+            completion_loss_mask=torch.tensor([0, 1, 1, 0, 0]),
+            prompt_text="prompt",
+            completion_token_range=TokenRange(2, 4),
+            prompt_attention_mask=torch.tensor([0, 0, 1, 0, 0]),
+        )
 
 
 def test_kd_mask_is_explicit_and_numerically_correct():

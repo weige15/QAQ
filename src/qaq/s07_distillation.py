@@ -211,6 +211,14 @@ class DistillationExample:
             self.completion_token_range.validate(sequence_length, "completion_token_range")
             if self.completion_token_range.start == 0:
                 raise ValueError("completion_token_range must start after a causal context token")
+            if prompt_mask is not None:
+                positions_at_or_after_completion = torch.arange(
+                    sequence_length, device=prompt_mask.device
+                ) >= self.completion_token_range.start
+                if bool((prompt_mask & positions_at_or_after_completion).any()):
+                    raise ValueError(
+                        "prompt_attention_mask must select only tokens before completion_token_range"
+                    )
             completion_positions = torch.zeros(
                 sequence_length, dtype=torch.bool, device=self.input_ids.device
             )
