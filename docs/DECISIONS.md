@@ -299,6 +299,38 @@ training, distillation, hard route, or on-demand loading is introduced.
 freeze evidence before changing router sharing, normalization, width,
 activation, temperature, or candidate ordering.
 
+### D025 — S07-A distillation seams (2026-08-11)
+
+**Choice:** Use explicit causal target IDs and completion-logit masks with the
+`T^2` masked mean KL objective; keep the prompt-only feature mask separate from
+the causal loss mask; freeze the full-precision teacher and S06 packed student
+base; construct and audit the optimizer from explicit `routers.` prefixes;
+map hard routes through ordinary argmax over `[p4, p8]` with index `0 -> 4`
+and `1 -> 8`; keep route logs/statistics observational; and serialize only
+router state, optional optimizer state, and checked metadata.
+
+**Source basis:** The reviewed QAQ source supports teacher-student router
+training and query-conditioned routing, but does not establish these exact
+masking, optimizer-audit, hard-route, observation, or checkpoint details.
+They are S07-A implementation choices, not paper-established facts.
+
+**Evidence:** `src/qaq/s07_distillation.py`,
+`tests/unit/test_s07_distillation.py`,
+`tests/integration/test_s07_distillation_smoke.py`, and
+`docs/stages/S07_DISTILLATION.md`; the deterministic tiny fixture passed the
+focused S07-A unit/integration checks with finite loss and gradients, changed
+router parameters, preserved frozen teacher/student-base values, and passed
+route and checkpoint round trips.
+
+**Consequence:** S07-A provides reusable machinery and smoke evidence only.
+Its fixture, temperature, optimizer, learning rate, and step count remain
+unresolved smoke values and must not become S07-B baseline decisions. No
+bit-width, latency, transfer, or entropy penalty is part of this baseline.
+
+**Reversal path:** Reopen S07-A if causal alignment, freeze boundaries, hard
+route mapping, observational fields, or checkpoint contents change; preserve
+the current regression evidence and update the focused tests and stage record.
+
 ## Decision protocol
 
 A worker must add a dated or commit-linked entry when a stage resolves an unknown or introduces a new assumption.

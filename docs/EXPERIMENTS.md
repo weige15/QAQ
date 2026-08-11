@@ -90,6 +90,27 @@ Every result must include the exact command, environment versions, model and dat
 
 Do not introduce asynchronous transfers, prefetching, transfer prediction, bit-width cost penalties, cross-request caching, multi-query batching, or unrelated research improvements.
 
+## S07-A router-distillation smoke (2026-08-11)
+
+- Scope: reusable masked teacher-student KD, explicit prompt/completion
+  example and alignment contracts, frozen teacher/S06 packed base, explicit
+  router-only optimizer, router-only checkpoint, deterministic hard routes,
+  route logs, and observational statistics. No real dataset or baseline-scale
+  training was run.
+- Command: `source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src pytest -q tests/unit/test_s07_distillation.py tests/integration/test_s07_distillation_smoke.py`.
+- Fixture: seed `1729`, tiny 36-layer Qwen3-shaped teacher/student, sequence
+  length `4`, prompt `[0,2)`, completion `[2,4)`, completion mask
+  `[0,1,1,0]`, smoke temperature `2.0`, SGD `lr=1e-2`, two steps.
+- Measurements: step 1 loss `0.00010941564687527716`, gradient norm
+  `0.00015089756434509636`; step 2 loss `0.00010947752161882818`, gradient
+  norm `0.00015089709935220638`. Both losses/gradients were finite and both
+  steps changed router parameters.
+- Instrumentation: 72 route records covered 36 attention and 36 FFN units
+  exactly once; checkpoint probability and hard-route round trips matched;
+  teacher and packed student base remained frozen and unchanged.
+- Limitation: all values and settings are smoke-only evidence, not final
+  router-training hyperparameters or routing-quality results.
+
 ## S04 explicit manual routing (2026-08-11)
 
 - Scope: one resident S03-B nested checkpoint, explicit immutable 36-layer

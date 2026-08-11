@@ -492,7 +492,9 @@ class _RoutedPackedLinear(nn.Module):
                 raise ValueError("soft packed probabilities must have shape [2]")
             if not torch.isfinite(probabilities).all() or not torch.all(probabilities >= 0):
                 raise ValueError("soft packed probabilities must be finite and non-negative")
-            if not torch.allclose(probabilities.sum(), probabilities.new_tensor(1), atol=1e-5, rtol=0):
+            if not torch.allclose(
+                probabilities.sum(), probabilities.new_tensor(1), atol=1e-5, rtol=0
+            ):
                 raise ValueError("soft packed probabilities must sum to one")
             trace.record_soft(
                 layer_index=self.layer_index,
@@ -930,6 +932,7 @@ class ManualRoutedQwen3ForCausalLM(nn.Module):
         request_state: QaqRequestState | None = None,
         routing_policy: Any = None,
         soft_router: Any = None,
+        prompt_attention_mask: torch.Tensor | None = None,
         **kwargs: Any,
     ) -> Any:
         if request_state is None:
@@ -968,7 +971,8 @@ class ManualRoutedQwen3ForCausalLM(nn.Module):
             request_state.validate_for_model(layer_count=LAYER_COUNT, feature_dim=feature_dim)
             if phase == "prefill":
                 prompt_attention_mask = validate_prompt_mask(
-                    attention_mask, sequence_length=sequence_length
+                    prompt_attention_mask if prompt_attention_mask is not None else attention_mask,
+                    sequence_length=sequence_length,
                 )
                 request_state.begin_prefill(prompt_length=int(prompt_attention_mask.sum().item()))
                 if routing_policy is None and soft_router is None:
