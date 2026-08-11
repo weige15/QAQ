@@ -8,6 +8,7 @@ from torch import nn
 
 from qaq.router.network import SoftPrecisionRouter
 from qaq.s07_distillation import (
+    CAUSAL_TARGET_IGNORE_INDEX,
     DistillationExample,
     ExecutionInputs,
     RouteLogCollector,
@@ -30,12 +31,51 @@ def _example(*, completion_mask: list[int] | None = None) -> DistillationExample
         example_id="example-0",
         tokenizer_revision="tok-r1",
         input_ids=torch.tensor([11, 12, 13, 14, 0]),
-        target_ids=torch.tensor([11, 12, 13, 14, 0]),
+        target_ids=torch.tensor(
+            [12, 13, 14, CAUSAL_TARGET_IGNORE_INDEX, CAUSAL_TARGET_IGNORE_INDEX]
+        ),
         attention_mask=torch.tensor([1, 1, 1, 1, 0]),
-        completion_loss_mask=torch.tensor(completion_mask or [0, 0, 1, 1, 0]),
+        completion_loss_mask=torch.tensor(completion_mask or [0, 1, 1, 0, 0]),
         prompt_token_range=TokenRange(0, 2),
         completion_token_range=TokenRange(2, 4),
     )
+
+
+def test_causal_targets_and_completion_range_are_explicitly_aligned():
+    example = _example()
+    assert torch.equal(
+        example.target_ids,
+        torch.tensor(
+            [12, 13, 14, CAUSAL_TARGET_IGNORE_INDEX, CAUSAL_TARGET_IGNORE_INDEX]
+        ),
+    )
+    assert torch.equal(example.completion_loss_mask, torch.tensor([0, 1, 1, 0, 0]))
+    with pytest.raises(ValueError, match="causal logits"):
+        _example(completion_mask=[0, 0, 1, 0, 0])
+    with pytest.raises(ValueError, match="target_ids must align causally"):
+        DistillationExample(
+            example_id="bad-target",
+            tokenizer_revision="tok-r1",
+            input_ids=torch.tensor([11, 12, 13, 14, 0]),
+            target_ids=torch.tensor(
+                [11, 13, 14, CAUSAL_TARGET_IGNORE_INDEX, CAUSAL_TARGET_IGNORE_INDEX]
+            ),
+            attention_mask=torch.tensor([1, 1, 1, 1, 0]),
+            completion_loss_mask=torch.tensor([0, 1, 1, 0, 0]),
+            prompt_token_range=TokenRange(0, 2),
+            completion_token_range=TokenRange(2, 4),
+        )
+    with pytest.raises(ValueError, match="end before"):
+        DistillationExample(
+            example_id="bad-order",
+            tokenizer_revision="tok-r1",
+            input_ids=torch.tensor([11, 12, 13, 14]),
+            target_ids=torch.tensor([12, 13, 14, CAUSAL_TARGET_IGNORE_INDEX]),
+            attention_mask=torch.ones(4, dtype=torch.bool),
+            completion_loss_mask=torch.tensor([1, 0, 0, 0]),
+            prompt_token_range=TokenRange(2, 3),
+            completion_token_range=TokenRange(1, 2),
+        )
 
 
 def test_kd_mask_is_explicit_and_numerically_correct():

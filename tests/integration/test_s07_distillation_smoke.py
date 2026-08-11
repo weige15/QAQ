@@ -15,6 +15,7 @@ from qaq.s04_manual import (
 )
 from qaq.s06_soft import SoftRoutedQwen3ForCausalLM
 from qaq.s07_distillation import (
+    CAUSAL_TARGET_IGNORE_INDEX,
     DistillationBatch,
     DistillationExample,
     RouteLogCollector,
@@ -106,9 +107,9 @@ def test_s07_tiny_end_to_end_distillation_smoke(tmp_path, step_count):
         example_id="smoke-0",
         tokenizer_revision="tok-r1",
         input_ids=torch.tensor([1, 2, 3, 4]),
-        target_ids=torch.tensor([1, 2, 3, 4]),
+        target_ids=torch.tensor([2, 3, 4, CAUSAL_TARGET_IGNORE_INDEX]),
         attention_mask=torch.ones(4, dtype=torch.bool),
-        completion_loss_mask=torch.tensor([0, 0, 1, 1]),
+        completion_loss_mask=torch.tensor([0, 1, 1, 0]),
         prompt_token_range=TokenRange(0, 2),
         completion_token_range=TokenRange(2, 4),
     )

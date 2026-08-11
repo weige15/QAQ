@@ -22,6 +22,7 @@ from torch.nn import functional as F
 SUPPORTED_BITS = (4, 8)
 CANDIDATE_ORDERING = (4, 8)
 CHECKPOINT_FORMAT_VERSION = 1
+CAUSAL_TARGET_IGNORE_INDEX = -100
 
 
 def _require_finite_positive(value: float, name: str) -> float:
@@ -53,6 +54,48 @@ def _validate_1d_mask(mask: torch.Tensor, *, name: str, length: int) -> torch.Te
     return result.to(dtype=torch.bool)
 
 
+def causal_target_ids(input_ids: torch.Tensor, attention_mask: torch.Tensor) -> torch.Tensor:
+    """Build target IDs aligned with causal logits at the same sequence positions."""
+
+    if not isinstance(input_ids, torch.Tensor) or input_ids.ndim not in (1, 2):
+        raise ValueError("input_ids must have shape [sequence] or [batch, sequence]")
+    if input_ids.dtype not in (torch.int64, torch.int32, torch.int16, torch.int8):
+        raise TypeError("input_ids must be an integer tensor")
+    if not isinstance(attention_mask, torch.Tensor) or attention_mask.shape != input_ids.shape:
+        raise ValueError("attention_mask must have the same shape as input_ids")
+    if input_ids.ndim == 1:
+        mask = _validate_1d_mask(
+            attention_mask, name="attention_mask", length=int(input_ids.shape[0])
+        )
+    else:
+        mask = _validate_batch_mask(attention_mask, "attention_mask")
+    mask = mask.to(device=input_ids.device)
+    expected = torch.full_like(input_ids, CAUSAL_TARGET_IGNORE_INDEX)
+    if input_ids.shape[-1] > 1:
+        linked = mask[..., :-1] & mask[..., 1:]
+        expected[..., :-1] = torch.where(linked, input_ids[..., 1:], expected[..., :-1])
+    return expected
+
+
+def _validate_causal_target_alignment(
+    input_ids: torch.Tensor,
+    attention_mask: torch.Tensor,
+    target_ids: torch.Tensor,
+    completion_loss_mask: torch.Tensor,
+) -> None:
+    expected = causal_target_ids(input_ids, attention_mask)
+    if target_ids.device != expected.device or not torch.equal(target_ids, expected):
+        raise ValueError(
+            "target_ids must align causally: target_ids[t] must equal input_ids[t+1] "
+            "for linked valid tokens and use -100 otherwise"
+        )
+    completion = completion_loss_mask.to(device=target_ids.device, dtype=torch.bool)
+    if bool((completion & (target_ids == CAUSAL_TARGET_IGNORE_INDEX)).any()):
+        raise ValueError(
+            "completion_loss_mask must select causal target positions with valid target_ids"
+        )
+
+
 @dataclass(frozen=True, slots=True)
 class TokenRange:
     """Half-open token range in one aligned sequence."""
@@ -77,10 +120,10 @@ class TokenRange:
 class DistillationExample:
     """One explicit prompt/completion example for aligned KD.
 
-    ``completion_loss_mask`` is an independent target-position mask.  It is
-    never inferred from ``attention_mask``.  ``target_ids`` are aligned with
-    the returned logits at the same sequence positions (for causal training a
-    caller should construct shifted target IDs and the corresponding mask).
+    ``completion_loss_mask`` selects causal logit positions whose target token
+    is part of the completion.  It is never inferred from ``attention_mask``.
+    ``target_ids[t]`` is the token predicted by the logit at position ``t``;
+    the final position and links into padding use ``-100``.
     """
 
     example_id: str
@@ -134,14 +177,22 @@ class DistillationExample:
             raise ValueError("target_ids must have shape [sequence] aligned with input_ids")
         if self.target_ids.dtype not in (torch.int64, torch.int32, torch.int16, torch.int8):
             raise TypeError("target_ids must be an integer tensor")
+        _validate_causal_target_alignment(
+            self.input_ids, attention, self.target_ids, completion_mask
+        )
+        attention_for_input = attention.to(device=self.input_ids.device)
+        prompt_positions: torch.Tensor | None = None
         if self.prompt_token_range is not None:
             self.prompt_token_range.validate(sequence_length, "prompt_token_range")
-            prompt_positions = torch.zeros(sequence_length, dtype=torch.bool)
+            prompt_positions = torch.zeros(
+                sequence_length, dtype=torch.bool, device=self.input_ids.device
+            )
             prompt_positions[self.prompt_token_range.start : self.prompt_token_range.end] = True
-            if bool((prompt_positions & ~attention.cpu()).any()):
+            if bool((prompt_positions & ~attention_for_input).any()):
                 raise ValueError("prompt_token_range cannot include padding positions")
         elif self.prompt_attention_mask is None:
             raise ValueError("prompt_text examples require an explicit prompt_attention_mask")
+        prompt_mask: torch.Tensor | None = None
         if self.prompt_attention_mask is not None:
             prompt_mask = _validate_1d_mask(
                 self.prompt_attention_mask,
@@ -150,29 +201,40 @@ class DistillationExample:
             )
             if bool((prompt_mask & ~attention).any()):
                 raise ValueError("prompt_attention_mask cannot include padding positions")
+            if prompt_positions is not None and not torch.equal(
+                prompt_mask.to(device=self.input_ids.device), prompt_positions
+            ):
+                raise ValueError(
+                    "prompt_token_range and prompt_attention_mask must represent the same tokens"
+                )
         if self.completion_token_range is not None:
             self.completion_token_range.validate(sequence_length, "completion_token_range")
-            completion_positions = torch.zeros(sequence_length, dtype=torch.bool)
+            if self.completion_token_range.start == 0:
+                raise ValueError("completion_token_range must start after a causal context token")
+            completion_positions = torch.zeros(
+                sequence_length, dtype=torch.bool, device=self.input_ids.device
+            )
             completion_positions[
                 self.completion_token_range.start : self.completion_token_range.end
             ] = True
-            if bool((completion_positions & ~attention.cpu()).any()):
+            if bool((completion_positions & ~attention_for_input).any()):
                 raise ValueError("completion_token_range cannot include padding positions")
-            if bool((completion_positions.to(completion_mask.device) & ~completion_mask).any()):
+            expected_completion_mask = torch.zeros(
+                sequence_length, dtype=torch.bool, device=completion_mask.device
+            )
+            expected_completion_mask[
+                self.completion_token_range.start - 1 : self.completion_token_range.end - 1
+            ] = True
+            if not torch.equal(completion_mask, expected_completion_mask):
                 raise ValueError(
-                    "completion_loss_mask must include every completion-token position"
+                    "completion_loss_mask must mark the causal logits for the completion-token range"
                 )
         if (
             self.prompt_token_range is not None
             and self.completion_token_range is not None
             and self.prompt_token_range.end > self.completion_token_range.start
         ):
-            raise ValueError("prompt and completion token ranges must not overlap")
-        if self.prompt_token_range is not None:
-            prompt_positions = torch.zeros(sequence_length, dtype=torch.bool)
-            prompt_positions[self.prompt_token_range.start : self.prompt_token_range.end] = True
-            if bool(prompt_positions.to(completion_mask.device).logical_and(completion_mask).any()):
-                raise ValueError("completion_loss_mask cannot include prompt-token positions")
+            raise ValueError("prompt_token_range must end before completion_token_range starts")
         if self.sequence_positions is not None:
             if self.sequence_positions.shape != (sequence_length,):
                 raise ValueError("sequence_positions must have shape [sequence]")
@@ -241,12 +303,17 @@ class DistillationBatch:
         )
 
     def __post_init__(self) -> None:
+        self.validate()
+
+    def validate(self) -> None:
         if not self.example_ids or len(set(self.example_ids)) != len(self.example_ids):
             raise ValueError("example_ids must be non-empty and unique within a batch")
         if not isinstance(self.tokenizer_revision, str) or not self.tokenizer_revision.strip():
             raise ValueError("tokenizer_revision must be a non-empty string")
         if self.input_ids.ndim != 2:
             raise ValueError("input_ids must have shape [batch, sequence]")
+        if self.input_ids.dtype not in (torch.int64, torch.int32, torch.int16, torch.int8):
+            raise TypeError("input_ids must be an integer tensor")
         batch, sequence = self.input_ids.shape
         if len(self.example_ids) != batch:
             raise ValueError("example_ids count must equal input_ids batch dimension")
@@ -259,15 +326,18 @@ class DistillationBatch:
         ):
             if value.shape != (batch, sequence):
                 raise ValueError(f"{name} must have shape [{batch}, {sequence}]")
+        if self.target_ids.dtype not in (torch.int64, torch.int32, torch.int16, torch.int8):
+            raise TypeError("target_ids must be an integer tensor")
         attention = _validate_batch_mask(self.attention_mask, "attention_mask")
         completion = _validate_batch_mask(self.completion_loss_mask, "completion_loss_mask")
         prompt = _validate_batch_mask(self.prompt_attention_mask, "prompt_attention_mask")
+        _validate_causal_target_alignment(
+            self.input_ids, attention, self.target_ids, completion
+        )
         if bool((completion & ~attention).any()):
             raise ValueError("completion_loss_mask cannot include padding positions")
         if bool((prompt & ~attention).any()):
             raise ValueError("prompt_attention_mask cannot include padding positions")
-        if bool((prompt & completion).any()):
-            raise ValueError("prompt_attention_mask and completion_loss_mask must be disjoint")
         if bool((completion.sum(dim=1) == 0).any()):
             raise ValueError("completion_loss_mask has zero valid completion targets")
 
@@ -876,6 +946,7 @@ class RouterDistillationTrainer:
         )
 
     def step(self, batch: DistillationBatch, *, trace: Any = None) -> DistillationStepResult:
+        batch.validate()
         execution = batch.execution_inputs()
         execution.validate()
         validate_execution_alignment(execution, execution)
@@ -947,6 +1018,7 @@ class RouterDistillationTrainer:
 
 
 __all__ = [
+    "CAUSAL_TARGET_IGNORE_INDEX",
     "CANDIDATE_ORDERING",
     "DistillationBatch",
     "DistillationExample",
@@ -961,6 +1033,7 @@ __all__ = [
     "TokenRange",
     "audit_router_optimizer",
     "build_router_optimizer",
+    "causal_target_ids",
     "freeze_teacher_and_packed_student",
     "hard_route",
     "load_router_checkpoint",

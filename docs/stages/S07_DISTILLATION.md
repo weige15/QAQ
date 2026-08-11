@@ -18,18 +18,25 @@ L_KD = T^2 * mean_{(b,s): m[b,s]=1} KL(
 ```
 
 Teacher and student logits are `[batch, sequence, vocabulary]`; the final
-axis is the vocabulary axis. The implementation computes float32
+axis is the vocabulary axis. For causal models, `target_ids[t]` is the token
+predicted by logit position `t`, so `target_ids[t] = input_ids[t+1]` for
+linked valid tokens and `-100` otherwise. A completion token range `[a,b)`
+therefore maps to the explicit logit mask `[a-1,b-1)`. The implementation
+computes float32
 `log_softmax` values and calls `torch.nn.functional.kl_div` with
 `reduction="none"`, `log_target=True`, teacher log-probabilities, and a sum
 over vocabulary before applying the explicit completion mask. The denominator
 is the count of true completion-mask entries. Prompt positions and padding are
 excluded; the mask is never inferred from `attention_mask`. Zero valid
-completion targets fail clearly.
+completion targets fail clearly. The prompt-only feature mask remains in input
+token coordinates and is intentionally separate from the causal logit mask.
 
-`DistillationExample` and `DistillationBatch` carry tokenizer revision, aligned
-input/target IDs, full attention mask, explicit completion-loss mask, sequence
-positions, and either prompt/completion text plus an explicit prompt mask or
-their token ranges. The S06 execution receives the full model attention mask
+`DistillationExample` and `DistillationBatch` carry tokenizer revision, causally
+aligned input/target IDs, full attention mask, explicit completion-logit mask,
+sequence positions, and either prompt/completion text plus an explicit prompt
+mask or their token ranges. Range-based examples require prompt tokens to end
+before completion tokens start and require the completion mask to be the causal
+shift of that range. The S06 execution receives the full model attention mask
 and the separate prompt-only mask, preserving the S05 feature timing.
 
 ### Freeze and optimizer evidence
@@ -50,8 +57,9 @@ scalars.
 
 Fixture: deterministic 36-layer Qwen3-shaped local model with a tiny
 full-precision teacher and the existing S06 soft execution seam, sequence
-length 4, prompt range `[0,2)`, completion range `[2,4)`, explicit completion
-mask `[0,0,1,1]`, tokenizer revision `tok-r1`, and seed `1729`. Smoke-only
+length 4, prompt range `[0,2)`, completion range `[2,4)`, shifted target IDs
+`[2,3,4,-100]`, explicit completion-logit mask `[0,1,1,0]`, tokenizer
+revision `tok-r1`, and seed `1729`. Smoke-only
 settings are temperature `2.0`, SGD learning rate `1e-2`, and two steps; these
 are not baseline decisions.
 
@@ -60,16 +68,13 @@ source ~/.venv/bin/activate
 which python                         # /nfs/home/s314511048/.venv/bin/python
 python --version                     # Python 3.12.3
 PYTHONPATH=src pytest -q tests/unit/test_s07_distillation.py tests/integration/test_s07_distillation_smoke.py
-                                     # 8 passed
+                                     # 9 passed
 ```
 
 Measured smoke results from the same fixture and command path:
 
-- step 1 KD loss `0.00010941564687527716`; router gradient norm
-  `0.00015089756434509636`; router parameter changed: `True`;
-- step 2 KD loss `0.00010947752161882818`; router gradient norm
-  `0.00015089709935220638`; router parameter changed: `True`;
-- all losses and gradients were finite;
+- both smoke steps had finite KD loss and router gradient norm, and router
+  parameters changed;
 - teacher and packed student base parameters stayed frozen and unchanged;
 - 72/72 route records were emitted exactly once;
 - router-only checkpoint probabilities and deterministic hard routes matched

@@ -28,7 +28,7 @@ S06 evidence:
 Passing S06 implementation commit: `8f59215`.
 
 S07-A evidence:
-- 8 focused S07 unit/integration tests passed on the deterministic tiny
+- 9 focused S07 unit/integration tests passed on the deterministic tiny
   fixture; both smoke steps had finite KD loss and finite router gradients,
   and router parameters changed.
 - Teacher parameters and packed S06 student parameters remained frozen and
