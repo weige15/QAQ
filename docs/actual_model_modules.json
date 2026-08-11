@@ -1,0 +1,5618 @@
+{
+  "attention_target_count": 144,
+  "device_placement": [
+    "cuda:3"
+  ],
+  "dtype": "torch.bfloat16",
+  "exact_model_repository": "Qwen/Qwen3-4B",
+  "exact_model_revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+  "excluded_module_categories": {
+    "activation_functions": {
+      "modules": [
+        {
+          "path": "model.layers.0.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.1.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.2.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.3.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.4.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.5.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.6.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.7.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.8.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.9.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.10.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.11.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.12.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.13.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.14.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.15.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.16.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.17.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.18.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.19.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.20.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.21.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.22.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.23.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.24.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.25.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.26.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.27.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.28.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.29.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.30.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.31.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.32.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.33.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.34.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        },
+        {
+          "path": "model.layers.35.mlp.act_fn",
+          "present": true,
+          "python_module_class": "torch.nn.modules.activation.SiLU"
+        }
+      ],
+      "policy": "excluded"
+    },
+    "final_normalization": {
+      "modules": [
+        {
+          "bias_present": false,
+          "path": "model.norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        }
+      ],
+      "policy": "excluded",
+      "present": true
+    },
+    "kv_cache": {
+      "modules": [],
+      "note": "past_key_values is created by the forward call when use_cache is enabled.",
+      "policy": "runtime structure, not a model module",
+      "present": false
+    },
+    "lm_output_head": {
+      "modules": [
+        {
+          "bias_present": false,
+          "path": "lm_head",
+          "present": true,
+          "python_module_class": "torch.nn.modules.linear.Linear",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            151936,
+            2560
+          ]
+        }
+      ],
+      "policy": "excluded",
+      "present": true
+    },
+    "per_layer_normalization": {
+      "modules": [
+        {
+          "bias_present": false,
+          "path": "model.layers.0.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.0.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.1.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.1.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.2.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.2.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.3.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.3.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.4.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.4.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.5.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.5.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.6.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.6.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.7.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.7.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.8.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.8.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.9.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.9.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.10.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.10.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.11.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.11.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.12.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.12.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.13.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.13.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.14.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.14.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.15.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.15.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.16.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.16.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.17.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.17.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.18.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.18.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.19.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.19.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.20.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.20.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.21.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.21.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.22.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.22.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.23.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.23.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.24.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.24.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.25.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.25.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.26.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.26.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.27.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.27.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.28.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.28.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.29.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.29.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.30.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.30.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.31.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.31.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.32.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.32.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.33.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.33.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.34.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.34.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.35.input_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.35.post_attention_layernorm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            2560
+          ]
+        }
+      ],
+      "policy": "excluded"
+    },
+    "qk_normalization": {
+      "modules": [
+        {
+          "bias_present": false,
+          "path": "model.layers.0.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.0.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.1.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.1.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.2.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.2.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.3.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.3.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.4.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.4.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.5.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.5.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.6.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.6.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.7.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.7.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.8.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.8.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.9.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.9.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.10.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.10.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.11.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.11.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.12.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.12.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.13.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.13.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.14.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.14.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.15.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.15.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.16.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.16.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.17.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.17.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.18.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.18.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.19.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.19.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.20.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.20.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.21.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.21.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.22.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.22.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.23.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.23.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.24.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.24.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.25.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.25.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.26.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.26.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.27.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.27.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.28.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.28.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.29.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.29.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.30.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.30.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.31.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.31.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.32.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.32.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.33.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.33.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.34.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.34.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.35.self_attn.q_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        },
+        {
+          "bias_present": false,
+          "path": "model.layers.35.self_attn.k_norm",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RMSNorm",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            128
+          ]
+        }
+      ],
+      "policy": "excluded"
+    },
+    "rotary_position": {
+      "modules": [
+        {
+          "path": "model.rotary_emb",
+          "present": true,
+          "python_module_class": "transformers.models.qwen3.modeling_qwen3.Qwen3RotaryEmbedding"
+        }
+      ],
+      "policy": "excluded",
+      "present": true
+    },
+    "token_embeddings": {
+      "modules": [
+        {
+          "bias_present": false,
+          "path": "model.embed_tokens",
+          "present": true,
+          "python_module_class": "torch.nn.modules.sparse.Embedding",
+          "weight_dtype": "torch.bfloat16",
+          "weight_shape": [
+            151936,
+            2560
+          ]
+        }
+      ],
+      "policy": "excluded",
+      "present": true
+    }
+  },
+  "expected_target_count": 252,
+  "ffn_target_count": 108,
+  "full_precision_smoke_forward": {
+    "finite_values": true,
+    "input_shape": [
+      1,
+      8
+    ],
+    "logits_dtype": "torch.bfloat16",
+    "logits_float32_sha256": "a59aa0c2a7d31a8e4a5e9687ce229f9fcaa461344d3ea68f506867355fd73a18",
+    "logits_shape": [
+      1,
+      8,
+      151936
+    ],
+    "prompt": "QAQ full-precision smoke test.",
+    "selected_logits": [
+      6.40625,
+      3.296875,
+      5.03125,
+      3.203125,
+      2.71875,
+      3.984375,
+      1.9375,
+      3.375
+    ]
+  },
+  "layer_indices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35
+  ],
+  "model_class": "transformers.models.qwen3.modeling_qwen3.Qwen3ForCausalLM",
+  "model_revision_argument": "1cfa9a7208912126459214e8b04321603b3df60c",
+  "model_snapshot_path": "/nfs/home/s314511048/.cache/huggingface/hub/models--Qwen--Qwen3-4B/snapshots/1cfa9a7208912126459214e8b04321603b3df60c",
+  "parameter_count": 4022468096,
+  "parameter_dtypes": [
+    "torch.bfloat16"
+  ],
+  "quantization_performed": false,
+  "resource_measurements": {
+    "after_load": {
+      "gpu": {
+        "free_bytes": 16009330688,
+        "total_bytes": 25296044032
+      },
+      "ram_available_bytes": 235104120832
+    },
+    "before_load": {
+      "gpu": {
+        "free_bytes": 24112726016,
+        "total_bytes": 25296044032
+      },
+      "ram_available_bytes": 235446169600
+    }
+  },
+  "s00_mapping_comparison": {
+    "all_expected_targets_present": true,
+    "all_targets_supported_linear": true,
+    "dimensions_and_biases_match": true,
+    "layer_indices_match": true,
+    "missing_expected_targets": [],
+    "module_property_mismatches": [],
+    "result": "MATCH",
+    "unexpected_target_paths": []
+  },
+  "target_modules": [
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.0.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 0,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.0.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 0,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.0.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 0,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.0.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 0,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.0.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 0,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.0.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 0,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.0.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 0,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.1.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 1,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.1.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 1,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.1.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 1,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.1.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 1,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.1.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 1,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.1.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 1,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.1.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 1,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.10.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 10,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.10.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 10,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.10.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 10,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.10.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 10,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.10.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 10,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.10.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 10,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.10.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 10,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.11.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 11,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.11.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 11,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.11.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 11,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.11.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 11,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.11.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 11,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.11.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 11,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.11.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 11,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.12.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 12,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.12.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 12,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.12.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 12,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.12.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 12,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.12.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 12,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.12.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 12,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.12.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 12,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.13.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 13,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.13.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 13,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.13.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 13,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.13.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 13,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.13.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 13,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.13.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 13,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.13.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 13,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.14.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 14,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.14.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 14,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.14.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 14,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.14.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 14,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.14.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 14,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.14.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 14,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.14.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 14,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.15.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 15,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.15.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 15,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.15.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 15,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.15.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 15,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.15.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 15,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.15.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 15,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.15.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 15,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.16.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 16,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.16.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 16,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.16.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 16,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.16.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 16,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.16.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 16,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.16.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 16,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.16.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 16,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.17.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 17,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.17.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 17,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.17.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 17,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.17.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 17,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.17.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 17,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.17.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 17,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.17.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 17,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.18.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 18,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.18.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 18,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.18.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 18,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.18.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 18,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.18.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 18,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.18.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 18,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.18.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 18,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.19.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 19,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.19.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 19,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.19.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 19,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.19.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 19,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.19.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 19,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.19.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 19,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.19.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 19,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.2.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 2,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.2.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 2,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.2.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 2,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.2.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 2,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.2.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 2,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.2.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 2,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.2.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 2,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.20.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 20,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.20.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 20,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.20.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 20,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.20.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 20,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.20.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 20,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.20.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 20,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.20.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 20,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.21.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 21,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.21.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 21,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.21.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 21,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.21.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 21,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.21.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 21,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.21.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 21,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.21.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 21,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.22.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 22,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.22.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 22,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.22.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 22,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.22.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 22,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.22.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 22,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.22.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 22,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.22.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 22,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.23.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 23,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.23.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 23,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.23.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 23,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.23.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 23,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.23.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 23,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.23.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 23,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.23.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 23,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.24.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 24,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.24.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 24,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.24.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 24,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.24.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 24,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.24.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 24,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.24.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 24,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.24.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 24,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.25.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 25,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.25.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 25,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.25.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 25,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.25.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 25,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.25.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 25,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.25.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 25,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.25.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 25,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.26.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 26,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.26.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 26,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.26.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 26,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.26.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 26,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.26.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 26,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.26.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 26,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.26.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 26,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.27.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 27,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.27.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 27,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.27.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 27,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.27.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 27,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.27.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 27,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.27.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 27,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.27.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 27,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.28.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 28,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.28.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 28,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.28.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 28,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.28.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 28,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.28.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 28,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.28.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 28,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.28.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 28,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.29.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 29,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.29.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 29,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.29.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 29,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.29.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 29,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.29.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 29,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.29.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 29,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.29.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 29,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.3.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 3,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.3.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 3,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.3.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 3,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.3.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 3,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.3.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 3,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.3.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 3,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.3.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 3,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.30.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 30,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.30.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 30,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.30.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 30,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.30.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 30,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.30.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 30,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.30.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 30,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.30.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 30,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.31.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 31,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.31.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 31,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.31.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 31,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.31.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 31,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.31.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 31,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.31.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 31,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.31.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 31,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.32.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 32,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.32.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 32,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.32.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 32,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.32.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 32,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.32.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 32,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.32.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 32,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.32.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 32,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.33.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 33,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.33.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 33,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.33.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 33,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.33.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 33,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.33.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 33,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.33.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 33,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.33.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 33,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.34.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 34,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.34.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 34,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.34.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 34,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.34.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 34,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.34.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 34,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.34.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 34,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.34.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 34,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.35.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 35,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.35.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 35,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.35.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 35,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.35.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 35,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.35.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 35,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.35.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 35,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.35.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 35,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.4.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 4,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.4.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 4,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.4.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 4,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.4.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 4,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.4.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 4,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.4.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 4,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.4.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 4,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.5.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 5,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.5.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 5,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.5.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 5,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.5.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 5,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.5.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 5,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.5.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 5,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.5.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 5,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.6.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 6,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.6.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 6,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.6.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 6,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.6.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 6,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.6.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 6,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.6.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 6,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.6.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 6,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.7.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 7,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.7.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 7,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.7.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 7,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.7.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 7,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.7.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 7,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.7.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 7,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.7.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 7,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.8.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 8,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.8.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 8,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.8.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 8,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.8.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 8,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.8.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 8,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.8.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 8,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.8.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 8,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.9.mlp.down_proj",
+      "input_features": 9728,
+      "layer_index": 9,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        9728
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.9.mlp.gate_proj",
+      "input_features": 2560,
+      "layer_index": 9,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.9.mlp.up_proj",
+      "input_features": 2560,
+      "layer_index": 9,
+      "output_features": 9728,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "FFN",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        9728,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.9.self_attn.k_proj",
+      "input_features": 2560,
+      "layer_index": 9,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.9.self_attn.o_proj",
+      "input_features": 4096,
+      "layer_index": 9,
+      "output_features": 2560,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        2560,
+        4096
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.9.self_attn.q_proj",
+      "input_features": 2560,
+      "layer_index": 9,
+      "output_features": 4096,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        4096,
+        2560
+      ]
+    },
+    {
+      "bias_present": false,
+      "full_module_path": "model.layers.9.self_attn.v_proj",
+      "input_features": 2560,
+      "layer_index": 9,
+      "output_features": 1024,
+      "proposed_quantization_target": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "unit_type": "attention",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        1024,
+        2560
+      ]
+    }
+  ],
+  "target_paths_duplicate": false,
+  "tied_weight_verification": {
+    "config_tie_word_embeddings": true,
+    "embedding_path": "model.embed_tokens.weight",
+    "output_head_path": "lm_head.weight",
+    "same_parameter_object": true,
+    "same_storage_pointer": true
+  },
+  "total_target_count": 252,
+  "trust_remote_code": "false",
+  "unexpected_linear_modules": [
+    {
+      "bias_present": false,
+      "classification": "excluded output head",
+      "path": "lm_head",
+      "present": true,
+      "python_module_class": "torch.nn.modules.linear.Linear",
+      "weight_dtype": "torch.bfloat16",
+      "weight_shape": [
+        151936,
+        2560
+      ]
+    }
+  ]
+}

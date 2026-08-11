@@ -24,12 +24,20 @@ logs/
 
 # Model and data artifacts
 *.safetensors
+*.safetensors.index.json
 *.bin
 *.pt
 *.pth
 *.ckpt
 *.npz
 *.parquet
+.cache/
+model_cache/
+hf_cache/
+huggingface/
+quantized/
+conversion_outputs/
+tmp/
 
 # Editors and OS
 .vscode/

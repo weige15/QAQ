@@ -145,6 +145,20 @@ Unspecified details must not be silently filled in.
 
 **Reversal path:** If a later pinned-source review or target hardware changes the constructor, supported range, reference behavior, or tolerance contract, return S01 to IN_PROGRESS and preserve the new measured evidence rather than loosening checks silently.
 
+### D018 — S03-A actual Qwen3 model verification (2026-08-11)
+
+**Choice:** Load the exact `Qwen/Qwen3-4B` revision `1cfa9a7208912126459214e8b04321603b3df60c` using Transformers `4.51.0`, BF16, and CUDA device `cuda:3`; inspect the instantiated tree before any quantization.
+
+**Evidence:** The local snapshot contains the three pinned safetensors shards and required config/tokenizer files. The real `Qwen3ForCausalLM` has 252 target `torch.nn.Linear` modules: 144 attention and 108 FFN projections across 36 layers. Every S00 path, shape, and bias matches. The only other linear is the excluded tied `lm_head`. The embedding and output head are the same parameter object and storage pointer. A deterministic unmodified BF16 forward returned finite logits with shape `[1,8,151936]`.
+
+**Environment consequence:** The prior environment had optional `flash-attn 2.8.3.post1`, `torchao 0.5.0`, and `torchvision 0.19.0+cu124` binaries incompatible with the recorded PyTorch `2.2.2`; they were removed so the standard Transformers Qwen3 import could run. No quantization library or quantization operation was used. The pinned Any-Precision submodule remains unchanged at `a3257d02740cc5757c78673da534b0630ff3a4ea`.
+
+**Alternatives rejected:** Loading with Transformers `4.39.3` was impossible because it lacks Qwen3. CPU-only loading was not used because it would not represent the intended later CUDA path. No model revision, Qwen variant, attention projection, or excluded component was substituted.
+
+**Consequence:** S03-A is CONTINUE and S03 remains IN_PROGRESS. S03-B may quantize only the verified seven projections per layer; routing and S04 remain out of scope.
+
+**Reversal path:** If a future dependency or model revision changes the concrete tree, rerun this actual-model inspection and return S03 to REVISE before quantization.
+
 ## Decision protocol
 
 A worker must add a dated or commit-linked entry when a stage resolves an unknown or introduces a new assumption.
