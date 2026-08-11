@@ -1,6 +1,6 @@
 Current stage: S02
 Status: COMPLETE
-Last passing commit: to be recorded immediately after the S02 evidence commit.
+Last passing commit: `6bd50a1` (`qaq: verify S02 physical bit-plane format`).
 
 S00 and S01 are COMPLETE. Their environment, target identity, architecture
 mapping, backend provenance, and S01 CUDA evidence are recorded in the S00/S01
