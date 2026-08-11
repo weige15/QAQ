@@ -15,7 +15,9 @@ def _validate_route_list(name: str, values: list[int | None], layer_count: int) 
     if len(values) != layer_count:
         raise ValueError(f"{name} must contain exactly {layer_count} entries; got {len(values)}")
     for index, value in enumerate(values):
-        if value is not None and (isinstance(value, bool) or value not in SUPPORTED_BITS):
+        if value is not None and (
+            isinstance(value, bool) or not isinstance(value, int) or value not in SUPPORTED_BITS
+        ):
             raise ValueError(f"{name}[{index}] must be None, 4, or 8; got {value!r}")
 
 
@@ -152,7 +154,11 @@ class QaqRequestState:
         features[layer_index] = feature.detach().clone()
 
     def store_route(self, unit_type: str, layer_index: int, precision: int) -> None:
-        if isinstance(precision, bool) or precision not in SUPPORTED_BITS:
+        if (
+            isinstance(precision, bool)
+            or not isinstance(precision, int)
+            or precision not in SUPPORTED_BITS
+        ):
             raise ValueError(f"stored route must be 4 or 8; got {precision!r}")
         features = self.attention_features if unit_type == "attention" else self.ffn_features
         routes = self.attention_routes if unit_type == "attention" else self.ffn_routes
@@ -168,6 +174,14 @@ class QaqRequestState:
         if precision is None:
             raise RuntimeError(
                 f"decode requested before {unit_type} route for layer {layer_index} was stored"
+            )
+        if (
+            isinstance(precision, bool)
+            or not isinstance(precision, int)
+            or precision not in SUPPORTED_BITS
+        ):
+            raise ValueError(
+                f"{unit_type} route for layer {layer_index} must be an integer 4 or 8; got {precision!r}"
             )
         return precision
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import pytest
 import torch
 from torch import nn
 
@@ -102,3 +103,22 @@ def test_real_qwen3_wrapper_prefill_and_decode_reuse_request_routes():
     assert all(not item.feature_computed and not item.policy_invoked for item in decode_trace.route_records)
     assert routes == state.attention_routes[:] + state.ffn_routes[:]
     assert all(torch.equal(before, after) for before, after in zip(saved, state.attention_features + state.ffn_features))
+
+
+@pytest.mark.parametrize("input_kind", ["input_ids", "inputs_embeds"])
+def test_s05_request_wrapper_rejects_batches_larger_than_one(input_kind):
+    model = _tiny_model()
+    state = QaqRequestState("batched-request", prompt_length=3)
+    inputs = {
+        "input_ids": torch.tensor([[1, 2, 3], [4, 5, 6]]),
+        "inputs_embeds": torch.randn(2, 3, 32),
+    }
+    with pytest.raises(ValueError, match="batch-size-one"):
+        model(
+            **{input_kind: inputs[input_kind]},
+            attention_mask=torch.ones(1, 3, dtype=torch.long),
+            use_cache=False,
+            precision_plan=PrecisionPlan.uniform(4),
+            request_state=state,
+            phase="prefill",
+        )

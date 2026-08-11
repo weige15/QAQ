@@ -22,11 +22,13 @@ S05 implementation is present in `src/qaq/model/request_state.py`,
 `src/qaq/router/features.py`, and the S04 execution seam. Focused pooling,
 padding, request-state, timing, no-completion-leakage, decode-reuse, and
 request-isolation checks pass (`18 passed`, including a real tiny Qwen3
-prefill/decode wrapper check). Artifact-dependent CUDA parity and full
-cache-backed decode evidence is covered by the request route-reuse tests. The
-corrected read-only packed artifact passed the unchanged S04 regressions and
-S05 all-4/all-8 request-prefill parity (`10 passed in 422.84s`); S03 static
-4-bit/8-bit regressions also passed (`2 passed in 218.23s`).
+prefill/decode wrapper check). The tiny wrapper lifecycle check uses
+`use_cache=False`, and the route-reuse checks call the selector directly, so
+this worktree does not claim cache-backed decode evidence. Artifact-dependent
+CUDA parity and the corrected read-only packed artifact passed the unchanged
+S04 regressions and S05 all-4/all-8 request-prefill parity (`10 passed in
+422.84s`); S03 static 4-bit/8-bit regressions also passed (`2 passed in
+218.23s`).
 
 Passing S05 implementation commit: `7ec07e6`.
 

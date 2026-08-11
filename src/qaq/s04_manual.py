@@ -783,11 +783,16 @@ class ManualRoutedQwen3ForCausalLM(nn.Module):
                 raise TypeError("request_state must be a QaqRequestState")
             if phase not in ("prefill", "decode"):
                 raise ValueError("S05 request execution requires phase='prefill' or phase='decode'")
-            request_state.bind_owner(self)
             if input_ids is not None and inputs_embeds is not None:
                 raise ValueError("You must specify exactly one of input_ids or inputs_embeds")
             if input_ids is None and inputs_embeds is None:
                 raise ValueError("S05 request execution requires input_ids or inputs_embeds")
+            if input_ids is not None:
+                if input_ids.ndim != 2 or input_ids.shape[0] != 1:
+                    raise ValueError("S05 request execution supports only batch-size-one input_ids")
+            elif inputs_embeds.ndim != 3 or inputs_embeds.shape[0] != 1:
+                raise ValueError("S05 request execution supports only batch-size-one inputs_embeds")
+            request_state.bind_owner(self)
             sequence_length = int(
                 input_ids.shape[1] if input_ids is not None else inputs_embeds.shape[1]
             )

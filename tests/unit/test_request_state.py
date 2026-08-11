@@ -38,6 +38,24 @@ def test_request_state_rejects_invalid_feature_dimensions_and_routes():
         QaqRequestState("request-a", prompt_length=3, layer_count=2, attention_routes=[6, None])
 
 
+@pytest.mark.parametrize("invalid_route", [4.0, 8.0, True])
+def test_request_state_rejects_non_integer_routes(invalid_route):
+    with pytest.raises(ValueError, match="None, 4, or 8"):
+        QaqRequestState(
+            "request-a", prompt_length=3, layer_count=1, attention_routes=[invalid_route]
+        )
+
+    state = QaqRequestState("request-a", prompt_length=3, layer_count=1)
+    state.validate_for_model(layer_count=1, feature_dim=2)
+    state.begin_prefill(prompt_length=3)
+    state.store_feature("attention", 0, torch.zeros(2))
+    with pytest.raises(ValueError, match="4 or 8"):
+        state.store_route("attention", 0, invalid_route)
+    state.attention_routes[0] = invalid_route
+    with pytest.raises(ValueError, match="integer 4 or 8"):
+        state.route_for_decode("attention", 0)
+
+
 def test_request_state_ownership_and_complete_lifecycle():
     state = QaqRequestState("request-a", prompt_length=2, layer_count=1)
     owner_a = object()
