@@ -1,20 +1,32 @@
-Current stage: S00
+Current stage: S02
 Status: COMPLETE
-Last passing commit: `7d386ee` (`qaq: close S00 Qwen3 architecture mapping`).
-Completed in this pass:
-- Environment evidence was re-audited and corrected to the active Python 3.12.3 / PyTorch 2.2.2+cu121 / Transformers 4.39.3 snapshot in `docs/environment.json`.
-- Any-Precision provenance, compatibility, and exact-revision evidence remain internally consistent.
-- Source-paper evidence was reviewed and separated from implementation choices.
-- The local QAQ paper was verified to report Qwen3-4B among its evaluated models.
-- The initial target was selected as the official `Qwen/Qwen3-4B` repository and `main` was resolved to immutable revision `1cfa9a7208912126459214e8b04321603b3df60c`.
-- Model and tokenizer identity were recorded in `configs/model.yaml`; no model weights were downloaded.
-- The pinned Qwen3 configuration and official Transformers source establish the exact class hierarchy, dimensions, projections, normalization, rotary, cache, and tied-weight behavior without model instantiation.
-- The complete 252-module target list was generated and cross-checked as 144 attention plus 108 FFN projections with no duplicates.
-- Any-Precision support was separated into explicit support (not present for Qwen3) and structural mappability (present for the seven standard linear targets).
-- Repository cleanliness and absence of target-model artifacts were checked.
-- A fresh recursive clone resolved the exact Any-Precision submodule revision with clean status.
+Last passing commit: `6bd50a1` (`qaq: verify S02 physical bit-plane format`).
 
-Observed prerequisite comparison: Python 3.11 FAIL (3.12.3 installed), CUDA Toolkit 12+ PASS (12.4), GCC 9+ PASS (12.4.0), and PyTorch CUDA smoke check PASS. Python 3.12 compatibility remains an empirical local result, not an upstream support claim. The installed Transformers 4.39.3 source lacks Qwen3; later S01 work must validate the runtime under a Transformers version containing Qwen3.
-Next action: Begin S01: validate the pinned Any-Precision packed linear backend at 4-bit and 8-bit precision.
+S00 and S01 are COMPLETE. Their environment, target identity, architecture
+mapping, backend provenance, and S01 CUDA evidence are recorded in the S00/S01
+documents. The exact pinned Any-Precision gitlink remains
+`a3257d02740cc5757c78673da534b0630ff3a4ea`.
 
-Do not execute the next action automatically.
+Completed in S02:
+- Inspected the pinned packer, linear module, CUDA entry points, dequantization
+  masks, matmul indexing, and nested quantizer at the exact pinned revision.
+- Experimentally established `int32` plane-major storage `[P,N,K//32]`,
+  MSB-first plane order, the warp byte permutation, little-endian serialized
+  payload order, and the strict `K % 32 == 0` alignment boundary.
+- Verified leading-plane 4-bit selection from the shared 8-bit parent,
+  direct row-wise LUT reconstruction, negative LUT values without a sign
+  plane, distinct nested LUTs, and separate bias/LUT/metadata accounting.
+- Added the slow independent reference codec with pack/unpack/reconstruct,
+  deterministic known-word/random fixtures, source/backend agreement tests,
+  serialization and byte-count tests, alignment tests, and a production
+  packed-storage guard.
+- Preserved and reran every S01 unit test. The explicit complete S01+S02 run
+  passed 27 tests with 2 known upstream import deprecation warnings.
+
+Validation outcome: S02 CONTINUE. The physical format is versioned in
+`docs/BITPLANE_FORMAT.md`; all required ordering, reconstruction, prefix,
+nested, alignment, serialization, byte accounting, reference/backend, and
+production-storage evidence passed. Full-model archive member naming and
+big-endian hosts remain documented non-contract unknowns.
+
+Next action: Begin S03: create static 4-bit and 8-bit Qwen3 model baselines from one nested packed representation.

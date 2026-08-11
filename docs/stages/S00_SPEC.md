@@ -52,7 +52,7 @@ Do not quantize the full model.
 | Target architecture class and Transformer layer count | COMPLETE | `docs/model_structure.json`; `docs/QWEN3_MAPPING.md`; D015 | Established from pinned config and official Transformers 4.51.0 source without model instantiation. |
 | Target hidden size, attention projection names, and FFN projection names | COMPLETE | `docs/model_structure.json`; `docs/QWEN3_MAPPING.md`; D015 | All seven projections and dimensions are explicitly recorded. |
 | Target tied-weight, bias, embedding, and output-head behavior | COMPLETE | `docs/model_structure.json`; `docs/QWEN3_MAPPING.md`; D015 | Configuration and source markers establish tied embeddings/output head and bias behavior. |
-| Backend/model combination viability and target-model structure summary | COMPLETE_WITH_LIMITATION | `docs/model_structure.json`; `docs/QWEN3_MAPPING.md`; D015 | Structurally mappable, but current Transformers 4.39.3 lacks Qwen3 and Any-Precision has no explicit Qwen3 YAML; runtime validation belongs to S01. |
+| Backend/model combination viability and target-model structure summary | COMPLETE_WITH_LIMITATION | `docs/model_structure.json`; `docs/QWEN3_MAPPING.md`; D015 | Structurally mappable, but current Transformers 4.39.3 lacks Qwen3 and Any-Precision has no explicit Qwen3 YAML; Qwen3 runtime integration remains a later-stage task. |
 | No full-model quantization, implementation-stage experiment, target-model artifact, or S01 code | COMPLETE | `docs/environment.json`; tracked-file audit; current tree | None. |
 | Tracked repository cleanliness for generated caches, build artifacts, temporary files, and papers | COMPLETE | `.gitignore`; `git ls-files`; paper hashes; current Git status | Ignored build/cache files are not tracked; no cleanup was needed. |
 
@@ -83,12 +83,12 @@ Result: PASS after evidence commit `279ae2137f8a2c6017feeb2cda8660b5ed79214c`; t
 ## Known uncertainties
 
 - The exact revision used by QAQ authors remains unknown.
-- The active Transformers 4.39.3 environment lacks Qwen3; runtime loading and Any-Precision execution require later S01 validation under a compatible Transformers version.
+- The active Transformers 4.39.3 environment lacks Qwen3; Qwen3 runtime loading remains unproven and requires a later integration task under a compatible Transformers version. The pinned Any-Precision execution itself was validated in S01 on a synthetic linear.
 - The papers do not establish several QAQ implementation details, including exact route features, hard-route timing, loader lifetime, and the initial 4/8-bit scope.
 
 ## CONTINUE condition
 
-The environment, target identity, architecture, complete target list, and structural backend mapping are documented with reproducible evidence. The known runtime-version limitation and absence of an explicit Any-Precision Qwen3 YAML are recorded as S01 validation work, not silently treated as support.
+The environment, target identity, architecture, complete target list, and structural backend mapping are documented with reproducible evidence. The known runtime-version limitation and absence of an explicit Any-Precision Qwen3 YAML are recorded as later Qwen3 integration work, not silently treated as support.
 
 ## PAUSE condition
 

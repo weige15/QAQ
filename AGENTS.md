@@ -49,3 +49,10 @@ Do not add the Any-Precision dependency until the project has completed its sour
 The initial baseline targets genuinely packed nested multi-precision weights, query-conditioned routing, separate attention and FFN routes, teacher-student router training, hard query-level inference routes, and synchronous on-demand CPU-to-GPU loading of selected packed planes.
 
 Every stage must preserve the distinction between behavior supported by source papers and implementation decisions made where the papers leave details unspecified.
+
+## Maintaining this file
+
+Keep this file for knowledge useful to almost every future agent session in this project.
+Do not repeat what the codebase already shows; point to the authoritative file or command instead.
+Prefer rewriting or pruning existing entries over appending new ones.
+When updating this file, preserve this bar for all agents and keep entries concise.

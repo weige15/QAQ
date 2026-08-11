@@ -9,7 +9,7 @@ Unspecified details must not be silently filled in.
 ### D001 — Any-Precision backend
 
 **Choice:** Use the official Any-Precision LLM implementation as the selected baseline backend for nested quantization, bitplane packing, and CUDA-kernel execution.
-**Status:** Resolved for the Any-Precision source-pinning portion of S00; overall S00 remains open.
+**Status:** Resolved; S00 is complete.
 **Evidence:** The clean checkout at `/tmp/qaq-any-precision-test` identifies the official upstream repository and was the source used to build the locally installed CUDA extension. The same revision was copied into `third_party/any-precision-llm` as a pinned submodule and passed the package-import and CUDA backend smoke checks.
 **Source basis:** This is an implementation choice. The source papers do not by themselves establish QAQ's complete backend contract.
 **Consequence:** Later QAQ backend work must use the pinned submodule revision and must not modify upstream source during this stage.
@@ -18,7 +18,7 @@ Unspecified details must not be silently filled in.
 ### D002 — Pin upstream revision
 
 **Choice:** Pin the exact Any-Precision commit before modifying or wrapping it.
-**Status:** Resolved for the Any-Precision source-pinning portion of S00; overall S00 remains open.
+**Status:** Resolved; S00 is complete.
 **Evidence:** Upstream `https://github.com/SNU-ARC/any-precision-llm.git`, full commit `a3257d02740cc5757c78673da534b0630ff3a4ea`, commit date `2025-07-04T16:00:35+09:00`, branch `main`, and clean checkout status. The existing checkout's reflog records its clone from that upstream URL, and the installed extension's `direct_url.json` points to that checkout. No separate prior test log was present, so the identification relies on those local provenance records plus the successful rerun below.
 **Why selected:** This is the revision that passed the local Python 3.12/CUDA compatibility probe; it is not a latest-commit substitution.
 **Representation:** Git submodule at `third_party/any-precision-llm`, with `.gitmodules` recording the upstream URL and the gitlink recording the exact commit.
@@ -111,9 +111,9 @@ Unspecified details must not be silently filled in.
 
 **Tokenizer identity:** Use tokenizer files from `Qwen/Qwen3-4B` at the same immutable revision. The identity record names `tokenizer.json`, `tokenizer_config.json`, `vocab.json`, and `merges.txt` without downloading or storing model weights.
 
-**Compatibility status:** Compatibility with the pinned Any-Precision backend remains **UNPROVEN** until the target architecture is inspected and its backend module mapping is verified. Repository accessibility is not compatibility evidence.
+**Compatibility status:** The pinned backend's synthetic single-linear execution is validated in S01. Qwen3 runtime integration remains unproven; S01 intentionally uses no model or model weights.
 
-**Consequence:** S00 remains in progress. The next authorized action is to inspect the pinned Qwen3-4B architecture and map target modules without loading full weights.
+**Consequence:** S00 is complete. Qwen3 integration remains a later-stage task and must not be inferred from this S01 synthetic backend result.
 
 **Reversal path:** Replace the target only after recording contradictory source evidence or a separately justified model decision with a new immutable repository revision and tokenizer identity.
 
@@ -129,12 +129,71 @@ Unspecified details must not be silently filled in.
 
 **Evidence:** `docs/model_structure.json`, `docs/QWEN3_MAPPING.md`, and `scripts/inspect_model.py`. No model object, random full-model tensors, or weight shard was loaded.
 
-**Consequence:** The S00 architecture and mapping specification is resolved. The known Transformers runtime mismatch and Any-Precision execution behavior remain explicit S01 validation work; do not execute that work in this pass.
+**Consequence:** The S00 architecture and mapping specification is resolved. S01 validates the pinned backend only on a synthetic linear; the Transformers runtime mismatch and explicit Qwen3 mapping remain later work.
 
 **Reversal path:** If later source or runtime checks contradict the module paths, revise the mapping specification and keep S00 open rather than switching models silently.
+
+### D016 — S01 synthetic backend contract and reference (2026-08-11)
+
+**Choice:** Validate the pinned backend with one deterministic synthetic operation at `M=4`, `N=64`, `K=1024`, seed `1729`, `float16` input/LUT/output, `int32` packed storage, and `bias=False`. Use the pinned `dequant_kbit` helper plus `torch.matmul` as the reference and compare with `atol=0.05`, `rtol=0.01`; meaningful relative error uses a `0.01` reference floor.
+
+**Evidence:** `src/qaq/s01_backend.py`, `tests/unit/test_cuda_vs_dequantized_reference.py`, and the measured report in `docs/stages/S01_BACKEND.md`. The pinned source requires `K` divisible by 32, supports `M` from 1 through 8 in `matmul_kbit`, and stores LUTs in `float16`; `M=4`, `N=64`, and `K=1024` satisfy the observed kernel alignment and exercise the four-row packed path.
+
+**Alternatives considered:** A test-only reimplementation of dequantization was unnecessary because the pinned helper is available. A full-model or real-weight test was excluded by the S01 scope gate.
+
+**Consequence:** The adapter delegates packing, dequantization, and matmul to the pinned source. S01 does not assert experimentally determined bit-plane order, padding, signed encoding, or serialization endianness; D017 records their later S02 resolution.
+
+**Reversal path:** If a later pinned-source review or target hardware changes the constructor, supported range, reference behavior, or tolerance contract, return S01 to IN_PROGRESS and preserve the new measured evidence rather than loosening checks silently.
 
 ## Decision protocol
 
 A worker must add a dated or commit-linked entry when a stage resolves an unknown or introduces a new assumption.
 The entry must state the evidence, alternatives considered when material, consequence, and reversal path.
 A stage cannot be declared complete while its required decision gate contains an unresolved blocker.
+
+### D017 — S02 pinned physical bit-plane contract (2026-08-11)
+
+**Choice:** Adopt the versioned v1 contract in `docs/BITPLANE_FORMAT.md` for
+the pinned Any-Precision revision `a3257d02740cc5757c78673da534b0630ff3a4ea`:
+contiguous `int32` qweight shape `[P,N,K//32]`, MSB-first plane order,
+the source's warp-oriented byte permutation, leading-plane 4-bit selection,
+row-wise `float16` direct LUTs, and a strict `K % 32 == 0` baseline boundary.
+
+**Status:** Resolved; S02 evidence passes on 2026-08-11.
+
+**Evidence:** The pinned source was inspected at `quantization/pack.py`,
+`modules/AnyPrecisionLinear.py`, `modules/kernels/main.cu`,
+`modules/kernels/dequant.cuh`, `modules/kernels/matmul.cuh`, and
+`quantization/quantize.py`. Deterministic known patterns established
+`0 -> 0x80000000`, `1 -> 0x40000000`, and `31 -> 0x00000001` in the `K=32`
+case; all-zero, all-one, alternating, one-plane, and adjacent-plane words
+are asserted with stable SHA-256 digests. The independent reference codec
+matches the pinned pack helper for a seeded `[3,1024]` random fixture and
+matches pinned CUDA dequantization at both 4 and 8 bits. The actual pinned
+nested quantizer produced one shared parent-label tensor and distinct `[N,16]`
+and `[N,256]` LUTs, with reconstruction checked at both precisions.
+Serialization checks confirmed PyTorch's little-endian data payload matches
+the contiguous `int32` tensor bytes. The production-facing qweight guard
+observed `torch.int32` storage and rejected byte-per-logical-bit accounting.
+
+**Alternatives considered:** A contiguous logical-bit word order was rejected
+because `_permute_bitmaps_int32` and the CUDA masks demonstrate the warp
+transpose plus per-word byte reversal. A byte-per-bit tensor remains a
+correctness-only oracle and cannot support resource claims. A sign plane,
+scale, or zero-point field was not added because the pinned quantizer stores
+unsigned labels and direct floating centroids in the LUTs; negative LUT values
+already provide signed reconstructed values. Implicit zero padding was rejected
+because the source rejects non-aligned widths and the constructor's floor
+division is not safe padding.
+
+**Consequence:** S02 reference and future baseline code must keep packed planes
+as the authoritative production representation, account for LUTs/scales (with
+the pinned backend having no separate scales) separately, and reject unsupported
+alignment or grouped-LUT layouts. No upstream source or production backend
+implementation was modified.
+
+**Reversal path:** If the pinned gitlink changes, if a future backend revision
+changes the masks/byte permutation, or if a supported grouped/padded format is
+introduced, preserve this contract and add a new dated decision with new
+known-word, reconstruction, serialization, and byte-count evidence before
+changing the format version.
