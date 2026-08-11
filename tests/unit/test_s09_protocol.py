@@ -18,6 +18,19 @@ from scripts.validate_s09_protocol import (
 ROOT = Path(__file__).resolve().parents[2]
 
 
+@pytest.fixture(autouse=True)
+def _mock_initialized_any_precision_submodule(monkeypatch):
+    monkeypatch.setattr(
+        validator,
+        "_gitlink_revision",
+        lambda root, relative_path: validator.EXPECTED_ANY_PRECISION_REVISION,
+    )
+    monkeypatch.setattr(
+        validator, "_git_revision", lambda path: validator.EXPECTED_ANY_PRECISION_REVISION
+    )
+    monkeypatch.setattr(validator, "_git_superproject_worktree", lambda path: str(ROOT.resolve()))
+
+
 def _config_and_prompt():
     config = json.loads((ROOT / "configs/s09_baseline_eval.json").read_text())
     prompt_payload = json.loads((ROOT / "configs/s09_baseline_prompts.json").read_text())
@@ -49,6 +62,23 @@ def test_protocol_rejects_duplicate_or_ambiguous_modes():
         validate_protocol_payload(
             incomplete, ROOT, prompt_payload=prompt_payload, check_external=False
         )
+
+
+def test_protocol_rejects_any_frozen_mode_field_drift():
+    for field, mode_index, value in (
+        ("label", 0, "changed"),
+        ("packed_artifact", 1, False),
+        ("precision", 1, 9),
+        ("router_checkpoint", 3, "other"),
+        ("loader", 4, "async"),
+    ):
+        config, prompt_payload = _config_and_prompt()
+        mode = config["modes"][mode_index]
+        mode[field] = value
+        with pytest.raises(ProtocolValidationError, match="mode .* fields"):
+            validate_protocol_payload(
+                config, ROOT, prompt_payload=prompt_payload, check_external=False
+            )
 
 
 def test_protocol_identity_agrees_with_recorded_manifests():
@@ -122,6 +152,28 @@ def test_protocol_rejects_physical_transfer_contract_drift():
             config, ROOT, prompt_payload=prompt_payload, check_external=False
         )
 
+    for section, field in (
+        ("memory", "cuda_boundaries"),
+        ("memory", "on_demand_extra_records"),
+        ("memory", "no_complete_packed_parent_on_gpu"),
+        ("latency", "same_warmup_policy_for_comparable_modes"),
+        ("latency", "cuda_boundaries"),
+        ("latency", "cross_request_packed_planes"),
+    ):
+        config, prompt_payload = _config_and_prompt()
+        value = config[section][field]
+        config[section][field] = [] if isinstance(value, list) else not value
+        with pytest.raises(
+            ProtocolValidationError,
+            match=(
+                "(memory|latency|complete packed GPU copy).*(boundaries|records|prohibition|"
+                "same_warmup|cross_request)"
+            ),
+        ):
+            validate_protocol_payload(
+                config, ROOT, prompt_payload=prompt_payload, check_external=False
+            )
+
     config, prompt_payload = _config_and_prompt()
     config["transfer"]["expected_bytes_inputs"] = ["bit width"]
     with pytest.raises(ProtocolValidationError, match="expected-byte inputs"):
@@ -171,6 +223,30 @@ def test_protocol_rejects_stale_any_precision_manifest_or_checkout(monkeypatch):
         )
 
     config, prompt_payload = _config_and_prompt()
+    monkeypatch.setattr(
+        validator,
+        "_gitlink_revision",
+        lambda root, relative_path: "stale",
+    )
+    with pytest.raises(ProtocolValidationError, match="superproject gitlink revision"):
+        validate_protocol_payload(
+            config, ROOT, prompt_payload=prompt_payload, check_external=False
+        )
+
+    config, prompt_payload = _config_and_prompt()
+    monkeypatch.setattr(validator, "_git_superproject_worktree", lambda path: None)
+    with pytest.raises(ProtocolValidationError, match="superproject worktree"):
+        validate_protocol_payload(
+            config, ROOT, prompt_payload=prompt_payload, check_external=False
+        )
+
+    config, prompt_payload = _config_and_prompt()
+    monkeypatch.setattr(
+        validator,
+        "_gitlink_revision",
+        lambda root, relative_path: validator.EXPECTED_ANY_PRECISION_REVISION,
+    )
+    monkeypatch.setattr(validator, "_git_superproject_worktree", lambda path: str(ROOT.resolve()))
     monkeypatch.setattr(validator, "_git_revision", lambda path: "stale")
     with pytest.raises(ProtocolValidationError, match="checked-out revision"):
         validate_protocol_payload(
@@ -181,10 +257,30 @@ def test_protocol_rejects_stale_any_precision_manifest_or_checkout(monkeypatch):
 def test_protocol_rejects_incomplete_post_result_policy_or_deferred_list():
     config, prompt_payload = _config_and_prompt()
     config["release_criteria"]["failure_outcomes"].pop("all_gates_pass")
-    with pytest.raises(ProtocolValidationError, match="all-gates-pass outcome"):
+    with pytest.raises(ProtocolValidationError, match="release failure outcomes"):
         validate_protocol_payload(
             config, ROOT, prompt_payload=prompt_payload, check_external=False
         )
+
+    for section, mutation in (
+        ("structural_reproducibility_failures", lambda value: value[:-1]),
+        ("quality_gates", lambda value: {**value, "static_8_perplexity": {"operator": ">="}}),
+        ("performance_validity", lambda value: value[:-1]),
+        (
+            "failure_outcomes",
+            lambda value: {key: value[key] for key in value if key != "all_gates_pass"},
+        ),
+        ("post_result_protocol_change", lambda value: "silent"),
+    ):
+        config, prompt_payload = _config_and_prompt()
+        config["release_criteria"][section] = mutation(config["release_criteria"][section])
+        with pytest.raises(
+            ProtocolValidationError,
+            match="(release criteria|performance validity|failure outcomes|post-result policy)",
+        ):
+            validate_protocol_payload(
+                config, ROOT, prompt_payload=prompt_payload, check_external=False
+            )
 
     config, prompt_payload = _config_and_prompt()
     config["deferred_mechanisms"] = config["deferred_mechanisms"][:-1]

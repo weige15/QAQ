@@ -18,6 +18,13 @@ external artifact presence checks using `--skip-hashes`. The 5.2 GB artifact
 was not rehashed in this lightweight pass. No S09-B benchmark or result
 artifact exists.
 
+This review round additionally enforces exact mode dictionaries, synchronized
+memory/latency boundaries, complete cleanup and residency records, exact
+release gates, and superproject-linked Any-Precision provenance. The focused
+mutation suite passed `13 passed` in the isolated worktree. Its submodule
+checkout is intentionally uninitialized here, so the live provenance gate
+must remain blocking until the required checkout is available.
+
 Next action: commit the review fixes, run the required no-mistakes flow, and
 stop at the S09-A gate; do not run S09-B.
 

@@ -24,6 +24,55 @@ EXPECTED_MODE_IDS = (
     "hard_routed_resident_packed",
     "hard_routed_synchronous_on_demand_packed",
 )
+EXPECTED_MODES = (
+    {
+        "id": "full_precision_bf16_teacher",
+        "label": "full-precision BF16 teacher",
+        "model_kind": "full_precision",
+        "precision": "bf16",
+        "routing": "none",
+        "packed_artifact": False,
+        "loader": "resident",
+    },
+    {
+        "id": "static_packed_4bit",
+        "label": "static packed 4-bit",
+        "model_kind": "packed_static",
+        "precision": 4,
+        "routing": "static",
+        "packed_artifact": True,
+        "loader": "resident",
+    },
+    {
+        "id": "static_packed_8bit",
+        "label": "static packed 8-bit",
+        "model_kind": "packed_static",
+        "precision": 8,
+        "routing": "static",
+        "packed_artifact": True,
+        "loader": "resident",
+    },
+    {
+        "id": "hard_routed_resident_packed",
+        "label": "hard-routed resident packed model",
+        "model_kind": "packed_routed",
+        "precision": "4_or_8_per_unit",
+        "routing": "hard_query_level",
+        "router_checkpoint": "locked_s07",
+        "packed_artifact": True,
+        "loader": "resident",
+    },
+    {
+        "id": "hard_routed_synchronous_on_demand_packed",
+        "label": "hard-routed synchronous on-demand packed model",
+        "model_kind": "packed_routed",
+        "precision": "4_or_8_per_unit",
+        "routing": "hard_query_level",
+        "router_checkpoint": "locked_s07",
+        "packed_artifact": True,
+        "loader": "synchronous_on_demand",
+    },
+)
 EXPECTED_MODEL_REPOSITORY = "Qwen/Qwen3-4B"
 EXPECTED_MODEL_REVISION = "1cfa9a7208912126459214e8b04321603b3df60c"
 EXPECTED_ANY_PRECISION_REVISION = "a3257d02740cc5757c78673da534b0630ff3a4ea"
@@ -100,6 +149,73 @@ EXPECTED_DEFERRED_MECHANISMS = [
     "soft-routing final mode",
     "alternate router or checkpoint",
 ]
+EXPECTED_MEMORY_CUDA_BOUNDARIES = [
+    "torch.cuda.synchronize() before measured interval",
+    "torch.cuda.reset_peak_memory_stats() immediately before measured interval",
+    "torch.cuda.synchronize() after measured CUDA interval",
+]
+EXPECTED_ON_DEMAND_MEMORY_RECORDS = [
+    "selected_packed_bytes_before_request_end",
+    "retained_entries_before_cleanup",
+    "retained_buffers_before_cleanup",
+    "retained_entries_after_cleanup",
+    "retained_buffers_after_cleanup",
+    "retained_bytes_after_cleanup",
+    "actual_cpu_to_gpu_packed_transfer_bytes",
+]
+EXPECTED_LATENCY_CUDA_BOUNDARIES = (
+    "torch.cuda.synchronize() before and after every measured CUDA interval"
+)
+EXPECTED_STRUCTURAL_RELEASE_CRITERIA = [
+    "all five modes execute",
+    "required outputs are finite",
+    "artifact identities and hashes are exact",
+    "applicable input token IDs are identical",
+    "deterministic repeats satisfy existing criteria",
+    "resident and on-demand route maps are identical",
+    "resident and on-demand outputs match the existing correctness criterion",
+    "actual transfer bytes exactly equal independently expected physical bytes",
+    "cleanup releases request-owned loader references",
+    "on-demand has no hidden complete packed GPU copy",
+    "clean rerun commands and config are sufficient",
+    "relevant regressions pass",
+]
+EXPECTED_PERFORMANCE_VALIDITY = [
+    "latency intervals are synchronized and comparable",
+    "on-demand end-to-end latency includes transfers",
+    "memory uses allocator measurements",
+    "residency and transfer use actual physical buffers",
+    "on-demand does not retain the complete packed parent on GPU",
+    "no memory-reduction percentage target; report exact measured reductions if any",
+    "record slower on-demand execution as a baseline limitation",
+]
+EXPECTED_QUALITY_GATES = {
+    "static_8_perplexity": {
+        "operator": "<=",
+        "rhs": "1.10 * static_4_perplexity",
+        "margin": 1.10,
+        "paper_score_claim": False,
+    },
+    "routed_resident_perplexity": {
+        "operator": "<=",
+        "rhs": "1.10 * static_4_perplexity",
+        "margin": 1.10,
+        "paper_score_claim": False,
+    },
+    "routed_on_demand_perplexity": {
+        "criterion": "agrees with routed resident under the established execution-equivalence criterion",
+        "paper_score_claim": False,
+    },
+}
+EXPECTED_FAILURE_OUTCOMES = {
+    "structural_or_quality_failure": "REVISE",
+    "missing_hardware_or_external_resource": "PAUSE",
+    "all_gates_pass": "CONTINUE_TO_S09B",
+}
+EXPECTED_POST_RESULT_PROTOCOL_CHANGE = (
+    "Any genuine defect requires REVISE and invalidation of affected results; "
+    "never silently edit frozen inputs or gates"
+)
 
 
 class ProtocolValidationError(ValueError):
@@ -144,6 +260,41 @@ def _git_revision(path: Path) -> str | None:
         return None
     revision = result.stdout.strip()
     return revision or None
+
+
+def _gitlink_revision(root: Path, relative_path: str) -> str | None:
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(root), "ls-files", "--stage", "--", relative_path],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    fields = result.stdout.strip().split(maxsplit=3)
+    if (
+        len(fields) != 4
+        or fields[0] != "160000"
+        or fields[2] != "0"
+        or fields[3] != relative_path
+    ):
+        return None
+    return fields[1]
+
+
+def _git_superproject_worktree(path: Path) -> str | None:
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(path), "rev-parse", "--show-superproject-working-tree"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    worktree = result.stdout.strip()
+    return str(Path(worktree).resolve()) if worktree else None
 
 
 def _get(mapping: Any, *keys: str) -> Any:
@@ -205,40 +356,10 @@ def _validate_modes(config: dict[str, Any], errors: list[str]) -> None:
         mode_text = json.dumps(mode, sort_keys=True).lower()
         for term in forbidden:
             _add(errors, term not in mode_text, f"forbidden mode mechanism {term!r}")
-    expected_fields = {
-        EXPECTED_MODE_IDS[0]: {
-            "model_kind": "full_precision",
-            "routing": "none",
-            "loader": "resident",
-        },
-        EXPECTED_MODE_IDS[1]: {
-            "model_kind": "packed_static",
-            "precision": 4,
-            "routing": "static",
-            "loader": "resident",
-        },
-        EXPECTED_MODE_IDS[2]: {
-            "model_kind": "packed_static",
-            "precision": 8,
-            "routing": "static",
-            "loader": "resident",
-        },
-        EXPECTED_MODE_IDS[3]: {
-            "model_kind": "packed_routed",
-            "routing": "hard_query_level",
-            "loader": "resident",
-        },
-        EXPECTED_MODE_IDS[4]: {
-            "model_kind": "packed_routed",
-            "routing": "hard_query_level",
-            "loader": "synchronous_on_demand",
-        },
-    }
-    for mode in modes:
-        if not isinstance(mode, dict) or mode.get("id") not in expected_fields:
+    for mode, expected in zip(modes, EXPECTED_MODES, strict=False):
+        if not isinstance(mode, dict):
             continue
-        for field, expected in expected_fields[mode["id"]].items():
-            _check_equal(errors, mode.get(field), expected, f"mode {mode['id']} field {field}")
+        _check_equal(errors, mode, expected, f"mode {expected['id']} fields")
     _check_equal(
         errors,
         config.get("comparison_contract", {}).get("soft_routing_final_mode"),
@@ -328,6 +449,17 @@ def _validate_identities(
     )
     if isinstance(submodule_path_value, str) and not Path(submodule_path_value).is_absolute():
         submodule_path = root / submodule_path_value
+        _check_equal(
+            errors,
+            _gitlink_revision(root, submodule_path_value),
+            EXPECTED_ANY_PRECISION_REVISION,
+            "Any-Precision superproject gitlink revision",
+        )
+        _add(
+            errors,
+            not submodule_path.is_symlink(),
+            f"Any-Precision submodule path must not be a symlink: {submodule_path}",
+        )
         _add(errors, submodule_path.is_dir(), f"Any-Precision submodule is unavailable: {submodule_path}")
         if submodule_path.is_dir():
             _check_equal(
@@ -335,6 +467,12 @@ def _validate_identities(
                 _git_revision(submodule_path),
                 EXPECTED_ANY_PRECISION_REVISION,
                 "Any-Precision checked-out revision",
+            )
+            _check_equal(
+                errors,
+                _git_superproject_worktree(submodule_path),
+                str(root.resolve()),
+                "Any-Precision superproject worktree",
             )
 
     artifact = identities.get("packed_artifact", {})
@@ -760,17 +898,43 @@ def _validate_measurement_contract(config: dict[str, Any], errors: list[str]) ->
     _check_equal(
         errors, memory.get("physical_buffers_only"), True, "physical buffer memory accounting"
     )
+    _check_equal(
+        errors,
+        memory.get("cuda_boundaries"),
+        EXPECTED_MEMORY_CUDA_BOUNDARIES,
+        "memory CUDA boundaries",
+    )
+    _check_equal(
+        errors,
+        memory.get("on_demand_extra_records"),
+        EXPECTED_ON_DEMAND_MEMORY_RECORDS,
+        "on-demand memory records",
+    )
+    _check_equal(
+        errors,
+        memory.get("no_complete_packed_parent_on_gpu"),
+        True,
+        "complete packed GPU copy prohibition",
+    )
 
     latency = config.get("latency", {})
     for key, expected in (
+        ("same_warmup_policy_for_comparable_modes", True),
         ("warmup_requests", 1),
         ("repeats_per_fixed_latency_request", 5),
         ("retain_every_raw_value", True),
         ("outlier_removal", False),
         ("subtract_transfer_time", False),
         ("on_demand_end_to_end_includes_transfer", True),
+        ("cross_request_packed_planes", False),
     ):
         _check_equal(errors, latency.get(key), expected, f"latency {key}")
+    _check_equal(
+        errors,
+        latency.get("cuda_boundaries"),
+        EXPECTED_LATENCY_CUDA_BOUNDARIES,
+        "latency CUDA boundaries",
+    )
     _add(
         errors,
         "prefill" in latency.get("record_phases", [])
@@ -848,55 +1012,35 @@ def _validate_measurement_contract(config: dict[str, Any], errors: list[str]) ->
 
 def _validate_release_criteria(config: dict[str, Any], errors: list[str]) -> None:
     release = config.get("release_criteria", {})
-    structural = release.get("structural_reproducibility_failures", [])
-    required_structural = (
-        "all five modes execute",
-        "required outputs are finite",
-        "artifact identities and hashes are exact",
-        "actual transfer bytes exactly equal independently expected physical bytes",
-        "cleanup releases request-owned loader references",
-        "on-demand has no hidden complete packed GPU copy",
-        "relevant regressions pass",
-    )
-    for criterion in required_structural:
-        _add(errors, criterion in structural, f"missing structural release criterion: {criterion}")
-    quality = release.get("quality_gates", {})
-    for key in ("static_8_perplexity", "routed_resident_perplexity", "routed_on_demand_perplexity"):
-        _add(errors, key in quality, f"missing quality gate: {key}")
     _check_equal(
         errors,
-        quality.get("static_8_perplexity", {}).get("margin"),
-        1.10,
-        "static 8 quality margin",
+        release.get("structural_reproducibility_failures"),
+        EXPECTED_STRUCTURAL_RELEASE_CRITERIA,
+        "structural release criteria",
     )
     _check_equal(
         errors,
-        quality.get("routed_resident_perplexity", {}).get("margin"),
-        1.10,
-        "routed resident quality margin",
-    )
-    _add(
-        errors,
-        "REVISE" == release.get("failure_outcomes", {}).get("structural_or_quality_failure"),
-        "structural/quality failure must be REVISE",
-    )
-    _add(
-        errors,
-        "PAUSE" == release.get("failure_outcomes", {}).get("missing_hardware_or_external_resource"),
-        "missing resource must be PAUSE",
+        release.get("quality_gates"),
+        EXPECTED_QUALITY_GATES,
+        "quality release criteria",
     )
     _check_equal(
         errors,
-        release.get("failure_outcomes", {}).get("all_gates_pass"),
-        "CONTINUE_TO_S09B",
-        "all-gates-pass outcome",
+        release.get("performance_validity"),
+        EXPECTED_PERFORMANCE_VALIDITY,
+        "performance validity criteria",
     )
-    _add(
+    _check_equal(
         errors,
-        release.get("post_result_protocol_change")
-        == "Any genuine defect requires REVISE and invalidation of affected results; "
-        "never silently edit frozen inputs or gates",
-        "post-result policy must require REVISE and invalidation",
+        release.get("failure_outcomes"),
+        EXPECTED_FAILURE_OUTCOMES,
+        "release failure outcomes",
+    )
+    _check_equal(
+        errors,
+        release.get("post_result_protocol_change"),
+        EXPECTED_POST_RESULT_PROTOCOL_CHANGE,
+        "post-result policy",
     )
     deferred = config.get("deferred_mechanisms")
     _check_equal(
