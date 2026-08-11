@@ -1,35 +1,30 @@
-Current stage: S05
+Current stage: S06
 Status: COMPLETE
 
-S00, S01, S02, and S03 are COMPLETE. S03-A and S03-B were complete with CONTINUE evidence:
-- The exact pinned `Qwen/Qwen3-4B` revision `1cfa9a7208912126459214e8b04321603b3df60c` is cached locally.
-- The full-precision BF16 `Qwen3ForCausalLM` loaded on `cuda:3` under Transformers `4.51.0`.
-- The real module tree contains 144 attention and 108 FFN target projections, 252 total, matching the S00 mapping in names, classes, dimensions, biases, and layer indices.
-- Embeddings, output head, normalizations, Q/K normalization, rotary processing, activations, and KV-cache structures remain excluded.
-- Instantiated embedding/output-head tied storage was verified.
-- The unmodified model passed the deterministic short full-precision smoke forward with finite logits.
-- No query-derived routing, learned router, or on-demand loading was performed.
+S00, S01, S02, S03, S04, and S05 are COMPLETE. S06 is complete with the
+trainable soft router and differentiable packed 4-bit/8-bit mixture path.
 
-Evidence: `docs/actual_model_modules.json` and `docs/stages/S03_STATIC_MODEL.md`.
+S06 evidence:
+- 72 distinct routers: one per attention or FFN unit across 36 layers.
+- Qwen3-4B router configuration: hidden width 128, GELU, parameter-free RMS
+  normalization with epsilon 1e-6, temperature 1.0, and canonical output
+  ordering `[p4, p8]`.
+- Full router parameter count: 23,620,752.
+- Every soft unit executes both real pinned packed paths and mixes them without
+  hard selection.
+- Forced 4-bit and 8-bit endpoints match the verified S03/S04 executions within
+  the documented `atol=1e-3`, `rtol=1e-3`; synthetic pinned-backend endpoints
+  are bitwise equal.
+- Probability, shape, finite-value, temperature, attention-sharing, FFN-sharing,
+  gradient, optimizer-step, and frozen-model checks pass.
+- S06 focused suite: 14 passed.
+- Unit regression suite: 67 passed.
+- Artifact-backed S04/S05/static regression selection: 12 passed.
+- No real dataset training, distillation, hard argmax inference, or on-demand
+  loading was performed.
 
-S03-B produced one verified nested 4-bit/8-bit packed artifact and passed its target, byte-accounting, reload, static smoke, and numerical sanity checks. Evidence: `docs/quantized_model_manifest.json`, `docs/stages/S03_STATIC_MODEL.md`, and `docs/EXPERIMENTS.md`.
+Passing S06 implementation commit: to be recorded immediately after the
+implementation commit.
 
-S03-C static-baseline quality requirements are complete. Five fixed prompts, a 512-token WikiText-2 development perplexity sample, deterministic generation, fresh-process checkpoint reload, and full regression evidence all passed. Passing S03-C implementation commit: `842890d7580898db3846cb11c2d71f291579d1be`.
-
-S04 manual routing is COMPLETE at passing implementation commit `a5802358acd756751d4006705ebea961a27b0f8c`. The immutable 36-layer attention/FFN plan, explicit packed-linear propagation, trace instrumentation, all-4/all-8 numerical parity, route isolation, mixed-plan determinism, serialization, and sequential leakage tests passed. Evidence: `docs/stages/S04_MANUAL_ROUTING.md`, `docs/EXPERIMENTS.md`, and `tests/integration/test_s04_manual_routing.py`.
-
-S05 implementation is present in `src/qaq/model/request_state.py`,
-`src/qaq/router/features.py`, and the S04 execution seam. Focused pooling,
-padding, request-state, timing, no-completion-leakage, decode-reuse, and
-request-isolation checks pass (`23 passed`, including a real tiny Qwen3
-prefill/decode wrapper check). The tiny wrapper lifecycle check uses
-`use_cache=False`, and the route-reuse checks call the selector directly, so
-this worktree does not claim cache-backed decode evidence. Artifact-dependent
-CUDA parity and the corrected read-only packed artifact passed the unchanged
-S04 regressions and S05 all-4/all-8 request-prefill parity (`10 passed in
-422.84s`); S03 static 4-bit/8-bit regressions also passed (`2 passed in
-218.23s`).
-
-Passing S05 implementation commit: `7ec07e6`.
-
-Next action: Begin S06: implement the trainable soft router and differentiable 4-bit/8-bit mixture path.
+Next action: Begin S07: train the router through teacher-student distillation
+and evaluate deterministic hard argmax routes.

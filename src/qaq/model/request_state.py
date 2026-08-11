@@ -61,6 +61,8 @@ class QaqRequestState:
     ffn_routes: list[int | None] | None = None
     attention_features: list[torch.Tensor | None] | None = None
     ffn_features: list[torch.Tensor | None] | None = None
+    attention_probabilities: list[torch.Tensor | None] | None = None
+    ffn_probabilities: list[torch.Tensor | None] | None = None
     feature_dim: int | None = None
     layer_count: int = DEFAULT_LAYER_COUNT
     _owner: object | None = field(default=None, init=False, repr=False)
@@ -96,8 +98,26 @@ class QaqRequestState:
         self.ffn_features = list(
             [None] * self.layer_count if self.ffn_features is None else self.ffn_features
         )
+        self.attention_probabilities = list(
+            [None] * self.layer_count
+            if self.attention_probabilities is None
+            else self.attention_probabilities
+        )
+        self.ffn_probabilities = list(
+            [None] * self.layer_count
+            if self.ffn_probabilities is None
+            else self.ffn_probabilities
+        )
         _validate_route_list("attention_routes", self.attention_routes, self.layer_count)
         _validate_route_list("ffn_routes", self.ffn_routes, self.layer_count)
+        for name, probabilities in (
+            ("attention_probabilities", self.attention_probabilities),
+            ("ffn_probabilities", self.ffn_probabilities),
+        ):
+            if len(probabilities) != self.layer_count:
+                raise ValueError(
+                    f"{name} must contain exactly {self.layer_count} entries; got {len(probabilities)}"
+                )
         attention_dim = _validate_features(
             "attention_features", self.attention_features, self.layer_count, self.feature_dim
         )
@@ -138,6 +158,11 @@ class QaqRequestState:
             raise RuntimeError("prefill cannot overwrite routes already stored in request state")
         if any(feature is not None for feature in self.attention_features + self.ffn_features):
             raise RuntimeError("prefill cannot overwrite features already stored in request state")
+        if any(
+            probability is not None
+            for probability in self.attention_probabilities + self.ffn_probabilities
+        ):
+            raise RuntimeError("prefill cannot overwrite probabilities already stored in request state")
 
     def store_feature(self, unit_type: str, layer_index: int, feature: torch.Tensor) -> None:
         if unit_type not in ("attention", "ffn"):
@@ -154,6 +179,29 @@ class QaqRequestState:
         if features[layer_index] is not None:
             raise RuntimeError(f"{unit_type} feature for layer {layer_index} is already stored")
         features[layer_index] = feature.detach().clone()
+
+    def store_probability(
+        self, unit_type: str, layer_index: int, probabilities: torch.Tensor
+    ) -> None:
+        if unit_type not in ("attention", "ffn"):
+            raise ValueError(f"unsupported routing unit: {unit_type}")
+        if not isinstance(probabilities, torch.Tensor) or probabilities.shape != (2,):
+            raise ValueError("stored routing probabilities must have shape [2]")
+        if not torch.isfinite(probabilities).all() or not torch.all(probabilities >= 0):
+            raise ValueError("stored routing probabilities must be finite and non-negative")
+        if not torch.allclose(probabilities.sum(), probabilities.new_tensor(1), atol=1e-6, rtol=0):
+            raise ValueError("stored routing probabilities must sum to one")
+        features = self.attention_features if unit_type == "attention" else self.ffn_features
+        probabilities_by_unit = (
+            self.attention_probabilities
+            if unit_type == "attention"
+            else self.ffn_probabilities
+        )
+        if features[layer_index] is None:
+            raise RuntimeError(f"cannot store {unit_type} probability before its feature")
+        if probabilities_by_unit[layer_index] is not None:
+            raise RuntimeError(f"{unit_type} probability for layer {layer_index} is already stored")
+        probabilities_by_unit[layer_index] = probabilities.detach().clone()
 
     def store_route(self, unit_type: str, layer_index: int, precision: int) -> None:
         if (
@@ -192,6 +240,15 @@ class QaqRequestState:
             raise RuntimeError("request state is missing one or more prefill features")
         if any(route is None for route in self.attention_routes + self.ffn_routes):
             raise RuntimeError("request state is missing one or more prefill routes")
+
+    def assert_soft_complete(self) -> None:
+        if any(feature is None for feature in self.attention_features + self.ffn_features):
+            raise RuntimeError("request state is missing one or more prefill features")
+        if any(
+            probability is None
+            for probability in self.attention_probabilities + self.ffn_probabilities
+        ):
+            raise RuntimeError("request state is missing one or more soft routing probabilities")
 
 
 RequestState = QaqRequestState

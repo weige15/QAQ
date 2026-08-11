@@ -23,6 +23,7 @@ from .router.features import (
     validate_policy_result,
     validate_prompt_mask,
 )
+from .router.soft_linear import mix_packed_outputs
 from .s03_static import assert_target_invariant, load_static_model
 
 LAYER_COUNT = 36
@@ -143,6 +144,16 @@ class PrecisionCall:
 
 
 @dataclass(frozen=True, slots=True)
+class SoftPrecisionCall:
+    """One packed projection call carrying the shared probability tensor."""
+
+    layer_index: int
+    unit_type: str
+    module_path: str
+    probabilities: torch.Tensor
+
+
+@dataclass(frozen=True, slots=True)
 class RouteTraceRecord:
     """One request-level route decision, captured before its unit executes."""
 
@@ -194,10 +205,11 @@ class RouteTraceEvent:
 class PrecisionTrace:
     """Per-forward mutable collector; the model never stores it."""
 
-    __slots__ = ("_events", "_records", "_route_records")
+    __slots__ = ("_events", "_records", "_route_records", "_soft_records")
 
     def __init__(self) -> None:
         self._records: list[PrecisionCall] = []
+        self._soft_records: list[SoftPrecisionCall] = []
         self._route_records: list[RouteTraceRecord] = []
         self._events: list[RouteTraceEvent] = []
 
@@ -208,6 +220,10 @@ class PrecisionTrace:
     @property
     def route_records(self) -> tuple[RouteTraceRecord, ...]:
         return tuple(self._route_records)
+
+    @property
+    def soft_records(self) -> tuple[SoftPrecisionCall, ...]:
+        return tuple(self._soft_records)
 
     @property
     def events(self) -> tuple[RouteTraceEvent, ...]:
@@ -222,6 +238,23 @@ class PrecisionTrace:
                 unit_type=unit_type,
                 module_path=module_path,
                 selected_bits=selected_bits,
+            )
+        )
+
+    def record_soft(
+        self,
+        *,
+        layer_index: int,
+        unit_type: str,
+        module_path: str,
+        probabilities: torch.Tensor,
+    ) -> None:
+        self._soft_records.append(
+            SoftPrecisionCall(
+                layer_index=layer_index,
+                unit_type=unit_type,
+                module_path=module_path,
+                probabilities=probabilities,
             )
         )
 
@@ -307,6 +340,50 @@ def expected_trace(plan: PrecisionPlan) -> tuple[PrecisionCall, ...]:
     return tuple(records)
 
 
+def _select_soft_request_route(
+    *,
+    request_state: QaqRequestState,
+    layer_index: int,
+    unit_type: str,
+    incoming_hidden: torch.Tensor,
+    prompt_attention_mask: torch.Tensor,
+    soft_router: Any,
+    trace: PrecisionTrace,
+) -> torch.Tensor:
+    trace.record_event(
+        request_id=request_state.request_id,
+        layer_index=layer_index,
+        unit_type=unit_type,
+        phase="prefill",
+        event="incoming_hidden",
+    )
+    feature = masked_mean_pool(incoming_hidden, prompt_attention_mask)
+    request_state.store_feature(unit_type, layer_index, feature)
+    trace.record_event(
+        request_id=request_state.request_id,
+        layer_index=layer_index,
+        unit_type=unit_type,
+        phase="prefill",
+        event="feature_computed",
+    )
+    probabilities = soft_router(layer_index, unit_type, feature.detach())
+    if not isinstance(probabilities, torch.Tensor) or probabilities.shape != (2,):
+        raise ValueError("soft router must return exactly two probabilities with shape [2]")
+    if not torch.isfinite(probabilities).all() or not torch.all(probabilities >= 0):
+        raise ValueError("soft router probabilities must be finite and non-negative")
+    if not torch.allclose(probabilities.sum(), probabilities.new_tensor(1), atol=1e-5, rtol=0):
+        raise ValueError("soft router probabilities must sum to one")
+    request_state.store_probability(unit_type, layer_index, probabilities)
+    trace.record_event(
+        request_id=request_state.request_id,
+        layer_index=layer_index,
+        unit_type=unit_type,
+        phase="prefill",
+        event="route_available",
+    )
+    return probabilities
+
+
 def _select_request_route(
     *,
     request_state: QaqRequestState,
@@ -389,7 +466,7 @@ def _select_request_route(
 
 
 class _RoutedPackedLinear(nn.Module):
-    """Require an explicit precision argument for one verified packed target."""
+    """Require an explicit hard precision or one S06 soft probability pair."""
 
     def __init__(self, packed: nn.Module, *, layer_index: int, unit_type: str, module_path: str):
         super().__init__()
@@ -397,10 +474,33 @@ class _RoutedPackedLinear(nn.Module):
         self.layer_index = layer_index
         self.unit_type = unit_type
         self.module_path = module_path
+        for parameter in self.packed.parameters():
+            parameter.requires_grad_(False)
 
     def forward(
-        self, inputs: torch.Tensor, *, precision: int, trace: PrecisionTrace
+        self,
+        inputs: torch.Tensor,
+        *,
+        trace: PrecisionTrace,
+        precision: int | None = None,
+        probabilities: torch.Tensor | None = None,
     ) -> torch.Tensor:
+        if (precision is None) == (probabilities is None):
+            raise ValueError("packed execution requires exactly one of precision or probabilities")
+        if probabilities is not None:
+            if probabilities.shape != (2,):
+                raise ValueError("soft packed probabilities must have shape [2]")
+            if not torch.isfinite(probabilities).all() or not torch.all(probabilities >= 0):
+                raise ValueError("soft packed probabilities must be finite and non-negative")
+            if not torch.allclose(probabilities.sum(), probabilities.new_tensor(1), atol=1e-5, rtol=0):
+                raise ValueError("soft packed probabilities must sum to one")
+            trace.record_soft(
+                layer_index=self.layer_index,
+                unit_type=self.unit_type,
+                module_path=self.module_path,
+                probabilities=probabilities,
+            )
+            return mix_packed_outputs(self.packed, inputs, probabilities)
         if isinstance(precision, bool) or not isinstance(precision, int):
             raise TypeError("selected packed precision must be an integer")
         if precision not in SUPPORTED_BITS:
@@ -441,7 +541,8 @@ class _ManualAttention(nn.Module):
         past_key_value: Any = None,
         cache_position: torch.LongTensor | None = None,
         *,
-        selected_bits: int,
+        selected_bits: int | None = None,
+        routing_probabilities: torch.Tensor | None = None,
         trace: PrecisionTrace,
         **kwargs: Any,
     ) -> tuple[torch.Tensor, torch.Tensor | None]:
@@ -453,14 +554,19 @@ class _ManualAttention(nn.Module):
 
         input_shape = hidden_states.shape[:-1]
         hidden_shape = (*input_shape, -1, self.head_dim)
+        packed_kwargs = (
+            {"probabilities": routing_probabilities}
+            if routing_probabilities is not None
+            else {"precision": selected_bits}
+        )
         query_states = self.q_norm(
-            self.q_proj(hidden_states, precision=selected_bits, trace=trace).view(hidden_shape)
+            self.q_proj(hidden_states, trace=trace, **packed_kwargs).view(hidden_shape)
         ).transpose(1, 2)
         key_states = self.k_norm(
-            self.k_proj(hidden_states, precision=selected_bits, trace=trace).view(hidden_shape)
+            self.k_proj(hidden_states, trace=trace, **packed_kwargs).view(hidden_shape)
         ).transpose(1, 2)
         value_states = (
-            self.v_proj(hidden_states, precision=selected_bits, trace=trace)
+            self.v_proj(hidden_states, trace=trace, **packed_kwargs)
             .view(hidden_shape)
             .transpose(1, 2)
         )
@@ -495,7 +601,7 @@ class _ManualAttention(nn.Module):
             **kwargs,
         )
         attn_output = attn_output.reshape(*input_shape, -1).contiguous()
-        attn_output = self.o_proj(attn_output, precision=selected_bits, trace=trace)
+        attn_output = self.o_proj(attn_output, trace=trace, **packed_kwargs)
         return attn_output, attn_weights
 
 
@@ -512,11 +618,21 @@ class _ManualMLP(nn.Module):
         self.layer_index = layer_index
 
     def forward(
-        self, inputs: torch.Tensor, *, selected_bits: int, trace: PrecisionTrace
+        self,
+        inputs: torch.Tensor,
+        *,
+        selected_bits: int | None = None,
+        routing_probabilities: torch.Tensor | None = None,
+        trace: PrecisionTrace,
     ) -> torch.Tensor:
-        gate = self.gate_proj(inputs, precision=selected_bits, trace=trace)
-        up = self.up_proj(inputs, precision=selected_bits, trace=trace)
-        return self.down_proj(self.act_fn(gate) * up, precision=selected_bits, trace=trace)
+        packed_kwargs = (
+            {"probabilities": routing_probabilities}
+            if routing_probabilities is not None
+            else {"precision": selected_bits}
+        )
+        gate = self.gate_proj(inputs, trace=trace, **packed_kwargs)
+        up = self.up_proj(inputs, trace=trace, **packed_kwargs)
+        return self.down_proj(self.act_fn(gate) * up, trace=trace, **packed_kwargs)
 
 
 class _ManualDecoderLayer(nn.Module):
@@ -545,24 +661,45 @@ class _ManualDecoderLayer(nn.Module):
         phase: str | None = None,
         request_state: QaqRequestState | None = None,
         routing_policy: Any = None,
+        soft_router: Any = None,
         prompt_attention_mask: torch.Tensor | None = None,
         **kwargs: Any,
     ) -> tuple[torch.Tensor, ...]:
         residual = hidden_states
         hidden_states = self.input_layernorm(hidden_states)
+        attention_probabilities = None
         if request_state is not None:
             if phase is None:
                 raise ValueError("S05 request execution requires an explicit phase")
-            attention_bits = _select_request_route(
-                request_state=request_state,
-                layer_index=self.layer_index,
-                unit_type="attention",
-                incoming_hidden=hidden_states,
-                prompt_attention_mask=prompt_attention_mask,
-                phase=phase,
-                routing_policy=routing_policy,
-                trace=trace,
-            )
+            if soft_router is not None:
+                if phase != "prefill" or prompt_attention_mask is None:
+                    raise ValueError("S06 soft routing supports prefill only")
+                attention_probabilities = _select_soft_request_route(
+                    request_state=request_state,
+                    layer_index=self.layer_index,
+                    unit_type="attention",
+                    incoming_hidden=hidden_states,
+                    prompt_attention_mask=prompt_attention_mask,
+                    soft_router=soft_router,
+                    trace=trace,
+                )
+                attention_bits = None
+            else:
+                attention_bits = _select_request_route(
+                    request_state=request_state,
+                    layer_index=self.layer_index,
+                    unit_type="attention",
+                    incoming_hidden=hidden_states,
+                    prompt_attention_mask=prompt_attention_mask,
+                    phase=phase,
+                    routing_policy=routing_policy,
+                    trace=trace,
+                )
+        else:
+            if precision_plan is None:
+                raise ValueError("S04 execution requires precision_plan")
+            attention_bits = precision_plan.attention_bits[self.layer_index]
+        if request_state is not None:
             trace.record_event(
                 request_id=request_state.request_id,
                 layer_index=self.layer_index,
@@ -571,10 +708,6 @@ class _ManualDecoderLayer(nn.Module):
                 event="unit_execute",
                 precision=attention_bits,
             )
-        else:
-            if precision_plan is None:
-                raise ValueError("S04 execution requires precision_plan")
-            attention_bits = precision_plan.attention_bits[self.layer_index]
         hidden_states, self_attn_weights = self.self_attn(
             hidden_states=hidden_states,
             attention_mask=attention_mask,
@@ -585,6 +718,7 @@ class _ManualDecoderLayer(nn.Module):
             cache_position=cache_position,
             position_embeddings=position_embeddings,
             selected_bits=attention_bits,
+            routing_probabilities=attention_probabilities,
             trace=trace,
             **kwargs,
         )
@@ -592,17 +726,37 @@ class _ManualDecoderLayer(nn.Module):
 
         residual = hidden_states
         hidden_states = self.post_attention_layernorm(hidden_states)
+        ffn_probabilities = None
         if request_state is not None:
-            ffn_bits = _select_request_route(
-                request_state=request_state,
-                layer_index=self.layer_index,
-                unit_type="ffn",
-                incoming_hidden=hidden_states,
-                prompt_attention_mask=prompt_attention_mask,
-                phase=phase,
-                routing_policy=routing_policy,
-                trace=trace,
-            )
+            if soft_router is not None:
+                if phase != "prefill" or prompt_attention_mask is None:
+                    raise ValueError("S06 soft routing supports prefill only")
+                ffn_probabilities = _select_soft_request_route(
+                    request_state=request_state,
+                    layer_index=self.layer_index,
+                    unit_type="ffn",
+                    incoming_hidden=hidden_states,
+                    prompt_attention_mask=prompt_attention_mask,
+                    soft_router=soft_router,
+                    trace=trace,
+                )
+                ffn_bits = None
+            else:
+                ffn_bits = _select_request_route(
+                    request_state=request_state,
+                    layer_index=self.layer_index,
+                    unit_type="ffn",
+                    incoming_hidden=hidden_states,
+                    prompt_attention_mask=prompt_attention_mask,
+                    phase=phase,
+                    routing_policy=routing_policy,
+                    trace=trace,
+                )
+        else:
+            if precision_plan is None:
+                raise ValueError("S04 execution requires precision_plan")
+            ffn_bits = precision_plan.ffn_bits[self.layer_index]
+        if request_state is not None:
             trace.record_event(
                 request_id=request_state.request_id,
                 layer_index=self.layer_index,
@@ -611,11 +765,12 @@ class _ManualDecoderLayer(nn.Module):
                 event="unit_execute",
                 precision=ffn_bits,
             )
-        else:
-            if precision_plan is None:
-                raise ValueError("S04 execution requires precision_plan")
-            ffn_bits = precision_plan.ffn_bits[self.layer_index]
-        hidden_states = self.mlp(hidden_states, selected_bits=ffn_bits, trace=trace)
+        hidden_states = self.mlp(
+            hidden_states,
+            selected_bits=ffn_bits,
+            routing_probabilities=ffn_probabilities,
+            trace=trace,
+        )
         hidden_states = residual + hidden_states
 
         outputs: tuple[torch.Tensor, ...] = (hidden_states,)
@@ -660,6 +815,7 @@ class _ManualBaseModel(nn.Module):
         phase: str | None = None,
         request_state: QaqRequestState | None = None,
         routing_policy: Any = None,
+        soft_router: Any = None,
         prompt_attention_mask: torch.Tensor | None = None,
         **flash_attn_kwargs: Any,
     ) -> Any:
@@ -719,6 +875,7 @@ class _ManualBaseModel(nn.Module):
                 phase=phase,
                 request_state=request_state,
                 routing_policy=routing_policy,
+                soft_router=soft_router,
                 prompt_attention_mask=prompt_attention_mask,
                 **flash_attn_kwargs,
             )
@@ -772,11 +929,12 @@ class ManualRoutedQwen3ForCausalLM(nn.Module):
         phase: str | None = None,
         request_state: QaqRequestState | None = None,
         routing_policy: Any = None,
+        soft_router: Any = None,
         **kwargs: Any,
     ) -> Any:
         if request_state is None:
-            if phase is not None or routing_policy is not None:
-                raise ValueError("phase and routing_policy require an S05 request_state")
+            if phase is not None or routing_policy is not None or soft_router is not None:
+                raise ValueError("routing controls require an S05 request_state")
             if not isinstance(precision_plan, PrecisionPlan):
                 raise TypeError("precision_plan must be a PrecisionPlan")
             precision_plan.validate()
@@ -787,6 +945,8 @@ class ManualRoutedQwen3ForCausalLM(nn.Module):
                 raise TypeError("request_state must be a QaqRequestState")
             if phase not in ("prefill", "decode"):
                 raise ValueError("S05 request execution requires phase='prefill' or phase='decode'")
+            if soft_router is not None and (phase != "prefill" or routing_policy is not None):
+                raise ValueError("S06 soft routing requires prefill without a hard routing policy")
             if input_ids is not None and inputs_embeds is not None:
                 raise ValueError("You must specify exactly one of input_ids or inputs_embeds")
             if input_ids is None and inputs_embeds is None:
@@ -811,9 +971,11 @@ class ManualRoutedQwen3ForCausalLM(nn.Module):
                     attention_mask, sequence_length=sequence_length
                 )
                 request_state.begin_prefill(prompt_length=int(prompt_attention_mask.sum().item()))
-                if routing_policy is None:
+                if routing_policy is None and soft_router is None:
                     routing_policy = precision_plan
             else:
+                if soft_router is not None:
+                    raise ValueError("S06 soft routing supports prefill only")
                 request_state.assert_complete()
                 prompt_attention_mask = None
             active_phase = phase
@@ -833,11 +995,15 @@ class ManualRoutedQwen3ForCausalLM(nn.Module):
             phase=active_phase,
             request_state=request_state,
             routing_policy=routing_policy,
+            soft_router=soft_router,
             prompt_attention_mask=prompt_attention_mask,
             **kwargs,
         )
         if request_state is not None and phase == "prefill":
-            request_state.assert_complete()
+            if soft_router is not None:
+                request_state.assert_soft_complete()
+            else:
+                request_state.assert_complete()
         hidden_states = outputs.last_hidden_state
         slice_indices = (
             slice(-logits_to_keep, None) if isinstance(logits_to_keep, int) else logits_to_keep

@@ -270,6 +270,35 @@ loading machinery.
 different feature representation, reopen S05 and preserve this deterministic
 baseline as its own measured path.
 
+### D024 — S06 soft-router parameterization (2026-08-11)
+
+**Implementation choices:** Use one distinct MLP router for each of the 36
+attention units and 36 FFN units. Each router uses parameter-free RMS feature
+normalization `x / sqrt(mean(x**2) + 1e-6)`, `Linear(d_model, 128)`, GELU,
+and `Linear(128, 2)`. Use a fixed configurable temperature with baseline
+`1.0`, canonical output ordering `[p4, p8]`, and PyTorch Linear default
+`reset_parameters()` initialization under the caller's seed.
+
+**Source basis:** The reviewed QAQ source supports the general lightweight MLP,
+precision probabilities, and temperature-controlled routing. It does not
+specify this width, activation, normalization, temperature value, or
+initialization. These are explicit smallest-baseline implementation choices,
+not paper-established facts.
+
+**Evidence:** S06 tests passed finite probability and shape checks, fixed-logit
+temperature behavior, real pinned-backend 4-bit/8-bit endpoint parity, shared
+attention/FFN probability identity, nonzero router gradients, and frozen-model
+checks. The Qwen3-4B baseline has 72 routers and 23,620,752 router parameters.
+
+**Consequence:** S06 executes both pinned packed paths and mixes their outputs
+without a hard selection. The feature is detached before entering a router;
+all non-router parameters remain frozen. No bit-width penalty, dataset
+training, distillation, hard route, or on-demand loading is introduced.
+
+**Reversal path:** Reopen S06 and preserve the current endpoint, gradient, and
+freeze evidence before changing router sharing, normalization, width,
+activation, temperature, or candidate ordering.
+
 ## Decision protocol
 
 A worker must add a dated or commit-linked entry when a stage resolves an unknown or introduces a new assumption.

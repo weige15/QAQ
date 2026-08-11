@@ -62,6 +62,30 @@ Every result must include the exact command, environment versions, model and dat
 - Regression commands: full project suite `50 passed, 1 skipped`; resource-heavy S03-A model load `1 passed`. Target coverage remained 252/252 with no duplicate independent precision models.
 - Result file: `docs/results/s03_static_quality.json`. Limitations: this is a deliberately small development sample, not a final benchmark or paper-score reproduction.
 
+## S06 trainable soft router and packed mixture (2026-08-11)
+
+- Scope: 72 distinct prompt-feature routers, one for each attention or FFN
+  unit; both real pinned 4-bit and 8-bit packed operations execute in the soft
+  training path. No dataset, distillation, hard inference, or on-demand
+  loading was used.
+- Configuration: Qwen3-4B hidden size `2560`, router hidden width `128`, GELU,
+  parameter-free RMS normalization with epsilon `1e-6`, temperature `1.0`,
+  canonical outputs `[p4, p8]`, and PyTorch Linear default initialization.
+- Router count and parameters: 36 attention plus 36 FFN routers, 72 total;
+  `23,620,752` trainable router parameters. All packed model parameters,
+  embeddings, normalizations, output head, LUTs, and quantization metadata were
+  frozen.
+- Focused command: `source ~/.venv/bin/activate && which python && python --version && pytest -q tests/unit/test_s06_router.py tests/integration/test_s06_soft_routing.py`; result `13 passed`.
+- Pinned backend command: `source ~/.venv/bin/activate && which python && python --version && pytest -q tests/integration/test_s06_soft_packed.py -k 'not qwen3'`; result `2 passed`.
+- Full artifact command: `source ~/.venv/bin/activate && which python && python --version && QAQ_S03_ARTIFACT=<S03-B artifact> QAQ_MODEL_DEVICE=cuda:3 pytest -q tests/integration/test_s06_soft_packed.py`; result `3 passed in 419.02s` on CUDA device 3, NVIDIA GeForce RTX 3090.
+- Endpoint result: forced `[1,0]` and `[0,1]` mixtures matched the real hard 4-bit and hard 8-bit Qwen3 paths within `atol=1e-3`, `rtol=1e-3`; the synthetic pinned-backend endpoint comparisons were bitwise equal.
+- Probability result: one and batched router outputs had shapes `[2]` and `[3,2]`; finite non-negative probabilities summed to one within `1e-6` in the router and `1e-5` at the packed boundary.
+- Temperature result: fixed logits `[2,0]` were more concentrated toward 4-bit at temperature `0.5` than at `2.0`.
+- Sharing result: each attention unit recorded one shared probability tensor across q/k/v/o; each FFN unit recorded one shared tensor across gate/up/down.
+- Gradient result: finite nonzero router gradients reached the soft mixture; a one-step SGD smoke check changed router parameters only. No real training or quality claim was made.
+- Regression command: `source ~/.venv/bin/activate && which python && python --version && pytest -q tests/unit`; result `67 passed`.
+- Artifact regression command: `source ~/.venv/bin/activate && which python && python --version && QAQ_S03_ARTIFACT=<S03-B artifact> QAQ_MODEL_DEVICE=cuda:3 pytest -q tests/integration/test_s04_manual_routing.py tests/integration/test_s05_manual_routing.py tests/integration/test_static4_forward.py tests/integration/test_static8_forward.py`; result `12 passed in 431.49s`.
+
 ## Boundaries before baseline freeze
 
 Do not introduce asynchronous transfers, prefetching, transfer prediction, bit-width cost penalties, cross-request caching, multi-query batching, or unrelated research improvements.
