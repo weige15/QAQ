@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import os
 import random
 import sys
@@ -485,7 +486,11 @@ def main() -> int:
     from qaq.s03_quality import load_full_precision_model
     from qaq.s03_static import PINNED_ANY_PRECISION_COMMIT, load_manifest, source_commit
     from qaq.s06_soft import load_soft_model
-    from qaq.s07_distillation import RouterCheckpointMetadata, save_router_checkpoint
+    from qaq.s07_distillation import (
+        RouterCheckpointMetadata,
+        freeze_teacher_and_packed_student,
+        save_router_checkpoint,
+    )
 
     config = _load_config()
     if not torch.cuda.is_available():
@@ -517,9 +522,6 @@ def main() -> int:
     _seed_everything(int(config["dataset"]["seed"]), torch)
     print("S07-B: loading full-precision teacher", flush=True)
     teacher = load_full_precision_model(SNAPSHOT, args.device)
-    for parameter in teacher.parameters():
-        parameter.requires_grad_(False)
-        parameter.grad = None
     print("S07-B: loading packed student and router", flush=True)
     student = load_soft_model(
         artifact,
@@ -527,19 +529,39 @@ def main() -> int:
         temperature=float(config["training"]["routing_temperature"]),
     )
     student.to(args.device)
-    teacher_parameter_hash = _aggregate_hash(_parameter_hashes(teacher))
-    teacher_frozen = all(not parameter.requires_grad for parameter in teacher.parameters())
+    # Use the audited production freeze seam before any teacher-logit work.
+    freeze_teacher_and_packed_student(teacher, student)
+    teacher_parameter_hash_before = _aggregate_hash(_parameter_hashes(teacher))
+    teacher_frozen_before = all(not parameter.requires_grad for parameter in teacher.parameters())
     teacher_targets = _precompute_teacher_logits(teacher, train_examples + validation_examples, torch)
+    teacher_gradients_absent_after_precompute = all(
+        parameter.grad is None for parameter in teacher.parameters()
+    )
+    if not teacher_frozen_before or not teacher_gradients_absent_after_precompute:
+        raise RuntimeError("REVISE: teacher freeze or gradient audit failed before training")
     teacher.cpu()
-    del teacher
     torch.cuda.empty_cache()
     initial_router_hashes = _parameter_hashes(student.routers)
     initial_router_hash = _aggregate_hash(initial_router_hashes)
     history, freeze_audit, frozen_before, frozen_after = _train(
         student, train_examples, teacher_targets, config, args.device, torch
     )
+    teacher_parameter_hash_after = _aggregate_hash(_parameter_hashes(teacher))
+    teacher_frozen_after = all(not parameter.requires_grad for parameter in teacher.parameters())
+    teacher_gradients_absent_after_training = all(
+        parameter.grad is None for parameter in teacher.parameters()
+    )
+    if (
+        teacher_parameter_hash_before != teacher_parameter_hash_after
+        or not teacher_frozen_after
+        or not teacher_gradients_absent_after_training
+    ):
+        raise RuntimeError("REVISE: teacher freeze, gradient, or value audit failed")
     final_router_hashes = _parameter_hashes(student.routers)
     final_router_hash = _aggregate_hash(final_router_hashes)
+    router_parameters_changed = initial_router_hash != final_router_hash
+    if not router_parameters_changed:
+        raise RuntimeError("REVISE: router parameters did not change")
     args.checkpoint.parent.mkdir(parents=True, exist_ok=True)
     checkpoint_metadata = RouterCheckpointMetadata(
         model_repository=manifest["source_model"]["repository"],
@@ -598,23 +620,35 @@ def main() -> int:
             "frozen_parameter_hash_before": _aggregate_hash(frozen_before),
             "frozen_parameter_hash_after": _aggregate_hash(frozen_after),
             "frozen_parameter_hashes_match": frozen_before == frozen_after,
-            "teacher_frozen": teacher_frozen,
-            "teacher_parameter_hash": teacher_parameter_hash,
+            "teacher_frozen": teacher_frozen_after,
+            "teacher_requires_grad_false_before_precompute": teacher_frozen_before,
+            "teacher_gradients_absent_after_precompute": teacher_gradients_absent_after_precompute,
+            "teacher_gradients_absent_after_training": teacher_gradients_absent_after_training,
+            "teacher_parameter_hash_before": teacher_parameter_hash_before,
+            "teacher_parameter_hash_after": teacher_parameter_hash_after,
+            "teacher_parameter_hashes_match": teacher_parameter_hash_before == teacher_parameter_hash_after,
             "student_non_router_frozen": all(
                 not parameter.requires_grad for name, parameter in student.named_parameters() if not name.startswith("routers.")
             ),
+            "student_non_router_gradients_absent": all(
+                parameter.grad is None
+                for name, parameter in student.named_parameters()
+                if not name.startswith("routers.")
+            ),
             "packed_buffers_non_trainable": all(not buffer.requires_grad for buffer in student.buffers()),
+            "teacher_in_optimizer": False,
             "router_only": True,
         },
         "initial_router_parameter_sha256": initial_router_hash,
         "final_router_parameter_sha256": final_router_hash,
+        "router_parameters_changed": router_parameters_changed,
         "training": {
             "optimizer_steps": len(history),
             "initial_training_kd_loss": history[0]["training_kd_loss"],
             "final_training_kd_loss": history[-1]["training_kd_loss"],
             "history": history,
-            "all_losses_finite": all(item["training_kd_loss"] == item["training_kd_loss"] for item in history),
-            "all_router_gradients_finite": all(item["router_gradient_norm"] == item["router_gradient_norm"] for item in history),
+            "all_losses_finite": all(math.isfinite(item["training_kd_loss"]) for item in history),
+            "all_router_gradients_finite": all(math.isfinite(item["router_gradient_norm"]) for item in history),
         },
         "checkpoint": {
             "external_path": str(args.checkpoint),

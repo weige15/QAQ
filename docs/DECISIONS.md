@@ -390,6 +390,18 @@ passed, and hard-route repeats were bitwise deterministic.
 corrected freeze audit and the unchanged locked configuration, or S07 may be
 reopened with a new decision if the baseline contract changes.
 
+### D028 — D008-1 corrected S07-B rerun (2026-08-11)
+
+**Authorization:** Perform exactly one corrected S07-B baseline router-distillation rerun and re-evaluate the S07 gate. Keep the D026 dataset, model, packed artifact, optimizer, learning rate, temperatures, batch size, steps, seed, and Any-Precision revision unchanged. Do not begin S08 or add a router cost objective.
+
+**Evidence:** The corrected production path invokes the audited teacher/packed-student freeze seam before teacher-logit precomputation. The teacher had `requires_grad=False`, no gradients, and matching before/after parameter hashes. Packed-student non-router hashes matched, the optimizer contained only the 23,620,752 router scalars, router gradients were finite, and router parameters changed. The completion-only KD objective remained `T^2 * masked KL(teacher || student)` with no extra penalties. The focused pre-run suite passed `9 tests`; the S05-S07 regression selection passed `34 tests`; fresh-process checkpoint and deterministic hard-route verification passed.
+
+**Result:** Four finite training losses decreased from `0.1730574965` to `0.0317778103`. Soft validation KD/error were `0.0386699643`/`0.2430240735`; hard validation KD/error were `0.0631424394`/`0.2928081304`; static 4/8-bit errors were `0.7434162199`/`0.0910567641`. Hard 4/8 fractions were `20.1389%`/`79.8611%`, attention 4/8 fractions were `29.1667%`/`70.8333%`, FFN 4/8 fractions were `11.1111%`/`88.8889%`, route coverage was 72/72 per request, and prompt distance was `0.0138889`. The values exactly matched the first run; no material difference was found. Adaptivity remains `OTHER`, a non-blocking observation under the existing gate.
+
+**Consequence:** S07 engineering gate is **CONTINUE** and `docs/STATUS.md` is updated to `COMPLETE`. The next repository-defined action is S08, but this task stops before executing it.
+
+**Reversal path:** Reopen S07 if any freeze, optimizer isolation, finite-value, masking, determinism, checkpoint, or regression property changes, or record a new decision before changing the locked baseline contract.
+
 ## Decision protocol
 
 A worker must add a dated or commit-linked entry when a stage resolves an unknown or introduces a new assumption.

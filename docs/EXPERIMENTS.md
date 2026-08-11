@@ -111,7 +111,7 @@ Do not introduce asynchronous transfers, prefetching, transfer prediction, bit-w
 - Limitation: all values and settings are smoke-only evidence, not final
   router-training hyperparameters or routing-quality results.
 
-## S07-B single real router-distillation run (2026-08-11)
+## S07-B first real router-distillation run (2026-08-11; D027 defect)
 
 - Locked configuration: `configs/s07_router_training.json`; implementation
   choices are also recorded as D026 in `docs/DECISIONS.md`.
@@ -152,6 +152,18 @@ Do not introduce asynchronous transfers, prefetching, transfer prediction, bit-w
   unchanged. Query-adaptivity classification is `OTHER`; query-adaptive
   behavior was not demonstrated. No S08 work was started.
 - Result artifact: `docs/results/s07_router_training.json`.
+
+## S07-B corrected D008-1 router-distillation rerun (2026-08-11)
+
+- Authorization: exactly one corrected rerun using the unchanged D026 locked configuration; no S08 work and no new objective were introduced.
+- Production correction: `scripts/run_s07b.py` invokes the audited teacher/packed-student freeze seam before teacher-logit precomputation and records teacher before/after parameter hashes plus gradient absence. The first run's D027 defect remains documented above.
+- Command: `source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:third_party/any-precision-llm QAQ_MODEL_DEVICE=cuda:3 python scripts/run_s07b.py`.
+- Freeze evidence: teacher `requires_grad=False`, no teacher gradients, matching teacher hashes, unchanged packed-student non-router hashes, router-only optimizer with 23,620,752 scalars, finite router gradients, and changed router parameters.
+- Training: four finite KD losses, `0.1730574965` → `0.0317778103`; the corrected values exactly matched the prior run, so no material numerical difference was found.
+- Evaluation: soft KD/error `0.0386699643`/`0.2430240735`; hard KD/error `0.0631424394`/`0.2928081304`; static 4/8-bit errors `0.7434162199`/`0.0910567641`; hard 4/8 fractions `20.1389%`/`79.8611%`; attention 4/8 `29.1667%`/`70.8333%`; FFN 4/8 `11.1111%`/`88.8889%`; two unique route maps; prompt distance `0.0138889`; classification `OTHER`; complete 72-unit logs for each of two validation requests.
+- Objective: exactly `T^2 * masked KL(teacher || student)` over completion targets; no width, cost, latency, transfer, entropy, sparsity, balance, or auxiliary routing term.
+- Fresh-process command: `source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:third_party/any-precision-llm python scripts/verify_s07b_roundtrip.py`; checkpoint reload and deterministic hard-route repeat passed bitwise.
+- Result artifact: `docs/results/s07_router_training.json`; S07 engineering gate is **CONTINUE**. The repository-defined next action is S08, but it was not executed.
 
 ## S04 explicit manual routing (2026-08-11)
 

@@ -1,5 +1,5 @@
 Current stage: S07
-Status: IN_PROGRESS
+Status: COMPLETE
 
 S00 through S06 are COMPLETE. S07-A is complete with reusable teacher-student
 distillation machinery, explicit completion masking, frozen teacher/packed
@@ -46,31 +46,36 @@ S07-A evidence:
   baseline training was run.
 
 S07-B evidence:
-- The locked configuration is `configs/s07_router_training.json`; it uses four
-  deterministic Wikitext train examples, two separate validation examples,
-  explicit 32-token prompt/completion boundaries, sequence length 64, batch
-  size 1, AdamW, four steps, KD temperature 2.0, routing temperature 1.0, and
-  seed 1729.
-- Exactly one baseline training run completed. KD loss decreased from
-  `0.1730574965` to `0.0317778103`; all losses and router gradients were
-  finite. The packed student base was unchanged and the optimizer contained
-  only the 23,620,752 router scalars.
-- Soft validation KD loss was `0.0386699643` with mean absolute logit error
-  `0.2430240735`; hard validation KD loss was `0.0631424394` with error
-  `0.2928081304`. Hard routing selected 4 bits for `20.1389%` and 8 bits for
-  `79.8611%` of routing units, with complete 72-unit logs per request.
-- Fresh-process router checkpoint reload and fixed-subset hard-route
-  determinism passed by bitwise comparison. The final router checkpoint is
-  external to Git and its SHA-256 is recorded in the result artifact.
-- The teacher was evaluated under `no_grad` and did not change, but its
-  parameters were not explicitly set to `requires_grad=False` before the
-  freeze audit. This is a gate defect, so S07 remains IN_PROGRESS with
-  engineering result REVISE. The corrected script is ready, but the one-run
-  rule forbids a silent rerun.
-- Query-adaptive routing was not demonstrated: the result is `OTHER` because
-  mixed routes existed but prompt-to-prompt variation was below the recorded
-  material-variation threshold. No S08 work was started.
+- The first run remains recorded as D027 **REVISE** because its teacher-freeze
+  audit did not explicitly set teacher parameters to `requires_grad=False`.
+  It used `no_grad`, excluded the teacher from the optimizer, and left teacher
+  values unchanged.
+- D008-1 authorized exactly one corrected rerun with the unchanged locked
+  configuration. The locked configuration remains in
+  `configs/s07_router_training.json`: four deterministic Wikitext training
+  examples, two validation examples, 32-token prompt/completion boundaries,
+  sequence length 64, batch size 1, AdamW, four steps, KD temperature 2.0,
+  routing temperature 1.0, and seed 1729.
+- The corrected production path explicitly froze the teacher before logit
+  precomputation. Teacher `requires_grad=False`, no gradients, matching
+  before/after hashes, unchanged packed-student non-router hashes, router-only
+  optimizer membership, and the 23,620,752 router scalar count all passed.
+- KD loss decreased from `0.1730574965` to `0.0317778103`; all losses and
+  router gradients were finite and router parameters changed. The objective
+  remained completion-only teacher-student distillation with no extra penalty.
+- Soft validation KD/error were `0.0386699643`/`0.2430240735`; hard
+  validation KD/error were `0.0631424394`/`0.2928081304`. Static 4/8-bit errors
+  were `0.7434162199`/`0.0910567641`. Hard 4/8 fractions were `20.1389%`/
+  `79.8611%`; attention 4/8 fractions were `29.1667%`/`70.8333%`; FFN 4/8
+  fractions were `11.1111%`/`88.8889%`. There were two route maps, prompt
+  distance `0.0138889`, and complete 72-unit logs for each validation request.
+- The corrected values exactly matched the first run, with no material
+  numerical difference. Fresh-process checkpoint reload and fixed-subset
+  deterministic hard-route repeats passed bitwise. Adaptivity remains
+  `OTHER`, a non-blocking observation under the existing S07 gate. No S08
+  work was started.
 
 Result artifact: `docs/results/s07_router_training.json`.
 
-Next action: obtain explicit authorization for one corrected S07-B rerun using the unchanged locked configuration, then re-evaluate the S07 gate. Do not begin S08.
+Next action: begin the repository-defined S08 work in a later task. This task
+stops at the completed S07 gate and does not begin S08.

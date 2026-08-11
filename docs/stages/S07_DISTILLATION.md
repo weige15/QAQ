@@ -2,7 +2,7 @@
 
 ## S07-A — reusable distillation machinery and deterministic smoke gate
 
-**Status: COMPLETE — CONTINUE to S07-B.** This section implements the
+**Status: COMPLETE — S07 gate passed; do not begin S08 in this task.** This section implements the
 teacher-student router-training seams and validates them on a deliberately tiny
 local fixture. It does not run real dataset-scale training, evaluate routing
 quality, add a width/latency/transfer/entropy penalty, or implement S07-B/S08.
@@ -125,27 +125,34 @@ precomputed with the frozen teacher under `no_grad` and kept on CPU before
 optimization to fit the resident packed student on the 24-GiB GPU. This is
 an execution-memory measure, not a new objective.
 
-### S07-B actual training and evaluation result
+### S07-B first and corrected training runs
 
-The one completed baseline run used the unchanged Qwen3-4B revision
+The first baseline run used the unchanged Qwen3-4B revision
 `1cfa9a7208912126459214e8b04321603b3df60c`, packed student artifact hash
 `29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee`, and
-Any-Precision revision `a3257d02740cc5757c78673da534b0630ff3a4ea`. KD loss was
-finite at every step and decreased from `0.1730574965` to `0.0317778103`.
-The router-only optimizer audit contained 23,620,752 scalars; packed-student
-non-router parameters and buffers were unchanged. The run's teacher logits
-were produced under `no_grad` and teacher values were unchanged, but the
-teacher parameters were not explicitly set to `requires_grad=False` before
-the audit. Therefore this result is **REVISE**, not S07 completion; D027 records
-the defect and the corrected script behavior. The one-run rule forbids a
-silent rerun in this turn.
+Any-Precision revision `a3257d02740cc5757c78673da534b0630ff3a4ea`. It used
+`no_grad`, excluded the teacher from the optimizer, and left teacher values
+unchanged, but did not explicitly set teacher parameters to
+`requires_grad=False` before the freeze audit. D027 therefore records that
+run as **REVISE**; it remains part of the history and was not erased.
 
-The router-only final checkpoint is external to Git at
-`~/.cache/qaq/s07b/final_router.pt` with SHA-256
+D008-1 authorized exactly one corrected rerun with the same locked data,
+model, packed artifact, optimizer, temperatures, seed, and four-step schedule.
+The production path now invokes the audited teacher/student freeze seam before
+teacher-logit precomputation and records teacher before/after hashes and
+post-run gradient absence. The corrected run passed those audits: teacher
+parameters were explicitly frozen and unchanged, packed-student non-router
+parameters and buffers were unchanged, and the optimizer contained only the
+23,620,752 router scalars. All four KD losses and router gradient norms were
+finite, and router parameters changed.
+
+The corrected run's KD loss was finite at every step and decreased from
+`0.1730574965` to `0.0317778103`. The router-only final checkpoint is external
+to Git at `~/.cache/qaq/s07b/final_router.pt` with SHA-256
 `08bf646f19759c0d7949e159bdbe4f96bbea737204b96f8760d205c8d6fd1949`.
-Fresh-process reload matched the recorded router probabilities and hard
-routes. Fixed-subset hard-route repeats had identical route maps, selected
-precisions, and logits by bitwise comparison.
+Fresh-process reload matched probabilities and hard routes, and fixed-subset
+hard-route repeats matched route maps, selected precisions, and logits by
+bitwise comparison.
 
 ### S07-B soft and hard routing observations
 
@@ -168,8 +175,9 @@ the two validation route maps did not meet the recorded material-variation
 threshold. Query-adaptive routing was **not demonstrated**; this is not by
 itself a router implementation failure.
 
-Engineering gate: **REVISE**. Query-adaptivity demonstrated: **NO**.
-No S08 work was started.
+Engineering gate: **CONTINUE**. Query-adaptivity demonstrated: **NO**.
+The existing classification remains `OTHER` and is non-blocking under this
+S07 gate. No S08 work was started.
 
 ## Goal
 

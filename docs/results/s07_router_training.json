@@ -4096,9 +4096,15 @@
     "packed_buffers_non_trainable": true,
     "router_only": true,
     "student_non_router_frozen": true,
-    "teacher_frozen": false,
-    "teacher_parameter_hash": "f52f98b44a7c1f5d27df405b4f75113cacf5ad379d4736720dc446e2d1f0d71c",
-    "teacher_values_unchanged_during_cached_target_generation": true,
+    "student_non_router_gradients_absent": true,
+    "teacher_frozen": true,
+    "teacher_gradients_absent_after_precompute": true,
+    "teacher_gradients_absent_after_training": true,
+    "teacher_in_optimizer": false,
+    "teacher_parameter_hash_after": "f52f98b44a7c1f5d27df405b4f75113cacf5ad379d4736720dc446e2d1f0d71c",
+    "teacher_parameter_hash_before": "f52f98b44a7c1f5d27df405b4f75113cacf5ad379d4736720dc446e2d1f0d71c",
+    "teacher_parameter_hashes_match": true,
+    "teacher_requires_grad_false_before_precompute": true,
     "trainable_names": [
       "routers.attention_0.input_projection.weight",
       "routers.attention_0.input_projection.bias",
@@ -4392,12 +4398,10 @@
     "trainable_parameter_count": 23620752
   },
   "hard_route_determinism": {
-    "checkpoint_reload": "passed in fresh-process verifier",
     "fixed_subset_count": 2,
     "logits_identical_on_repeat": true,
     "passed": true,
     "route_maps_identical_on_repeat": true,
-    "same_process_repeat": "passed in fresh-process verifier",
     "selected_precisions_identical_on_repeat": true,
     "tolerance": "bitwise equality"
   },
@@ -4407,7 +4411,15 @@
     "extra_penalties": [],
     "formula": "T^2 * masked KL(teacher || student)"
   },
-  "scope": "S07-B only; exactly one baseline router-distillation run; no S08 loading",
+  "router_parameters_changed": true,
+  "run_context": {
+    "authorization": "D008-1: one corrected S07-B baseline rerun with the unchanged locked configuration",
+    "corrected_production_freeze_audit": true,
+    "prior_run_commit": "c703e2305555c623738003264e3ffa8e8f0018bb",
+    "prior_run_defect": "teacher parameters were not explicitly set to requires_grad=False before the freeze audit",
+    "prior_run_gate": "REVISE"
+  },
+  "scope": "S07-B only; exactly one corrected D008-1 router-distillation run; no S08 loading",
   "source_model": {
     "any_precision_revision": "a3257d02740cc5757c78673da534b0630ff3a4ea",
     "packed_student_checkpoint": "quantized/s03b_qwen3_4b/backend_cache/packed/anyprec-(1cfa9a7208912126459214e8b04321603b3df60c)-w8_orig4-gc1-c4_s1_blk64",
@@ -4419,11 +4431,10 @@
   "stage_gate": {
     "adaptivity_classification": "OTHER",
     "checkpoint_roundtrip_passed": true,
-    "engineering_gate": "REVISE",
+    "engineering_gate": "CONTINUE",
     "hard_route_determinism_passed": true,
-    "next_action": "Obtain explicit authorization for one corrected S07-B rerun using the unchanged locked configuration. Do not begin S08.",
-    "query_adaptivity_demonstrated": false,
-    "reason": "Teacher parameters were not explicitly set requires_grad=False before the completed run freeze audit; no second training run is authorized by the locked one-run contract."
+    "next_action": "Begin S08: implement synchronous request-owned on-demand transfer of selected packed planes.",
+    "query_adaptivity_demonstrated": false
   },
   "training": {
     "all_losses_finite": true,
