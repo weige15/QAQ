@@ -79,7 +79,9 @@ class PrecisionPlan:
     @classmethod
     def from_dict(cls, payload: Mapping[str, object]) -> PrecisionPlan:
         if not isinstance(payload, Mapping):
-            raise TypeError(f"precision plan payload must be an object; got {type(payload).__name__}")
+            raise TypeError(
+                f"precision plan payload must be an object; got {type(payload).__name__}"
+            )
         expected = {"attention_bits", "ffn_bits"}
         keys = set(payload)
         missing = sorted(expected - keys)
@@ -109,7 +111,9 @@ class PrecisionPlan:
         except (TypeError, json.JSONDecodeError) as error:
             raise ValueError("precision plan JSON is invalid") from error
         if not isinstance(payload, Mapping):
-            raise TypeError(f"precision plan JSON must contain an object; got {type(payload).__name__}")
+            raise TypeError(
+                f"precision plan JSON must contain an object; got {type(payload).__name__}"
+            )
         return cls.from_dict(payload)
 
 
@@ -143,7 +147,9 @@ class PrecisionTrace:
     def records(self) -> tuple[PrecisionCall, ...]:
         return tuple(self._records)
 
-    def record(self, *, layer_index: int, unit_type: str, module_path: str, selected_bits: int) -> None:
+    def record(
+        self, *, layer_index: int, unit_type: str, module_path: str, selected_bits: int
+    ) -> None:
         self._records.append(
             PrecisionCall(
                 layer_index=layer_index,
@@ -255,9 +261,11 @@ class _ManualAttention(nn.Module):
         key_states = self.k_norm(
             self.k_proj(hidden_states, precision=selected_bits, trace=trace).view(hidden_shape)
         ).transpose(1, 2)
-        value_states = self.v_proj(
-            hidden_states, precision=selected_bits, trace=trace
-        ).view(hidden_shape).transpose(1, 2)
+        value_states = (
+            self.v_proj(hidden_states, precision=selected_bits, trace=trace)
+            .view(hidden_shape)
+            .transpose(1, 2)
+        )
 
         cos, sin = position_embeddings
         query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin)
@@ -270,7 +278,9 @@ class _ManualAttention(nn.Module):
 
         attention_interface = eager_attention_forward
         if self.config._attn_implementation != "eager":
-            if self.config._attn_implementation == "sdpa" and kwargs.get("output_attentions", False):
+            if self.config._attn_implementation == "sdpa" and kwargs.get(
+                "output_attentions", False
+            ):
                 attention_interface = eager_attention_forward
             else:
                 attention_interface = ALL_ATTENTION_FUNCTIONS[self.config._attn_implementation]
@@ -303,7 +313,9 @@ class _ManualMLP(nn.Module):
         self.act_fn = base.act_fn
         self.layer_index = layer_index
 
-    def forward(self, inputs: torch.Tensor, *, selected_bits: int, trace: PrecisionTrace) -> torch.Tensor:
+    def forward(
+        self, inputs: torch.Tensor, *, selected_bits: int, trace: PrecisionTrace
+    ) -> torch.Tensor:
         gate = self.gate_proj(inputs, precision=selected_bits, trace=trace)
         up = self.up_proj(inputs, precision=selected_bits, trace=trace)
         return self.down_proj(self.act_fn(gate) * up, precision=selected_bits, trace=trace)
@@ -406,7 +418,9 @@ class _ManualBaseModel(nn.Module):
             output_attentions if output_attentions is not None else self.config.output_attentions
         )
         output_hidden_states = (
-            output_hidden_states if output_hidden_states is not None else self.config.output_hidden_states
+            output_hidden_states
+            if output_hidden_states is not None
+            else self.config.output_hidden_states
         )
         use_cache = use_cache if use_cache is not None else self.config.use_cache
 
@@ -417,7 +431,9 @@ class _ManualBaseModel(nn.Module):
         if use_cache and past_key_values is None:
             past_key_values = DynamicCache()
         if cache_position is None:
-            past_seen_tokens = past_key_values.get_seq_length() if past_key_values is not None else 0
+            past_seen_tokens = (
+                past_key_values.get_seq_length() if past_key_values is not None else 0
+            )
             cache_position = torch.arange(
                 past_seen_tokens,
                 past_seen_tokens + inputs_embeds.shape[1],
@@ -518,7 +534,9 @@ class ManualRoutedQwen3ForCausalLM(nn.Module):
             **kwargs,
         )
         hidden_states = outputs.last_hidden_state
-        slice_indices = slice(-logits_to_keep, None) if isinstance(logits_to_keep, int) else logits_to_keep
+        slice_indices = (
+            slice(-logits_to_keep, None) if isinstance(logits_to_keep, int) else logits_to_keep
+        )
         logits = self.lm_head(hidden_states[:, slice_indices, :])
         loss = None
         if labels is not None:
@@ -536,7 +554,9 @@ class ManualRoutedQwen3ForCausalLM(nn.Module):
     @staticmethod
     def _loss(logits: torch.Tensor, labels: torch.Tensor) -> torch.Tensor:
         if logits.shape[1] != labels.shape[1]:
-            raise ValueError("labels require logits for the complete sequence in S04 manual execution")
+            raise ValueError(
+                "labels require logits for the complete sequence in S04 manual execution"
+            )
         return nn.functional.cross_entropy(
             logits[..., :-1, :].contiguous().view(-1, logits.shape[-1]),
             labels[..., 1:].contiguous().view(-1),
@@ -558,7 +578,9 @@ def _wrap_verified_targets(static_model: nn.Module) -> None:
     for module_path in target_names:
         packed = modules.get(module_path)
         if packed is None or packed.__class__.__name__ != "AnyPrecisionLinear":
-            raise ValueError(f"verified packed target is missing or has the wrong type: {module_path}")
+            raise ValueError(
+                f"verified packed target is missing or has the wrong type: {module_path}"
+            )
         layer_index = int(module_path.split(".")[2])
         if ".self_attn." in module_path:
             unit_type = "attention"
@@ -578,7 +600,9 @@ def _wrap_verified_targets(static_model: nn.Module) -> None:
         )
 
 
-def load_manual_model(artifact: str | os.PathLike[str], device: str) -> ManualRoutedQwen3ForCausalLM:
+def load_manual_model(
+    artifact: str | os.PathLike[str], device: str
+) -> ManualRoutedQwen3ForCausalLM:
     """Load the verified S03 nested checkpoint and expose explicit S04 routing."""
 
     static_model = load_static_model(artifact, device)

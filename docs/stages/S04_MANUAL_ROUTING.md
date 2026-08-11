@@ -160,6 +160,7 @@ All commands began with the required `~/.venv` activation block. The primary
 S04 command was:
 
 ```bash
+source ~/.venv/bin/activate && which python && python --version && \
 QAQ_S03_ARTIFACT=<verified-manifest-artifact> QAQ_MODEL_DEVICE=cuda:3 \
 pytest -q tests/integration/test_s04_manual_routing.py
 ```
