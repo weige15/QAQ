@@ -469,6 +469,67 @@ The repository next action is S09, but S09 must not be started as part of this d
 
 **Reversal path:** If a future change alters packed source authority, route parity, logits, transfer accounting, request cleanup, or measurement comparability, reopen S08-B and preserve this baseline result before changing the mechanism.
 
+### D031 — S09-A final evaluation protocol freeze (2026-08-12)
+
+**Choice:** Freeze the machine-readable S09-A protocol in
+`configs/s09_baseline_eval.json` before any final S09-B result exists. The
+comparison has exactly five modes: BF16 teacher, static packed 4-bit, static
+packed 8-bit, hard-routed resident packed, and hard-routed synchronous
+on-demand packed. The fixed request/input records are in
+`configs/s09_baseline_prompts.json`.
+
+The frozen protocol SHA-256 is
+`01ca65c6b3b7e16d7af66f1533140b1c9f31749c90bc91e097d096d463bf2e1c`.
+
+**Source-supported and established behavior:** The protocol reuses the S03
+token-weighted causal cross-entropy evaluator and the S08 synchronous loader
+contract. S07 establishes 72 separate attention/FFN hard-route units and the
+locked router checkpoint; S08 establishes physical selected-plane-plus-LUT
+transfer accounting and request cleanup. These sources do not establish a
+paper score, a final quality threshold, or a universal latency/memory target.
+
+**Implementation choices:** Use Salesforce/wikitext `wikitext-2-raw-v1` at
+revision `b08601e04326c79dfdd32d625aee71d232d685c3`, test split, source-order
+windows of length 129 with sequence length 128, target stride 128, first 32
+windows, and 4096 target tokens. Keep S03's historical four-window defaults
+unchanged while parameterizing the same evaluator for S09's explicit count and
+stride. Use seven fixed requests (five S03 prompts plus the two S07/S08
+validation requests), greedy batch-one generation with eight new tokens, one
+warm-up request, five raw synchronized latency repeats, fresh processes, and
+the exact memory/transfer boundaries in the protocol.
+
+The static-8 and routed-resident quality gates are each `<= 1.10 *` static-4
+perplexity. Routed on-demand must agree with routed resident under the
+established execution-equivalence criterion. The 10% factor is a QAQ baseline
+implementation gate, not a paper claim. Structural or quality failures are
+REVISE; missing/incomparable hardware or external artifacts are PAUSE.
+
+**Evidence:** The exact S03 artifact was copied from the verified pre-existing
+primary checkout without regeneration; all eight manifest file sizes and
+SHA-256 values pass. The artifact checkpoint hash is
+`29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee`. The
+router checkpoint hash is
+`08bf646f19759c0d7949e159bdbe4f96bbea737204b96f8760d205c8d6fd1949`.
+The non-benchmark validator and focused protocol/evaluator tests pass. No
+five-mode comparison or S09-B result exists in this decision.
+
+**Alternatives rejected:** A sixth or soft-routing final mode, alternate
+router/checkpoint, random prompt/data sampling, a divergent perplexity
+calculation, subjective text score, nominal bit-width memory estimates,
+reserved-memory residency claims, asynchronous/prefetch/caching/batching
+mechanisms, and changing the 10% gate after results are all outside this
+freeze. A later genuine defect requires REVISE plus invalidation of affected
+results, not an undocumented protocol edit.
+
+**Consequence:** S09-A is IN_PROGRESS and may hand off only to S09-B from the
+committed frozen config. The protocol is not a final quality, memory, latency,
+or transfer conclusion. Deferred mechanisms remain outside the baseline.
+
+**Reversal path:** If the S09-A validator or a later controlled check finds a
+protocol defect, mark the protocol REVISE, identify affected inputs/results,
+invalidate them, update this ledger with the replacement decision, and rerun
+the validation gate before any new S09-B execution.
+
 ## Decision protocol
 
 A worker must add a dated or commit-linked entry when a stage resolves an unknown or introduces a new assumption.

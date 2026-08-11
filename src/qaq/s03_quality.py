@@ -273,7 +273,27 @@ def evaluate_prompt_set(
     }
 
 
-def _dataset_windows(tokenizer: Any) -> tuple[list[Any], dict[str, Any]]:
+def select_token_windows(
+    token_ids: list[int], *, sequence_length: int, sample_count: int, stride: int
+) -> list[list[int]]:
+    """Select deterministic source-order windows with non-overlapping targets."""
+
+    if sequence_length <= 0 or sample_count <= 0 or stride <= 0:
+        raise ValueError("sequence_length, sample_count, and stride must be positive")
+    window_width = sequence_length + 1
+    starts = [index * stride for index in range(sample_count)]
+    required = starts[-1] + window_width
+    if len(token_ids) < required:
+        raise ValueError(f"token sequence yielded {len(token_ids)} tokens, need {required}")
+    return [token_ids[start : start + window_width] for start in starts]
+
+
+def _dataset_windows(
+    tokenizer: Any,
+    *,
+    sample_count: int = PERPLEXITY_SAMPLE_COUNT,
+    stride: int = PERPLEXITY_SEQUENCE_LENGTH + 1,
+) -> tuple[list[Any], dict[str, Any]]:
     from datasets import load_dataset
 
     dataset = load_dataset(
@@ -285,7 +305,7 @@ def _dataset_windows(tokenizer: Any) -> tuple[list[Any], dict[str, Any]]:
     )
     nonempty_text = []
     window_width = PERPLEXITY_SEQUENCE_LENGTH + 1
-    required = PERPLEXITY_SAMPLE_COUNT * window_width
+    required = (sample_count - 1) * stride + window_width
     token_ids = []
     for row in dataset:
         if row["text"].strip():
@@ -295,26 +315,29 @@ def _dataset_windows(tokenizer: Any) -> tuple[list[Any], dict[str, Any]]:
                 break
     if len(token_ids) < required:
         raise ValueError(f"dataset yielded {len(token_ids)} tokens, need {required}")
-    windows = [
-        token_ids[offset : offset + window_width]
-        for offset in range(0, required, window_width)
-    ]
+    windows = select_token_windows(
+        token_ids,
+        sequence_length=PERPLEXITY_SEQUENCE_LENGTH,
+        sample_count=sample_count,
+        stride=stride,
+    )
     metadata = {
         "dataset": PERPLEXITY_DATASET,
         "config": PERPLEXITY_CONFIG,
         "revision": PERPLEXITY_REVISION,
         "split": PERPLEXITY_SPLIT,
-        "sample_count": PERPLEXITY_SAMPLE_COUNT,
+        "sample_count": sample_count,
         "sample_selection": (
             "concatenate non-empty test rows in source order and take the first "
-            f"{PERPLEXITY_SAMPLE_COUNT} non-overlapping windows"
+            f"{sample_count} fixed windows with target stride {stride}"
         ),
         "sequence_length": PERPLEXITY_SEQUENCE_LENGTH,
         "window_width": window_width,
-        "stride": window_width,
+        "stride": stride,
+        "window_start_offsets": [index * stride for index in range(sample_count)],
         "tokenizer_revision": MODEL_REVISION,
         "random_seed": None,
-        "evaluated_token_count": PERPLEXITY_SAMPLE_COUNT * PERPLEXITY_SEQUENCE_LENGTH,
+        "evaluated_token_count": sample_count * PERPLEXITY_SEQUENCE_LENGTH,
     }
     return [__import__("torch").tensor(window, dtype=__import__("torch").long) for window in windows], metadata
 
@@ -344,8 +367,15 @@ def evaluate_perplexity(model: Any, windows: list[Any], device: str) -> dict[str
     }
 
 
-def build_perplexity_windows(tokenizer: Any) -> tuple[list[Any], dict[str, Any]]:
-    return _dataset_windows(tokenizer)
+def build_perplexity_windows(
+    tokenizer: Any,
+    *,
+    sample_count: int = PERPLEXITY_SAMPLE_COUNT,
+    stride: int = PERPLEXITY_SEQUENCE_LENGTH + 1,
+) -> tuple[list[Any], dict[str, Any]]:
+    """Build deterministic source-order windows using the S03 evaluator path."""
+
+    return _dataset_windows(tokenizer, sample_count=sample_count, stride=stride)
 
 
 def _sequence_digest(sequence: Any) -> str:
