@@ -21,7 +21,7 @@ Completed in S02:
   serialization and byte-count tests, alignment tests, and a production
   packed-storage guard.
 - Preserved and reran every S01 unit test. The explicit complete S01+S02 run
-  passed 31 tests with 2 known upstream import deprecation warnings.
+  passed 27 tests with 2 known upstream import deprecation warnings.
 
 Validation outcome: S02 CONTINUE. The physical format is versioned in
 `docs/BITPLANE_FORMAT.md`; all required ordering, reconstruction, prefix,

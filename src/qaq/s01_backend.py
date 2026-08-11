@@ -51,6 +51,39 @@ class BackendCase:
 def _source_commit() -> str:
     if not ANY_PRECISION_ROOT.is_dir():
         raise RuntimeError(f"Pinned Any-Precision source is missing: {ANY_PRECISION_ROOT}")
+    repository = subprocess.run(
+        ["git", "-C", str(ANY_PRECISION_ROOT), "rev-parse", "--show-toplevel"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if repository.returncode != 0:
+        raise RuntimeError(
+            "Could not inspect pinned Any-Precision repository: "
+            f"{repository.stderr.strip()}"
+        )
+    if Path(repository.stdout.strip()).resolve() != ANY_PRECISION_ROOT.resolve():
+        raise RuntimeError(f"Pinned Any-Precision source is not initialized: {ANY_PRECISION_ROOT}")
+    status = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(ANY_PRECISION_ROOT),
+            "status",
+            "--porcelain=v1",
+            "--untracked-files=all",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if status.returncode != 0:
+        raise RuntimeError(
+            "Could not inspect pinned Any-Precision source status: "
+            f"{status.stderr.strip()}"
+        )
+    if status.stdout.strip():
+        raise RuntimeError(f"Pinned Any-Precision source is dirty: {status.stdout.strip()}")
     completed = subprocess.run(
         ["git", "-C", str(ANY_PRECISION_ROOT), "rev-parse", "HEAD"],
         capture_output=True,

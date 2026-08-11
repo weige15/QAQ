@@ -109,7 +109,7 @@ after it passes:
 
 ```text
 pytest -q tests/unit/test_backend_import.py tests/unit/test_single_linear_precision4.py tests/unit/test_single_linear_precision8.py tests/unit/test_cuda_vs_dequantized_reference.py tests/unit/test_deterministic_output.py tests/unit/test_pack_unpack_known_pattern.py tests/unit/test_backend_known_patterns.py tests/unit/test_pack_unpack_random.py tests/unit/test_plane_order.py tests/unit/test_prefix_precision.py tests/unit/test_padding.py tests/unit/test_packed_byte_count.py tests/unit/test_no_byte_per_bit_production_storage.py tests/unit/test_reference_backend_agreement.py tests/unit/test_nested_quantization_metadata.py tests/unit/test_serialization_order.py
-                                                                                PASS: 31 passed, 2 warnings
+                                                                                PASS: 27 passed, 2 warnings
 ```
 
 ## Unknowns and boundary
