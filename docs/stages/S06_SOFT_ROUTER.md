@@ -135,5 +135,6 @@ execution, gradient flow, and frozen-model behavior only. It does not prove
 learned routing quality. The soft wrapper intentionally supports prefill
 training only; production hard argmax inference belongs to S07.
 
-**Next action:** Begin S07: train the router through teacher-student
-distillation and evaluate deterministic hard argmax routes.
+The S06 gate is complete. The current repository stage and next action are
+authoritative in [`docs/STATUS.md`](../STATUS.md); S07-A has since completed
+its reusable distillation smoke machinery, and S07-B remains.

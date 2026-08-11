@@ -7,6 +7,9 @@ teacher-student router-training seams and validates them on a deliberately tiny
 local fixture. It does not run real dataset-scale training, evaluate routing
 quality, add a width/latency/transfer/entropy penalty, or implement S07-B/S08.
 
+The S07-A implementation choices are recorded in
+[`docs/DECISIONS.md` — D025](../DECISIONS.md#d025--s07-a-distillation-seams-2026-08-11).
+
 ### Loss and data contract
 
 The implementation is `src/qaq/s07_distillation.py` and uses
@@ -67,7 +70,7 @@ are not baseline decisions.
 
 ```text
 source ~/.venv/bin/activate
-which python                         # /nfs/home/s314511048/.venv/bin/python
+which python                         # resolves inside ~/.venv
 python --version                     # Python 3.12.3
 PYTHONPATH=src pytest -q tests/unit/test_s07_distillation.py tests/integration/test_s07_distillation_smoke.py
                                      # 9 passed

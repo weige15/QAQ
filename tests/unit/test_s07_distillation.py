@@ -45,9 +45,7 @@ def test_causal_targets_and_completion_range_are_explicitly_aligned():
     example = _example()
     assert torch.equal(
         example.target_ids,
-        torch.tensor(
-            [12, 13, 14, CAUSAL_TARGET_IGNORE_INDEX, CAUSAL_TARGET_IGNORE_INDEX]
-        ),
+        torch.tensor([12, 13, 14, CAUSAL_TARGET_IGNORE_INDEX, CAUSAL_TARGET_IGNORE_INDEX]),
     )
     assert torch.equal(example.completion_loss_mask, torch.tensor([0, 1, 1, 0, 0]))
     with pytest.raises(ValueError, match="causal logits"):

@@ -6,9 +6,9 @@ The real packed S06 soft-routing regression cannot construct its pinned Any-Prec
 
 ## Reproduction Command
 
-Working directory: `/nfs/home/s314511048/.no-mistakes/worktrees/1625d688fc86/01KZRAF1FGKZEX50XMJ6S58TJ4`
+Working directory: project root
 Shell: `bash`
-Runtime: `/nfs/home/s314511048/.venv/bin/python`, Python 3.12.3
+Runtime: `~/.venv/bin/python`, Python 3.12.3
 Environment: project virtual environment activated from `~/.venv`
 Relevant environment variables:
 ```text
@@ -33,7 +33,7 @@ Two tests failed before backend execution and one artifact-dependent Qwen3 test 
 ## Error Log
 
 ```text
-RuntimeError: Pinned Any-Precision source is not initialized: /nfs/home/s314511048/.no-mistakes/worktrees/1625d688fc86/01KZRAF1FGKZEX50XMJ6S58TJ4/third_party/any-precision-llm
+RuntimeError: Pinned Any-Precision source is not initialized: third_party/any-precision-llm
 
 2 failed, 1 skipped in 2.86s
 ```

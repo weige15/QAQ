@@ -212,9 +212,10 @@ class DistillationExample:
             if self.completion_token_range.start == 0:
                 raise ValueError("completion_token_range must start after a causal context token")
             if prompt_mask is not None:
-                positions_at_or_after_completion = torch.arange(
-                    sequence_length, device=prompt_mask.device
-                ) >= self.completion_token_range.start
+                positions_at_or_after_completion = (
+                    torch.arange(sequence_length, device=prompt_mask.device)
+                    >= self.completion_token_range.start
+                )
                 if bool((prompt_mask & positions_at_or_after_completion).any()):
                     raise ValueError(
                         "prompt_attention_mask must select only tokens before completion_token_range"
@@ -339,9 +340,7 @@ class DistillationBatch:
         attention = _validate_batch_mask(self.attention_mask, "attention_mask")
         completion = _validate_batch_mask(self.completion_loss_mask, "completion_loss_mask")
         prompt = _validate_batch_mask(self.prompt_attention_mask, "prompt_attention_mask")
-        _validate_causal_target_alignment(
-            self.input_ids, attention, self.target_ids, completion
-        )
+        _validate_causal_target_alignment(self.input_ids, attention, self.target_ids, completion)
         if bool((completion & ~attention).any()):
             raise ValueError("completion_loss_mask cannot include padding positions")
         if bool((prompt & ~attention).any()):
@@ -1026,8 +1025,8 @@ class RouterDistillationTrainer:
 
 
 __all__ = [
-    "CAUSAL_TARGET_IGNORE_INDEX",
     "CANDIDATE_ORDERING",
+    "CAUSAL_TARGET_IGNORE_INDEX",
     "DistillationBatch",
     "DistillationExample",
     "DistillationStepResult",
