@@ -67,8 +67,16 @@ The S05 artifact-dependent parity test is
 `tests/integration/test_s05_manual_routing.py`; it compares request-prefill
 all-4/all-8 logits with the verified S03 static outputs at the S04 tolerance
 `atol=1e-3`, `rtol=1e-3`. It is skipped when the ignored S03 artifact is not
-available in the disposable worktree. The existing S04 all-4/all-8 regression
-remains unchanged. `tests/integration/test_s05_tiny_qwen3_execution.py`
+available in the disposable worktree. With the supplied read-only packed
+artifact, the exact combined command
+
+```text
+QAQ_S03_ARTIFACT='/nfs/home/s314511048/firstmate/projects/QAQ/quantized/s03b_qwen3_4b/backend_cache/packed/anyprec-(1cfa9a7208912126459214e8b04321603b3df60c)-w8_orig4-gc1-c4_s1_blk64' QAQ_MODEL_DEVICE=cuda:3 pytest -q tests/integration/test_s04_manual_routing.py tests/integration/test_s05_manual_routing.py
+  PASS: 10 passed in 422.84s (0:07:02)
+```
+
+This is 8 unchanged S04 tests plus 2 S05 all-4/all-8 request-prefill parity
+tests. `tests/integration/test_s05_tiny_qwen3_execution.py`
 exercises the real Transformers Qwen3 wrapper with a deterministic tiny
 36-layer CPU configuration and passes prefill plus a different completion
 decode step; it is a timing/lifecycle check, not a quantized parity claim.
@@ -82,8 +90,8 @@ pytest -q tests/unit
   PASS: 55 passed in 12.55s
 pytest -q tests/unit/test_backend_import.py tests/unit/test_single_linear_precision4.py tests/unit/test_single_linear_precision8.py tests/unit/test_cuda_vs_dequantized_reference.py tests/unit/test_deterministic_output.py tests/unit/test_pack_unpack_known_pattern.py tests/unit/test_backend_known_patterns.py tests/unit/test_pack_unpack_random.py tests/unit/test_plane_order.py tests/unit/test_prefix_precision.py tests/unit/test_padding.py tests/unit/test_packed_byte_count.py tests/unit/test_no_byte_per_bit_production_storage.py tests/unit/test_reference_backend_agreement.py tests/unit/test_nested_quantization_metadata.py tests/unit/test_serialization_order.py
   PASS: 27 passed in 8.94s
-pytest -q tests/unit/test_actual_model_inspection.py tests/unit/test_model_inspection.py tests/integration/test_static4_forward.py tests/integration/test_static8_forward.py
-  PASS: 9 passed, 2 skipped; both skips report the absent S03-B artifact
+QAQ_S03_ARTIFACT='/nfs/home/s314511048/firstmate/projects/QAQ/quantized/s03b_qwen3_4b/backend_cache/packed/anyprec-(1cfa9a7208912126459214e8b04321603b3df60c)-w8_orig4-gc1-c4_s1_blk64' QAQ_MODEL_DEVICE=cuda:3 pytest -q tests/integration/test_static4_forward.py tests/integration/test_static8_forward.py
+  PASS: 2 passed in 218.23s (0:03:38)
 pytest -q tests/integration/test_s04_manual_routing.py tests/integration/test_s05_manual_routing.py tests/integration/test_static4_forward.py tests/integration/test_static8_forward.py tests/integration/test_static_generation.py tests/integration/test_checkpoint_roundtrip.py tests/integration/test_manifest_byte_count.py tests/integration/test_expected_modules_quantized.py tests/integration/test_no_duplicate_precision_models.py
   21 skipped; all artifact-dependent tests report the absent S03-B artifact
 ruff check src/qaq tests/unit tests/integration/test_no_completion_token_leakage.py tests/integration/test_attention_feature_timing.py tests/integration/test_ffn_feature_timing.py tests/integration/test_route_fixed_during_decode.py tests/integration/test_request_state_isolation.py tests/integration/test_s05_manual_routing.py tests/integration/test_s05_tiny_qwen3_execution.py
@@ -93,15 +101,14 @@ python -m compileall -q src tests
 ```
 
 The S04 historical record remains **8 passed** for all-4/all-8 parity and
-route isolation at commit `a5802358acd756751d4006705ebea961a27b0f8c`.
+route isolation at commit `a5802358acd756751d4006705ebea961a27b0f8c`; the
+same 8 tests passed again above against the supplied artifact.
 
 ## Limitations and gate
 
 The wrapper is specialized to the verified Qwen3-4B 36-layer S04 graph. The
-local disposable copy does not contain the ignored S03 model artifact, so
-artifact-dependent CUDA parity and full prefill/decode cache execution require
-the recorded artifact path on the validation host. No S06 functionality is
-implemented or executed.
+artifact-backed parity and static regressions require the supplied read-only
+artifact path. No S06 functionality is implemented or executed.
 
 **CONTINUE condition:** prompt-only timing, padding invariance, no completion
 leakage, request isolation, route reuse without decode policy calls, shape and

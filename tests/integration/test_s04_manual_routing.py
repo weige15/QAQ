@@ -1,32 +1,17 @@
 from __future__ import annotations
 
-import os
-
 import pytest
 
-from qaq.s03_static import run_static_smoke, smoke_inputs, tensor_sha256
+from qaq.s03_static import run_static_smoke, tensor_sha256
 from qaq.s04_manual import (
     LAYER_COUNT,
     PrecisionPlan,
     PrecisionTrace,
     expected_trace,
-    load_manual_model,
 )
 
 PARITY_ATOL = 1e-3
 PARITY_RTOL = 1e-3
-
-
-@pytest.fixture(scope="session")
-def manual_case(artifact):
-    import torch
-
-    if not torch.cuda.is_available():
-        pytest.skip("S04 manual routing integration tests require CUDA")
-    device = os.environ.get("QAQ_MODEL_DEVICE", "cuda:3")
-    model = load_manual_model(artifact, device)
-    inputs, _ = smoke_inputs(artifact, device)
-    return model, inputs, torch
 
 
 def _run(model, inputs, torch, plan):

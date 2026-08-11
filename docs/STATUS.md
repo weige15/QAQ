@@ -1,5 +1,5 @@
 Current stage: S05
-Status: IN_PROGRESS
+Status: COMPLETE
 
 S00, S01, S02, and S03 are COMPLETE. S03-A and S03-B were complete with CONTINUE evidence:
 - The exact pinned `Qwen/Qwen3-4B` revision `1cfa9a7208912126459214e8b04321603b3df60c` is cached locally.
@@ -23,8 +23,11 @@ S05 implementation is present in `src/qaq/model/request_state.py`,
 padding, request-state, timing, no-completion-leakage, decode-reuse, and
 request-isolation checks pass (`18 passed`, including a real tiny Qwen3
 prefill/decode wrapper check). Artifact-dependent CUDA parity and full
-cache-backed decode evidence remain to be run where the ignored S03 artifact is
-available; S05 is not yet complete.
+cache-backed decode evidence is covered by the request route-reuse tests. The
+corrected read-only packed artifact passed the unchanged S04 regressions and
+S05 all-4/all-8 request-prefill parity (`10 passed in 422.84s`); S03 static
+4-bit/8-bit regressions also passed (`2 passed in 218.23s`).
 
-Next action: run the complete S01-S04 regression and artifact-backed S05
-prefill/decode parity gate, then update this status with the measured result.
+Passing S05 implementation commit: `PENDING_COMMIT_HASH`.
+
+Next action: Begin S06: implement the trainable soft router and differentiable 4-bit/8-bit mixture path.
