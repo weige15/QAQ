@@ -1,6 +1,26 @@
 Current stage: S09
 Status: IN_PROGRESS
 
+## S09-A review follow-up — authorized validator corrections
+
+The preserved protocol-freeze commit `c381269be2339536d0ab0c6bfa39983269e6c443`
+was cherry-picked into the isolated replacement branch as `40a9833`. The
+follow-up changes only validator enforcement and focused tests/docs: complete
+routed prompt recording and S07 `OTHER`, fixed inputs/generation/seeds,
+physical D029 transfer accounting, fixed-GPU identity/comparability, exact
+dataset/next-token/padding/token-weighted-loss wording, live Any-Precision
+submodule revision verification, and complete REVISE/all-gates/deferred
+policies.
+
+Evidence so far: `17 passed` for the focused S09 protocol/input/evaluator
+tests, Ruff passes for changed files, and the validator passes with real
+external artifact presence checks using `--skip-hashes`. The 5.2 GB artifact
+was not rehashed in this lightweight pass. No S09-B benchmark or result
+artifact exists.
+
+Next action: commit the review fixes, run the required no-mistakes flow, and
+stop at the S09-A gate; do not run S09-B.
+
 ## S09-A workflow subdivision — protocol frozen before final results
 
 S09-A defines and validates the final five-mode comparison protocol before

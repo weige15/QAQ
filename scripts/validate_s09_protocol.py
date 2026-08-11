@@ -10,6 +10,7 @@ import math
 import os
 import re
 import struct
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
@@ -45,6 +46,60 @@ EXPECTED_PROMPT_IDS = (
     "validation-3",
     "validation-1000",
 )
+EXPECTED_DATASET_SELECTION = (
+    "concatenate non-empty rows in source order; take the first fixed valid windows; "
+    "no random sampling"
+)
+EXPECTED_LABELS = "window[1:] aligned with logits from window[:-1]"
+EXPECTED_LOSS = (
+    "float32 token-weighted summed causal cross-entropy divided by exact "
+    "evaluated target-token count"
+)
+EXPECTED_ROUTED_RECORDING = {
+    "layers": 36,
+    "unit_types": ["attention", "ffn"],
+    "units_per_request": 72,
+    "fraction_fields": ["4_bit", "8_bit", "overall"],
+    "route_map_digest": "canonical sorted-key JSON SHA-256",
+    "prompt_to_prompt_diversity": (
+        "record unique maps, changed units, changed fraction, and pairwise route "
+        "distance; observational only"
+    ),
+    "adaptivity_limitation": "retain S07 classification OTHER; no new diversity threshold",
+}
+EXPECTED_TRANSFER_MODE = "hard-routed_synchronous_on_demand_only"
+EXPECTED_TRANSFER_RULE = (
+    "D029 physical packed buffer rule: selected qweight planes plus the selected "
+    "precision LUT, with actual destination numel*element_size bytes"
+)
+EXPECTED_TRANSFER_INPUTS = [
+    "actual hard route map",
+    "actual S08 packed buffer layout",
+    "D029 transfer rule",
+]
+EXPECTED_HARDWARE_POLICY = "one fixed physical CUDA device for every mode; PAUSE rather than mix GPU models"
+EXPECTED_GPU_SUBSTITUTION = "allowed only with pre-recorded identity and comparability"
+EXPECTED_HARDWARE_RECORD_VERSIONS = [
+    "device_index",
+    "gpu_model",
+    "driver",
+    "cuda_runtime",
+    "pytorch",
+    "transformers",
+    "python",
+]
+EXPECTED_DEFERRED_MECHANISMS = [
+    "asynchronous loading",
+    "prefetching",
+    "transfer prediction",
+    "bit-width cost penalties",
+    "cross-request caching",
+    "multi-query batching",
+    "schedulers",
+    "post-baseline optimization",
+    "soft-routing final mode",
+    "alternate router or checkpoint",
+]
 
 
 class ProtocolValidationError(ValueError):
@@ -73,6 +128,22 @@ def _yaml_scalar(path: Path, key: str) -> str | None:
     pattern = re.compile(rf"^{re.escape(key)}:\s*([^#\s]+)", re.MULTILINE)
     match = pattern.search(path.read_text())
     return None if match is None else match.group(1).strip("\"'")
+
+
+def _git_revision(path: Path) -> str | None:
+    """Return the checked-out revision for a submodule path, if available."""
+
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(path), "rev-parse", "HEAD"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    revision = result.stdout.strip()
+    return revision or None
 
 
 def _get(mapping: Any, *keys: str) -> Any:
@@ -248,6 +319,23 @@ def _validate_identities(
         EXPECTED_ANY_PRECISION_REVISION,
         "manifest Any-Precision revision",
     )
+    submodule_path_value = any_precision.get("submodule_path")
+    _check_equal(
+        errors,
+        submodule_path_value,
+        "third_party/any-precision-llm",
+        "Any-Precision submodule path",
+    )
+    if isinstance(submodule_path_value, str) and not Path(submodule_path_value).is_absolute():
+        submodule_path = root / submodule_path_value
+        _add(errors, submodule_path.is_dir(), f"Any-Precision submodule is unavailable: {submodule_path}")
+        if submodule_path.is_dir():
+            _check_equal(
+                errors,
+                _git_revision(submodule_path),
+                EXPECTED_ANY_PRECISION_REVISION,
+                "Any-Precision checked-out revision",
+            )
 
     artifact = identities.get("packed_artifact", {})
     artifact_meta = manifest.get("artifact", {})
@@ -398,32 +486,94 @@ def _validate_dataset(config: dict[str, Any], errors: list[str]) -> None:
         EXPECTED_EVALUATED_TOKENS,
         "evaluated token arithmetic",
     )
-    _add(
+    _check_equal(
         errors,
-        "source order" in str(perplexity.get("selection", "")).lower(),
-        "dataset selection must state source order",
+        perplexity.get("selection"),
+        EXPECTED_DATASET_SELECTION,
+        "dataset selection policy",
     )
-    _add(
-        errors,
-        "random" in str(perplexity.get("selection", "")).lower(),
-        "dataset selection must explicitly exclude random sampling",
-    )
-    _add(
-        errors,
-        "token-weighted" in str(perplexity.get("loss", "")).lower(),
-        "perplexity loss must be token-weighted",
-    )
-    _add(
-        errors,
-        "window[1:]" in str(perplexity.get("labels", "")),
-        "perplexity labels must be next-token labels",
-    )
+    _check_equal(errors, perplexity.get("padding"), "none", "padding exclusion")
+    _check_equal(errors, perplexity.get("generated_tokens"), False, "generated-token exclusion")
+    _check_equal(errors, perplexity.get("labels"), EXPECTED_LABELS, "next-token labels")
+    _check_equal(errors, perplexity.get("loss"), EXPECTED_LOSS, "token-weighted loss")
     _check_equal(
         errors,
         perplexity.get("tokenizer_revision"),
         EXPECTED_MODEL_REVISION,
         "perplexity tokenizer revision",
     )
+
+
+def _validate_fixed_input_contract(config: dict[str, Any], errors: list[str]) -> None:
+    fixed = config.get("fixed_inputs", {})
+    _check_equal(errors, fixed.get("path"), "configs/s09_baseline_prompts.json", "fixed input source")
+    _check_equal(
+        errors,
+        fixed.get("runtime_prompt_generation"),
+        False,
+        "fixed input runtime prompt generation",
+    )
+    _check_equal(
+        errors,
+        fixed.get("applicable_inputs_identical_across_modes"),
+        True,
+        "fixed inputs identical across modes",
+    )
+
+    routed = fixed.get("routed_recording")
+    _add(errors, isinstance(routed, dict), "routed prompt recording contract is missing")
+    if isinstance(routed, dict):
+        for field, expected in EXPECTED_ROUTED_RECORDING.items():
+            _check_equal(errors, routed.get(field), expected, f"routed recording {field}")
+        _check_equal(
+            errors,
+            routed.get("units_per_request"),
+            routed.get("layers", 0) * len(routed.get("unit_types", []))
+            if isinstance(routed.get("layers"), int) and isinstance(routed.get("unit_types"), list)
+            else None,
+            "routed recording unit arithmetic",
+        )
+
+    comparison = config.get("comparison_contract", {})
+    for key in (
+        "same_model_and_tokenizer_revision",
+        "identical_applicable_input_token_ids",
+        "resident_and_on_demand_generation_settings_identical",
+    ):
+        _check_equal(errors, comparison.get(key), True, f"comparison contract {key}")
+    deterministic = config.get("deterministic_criteria", {})
+    for key in (
+        "route_maps_complete",
+        "resident_on_demand_route_maps_equal",
+        "resident_on_demand_outputs_match_existing_correctness_criterion",
+    ):
+        _check_equal(errors, deterministic.get(key), True, f"deterministic criteria {key}")
+
+
+def _validate_generation_and_seeds(config: dict[str, Any], errors: list[str]) -> None:
+    generation = config.get("generation", {})
+    for key, expected in (
+        ("input_source", "fixed_inputs"),
+        ("batch_size", 1),
+        ("decoding", "greedy"),
+        ("do_sample", False),
+        ("num_beams", 1),
+        ("temperature", None),
+        ("max_new_tokens", 8),
+        ("same_settings_and_limits_across_modes", True),
+    ):
+        _check_equal(errors, generation.get(key), expected, f"generation {key}")
+
+    seeds = config.get("seeds")
+    _add(errors, isinstance(seeds, dict), "deterministic seed policy is missing")
+    if isinstance(seeds, dict):
+        for key, expected in (
+            ("global_reproducibility_seed", 1729),
+            ("perplexity_random_sampling", False),
+            ("generation_sampling", False),
+            ("runtime_prompt_generation", False),
+        ):
+            _check_equal(errors, seeds.get(key), expected, f"seed policy {key}")
 
 
 def _validate_prompts(
@@ -568,14 +718,6 @@ def _validate_prompts(
 
 def _validate_measurement_contract(config: dict[str, Any], errors: list[str]) -> None:
     generation = config.get("generation", {})
-    for key, expected in (
-        ("batch_size", 1),
-        ("do_sample", False),
-        ("num_beams", 1),
-        ("temperature", None),
-        ("max_new_tokens", 8),
-    ):
-        _check_equal(errors, generation.get(key), expected, f"generation {key}")
     _add(
         errors,
         "generated_token_ids" in generation.get("records", []),
@@ -644,6 +786,14 @@ def _validate_measurement_contract(config: dict[str, Any], errors: list[str]) ->
     )
 
     transfer = config.get("transfer", {})
+    _check_equal(errors, transfer.get("mode"), EXPECTED_TRANSFER_MODE, "transfer mode")
+    _check_equal(errors, transfer.get("rule"), EXPECTED_TRANSFER_RULE, "D029 transfer rule")
+    _check_equal(
+        errors,
+        transfer.get("expected_bytes_inputs"),
+        EXPECTED_TRANSFER_INPUTS,
+        "transfer expected-byte inputs",
+    )
     required_transfer = {
         "first_use_bytes",
         "reuse_bytes",
@@ -669,6 +819,20 @@ def _validate_measurement_contract(config: dict[str, Any], errors: list[str]) ->
     )
 
     hardware = config.get("hardware", {})
+    _check_equal(errors, hardware.get("policy"), EXPECTED_HARDWARE_POLICY, "hardware policy")
+    _check_equal(
+        errors,
+        hardware.get("identical_rtx3090_substitution"),
+        EXPECTED_GPU_SUBSTITUTION,
+        "GPU comparability policy",
+    )
+    _check_equal(errors, hardware.get("preferred_device_index"), 3, "preferred device index")
+    _check_equal(
+        errors,
+        hardware.get("required_gpu_model"),
+        "NVIDIA GeForce RTX 3090",
+        "required GPU model",
+    )
     _add(
         errors,
         isinstance(hardware.get("preferred_device_index"), int),
@@ -677,8 +841,7 @@ def _validate_measurement_contract(config: dict[str, Any], errors: list[str]) ->
     _add(errors, bool(hardware.get("required_gpu_model")), "hardware GPU model is required")
     _add(
         errors,
-        "device_index" in hardware.get("record_versions", [])
-        and "python" in hardware.get("record_versions", []),
+        hardware.get("record_versions") == EXPECTED_HARDWARE_RECORD_VERSIONS,
         "hardware version record is incomplete",
     )
 
@@ -722,10 +885,25 @@ def _validate_release_criteria(config: dict[str, Any], errors: list[str]) -> Non
         "PAUSE" == release.get("failure_outcomes", {}).get("missing_hardware_or_external_resource"),
         "missing resource must be PAUSE",
     )
+    _check_equal(
+        errors,
+        release.get("failure_outcomes", {}).get("all_gates_pass"),
+        "CONTINUE_TO_S09B",
+        "all-gates-pass outcome",
+    )
     _add(
         errors,
-        "invalidat" in str(release.get("post_result_protocol_change", "")).lower(),
-        "post-result protocol changes must invalidate affected results",
+        release.get("post_result_protocol_change")
+        == "Any genuine defect requires REVISE and invalidation of affected results; "
+        "never silently edit frozen inputs or gates",
+        "post-result policy must require REVISE and invalidation",
+    )
+    deferred = config.get("deferred_mechanisms")
+    _check_equal(
+        errors,
+        deferred,
+        EXPECTED_DEFERRED_MECHANISMS,
+        "complete deferred mechanisms",
     )
 
 
@@ -810,6 +988,8 @@ def validate_protocol_payload(
     _validate_modes(config, errors)
     _validate_identities(config, root, manifest, errors)
     _validate_dataset(config, errors)
+    _validate_fixed_input_contract(config, errors)
+    _validate_generation_and_seeds(config, errors)
     _validate_prompts(config, root, errors, prompt_payload)
     _validate_measurement_contract(config, errors)
     _validate_release_criteria(config, errors)

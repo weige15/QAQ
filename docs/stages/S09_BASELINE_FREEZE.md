@@ -177,10 +177,14 @@ protocol edit.
 ### S09-A validation gate
 
 The validator parses the config, checks exact five-mode completeness and
-identity agreement with manifests/results, validates fixed inputs and sample
-arithmetic, checks all release/quality/latency gates and forbidden mode
-mechanisms, and resolves the practical model/artifact/checkpoint identities.
-It does not load the five Qwen models or run the final comparison.
+identity agreement with manifests/results, validates the complete routed
+recording contract, fixed inputs, generation/seed policy, sample arithmetic,
+physical transfer rule and expected-byte sources, live Any-Precision
+submodule revision, fixed-GPU comparability identity, all release/quality/
+latency gates, post-result invalidation policy, complete deferred-mechanisms
+list, and forbidden mode mechanisms. It resolves practical model/artifact/
+checkpoint identities without loading the five Qwen models or running the
+final comparison.
 
 ```text
 source ~/.venv/bin/activate

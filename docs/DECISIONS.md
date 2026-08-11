@@ -530,6 +530,32 @@ protocol defect, mark the protocol REVISE, identify affected inputs/results,
 invalidate them, update this ledger with the replacement decision, and rerun
 the validation gate before any new S09-B execution.
 
+### D032 — S09-A validator review follow-up (2026-08-12)
+
+**Choice:** Keep the D031 S09-A protocol, inputs, seeds, five-mode matrix,
+measurement boundaries, and provenance unchanged while making the validator
+enforce the contract it already documents. The follow-up validates complete
+72-unit routed records and S07's `OTHER` limitation; fixed-input greedy
+generation and the complete seed policy; D029 physical transfer mode/rule and
+real expected-byte inputs; the fixed RTX 3090 comparability and identity
+record; exact deterministic dataset/label/loss wording; the live
+Any-Precision submodule revision; and the complete REVISE/invalidation,
+all-gates-pass, and deferred-mechanisms policies.
+
+**Evidence:** Mutation-focused S09 protocol tests pass, the lightweight
+validator passes with external artifact presence checks, Ruff passes, and the
+checked-out submodule revision is read from Git rather than trusted from the
+manifest alone. No S09-B benchmark or result artifact was generated.
+
+**Consequence:** S09-A remains frozen before results and may proceed only to
+the separately authorized S09-B evaluation after this review-fix commit and
+the no-mistakes gate. A future protocol change still requires REVISE and
+invalidation of affected results.
+
+**Reversal path:** If any focused check reveals a mismatch with D031, stop at
+S09-A, preserve the evidence, and record a replacement decision before any
+benchmark execution.
+
 ## Decision protocol
 
 A worker must add a dated or commit-linked entry when a stage resolves an unknown or introduces a new assumption.
