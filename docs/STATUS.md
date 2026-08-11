@@ -17,6 +17,10 @@ S06 evidence:
 - Forced 4-bit and 8-bit endpoints match the verified S03/S04 executions within
   the documented `atol=1e-3`, `rtol=1e-3`; synthetic pinned-backend endpoints
   are bitwise equal.
+- Focused real packed S06 soft-routing regression: 2 passed against
+  Any-Precision commit `a3257d02740cc5757c78673da534b0630ff3a4ea`; the
+  artifact-dependent Qwen3 endpoint test remains skipped because the S03-B
+  artifact is absent in this worktree.
 - Probability, shape, finite-value, temperature, attention-sharing, FFN-sharing,
   gradient, optimizer-step, and frozen-model checks pass.
 - S06 focused suite: 14 passed.
