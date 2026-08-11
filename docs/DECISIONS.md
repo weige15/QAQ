@@ -446,6 +446,29 @@ transfer granularity or byte accounting. If real integration requires a
 lifetime or ownership model different from `QaqRequestState.end_request()`,
 reopen this decision rather than adding a global registry.
 
+### D030 — S08-B real Qwen3 on-demand baseline (2026-08-11)
+
+**Choice:** Complete S08-B with the synchronous CPU-authoritative loader integrated into real hard-routed Qwen3-4B execution.
+Use the two locked S07 validation requests, retain selected packed buffers for one request, and compare against the resident routed model under synchronized CUDA measurements.
+Do not add asynchronous transfer, prefetching, cross-request caching, batching, schedulers, or a new routing objective.
+
+**Evidence:** The required artifact, router checkpoint, model snapshot, Any-Precision revision, and CUDA device were present and matched the recorded identities.
+The on-demand graph had 252 CPU-authoritative sources, zero remaining packed modules, and no complete packed GPU copy.
+Resident and on-demand route maps matched, logits were finite and bitwise equal, and four-token greedy generation matched for both requests.
+On-demand transfer totals were `3,817,717,760` and `3,835,002,880` bytes, matching independent expected-byte sums exactly.
+All bytes transferred during prefill; decode transfer was zero.
+Request cleanup released all retained entries, buffers, and packed bytes, and a later request transferred independently.
+The real focused suite passed `3 tests`, the S08-A suite passed `8 tests`, and Ruff passed.
+Synchronized two-repeat memory and latency observations are recorded in `docs/results/s08_on_demand.json`.
+
+**Measurement integrity:** The result records the code/worktree snapshot, model revision, packed checkpoint hash, Any-Precision revision, router checkpoint hash, CUDA device, Python and Torch versions, request identifiers and input digests, measurement method, exact transfer records, and allocator readings.
+The previously recorded `8 passed in 651.74s` regression evidence was preserved without rerun because no relevant execution path changed after that result.
+
+**Consequence:** The S08 gate is **COMPLETE**.
+The repository next action is S09, but S09 must not be started as part of this decision.
+
+**Reversal path:** If a future change alters packed source authority, route parity, logits, transfer accounting, request cleanup, or measurement comparability, reopen S08-B and preserve this baseline result before changing the mechanism.
+
 ## Decision protocol
 
 A worker must add a dated or commit-linked entry when a stage resolves an unknown or introduces a new assumption.

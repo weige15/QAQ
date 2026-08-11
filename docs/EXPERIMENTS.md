@@ -242,3 +242,22 @@ Do not introduce asynchronous transfers, prefetching, transfer prediction, bit-w
   stream, future, worker, cache, or prefetch path exists.
 - Decision: implementation details are recorded as D029 in
   `docs/DECISIONS.md`. This evidence supports S08-A **CONTINUE** only.
+
+## S08-B real Qwen3 hard-routed on-demand integration (2026-08-11)
+
+- Scope: complete S08-B only; no S09 baseline comparison or execution.
+- Interruption handling: the prior worker ended with an external Codex service-overload error after three retries. This was not treated as a QAQ defect, and no completed S08-B evidence was discarded or rerun solely for reproduction.
+- Inputs: the two locked S07 validation requests `validation-3` and `validation-1000`, with input-token digests recorded in `docs/results/s08_on_demand.json`.
+- Model and revisions: `Qwen/Qwen3-4B` revision `1cfa9a7208912126459214e8b04321603b3df60c`, Any-Precision revision `a3257d02740cc5757c78673da534b0630ff3a4ea`, packed checkpoint SHA-256 `29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee`, and router checkpoint SHA-256 `08bf646f19759c0d7949e159bdbe4f96bbea737204b96f8760d205c8d6fd1949`.
+- Environment: `/nfs/home/s314511048/.venv/bin/python`, Python `3.12.3`, PyTorch `2.2.2+cu121`, CUDA runtime `12.1`, NVIDIA GeForce RTX 3090, device `cuda:3`.
+- CPU authority and hidden-copy audit: 252 on-demand sources remained CPU-resident, all LUTs and packed qweights were CPU-resident, zero `AnyPrecisionLinear` modules remained, and no complete packed GPU copy remained before first use.
+- Route parity and logits: resident and on-demand route maps matched for both requests; both outputs were finite and bitwise equal with zero mean and maximum absolute logit difference.
+- Generation: four greedy decode tokens matched exactly for both modes and both requests; route maps remained fixed during decode; on-demand decode transfer bytes were zero.
+- Transfer accounting: on-demand prefill transferred `3,817,717,760` bytes for `validation-3` and `3,835,002,880` bytes for `validation-1000`. Each total matched the independently computed per-projection expected bytes. There were 252 first-use events and zero reuse transfer bytes per request.
+- Phase accounting: prefill transfer equaled total transfer and decode transfer was zero for both requests.
+- Cleanup and isolation: each request retained 252 projection entries, 504 packed GPU buffers, and the measured packed bytes before cleanup, then zero entries, buffers, and bytes after `end_request()`. A later fresh request transferred its buffers again.
+- Memory: two synchronized measurement repeats produced maximum resident peak allocated memory of `5,724,945,408` bytes and maximum on-demand peak allocated memory of `4,806,114,304` bytes. Full allocated/reserved observations are in the result artifact.
+- Latency: resident median prefill/decode/end-to-end was `0.145354`/`0.187833`/`0.332110` seconds; on-demand was `5.815631`/`0.229669`/`6.031509` seconds.
+- Commands: the focused S08-B suite passed `3 tests in 438.03s`; the S08-A focused suite passed `8 tests in 8.55s`; Ruff passed for all changed S08 files. The previously recorded S08-B regression command remained valid at `8 passed in 651.74s` and was not rerun.
+- Result: `docs/results/s08_on_demand.json`, including code/worktree provenance, exact artifact identities, request identities, method, transfer records, allocator readings, cleanup evidence, and commands.
+- Gate: S08 **COMPLETE**; next action is S09, which was not executed.

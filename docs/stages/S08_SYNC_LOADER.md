@@ -91,6 +91,37 @@ Synchronous request-scoped loading transfers only selected packed planes, produc
 
 Required GPU instrumentation or runtime support is temporarily unavailable.
 
+## S08-B — real Qwen3 hard-routed integration and measurements
+
+**Status: COMPLETE — CONTINUE to S09.**
+
+The real Qwen3-4B integration used the two locked S07 validation requests and the pinned S03-B artifact.
+The on-demand model retained packed `qweight`, `lut4`, and `lut8` sources on CPU and replaced all 252 packed modules before moving the execution graph to CUDA.
+The audit found 252 CPU-authoritative sources, zero remaining `AnyPrecisionLinear` modules, and no complete packed GPU copy.
+
+Resident and on-demand hard routes matched for both requests.
+Both produced finite logits that were bitwise equal, with zero mean and maximum absolute difference.
+Four-token greedy generation was deterministic and identical between modes for both requests.
+The route map remained unchanged during all decode steps.
+
+On-demand prefill transfer totals were `3,817,717,760` bytes for `validation-3` and `3,835,002,880` bytes for `validation-1000`.
+Both totals matched the independent expected-byte cross-check by projection and by aggregate.
+There were 252 first-use transfer events, zero reuse transfer bytes, and zero decode transfer bytes per request.
+The second request transferred its selected buffers independently, proving fresh-request isolation.
+
+Each measured request retained 252 projection entries and 504 packed GPU buffers before cleanup, then zero entries, buffers, and packed bytes after `end_request()`.
+Two synchronized repeats measured resident median prefill/decode/end-to-end latency of `0.145354`/`0.187833`/`0.332110` seconds.
+The corresponding on-demand medians were `5.815631`/`0.229669`/`6.031509` seconds.
+The largest resident peak allocated memory was `5,724,945,408` bytes and the largest on-demand peak allocated memory was `4,806,114,304` bytes.
+Reserved-memory values are retained as allocator observations in the result artifact, not as claims of released physical memory.
+
+The real focused S08-B suite passed `3 tests in 438.03s`.
+The S08-A focused suite passed `8 tests in 8.55s`.
+Ruff passed for all changed S08 source, runner, and test files.
+The previously recorded `8 passed in 651.74s` regression result was preserved and not rerun because the relevant implementation and execution path were unchanged after that run.
+
+The complete result, provenance, commands, transfer records, cleanup evidence, memory observations, and latency measurements are in `docs/results/s08_on_demand.json`.
+
 ## REVISE condition
 
 A storage, lifetime, or measurement assumption must be corrected and retested.

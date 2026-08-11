@@ -25,6 +25,7 @@ from .router.features import (
 )
 from .router.soft_linear import mix_packed_outputs
 from .s03_static import assert_target_invariant, load_static_model
+from .s08_loader import PackedLinearSource, SynchronousPackedRequest
 
 LAYER_COUNT = 36
 SUPPORTED_BITS = (4, 8)
@@ -465,6 +466,51 @@ def _select_request_route(
     raise ValueError(f"S05 phase must be 'prefill' or 'decode'; got {phase!r}")
 
 
+class _OnDemandRoutedPackedLinear(nn.Module):
+    """Execute one CPU-authoritative packed source through a request context."""
+
+    def __init__(
+        self,
+        source: PackedLinearSource,
+        *,
+        layer_index: int,
+        unit_type: str,
+        module_path: str,
+    ) -> None:
+        super().__init__()
+        self.source = source
+        self.layer_index = layer_index
+        self.unit_type = unit_type
+        self.module_path = module_path
+
+    def forward(
+        self,
+        inputs: torch.Tensor,
+        *,
+        trace: PrecisionTrace,
+        precision: int | None = None,
+        request_state: QaqRequestState | None = None,
+        on_demand_context: SynchronousPackedRequest | None = None,
+    ) -> torch.Tensor:
+        if precision is None:
+            raise ValueError("on-demand packed execution requires a hard precision")
+        if request_state is None or on_demand_context is None:
+            raise ValueError("on-demand packed execution requires its request context")
+        if on_demand_context.request_state is not request_state:
+            raise RuntimeError("on-demand request context belongs to a different request state")
+        if isinstance(precision, bool) or not isinstance(precision, int):
+            raise TypeError("selected packed precision must be an integer")
+        if precision not in SUPPORTED_BITS:
+            raise ValueError(f"selected packed precision must be 4 or 8; got {precision}")
+        trace.record(
+            layer_index=self.layer_index,
+            unit_type=self.unit_type,
+            module_path=self.module_path,
+            selected_bits=precision,
+        )
+        return on_demand_context.execute(self.module_path, inputs, precision=precision)
+
+
 class _RoutedPackedLinear(nn.Module):
     """Require an explicit hard precision or one S06 soft probability pair."""
 
@@ -484,6 +530,8 @@ class _RoutedPackedLinear(nn.Module):
         trace: PrecisionTrace,
         precision: int | None = None,
         probabilities: torch.Tensor | None = None,
+        request_state: QaqRequestState | None = None,
+        on_demand_context: SynchronousPackedRequest | None = None,
     ) -> torch.Tensor:
         if (precision is None) == (probabilities is None):
             raise ValueError("packed execution requires exactly one of precision or probabilities")
@@ -546,6 +594,8 @@ class _ManualAttention(nn.Module):
         selected_bits: int | None = None,
         routing_probabilities: torch.Tensor | None = None,
         trace: PrecisionTrace,
+        request_state: QaqRequestState | None = None,
+        on_demand_context: SynchronousPackedRequest | None = None,
         **kwargs: Any,
     ) -> tuple[torch.Tensor, torch.Tensor | None]:
         from transformers.models.qwen3.modeling_qwen3 import (
@@ -560,6 +610,10 @@ class _ManualAttention(nn.Module):
             {"probabilities": routing_probabilities}
             if routing_probabilities is not None
             else {"precision": selected_bits}
+        )
+        packed_kwargs.update(
+            request_state=request_state,
+            on_demand_context=on_demand_context,
         )
         query_states = self.q_norm(
             self.q_proj(hidden_states, trace=trace, **packed_kwargs).view(hidden_shape)
@@ -626,11 +680,17 @@ class _ManualMLP(nn.Module):
         selected_bits: int | None = None,
         routing_probabilities: torch.Tensor | None = None,
         trace: PrecisionTrace,
+        request_state: QaqRequestState | None = None,
+        on_demand_context: SynchronousPackedRequest | None = None,
     ) -> torch.Tensor:
         packed_kwargs = (
             {"probabilities": routing_probabilities}
             if routing_probabilities is not None
             else {"precision": selected_bits}
+        )
+        packed_kwargs.update(
+            request_state=request_state,
+            on_demand_context=on_demand_context,
         )
         gate = self.gate_proj(inputs, trace=trace, **packed_kwargs)
         up = self.up_proj(inputs, trace=trace, **packed_kwargs)
@@ -665,6 +725,7 @@ class _ManualDecoderLayer(nn.Module):
         routing_policy: Any = None,
         soft_router: Any = None,
         prompt_attention_mask: torch.Tensor | None = None,
+        on_demand_context: SynchronousPackedRequest | None = None,
         **kwargs: Any,
     ) -> tuple[torch.Tensor, ...]:
         residual = hidden_states
@@ -722,6 +783,8 @@ class _ManualDecoderLayer(nn.Module):
             selected_bits=attention_bits,
             routing_probabilities=attention_probabilities,
             trace=trace,
+            request_state=request_state,
+            on_demand_context=on_demand_context,
             **kwargs,
         )
         hidden_states = residual + hidden_states
@@ -772,6 +835,8 @@ class _ManualDecoderLayer(nn.Module):
             selected_bits=ffn_bits,
             routing_probabilities=ffn_probabilities,
             trace=trace,
+            request_state=request_state,
+            on_demand_context=on_demand_context,
         )
         hidden_states = residual + hidden_states
 
@@ -819,6 +884,7 @@ class _ManualBaseModel(nn.Module):
         routing_policy: Any = None,
         soft_router: Any = None,
         prompt_attention_mask: torch.Tensor | None = None,
+        on_demand_context: SynchronousPackedRequest | None = None,
         **flash_attn_kwargs: Any,
     ) -> Any:
         from transformers.cache_utils import DynamicCache
@@ -879,6 +945,7 @@ class _ManualBaseModel(nn.Module):
                 routing_policy=routing_policy,
                 soft_router=soft_router,
                 prompt_attention_mask=prompt_attention_mask,
+                on_demand_context=on_demand_context,
                 **flash_attn_kwargs,
             )
             hidden_states = layer_outputs[0]
@@ -912,6 +979,24 @@ class ManualRoutedQwen3ForCausalLM(nn.Module):
     def get_output_embeddings(self) -> nn.Module:
         return self.lm_head
 
+    def create_on_demand_request(
+        self, request_state: QaqRequestState
+    ) -> SynchronousPackedRequest:
+        """Create a fresh request-local context for this on-demand model."""
+
+        sources = {
+            module.module_path: module.source
+            for module in self.modules()
+            if isinstance(module, _OnDemandRoutedPackedLinear)
+        }
+        if not sources:
+            raise RuntimeError("this model has no CPU-authoritative on-demand targets")
+        return SynchronousPackedRequest(
+            sources,
+            request_state,
+            self.model.embed_tokens.weight.device,
+        )
+
     def forward(
         self,
         input_ids: torch.LongTensor | None = None,
@@ -933,16 +1018,23 @@ class ManualRoutedQwen3ForCausalLM(nn.Module):
         routing_policy: Any = None,
         soft_router: Any = None,
         prompt_attention_mask: torch.Tensor | None = None,
+        on_demand_context: SynchronousPackedRequest | None = None,
         **kwargs: Any,
     ) -> Any:
         if request_state is None:
-            if phase is not None or routing_policy is not None or soft_router is not None:
+            if (
+                phase is not None
+                or routing_policy is not None
+                or soft_router is not None
+                or on_demand_context is not None
+            ):
                 raise ValueError("routing controls require an S05 request_state")
             if not isinstance(precision_plan, PrecisionPlan):
                 raise TypeError("precision_plan must be a PrecisionPlan")
             precision_plan.validate()
             active_phase = None
             prompt_attention_mask = None
+            on_demand_context = None
         else:
             if not isinstance(request_state, QaqRequestState):
                 raise TypeError("request_state must be a QaqRequestState")
@@ -1001,6 +1093,7 @@ class ManualRoutedQwen3ForCausalLM(nn.Module):
             routing_policy=routing_policy,
             soft_router=soft_router,
             prompt_attention_mask=prompt_attention_mask,
+            on_demand_context=on_demand_context,
             **kwargs,
         )
         if request_state is not None and phase == "prefill":
@@ -1047,6 +1140,36 @@ def _replace_module(root: nn.Module, name: str, replacement: nn.Module) -> None:
     setattr(parent, parts[-1], replacement)
 
 
+def _wrap_on_demand_targets(static_model: nn.Module) -> None:
+    """Replace packed modules before moving the graph so no GPU copy survives."""
+
+    target_names = assert_target_invariant()
+    modules = dict(static_model.named_modules())
+    for module_path in target_names:
+        packed = modules.get(module_path)
+        if packed is None or packed.__class__.__name__ != "AnyPrecisionLinear":
+            raise ValueError(
+                f"verified packed target is missing or has the wrong type: {module_path}"
+            )
+        layer_index = int(module_path.split(".")[2])
+        if ".self_attn." in module_path:
+            unit_type = "attention"
+        elif ".mlp." in module_path:
+            unit_type = "ffn"
+        else:
+            raise ValueError(f"target is outside the S08 route scopes: {module_path}")
+        _replace_module(
+            static_model,
+            module_path,
+            _OnDemandRoutedPackedLinear(
+                PackedLinearSource.from_module(packed, module_path),
+                layer_index=layer_index,
+                unit_type=unit_type,
+                module_path=module_path,
+            ),
+        )
+
+
 def _wrap_verified_targets(static_model: nn.Module) -> None:
     target_names = assert_target_invariant()
     modules = dict(static_model.named_modules())
@@ -1085,3 +1208,16 @@ def load_manual_model(
     manual_model = ManualRoutedQwen3ForCausalLM(static_model)
     manual_model.eval()
     return manual_model
+
+
+def load_on_demand_model(
+    artifact: str | os.PathLike[str], device: str
+) -> ManualRoutedQwen3ForCausalLM:
+    """Load Qwen3 with CPU-authoritative packed sources and no resident copy."""
+
+    static_model = load_static_model(artifact, "cpu")
+    _wrap_on_demand_targets(static_model)
+    model = ManualRoutedQwen3ForCausalLM(static_model)
+    model.to(device)
+    model.eval()
+    return model

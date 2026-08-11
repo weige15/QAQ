@@ -1,5 +1,5 @@
 Current stage: S08
-Status: IN_PROGRESS
+Status: COMPLETE
 
 S00 through S06 are COMPLETE. S07-A is complete with reusable teacher-student
 distillation machinery, explicit completion masking, frozen teacher/packed
@@ -96,6 +96,24 @@ S08-A evidence:
 
 S08-A gate: CONTINUE.
 
-Next action: integrate this verified loader with real hard-routed Qwen3
-execution and perform controlled memory, transfer, and latency measurements.
-Do not execute that next action as part of S08-A.
+S08-B evidence:
+- The external Codex service-overload interruption was classified as infrastructure interruption, not a QAQ defect.
+- The required S03-B packed artifact, S07 router checkpoint, pinned Qwen3 snapshot, pinned Any-Precision revision, and CUDA device were present and matched their recorded hashes.
+- Real Qwen3 on-demand execution used 252 CPU-authoritative packed sources, with zero remaining `AnyPrecisionLinear` modules and no complete packed GPU copy.
+- Resident and on-demand hard routes matched for both locked S07 validation requests.
+- Both routes produced finite logits that were bitwise equal, with zero mean and maximum absolute logit difference.
+- Four-token deterministic greedy generation matched between resident and on-demand modes for both requests, and routes remained fixed during decode.
+- On-demand transfer accounting was `3,817,717,760` bytes for `validation-3` and `3,835,002,880` bytes for `validation-1000`; both matched the independent expected-byte calculation exactly.
+- All transfer occurred during prefill, with zero decode transfer bytes and zero reuse transfer bytes.
+- Each request retained 252 entries and 504 packed GPU buffers before cleanup, then retained zero entries, buffers, or packed bytes after `end_request()`.
+- A later fresh request transferred its selected packed buffers again, proving request isolation.
+- Synchronized two-repeat measurements recorded resident median prefill/decode/end-to-end latencies of `0.145354`/`0.187833`/`0.332110` seconds and on-demand medians of `5.815631`/`0.229669`/`6.031509` seconds.
+- Resident peak allocated memory was `5,724,945,408` bytes at maximum across repeats; on-demand peak allocated memory was `4,806,114,304` bytes.
+- Focused S08-B real tests passed: `3 passed in 438.03s`; S08-A focused tests remained `8 passed in 8.55s`; Ruff passed for all changed S08 files.
+- The valid recorded S08-B regression result remains `8 passed in 651.74s`; it was not rerun because no relevant implementation or execution-path change invalidated it.
+- Complete evidence and provenance are recorded in `docs/results/s08_on_demand.json`, including code snapshot hashes, model and artifact revisions, request digests, method, transfer records, allocator measurements, and commands.
+
+S08 gate: COMPLETE.
+
+Passing S08 implementation and evidence commit: `ae5e991`.
+Next action: S09. Do not execute S09 in this task.

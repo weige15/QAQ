@@ -8,6 +8,7 @@ packed planes and lookup tables synchronously on first use.
 from __future__ import annotations
 
 import sys
+from collections.abc import Mapping
 from dataclasses import dataclass
 
 import torch
@@ -176,6 +177,16 @@ class SynchronousPackedPlaneLoader:
     def retained_plane_count(self) -> int:
         return self._retained_planes
 
+    @property
+    def retained_packed_bytes(self) -> int:
+        """Return bytes held by this request for packed GPU buffers only."""
+
+        return sum(
+            _tensor_bytes(tensor)
+            for tensor in (self._qweight, self._lut4, self._lut8)
+            if tensor is not None
+        )
+
     def _ensure_open(self) -> None:
         if self._closed or self.request_state.ended:
             raise RuntimeError("S08-A loader cannot be used after request cleanup")
@@ -262,4 +273,76 @@ class SynchronousPackedPlaneLoader:
         self._closed = True
 
 
-__all__ = ["PackedLinearSource", "SynchronousPackedPlaneLoader", "TransferRecord"]
+class SynchronousPackedRequest:
+    """Request-local loader collection with no model- or process-global cache."""
+
+    def __init__(
+        self,
+        sources: Mapping[str, PackedLinearSource],
+        request_state: QaqRequestState,
+        device: str | torch.device,
+    ) -> None:
+        if not isinstance(request_state, QaqRequestState):
+            raise TypeError("request_state must be a QaqRequestState")
+        if request_state.ended:
+            raise RuntimeError("cannot create a packed request after request cleanup")
+        self.sources = dict(sources)
+        if any(not isinstance(key, str) or not isinstance(value, PackedLinearSource)
+               for key, value in self.sources.items()):
+            raise TypeError("sources must map module IDs to PackedLinearSource values")
+        self.request_state = request_state
+        self.device = torch.device(device)
+        if self.device.type != "cuda":
+            raise ValueError("S08-B synchronous packed loading requires a CUDA destination")
+        self._loaders: dict[str, SynchronousPackedPlaneLoader] = {}
+        self._records: list[TransferRecord] = []
+
+    def loader_for(self, module_id: str) -> SynchronousPackedPlaneLoader:
+        if self.request_state.ended:
+            raise RuntimeError("cannot load packed data after request cleanup")
+        try:
+            source = self.sources[module_id]
+        except KeyError as error:
+            raise KeyError(f"no on-demand packed source for {module_id}") from error
+        loader = self._loaders.get(module_id)
+        if loader is None:
+            loader = SynchronousPackedPlaneLoader(source, self.request_state, self.device)
+            self._loaders[module_id] = loader
+        return loader
+
+    def execute(self, module_id: str, inputs: torch.Tensor, *, precision: int) -> torch.Tensor:
+        """Run one projection and preserve global execution order for evidence."""
+
+        loader = self.loader_for(module_id)
+        start = len(loader.records)
+        output = loader(inputs, precision=precision)
+        self._records.extend(loader.records[start:])
+        return output
+
+    @property
+    def loaders(self) -> tuple[SynchronousPackedPlaneLoader, ...]:
+        return tuple(self._loaders.values())
+
+    @property
+    def records(self) -> tuple[TransferRecord, ...]:
+        return tuple(self._records)
+
+    @property
+    def retained_entry_count(self) -> int:
+        return sum(loader.retained_entry_count for loader in self.loaders)
+
+    @property
+    def retained_gpu_buffer_count(self) -> int:
+        return sum(loader.retained_gpu_buffer_count for loader in self.loaders)
+
+    @property
+    def retained_packed_bytes(self) -> int:
+        return sum(loader.retained_packed_bytes for loader in self.loaders)
+
+
+__all__ = [
+    "PackedLinearSource",
+    "SynchronousPackedPlaneLoader",
+    "SynchronousPackedRequest",
+    "TransferRecord",
+]
