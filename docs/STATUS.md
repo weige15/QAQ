@@ -21,7 +21,7 @@ S04 manual routing is COMPLETE at passing implementation commit `a5802358acd7567
 S05 implementation is present in `src/qaq/model/request_state.py`,
 `src/qaq/router/features.py`, and the S04 execution seam. Focused pooling,
 padding, request-state, timing, no-completion-leakage, decode-reuse, and
-request-isolation checks pass (`18 passed`, including a real tiny Qwen3
+request-isolation checks pass (`23 passed`, including a real tiny Qwen3
 prefill/decode wrapper check). The tiny wrapper lifecycle check uses
 `use_cache=False`, and the route-reuse checks call the selector directly, so
 this worktree does not claim cache-backed decode evidence. Artifact-dependent

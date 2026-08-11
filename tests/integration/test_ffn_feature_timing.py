@@ -35,4 +35,3 @@ def test_ffn_timing_is_incoming_feature_route_then_unit():
     assert state.ffn_features[0].tolist() == [20.0, 30.0]
     assert trace.route_records[0].feature_computed
     assert trace.route_records[0].policy_invoked
-

@@ -45,7 +45,13 @@ def test_completion_steps_cannot_change_prompt_features_or_routes():
                 routing_policy=fail_if_called,
                 trace=decode_trace,
             )
-        assert all(torch.equal(before, after) for before, after in zip(saved_features, state.attention_features + state.ffn_features))
+        assert all(
+            torch.equal(before, after)
+            for before, after in zip(saved_features, state.attention_features + state.ffn_features)
+        )
         assert saved_routes == state.attention_routes[:] + state.ffn_routes[:]
-        assert all(not record.feature_computed and not record.policy_invoked for record in decode_trace.route_records)
+        assert all(
+            not record.feature_computed and not record.policy_invoked
+            for record in decode_trace.route_records
+        )
     assert len(policy_calls) == 2

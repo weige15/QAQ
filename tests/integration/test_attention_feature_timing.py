@@ -35,4 +35,3 @@ def test_attention_timing_is_incoming_feature_route_then_unit():
     assert state.attention_features[0].tolist() == [2.0, 3.0]
     assert trace.route_records[0].feature_computed
     assert trace.route_records[0].policy_invoked
-

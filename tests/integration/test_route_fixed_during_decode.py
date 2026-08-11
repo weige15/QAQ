@@ -50,4 +50,6 @@ def test_decode_reuses_each_prefill_route_without_policy_calls():
                 )
             )
     assert observed == [4, 8, 8, 4]
-    assert all(not item.feature_computed and not item.policy_invoked for item in decode.route_records)
+    assert all(
+        not item.feature_computed and not item.policy_invoked for item in decode.route_records
+    )

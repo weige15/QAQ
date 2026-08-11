@@ -82,7 +82,9 @@ def test_real_qwen3_wrapper_prefill_and_decode_reuse_request_routes():
             trace=prefill_trace,
         )
     assert len(prefill_trace.route_records) == 72
-    assert all(item.feature_computed and item.policy_invoked for item in prefill_trace.route_records)
+    assert all(
+        item.feature_computed and item.policy_invoked for item in prefill_trace.route_records
+    )
     saved = [feature.clone() for feature in state.attention_features + state.ffn_features]
     routes = state.attention_routes[:] + state.ffn_routes[:]
 
@@ -100,9 +102,14 @@ def test_real_qwen3_wrapper_prefill_and_decode_reuse_request_routes():
             routing_policy=fail_policy,
             trace=decode_trace,
         )
-    assert all(not item.feature_computed and not item.policy_invoked for item in decode_trace.route_records)
+    assert all(
+        not item.feature_computed and not item.policy_invoked for item in decode_trace.route_records
+    )
     assert routes == state.attention_routes[:] + state.ffn_routes[:]
-    assert all(torch.equal(before, after) for before, after in zip(saved, state.attention_features + state.ffn_features))
+    assert all(
+        torch.equal(before, after)
+        for before, after in zip(saved, state.attention_features + state.ffn_features)
+    )
 
 
 @pytest.mark.parametrize("input_kind", ["input_ids", "inputs_embeds"])

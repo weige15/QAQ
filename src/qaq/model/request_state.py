@@ -33,7 +33,9 @@ def _validate_features(
         if not isinstance(value, torch.Tensor):
             raise TypeError(f"{name}[{index}] must be a torch.Tensor or None")
         if value.ndim != 1:
-            raise ValueError(f"{name}[{index}] must have shape [feature_dim]; got {tuple(value.shape)}")
+            raise ValueError(
+                f"{name}[{index}] must have shape [feature_dim]; got {tuple(value.shape)}"
+            )
         if inferred is None:
             inferred = int(value.shape[0])
         if value.shape[0] != inferred:

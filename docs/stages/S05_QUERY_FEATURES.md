@@ -60,7 +60,7 @@ source ~/.venv/bin/activate
 which python                         # /nfs/home/s314511048/.venv/bin/python
 python --version                     # Python 3.12.3
 pytest -q tests/unit/test_prompt_mask_pooling.py tests/unit/test_padding_invariance.py tests/unit/test_request_state.py tests/integration/test_no_completion_token_leakage.py tests/integration/test_attention_feature_timing.py tests/integration/test_ffn_feature_timing.py tests/integration/test_route_fixed_during_decode.py tests/integration/test_request_state_isolation.py
-                                     # PASS: 17 passed
+                                     # PASS: 20 passed
 ```
 
 The S05 artifact-dependent parity test is
@@ -85,9 +85,9 @@ The validation record for this worktree is:
 
 ```text
 pytest -q tests/unit/test_prompt_mask_pooling.py tests/unit/test_padding_invariance.py tests/unit/test_request_state.py tests/integration/test_no_completion_token_leakage.py tests/integration/test_attention_feature_timing.py tests/integration/test_ffn_feature_timing.py tests/integration/test_route_fixed_during_decode.py tests/integration/test_request_state_isolation.py tests/integration/test_s05_tiny_qwen3_execution.py
-  PASS: 18 passed in 5.00s
+  PASS: 23 passed
 pytest -q tests/unit
-  PASS: 55 passed in 12.55s
+  PASS: 58 passed
 pytest -q tests/unit/test_backend_import.py tests/unit/test_single_linear_precision4.py tests/unit/test_single_linear_precision8.py tests/unit/test_cuda_vs_dequantized_reference.py tests/unit/test_deterministic_output.py tests/unit/test_pack_unpack_known_pattern.py tests/unit/test_backend_known_patterns.py tests/unit/test_pack_unpack_random.py tests/unit/test_plane_order.py tests/unit/test_prefix_precision.py tests/unit/test_padding.py tests/unit/test_packed_byte_count.py tests/unit/test_no_byte_per_bit_production_storage.py tests/unit/test_reference_backend_agreement.py tests/unit/test_nested_quantization_metadata.py tests/unit/test_serialization_order.py
   PASS: 27 passed in 8.94s
 QAQ_S03_ARTIFACT='/nfs/home/s314511048/firstmate/projects/QAQ/quantized/s03b_qwen3_4b/backend_cache/packed/anyprec-(1cfa9a7208912126459214e8b04321603b3df60c)-w8_orig4-gc1-c4_s1_blk64' QAQ_MODEL_DEVICE=cuda:3 pytest -q tests/integration/test_static4_forward.py tests/integration/test_static8_forward.py

@@ -157,7 +157,11 @@ class RouteTraceRecord:
 
     @property
     def precision(self) -> int:
-        value = self.selected_precision if self.selected_precision is not None else self.reused_precision
+        value = (
+            self.selected_precision
+            if self.selected_precision is not None
+            else self.reused_precision
+        )
         if value is None:  # pragma: no cover - construction is validated by record_route
             raise RuntimeError("route trace record has no selected or reused precision")
         return value
@@ -806,9 +810,7 @@ class ManualRoutedQwen3ForCausalLM(nn.Module):
                 prompt_attention_mask = validate_prompt_mask(
                     attention_mask, sequence_length=sequence_length
                 )
-                request_state.begin_prefill(
-                    prompt_length=int(prompt_attention_mask.sum().item())
-                )
+                request_state.begin_prefill(prompt_length=int(prompt_attention_mask.sum().item()))
                 if routing_policy is None:
                     routing_policy = precision_plan
             else:
