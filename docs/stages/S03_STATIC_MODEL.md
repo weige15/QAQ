@@ -90,7 +90,10 @@ The deterministic full-precision smoke prompt was `QAQ full-precision smoke test
 
 ### Scope and gate
 
-No Any-Precision quantizer, bitsandbytes, GPTQ, AWQ, fake quantization, packed Qwen weight, 4-bit model, 8-bit model, routing work, or S04 work was run. S03 remains `IN_PROGRESS`; the next action is exactly:
+At the S03-A gate, no Any-Precision quantizer, bitsandbytes, GPTQ, AWQ, fake
+quantization, packed Qwen weight, 4-bit model, 8-bit model, routing work, or
+S04 work had been run. S03 was then `IN_PROGRESS`; the next action at that
+gate was exactly:
 
 `S03-B: quantize the verified Qwen3 target modules into one nested 4-bit/8-bit packed representation.`
 
@@ -117,7 +120,10 @@ The S03-A gate is **CONTINUE**. The pinned model loaded and executed, the concre
 - Numerical sanity: FP-vs-4 mean/max absolute logit error `0.38069865107536316` / `3.34375`; FP-vs-8 `0.04913947731256485` / `0.6796875`. The 8-bit result is at least as faithful on both recorded measures.
 - Round-trip: the fresh-process integration checkpoint reload and manifest/hash checks passed.
 - Checkpoint hashes and complete tensor inventory are tracked in `docs/quantized_model_manifest.json`; weight payloads remain ignored and untracked.
-- Limitations: calibration is intentionally a one-sample smoke baseline, and peak quantization RAM was not captured. Routing, CPU-to-GPU on-demand loading, training, and S04 were not started.
+- Limitations: calibration is intentionally a one-sample smoke baseline, and
+  peak quantization RAM was not captured. S03 did not cover routing,
+  CPU-to-GPU on-demand loading, training, or S04; those concerns are recorded
+  in their respective stage documents.
 
 ## S03-C — Broader static-quality evaluation and closeout
 
