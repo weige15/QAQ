@@ -239,6 +239,37 @@ tolerance must return S04 to REVISE; static baselines must not be redefined.
 inputs after a justified runtime change, then record a new tolerance decision
 with mean/max error evidence.
 
+### D023 — S05 feature storage and request ownership (2026-08-11)
+
+**Implementation choice:** Use the model hidden size as the feature dimension
+(2560 for the pinned Qwen3-4B model), accumulate masked prompt means in
+float32, and store detached cloned one-dimensional tensors of shape
+`[hidden_size]`. The attention feature is taken after the layer input RMS norm
+and before any attention projection. The FFN feature is taken after the real
+attention residual and post-attention RMS norm, before the first FFN
+projection. The valid-token count is the denominator; all-padding prompts are
+rejected.
+
+**Implementation choice:** Require an explicit `phase` of `prefill` or
+`decode`, and require an explicit batch-size-one 0/1 prompt mask for prefill.
+Prefill invokes only an S04 `PrecisionPlan` adapter or a callback with
+`(layer_index, unit_type, feature) -> 4|8`; decode ignores policy input and
+reuses the stored route. `request_id` is metadata rather than a global lookup
+key: duplicate IDs are allowed only across independent state objects, while a
+concrete state object binds to one model owner and cannot be reused by another.
+
+**Source basis:** These are implementation choices for S05 details left
+unspecified by the reviewed sources. They do not assert a learned-router
+design, routing probabilities, a loss, or a paper-defined feature shape.
+
+**Consequence:** S05 remains batch-size one, computes no completion-token
+features, stores no model-global route state, and adds no learned-router or
+loading machinery.
+
+**Reversal path:** If a later stage needs gradients through features or a
+different feature representation, reopen S05 and preserve this deterministic
+baseline as its own measured path.
+
 ## Decision protocol
 
 A worker must add a dated or commit-linked entry when a stage resolves an unknown or introduces a new assumption.

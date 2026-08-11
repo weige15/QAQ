@@ -1,4 +1,4 @@
-Current stage: S04
+Current stage: S05
 Status: COMPLETE
 
 S00, S01, S02, and S03 are COMPLETE. S03-A and S03-B were complete with CONTINUE evidence:
@@ -18,4 +18,18 @@ S03-C static-baseline quality requirements are complete. Five fixed prompts, a 5
 
 S04 manual routing is COMPLETE at passing implementation commit `a5802358acd756751d4006705ebea961a27b0f8c`. The immutable 36-layer attention/FFN plan, explicit packed-linear propagation, trace instrumentation, all-4/all-8 numerical parity, route isolation, mixed-plan determinism, serialization, and sequential leakage tests passed. Evidence: `docs/stages/S04_MANUAL_ROUTING.md`, `docs/EXPERIMENTS.md`, and `tests/integration/test_s04_manual_routing.py`.
 
-Next action: Begin S05: implement prompt-derived query features and request-specific route state using a deterministic manual route policy.
+S05 implementation is present in `src/qaq/model/request_state.py`,
+`src/qaq/router/features.py`, and the S04 execution seam. Focused pooling,
+padding, request-state, timing, no-completion-leakage, decode-reuse, and
+request-isolation checks pass (`23 passed`, including a real tiny Qwen3
+prefill/decode wrapper check). The tiny wrapper lifecycle check uses
+`use_cache=False`, and the route-reuse checks call the selector directly, so
+this worktree does not claim cache-backed decode evidence. Artifact-dependent
+CUDA parity and the corrected read-only packed artifact passed the unchanged
+S04 regressions and S05 all-4/all-8 request-prefill parity (`10 passed in
+422.84s`); S03 static 4-bit/8-bit regressions also passed (`2 passed in
+218.23s`).
+
+Passing S05 implementation commit: `7ec07e6`.
+
+Next action: Begin S06: implement the trainable soft router and differentiable 4-bit/8-bit mixture path.

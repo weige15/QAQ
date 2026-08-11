@@ -16,6 +16,13 @@ from typing import Any, ClassVar
 import torch
 from torch import nn
 
+from .model.request_state import QaqRequestState
+from .router.features import (
+    coerce_manual_policy,
+    masked_mean_pool,
+    validate_policy_result,
+    validate_prompt_mask,
+)
 from .s03_static import assert_target_invariant, load_static_model
 
 LAYER_COUNT = 36
@@ -135,17 +142,76 @@ class PrecisionCall:
         }
 
 
+@dataclass(frozen=True, slots=True)
+class RouteTraceRecord:
+    """One request-level route decision, captured before its unit executes."""
+
+    request_id: str
+    layer_index: int
+    unit_type: str
+    phase: str
+    feature_computed: bool
+    policy_invoked: bool
+    selected_precision: int | None
+    reused_precision: int | None
+
+    @property
+    def precision(self) -> int:
+        value = (
+            self.selected_precision
+            if self.selected_precision is not None
+            else self.reused_precision
+        )
+        if value is None:  # pragma: no cover - construction is validated by record_route
+            raise RuntimeError("route trace record has no selected or reused precision")
+        return value
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "request_id": self.request_id,
+            "layer_index": self.layer_index,
+            "unit_type": self.unit_type,
+            "phase": self.phase,
+            "feature_computed": self.feature_computed,
+            "policy_invoked": self.policy_invoked,
+            "selected_precision": self.selected_precision,
+            "reused_precision": self.reused_precision,
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class RouteTraceEvent:
+    """Timing evidence for the route-before-unit execution ordering."""
+
+    request_id: str
+    layer_index: int
+    unit_type: str
+    phase: str
+    event: str
+    precision: int | None = None
+
+
 class PrecisionTrace:
     """Per-forward mutable collector; the model never stores it."""
 
-    __slots__ = ("_records",)
+    __slots__ = ("_events", "_records", "_route_records")
 
     def __init__(self) -> None:
         self._records: list[PrecisionCall] = []
+        self._route_records: list[RouteTraceRecord] = []
+        self._events: list[RouteTraceEvent] = []
 
     @property
     def records(self) -> tuple[PrecisionCall, ...]:
         return tuple(self._records)
+
+    @property
+    def route_records(self) -> tuple[RouteTraceRecord, ...]:
+        return tuple(self._route_records)
+
+    @property
+    def events(self) -> tuple[RouteTraceEvent, ...]:
+        return tuple(self._events)
 
     def record(
         self, *, layer_index: int, unit_type: str, module_path: str, selected_bits: int
@@ -159,8 +225,59 @@ class PrecisionTrace:
             )
         )
 
+    def record_route(
+        self,
+        *,
+        request_id: str,
+        layer_index: int,
+        unit_type: str,
+        phase: str,
+        feature_computed: bool,
+        policy_invoked: bool,
+        selected_precision: int | None = None,
+        reused_precision: int | None = None,
+    ) -> None:
+        if (selected_precision is None) == (reused_precision is None):
+            raise ValueError("route trace requires exactly one selected or reused precision")
+        self._route_records.append(
+            RouteTraceRecord(
+                request_id=request_id,
+                layer_index=layer_index,
+                unit_type=unit_type,
+                phase=phase,
+                feature_computed=feature_computed,
+                policy_invoked=policy_invoked,
+                selected_precision=selected_precision,
+                reused_precision=reused_precision,
+            )
+        )
+
+    def record_event(
+        self,
+        *,
+        request_id: str,
+        layer_index: int,
+        unit_type: str,
+        phase: str,
+        event: str,
+        precision: int | None = None,
+    ) -> None:
+        self._events.append(
+            RouteTraceEvent(
+                request_id=request_id,
+                layer_index=layer_index,
+                unit_type=unit_type,
+                phase=phase,
+                event=event,
+                precision=precision,
+            )
+        )
+
     def to_list(self) -> list[dict[str, object]]:
         return [record.to_dict() for record in self._records]
+
+    def route_to_list(self) -> list[dict[str, object]]:
+        return [record.to_dict() for record in self._route_records]
 
 
 def expected_trace(plan: PrecisionPlan) -> tuple[PrecisionCall, ...]:
@@ -188,6 +305,87 @@ def expected_trace(plan: PrecisionPlan) -> tuple[PrecisionCall, ...]:
             for projection in FFN_PROJECTIONS
         )
     return tuple(records)
+
+
+def _select_request_route(
+    *,
+    request_state: QaqRequestState,
+    layer_index: int,
+    unit_type: str,
+    incoming_hidden: torch.Tensor,
+    prompt_attention_mask: torch.Tensor | None,
+    phase: str,
+    routing_policy: Any,
+    trace: PrecisionTrace,
+) -> int:
+    """Compute a prompt feature and select a route, or reuse a stored route."""
+
+    request_id = request_state.request_id
+    if phase == "prefill":
+        if prompt_attention_mask is None:
+            raise ValueError("S05 prefill requires an explicit prompt attention mask")
+        trace.record_event(
+            request_id=request_id,
+            layer_index=layer_index,
+            unit_type=unit_type,
+            phase=phase,
+            event="incoming_hidden",
+        )
+        feature = masked_mean_pool(incoming_hidden, prompt_attention_mask)
+        request_state.store_feature(unit_type, layer_index, feature)
+        trace.record_event(
+            request_id=request_id,
+            layer_index=layer_index,
+            unit_type=unit_type,
+            phase=phase,
+            event="feature_computed",
+        )
+        if routing_policy is None:
+            raise ValueError("S05 prefill requires a deterministic routing_policy")
+        policy = coerce_manual_policy(routing_policy)
+        precision = validate_policy_result(policy(layer_index, unit_type, feature))
+        request_state.store_route(unit_type, layer_index, precision)
+        trace.record_route(
+            request_id=request_id,
+            layer_index=layer_index,
+            unit_type=unit_type,
+            phase=phase,
+            feature_computed=True,
+            policy_invoked=True,
+            selected_precision=precision,
+        )
+        trace.record_event(
+            request_id=request_id,
+            layer_index=layer_index,
+            unit_type=unit_type,
+            phase=phase,
+            event="route_available",
+            precision=precision,
+        )
+        return precision
+
+    if phase == "decode":
+        precision = request_state.route_for_decode(unit_type, layer_index)
+        trace.record_route(
+            request_id=request_id,
+            layer_index=layer_index,
+            unit_type=unit_type,
+            phase=phase,
+            feature_computed=False,
+            policy_invoked=False,
+            reused_precision=precision,
+        )
+        trace.record_event(
+            request_id=request_id,
+            layer_index=layer_index,
+            unit_type=unit_type,
+            phase=phase,
+            event="route_available",
+            precision=precision,
+        )
+        return precision
+
+    raise ValueError(f"S05 phase must be 'prefill' or 'decode'; got {phase!r}")
 
 
 class _RoutedPackedLinear(nn.Module):
@@ -342,14 +540,41 @@ class _ManualDecoderLayer(nn.Module):
         cache_position: torch.LongTensor | None = None,
         position_embeddings: tuple[torch.Tensor, torch.Tensor] | None = None,
         *,
-        precision_plan: PrecisionPlan,
+        precision_plan: PrecisionPlan | None,
         trace: PrecisionTrace,
+        phase: str | None = None,
+        request_state: QaqRequestState | None = None,
+        routing_policy: Any = None,
+        prompt_attention_mask: torch.Tensor | None = None,
         **kwargs: Any,
     ) -> tuple[torch.Tensor, ...]:
-        attention_bits = precision_plan.attention_bits[self.layer_index]
-        ffn_bits = precision_plan.ffn_bits[self.layer_index]
         residual = hidden_states
         hidden_states = self.input_layernorm(hidden_states)
+        if request_state is not None:
+            if phase is None:
+                raise ValueError("S05 request execution requires an explicit phase")
+            attention_bits = _select_request_route(
+                request_state=request_state,
+                layer_index=self.layer_index,
+                unit_type="attention",
+                incoming_hidden=hidden_states,
+                prompt_attention_mask=prompt_attention_mask,
+                phase=phase,
+                routing_policy=routing_policy,
+                trace=trace,
+            )
+            trace.record_event(
+                request_id=request_state.request_id,
+                layer_index=self.layer_index,
+                unit_type="attention",
+                phase=phase,
+                event="unit_execute",
+                precision=attention_bits,
+            )
+        else:
+            if precision_plan is None:
+                raise ValueError("S04 execution requires precision_plan")
+            attention_bits = precision_plan.attention_bits[self.layer_index]
         hidden_states, self_attn_weights = self.self_attn(
             hidden_states=hidden_states,
             attention_mask=attention_mask,
@@ -367,6 +592,29 @@ class _ManualDecoderLayer(nn.Module):
 
         residual = hidden_states
         hidden_states = self.post_attention_layernorm(hidden_states)
+        if request_state is not None:
+            ffn_bits = _select_request_route(
+                request_state=request_state,
+                layer_index=self.layer_index,
+                unit_type="ffn",
+                incoming_hidden=hidden_states,
+                prompt_attention_mask=prompt_attention_mask,
+                phase=phase,
+                routing_policy=routing_policy,
+                trace=trace,
+            )
+            trace.record_event(
+                request_id=request_state.request_id,
+                layer_index=self.layer_index,
+                unit_type="ffn",
+                phase=phase,
+                event="unit_execute",
+                precision=ffn_bits,
+            )
+        else:
+            if precision_plan is None:
+                raise ValueError("S04 execution requires precision_plan")
+            ffn_bits = precision_plan.ffn_bits[self.layer_index]
         hidden_states = self.mlp(hidden_states, selected_bits=ffn_bits, trace=trace)
         hidden_states = residual + hidden_states
 
@@ -407,8 +655,12 @@ class _ManualBaseModel(nn.Module):
         output_hidden_states: bool | None = None,
         cache_position: torch.LongTensor | None = None,
         *,
-        precision_plan: PrecisionPlan,
+        precision_plan: PrecisionPlan | None,
         trace: PrecisionTrace,
+        phase: str | None = None,
+        request_state: QaqRequestState | None = None,
+        routing_policy: Any = None,
+        prompt_attention_mask: torch.Tensor | None = None,
         **flash_attn_kwargs: Any,
     ) -> Any:
         from transformers.cache_utils import DynamicCache
@@ -464,6 +716,10 @@ class _ManualBaseModel(nn.Module):
                 position_embeddings=position_embeddings,
                 precision_plan=precision_plan,
                 trace=trace,
+                phase=phase,
+                request_state=request_state,
+                routing_policy=routing_policy,
+                prompt_attention_mask=prompt_attention_mask,
                 **flash_attn_kwargs,
             )
             hidden_states = layer_outputs[0]
@@ -482,7 +738,7 @@ class _ManualBaseModel(nn.Module):
 
 
 class ManualRoutedQwen3ForCausalLM(nn.Module):
-    """Qwen3 Causal-LM wrapper requiring one explicit ``PrecisionPlan`` per call."""
+    """S04 explicit-plan wrapper plus the request-owned S05 lifecycle."""
 
     def __init__(self, static_model: nn.Module):
         super().__init__()
@@ -511,13 +767,56 @@ class ManualRoutedQwen3ForCausalLM(nn.Module):
         cache_position: torch.LongTensor | None = None,
         logits_to_keep: int | torch.Tensor = 0,
         *,
-        precision_plan: PrecisionPlan,
+        precision_plan: PrecisionPlan | None = None,
         trace: PrecisionTrace | None = None,
+        phase: str | None = None,
+        request_state: QaqRequestState | None = None,
+        routing_policy: Any = None,
         **kwargs: Any,
     ) -> Any:
-        if not isinstance(precision_plan, PrecisionPlan):
-            raise TypeError("precision_plan must be a PrecisionPlan")
-        precision_plan.validate()
+        if request_state is None:
+            if phase is not None or routing_policy is not None:
+                raise ValueError("phase and routing_policy require an S05 request_state")
+            if not isinstance(precision_plan, PrecisionPlan):
+                raise TypeError("precision_plan must be a PrecisionPlan")
+            precision_plan.validate()
+            active_phase = None
+            prompt_attention_mask = None
+        else:
+            if not isinstance(request_state, QaqRequestState):
+                raise TypeError("request_state must be a QaqRequestState")
+            if phase not in ("prefill", "decode"):
+                raise ValueError("S05 request execution requires phase='prefill' or phase='decode'")
+            if input_ids is not None and inputs_embeds is not None:
+                raise ValueError("You must specify exactly one of input_ids or inputs_embeds")
+            if input_ids is None and inputs_embeds is None:
+                raise ValueError("S05 request execution requires input_ids or inputs_embeds")
+            if input_ids is not None:
+                if input_ids.ndim != 2 or input_ids.shape[0] != 1:
+                    raise ValueError("S05 request execution supports only batch-size-one input_ids")
+            elif inputs_embeds.ndim != 3 or inputs_embeds.shape[0] != 1:
+                raise ValueError("S05 request execution supports only batch-size-one inputs_embeds")
+            request_state.bind_owner(self)
+            sequence_length = int(
+                input_ids.shape[1] if input_ids is not None else inputs_embeds.shape[1]
+            )
+            feature_dim = int(
+                inputs_embeds.shape[-1]
+                if inputs_embeds is not None
+                else self.model.embed_tokens.embedding_dim
+            )
+            request_state.validate_for_model(layer_count=LAYER_COUNT, feature_dim=feature_dim)
+            if phase == "prefill":
+                prompt_attention_mask = validate_prompt_mask(
+                    attention_mask, sequence_length=sequence_length
+                )
+                request_state.begin_prefill(prompt_length=int(prompt_attention_mask.sum().item()))
+                if routing_policy is None:
+                    routing_policy = precision_plan
+            else:
+                request_state.assert_complete()
+                prompt_attention_mask = None
+            active_phase = phase
         active_trace = trace if trace is not None else PrecisionTrace()
         outputs = self.model(
             input_ids=input_ids,
@@ -531,8 +830,14 @@ class ManualRoutedQwen3ForCausalLM(nn.Module):
             cache_position=cache_position,
             precision_plan=precision_plan,
             trace=active_trace,
+            phase=active_phase,
+            request_state=request_state,
+            routing_policy=routing_policy,
+            prompt_attention_mask=prompt_attention_mask,
             **kwargs,
         )
+        if request_state is not None and phase == "prefill":
+            request_state.assert_complete()
         hidden_states = outputs.last_hidden_state
         slice_indices = (
             slice(-logits_to_keep, None) if isinstance(logits_to_keep, int) else logits_to_keep

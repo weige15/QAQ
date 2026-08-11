@@ -39,8 +39,7 @@ python --version
 
 ## Scope boundary
 
-The implementation includes a verified physically packed Qwen3-4B static model
-and resident manual attention/FFN precision-plan propagation. It does not yet
-implement query-derived or learned routing, router training, CPU/GPU on-demand
-loading, or the final end-to-end evaluation. The physical format and its
-production-storage boundary are documented in `docs/BITPLANE_FORMAT.md`.
+The authoritative current implementation stage, supported capabilities, and
+remaining work are tracked in [`docs/STATUS.md`](docs/STATUS.md). The physical
+format and its production-storage boundary are documented in
+`docs/BITPLANE_FORMAT.md`.
