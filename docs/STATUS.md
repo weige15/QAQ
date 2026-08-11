@@ -45,4 +45,32 @@ S07-A evidence:
   tests skipped because the disposable worktree has no S03-B artifact. No real
   baseline training was run.
 
-Next action: S07-B: lock real training data and hyperparameters, perform the single baseline router-distillation run, then evaluate soft and deterministic hard routes.
+S07-B evidence:
+- The locked configuration is `configs/s07_router_training.json`; it uses four
+  deterministic Wikitext train examples, two separate validation examples,
+  explicit 32-token prompt/completion boundaries, sequence length 64, batch
+  size 1, AdamW, four steps, KD temperature 2.0, routing temperature 1.0, and
+  seed 1729.
+- Exactly one baseline training run completed. KD loss decreased from
+  `0.1730574965` to `0.0317778103`; all losses and router gradients were
+  finite. The packed student base was unchanged and the optimizer contained
+  only the 23,620,752 router scalars.
+- Soft validation KD loss was `0.0386699643` with mean absolute logit error
+  `0.2430240735`; hard validation KD loss was `0.0631424394` with error
+  `0.2928081304`. Hard routing selected 4 bits for `20.1389%` and 8 bits for
+  `79.8611%` of routing units, with complete 72-unit logs per request.
+- Fresh-process router checkpoint reload and fixed-subset hard-route
+  determinism passed by bitwise comparison. The final router checkpoint is
+  external to Git and its SHA-256 is recorded in the result artifact.
+- The teacher was evaluated under `no_grad` and did not change, but its
+  parameters were not explicitly set to `requires_grad=False` before the
+  freeze audit. This is a gate defect, so S07 remains IN_PROGRESS with
+  engineering result REVISE. The corrected script is ready, but the one-run
+  rule forbids a silent rerun.
+- Query-adaptive routing was not demonstrated: the result is `OTHER` because
+  mixed routes existed but prompt-to-prompt variation was below the recorded
+  material-variation threshold. No S08 work was started.
+
+Result artifact: `docs/results/s07_router_training.json`.
+
+Next action: obtain explicit authorization for one corrected S07-B rerun using the unchanged locked configuration, then re-evaluate the S07 gate. Do not begin S08.

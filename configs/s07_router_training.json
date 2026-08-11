@@ -1,0 +1,42 @@
+{
+  "format": "qaq-s07b-router-training-v1",
+  "dataset": {
+    "repository": "Salesforce/wikitext",
+    "config": "wikitext-2-raw-v1",
+    "revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+    "train_split": "train",
+    "validation_split": "validation",
+    "train_offsets": [0, 1000, 2000, 3000],
+    "validation_offsets": [0, 1000],
+    "selection": "for each fixed source-row offset, choose the first non-empty row at or after the offset with at least sequence_length tokens; no random sampling",
+    "train_examples": 4,
+    "validation_examples": 2,
+    "sequence_length": 64,
+    "prompt_tokens": 32,
+    "completion_tokens": 32,
+    "preprocessing": "tokenize each raw row with the pinned tokenizer and add_special_tokens=false; retain the first 64 tokens; prompt is tokens [0,32), completion is tokens [32,64)",
+    "truncation": "first-64-token truncation; rows shorter than 64 tokens are skipped",
+    "seed": 1729
+  },
+  "training": {
+    "batch_size": 1,
+    "gradient_accumulation_steps": 1,
+    "optimizer": "AdamW",
+    "learning_rate": 0.001,
+    "weight_decay": 0.0,
+    "epochs": 1,
+    "optimizer_steps": 4,
+    "scheduler": "none",
+    "distillation_temperature": 2.0,
+    "routing_temperature": 1.0,
+    "checkpoint_interval_steps": 4,
+    "evaluation_interval_steps": 4,
+    "logging_interval_steps": 1
+  },
+  "evaluation": {
+    "quality_metric": "mean absolute logit error against the full-precision teacher on the validation examples",
+    "hard_route": "deterministic argmax over [p4,p8], index 0 -> 4-bit and index 1 -> 8-bit",
+    "entropy_log_base": 2.0,
+    "parameter_weighted_mean_supported": false
+  }
+}

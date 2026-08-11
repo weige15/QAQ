@@ -331,6 +331,65 @@ bit-width, latency, transfer, or entropy penalty is part of this baseline.
 route mapping, observational fields, or checkpoint contents change; preserve
 the current regression evidence and update the focused tests and stage record.
 
+### D026 — S07-B locked real-training baseline (2026-08-11)
+
+**Choice:** Use the cached `Salesforce/wikitext` `wikitext-2-raw-v1` dataset at
+revision `b08601e04326c79dfdd32d625aee71d232d685c3`, with four deterministic
+training rows from source offsets `[0, 1000, 2000, 3000]` and two deterministic
+validation rows from offsets `[0, 1000]`. For each selected row, tokenize raw
+text with the pinned Qwen3-4B tokenizer and no special tokens, retain the first
+64 tokens, use `[0,32)` as the explicit prompt and `[32,64)` as the explicit
+completion, and reject shorter rows. Use seed `1729`, batch size `1`, gradient
+accumulation `1`, one epoch/four optimizer steps, AdamW with learning rate
+`1e-3`, weight decay `0`, default AdamW auxiliary parameters, no scheduler,
+KD temperature `2.0`, fixed S06 routing temperature `1.0`, final-only
+checkpoint/evaluation interval at step `4`, and per-step logging.
+
+**Source basis:** The dataset and revision, tokenizer revision, sequence-length
+precedent, and deterministic source-order style reuse the repository's S03
+quality/calibration evidence. The row offsets, prompt/completion split, sample
+counts, optimizer values, schedule, step count, and interval choices are
+implementation choices, not QAQ-paper facts.
+
+**Alternatives rejected:** Generated completions were not used as targets. No
+random subset or hyperparameter search was used. The S07-A smoke optimizer,
+learning rate, and step count were not silently promoted; the baseline values
+are recorded here and in `configs/s07_router_training.json`.
+
+**Execution consequence:** Teacher logits are precomputed with the frozen
+teacher under `no_grad` and held on CPU before router optimization so the
+full-precision teacher and resident packed student do not exceed the 24-GiB
+GPU during the one run. This does not alter the KD objective or student
+checkpoint contents.
+
+**Reversal path:** Reopen S07 and record a new decision before changing the
+source, split, boundaries, sample counts, optimizer, temperatures, or schedule.
+
+### D027 — S07-B actual run freeze-audit defect (2026-08-11)
+
+**Observation:** The single completed baseline run used cached teacher logits
+under `no_grad`, excluded the teacher from the optimizer, and left the teacher
+parameter values unchanged, but the run did not set the full-precision
+teacher parameters to `requires_grad=False` before the freeze audit. The saved
+result therefore reports `teacher_frozen: false` even though the packed student
+base remained frozen and the optimizer contained only the 23,620,752 router
+scalars.
+
+**Decision:** Treat this as a S07 REVISE result rather than marking S07
+complete. The script now sets the teacher parameters non-trainable before
+precomputation, but the one-run rule forbids silently rerunning the baseline in
+this turn. No penalty, temperature change, data change, or second training run
+is authorized by this result.
+
+**Evidence:** `docs/results/s07_router_training.json`; initial/final frozen
+student parameter aggregate hashes match, finite KD losses and router
+gradients were observed for all four steps, fresh-process checkpoint reload
+passed, and hard-route repeats were bitwise deterministic.
+
+**Reversal path:** A future explicitly authorized S07-B rerun may use the
+corrected freeze audit and the unchanged locked configuration, or S07 may be
+reopened with a new decision if the baseline contract changes.
+
 ## Decision protocol
 
 A worker must add a dated or commit-linked entry when a stage resolves an unknown or introduces a new assumption.

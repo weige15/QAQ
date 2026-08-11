@@ -103,14 +103,73 @@ metadata for model repository/revision, packed checkpoint ID/hash,
 Any-Precision revision, router architecture, candidate ordering, and training
 step metadata. Teacher and packed student weights are never serialized.
 
-### S07-B unresolved choices
+### S07-B locked baseline configuration
 
-The real training source/data subset, tokenizer data command, final
-temperature, optimizer and learning rate, sequence length, batch size,
-number of epochs/steps, scheduler, and convergence/evaluation thresholds
-remain unresolved or proposed. The smoke values above must not be promoted to
-baseline decisions. S07-B must lock those choices, run the one real baseline
-router-distillation job, then evaluate soft and deterministic hard routes.
+The locked configuration is in `configs/s07_router_training.json` and is an
+implementation choice, not a QAQ-paper fact. It uses `Salesforce/wikitext`,
+configuration `wikitext-2-raw-v1`, revision
+`b08601e04326c79dfdd32d625aee71d232d685c3`, train split rows selected at fixed
+offsets `[0,1000,2000,3000]`, and validation split rows selected at fixed
+offsets `[0,1000]`. At each offset the first non-empty row with at least 64
+pinned-tokenizer tokens is selected. Raw text is tokenized with the pinned
+Qwen3-4B tokenizer at revision `1cfa9a7208912126459214e8b04321603b3df60c`,
+without special tokens; the first 64 tokens are retained, prompt tokens are
+`[0,32)`, and completion tokens are `[32,64)`. No generated tokens are used.
+
+The baseline has four training examples, two validation examples, sequence
+length 64, batch size 1, gradient accumulation 1, seed 1729, one epoch/four
+optimizer steps, AdamW, learning rate `1e-3`, weight decay 0, no scheduler, KD
+temperature 2.0, fixed routing temperature 1.0, per-step logging, and
+checkpoint/evaluation at the final step 4 only. The teacher logits are
+precomputed with the frozen teacher under `no_grad` and kept on CPU before
+optimization to fit the resident packed student on the 24-GiB GPU. This is
+an execution-memory measure, not a new objective.
+
+### S07-B actual training and evaluation result
+
+The one completed baseline run used the unchanged Qwen3-4B revision
+`1cfa9a7208912126459214e8b04321603b3df60c`, packed student artifact hash
+`29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee`, and
+Any-Precision revision `a3257d02740cc5757c78673da534b0630ff3a4ea`. KD loss was
+finite at every step and decreased from `0.1730574965` to `0.0317778103`.
+The router-only optimizer audit contained 23,620,752 scalars; packed-student
+non-router parameters and buffers were unchanged. The run's teacher logits
+were produced under `no_grad` and teacher values were unchanged, but the
+teacher parameters were not explicitly set to `requires_grad=False` before
+the audit. Therefore this result is **REVISE**, not S07 completion; D027 records
+the defect and the corrected script behavior. The one-run rule forbids a
+silent rerun in this turn.
+
+The router-only final checkpoint is external to Git at
+`~/.cache/qaq/s07b/final_router.pt` with SHA-256
+`08bf646f19759c0d7949e159bdbe4f96bbea737204b96f8760d205c8d6fd1949`.
+Fresh-process reload matched the recorded router probabilities and hard
+routes. Fixed-subset hard-route repeats had identical route maps, selected
+precisions, and logits by bitwise comparison.
+
+### S07-B soft and hard routing observations
+
+On the two validation examples, soft routing had final validation KD loss
+`0.0386699643` and mean absolute logit error `0.2430240735` against the
+full-precision teacher. Deterministic hard routing had KD loss `0.0631424394`
+and mean absolute logit error `0.2928081304`; static 4-bit and static 8-bit
+errors were `0.7434162199` and `0.0910567641`. Thus hard-minus-soft error was
+`0.0497840569`, hard-minus-static-8 error was `0.2017513663`, and
+hard-minus-static-4 error was `-0.4506080896`.
+
+Hard routing selected 4 bits for `20.1389%` of units and 8 bits for `79.8611%`.
+Attention fractions were 4-bit `16.6667%` and 8-bit `83.3333%`; FFN fractions
+were 4-bit `23.6111%` and 8-bit `76.3889%`. There were two unique hard route
+maps, 72 route records per request with complete coverage, mean hard width
+`6.472222`, mean soft width `6.455843`, and mean prompt-to-prompt route
+distance `0.0138889`. Parameter-weighted width was not supported by the
+existing S07-A statistics. The observation is `OTHER`: mixed routes exist but
+the two validation route maps did not meet the recorded material-variation
+threshold. Query-adaptive routing was **not demonstrated**; this is not by
+itself a router implementation failure.
+
+Engineering gate: **REVISE**. Query-adaptivity demonstrated: **NO**.
+No S08 work was started.
 
 ## Goal
 

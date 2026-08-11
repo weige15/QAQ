@@ -111,6 +111,48 @@ Do not introduce asynchronous transfers, prefetching, transfer prediction, bit-w
 - Limitation: all values and settings are smoke-only evidence, not final
   router-training hyperparameters or routing-quality results.
 
+## S07-B single real router-distillation run (2026-08-11)
+
+- Locked configuration: `configs/s07_router_training.json`; implementation
+  choices are also recorded as D026 in `docs/DECISIONS.md`.
+- Dataset: `Salesforce/wikitext`, `wikitext-2-raw-v1`, revision
+  `b08601e04326c79dfdd32d625aee71d232d685c3`, train split offsets
+  `[0,1000,2000,3000]`, validation split offsets `[0,1000]`; four train and
+  two validation examples. The pinned Qwen3-4B tokenizer revision is
+  `1cfa9a7208912126459214e8b04321603b3df60c`.
+- Preprocessing: no special tokens, first 64 tokens retained, explicit prompt
+  `[0,32)` and completion `[32,64)` ranges, causal completion mask `[31,63)`;
+  rows shorter than 64 tokens are skipped. No generated targets were used.
+- Training: seed 1729, batch size 1, gradient accumulation 1, one epoch/four
+  steps, AdamW `lr=1e-3`, weight decay 0, no scheduler, KD temperature 2.0,
+  routing temperature 1.0. Teacher logits were precomputed under `no_grad`
+  before optimization to fit the resident packed student; this does not add a
+  loss term.
+- Command:
+  `source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:third_party/any-precision-llm QAQ_MODEL_DEVICE=cuda:3 python scripts/run_s07b.py`.
+- Training result: KD loss `0.1730574965` → `0.0317778103`; all four losses,
+  router gradients, probabilities, and route logs were finite. The optimizer
+  audit contained only 23,620,752 router scalars. Packed-student non-router
+  hashes matched before/after. The final router-only checkpoint is external
+  to Git at `~/.cache/qaq/s07b/final_router.pt`, SHA-256
+  `08bf646f19759c0d7949e159bdbe4f96bbea737204b96f8760d205c8d6fd1949`.
+- Evaluation: static-4/static-8 mean absolute logit errors were
+  `0.7434162199`/`0.0910567641`; soft was `0.2430240735` with KD
+  `0.0386699643`; hard was `0.2928081304` with KD `0.0631424394`. Hard
+  fractions were 4-bit `0.2013889` and 8-bit `0.7986111`; attention was
+  4/8=`0.1666667`/`0.8333333`; FFN was 4/8=`0.2361111`/`0.7638889`.
+  There were two unique hard maps and complete 72-unit logs per request.
+- Determinism command:
+  `source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:third_party/any-precision-llm python scripts/verify_s07b_roundtrip.py`.
+  Fresh-process probability/route reload and fixed-subset hard-route/logit
+  repeats passed bitwise.
+- Gate: engineering is **REVISE**, because the completed run did not set
+  teacher parameters to `requires_grad=False` before the freeze audit. The
+  teacher was still outside the optimizer, evaluated under `no_grad`, and
+  unchanged. Query-adaptivity classification is `OTHER`; query-adaptive
+  behavior was not demonstrated. No S08 work was started.
+- Result artifact: `docs/results/s07_router_training.json`.
+
 ## S04 explicit manual routing (2026-08-11)
 
 - Scope: one resident S03-B nested checkpoint, explicit immutable 36-layer

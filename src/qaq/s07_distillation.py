@@ -477,7 +477,7 @@ class FrozenParameterSnapshot:
         for key, (parameter, _) in current.items():
             if parameter.requires_grad or parameter.grad is not None:
                 raise AssertionError(f"frozen parameter became trainable or has a gradient: {key}")
-            if not torch.equal(parameter.detach(), self.values[key]):
+            if not torch.equal(parameter.detach().cpu(), self.values[key]):
                 raise AssertionError(f"frozen parameter changed: {key}")
 
 
@@ -487,11 +487,11 @@ def snapshot_frozen_parameters(
     values: dict[str, torch.Tensor] = {}
     requires_grad: dict[str, bool] = {}
     for name, parameter in teacher.named_parameters():
-        values[f"teacher.{name}"] = parameter.detach().clone()
+        values[f"teacher.{name}"] = parameter.detach().cpu().clone()
         requires_grad[f"teacher.{name}"] = parameter.requires_grad
     for name, parameter in student.named_parameters():
         if not name.startswith(router_prefix):
-            values[f"student.{name}"] = parameter.detach().clone()
+            values[f"student.{name}"] = parameter.detach().cpu().clone()
             requires_grad[f"student.{name}"] = parameter.requires_grad
     return FrozenParameterSnapshot(values=values, requires_grad=requires_grad)
 
