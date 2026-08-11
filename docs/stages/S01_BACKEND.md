@@ -16,7 +16,7 @@ bits. It does not load Qwen3, model weights, a dataset, or any full model.
 - The constructor allocates `qweight` as `torch.int32` with shape `(max(supported_bits), out_features, in_features // 32)` and one `float16` `lut{bit}` buffer with shape `(out_features, 2**bit)` per supported bit.
 - `forward(x, precision=bit)` is the execution-time interface. For `M <= 8`, the pinned implementation invokes `matmul_kbit`; larger flattened batches use the pinned `dequant_kbit` helper followed by `torch.matmul` (`AnyPrecisionLinear.py:54-69`).
 - The CUDA extension exports `matmul_kbit(in, qweight, lut, w_bits)` and `dequant_kbit(qweight, lut, w_bits)` (`modules/kernels/main.cu:60-147`). Both kernels assert 3–8 bit precision; S01 exercises only 4 and 8.
-- The pinned pack helper constructs parent-bit bitmaps and applies `_permute_bitmaps_int32` (`quantization/pack.py:90-112`). The S01 test uses that helper as an opaque pinned implementation detail; it does not independently characterize plane order, padding, signed encoding, or serialization endianness. Those are S02 questions.
+- The pinned pack helper constructs parent-bit bitmaps and applies `_permute_bitmaps_int32` (`quantization/pack.py:90-112`). The S01 test uses that helper as an opaque pinned implementation detail; it does not independently characterize plane order, padding, signed encoding, or serialization endianness. Those questions were deferred to S02 and are resolved in [`docs/BITPLANE_FORMAT.md`](../BITPLANE_FORMAT.md).
 - The pinned source supports an optional bias buffer. S01 constructs `bias=False`, so no bias is added to either output.
 
 ## Deterministic synthetic operation
@@ -125,7 +125,7 @@ ruff check src/qaq tests/unit/test_backend_import.py tests/unit/test_single_line
 
 ## Known limitations and gate
 
-- This is a backend validation only. Qwen3 integration, model loading, router behavior, S02 physical bit-plane characterization, and production quantization remain unimplemented.
+- This is a backend validation only. Qwen3 integration, model loading, router behavior, and production quantization remain unimplemented. S02 physical bit-plane characterization is complete and documented in [`docs/BITPLANE_FORMAT.md`](../BITPLANE_FORMAT.md).
 - The reference trusts the pinned `dequant_kbit` helper because it is present; S01 does not duplicate or experimentally infer its internal bit-plane mapping.
 - The CUDA extension was already built and installed during S00; S01 validates execution rather than rebuilding the upstream source.
 - Results are empirical for the recorded environment and RTX 3090. CUDA-unavailable environments must fail the tests explicitly and are not a pass.
@@ -133,4 +133,5 @@ ruff check src/qaq tests/unit/test_backend_import.py tests/unit/test_single_line
 The S01 CONTINUE condition is satisfied: import, both packed precisions, both
 independent helper-based references, both determinism checks, distinct
 precision-path evidence, physical storage observations, and no-model scope all
-pass. Next action is S02; no S02 work was executed.
+pass. S02 subsequently resolved the deferred physical-format questions; the
+current stage and next action are tracked in [`docs/STATUS.md`](../STATUS.md).

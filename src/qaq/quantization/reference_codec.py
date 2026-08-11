@@ -74,9 +74,7 @@ def _permutation_indices(total_bytes: int) -> np.ndarray:
     full_warps_bytes = (total_bytes // _WARP_BYTES) * _WARP_BYTES
     indices = np.empty(total_bytes, dtype=np.int64)
     if full_warps_bytes:
-        indices[:full_warps_bytes] = calculate(
-            np.arange(full_warps_bytes, dtype=np.int64), 32
-        )
+        indices[:full_warps_bytes] = calculate(np.arange(full_warps_bytes, dtype=np.int64), 32)
     remaining_bytes = total_bytes - full_warps_bytes
     if remaining_bytes:
         indices[full_warps_bytes:] = calculate(
@@ -136,10 +134,14 @@ def pack(codes: np.ndarray, parent_bits: int = 8) -> np.ndarray:
     # environment is little-endian; reject another host rather than silently
     # creating a serialization contract that was not established here.
     if sys.byteorder != "little":
-        raise RuntimeError("the pinned serialized int32 representation is only verified on little-endian hosts")
+        raise RuntimeError(
+            "the pinned serialized int32 representation is only verified on little-endian hosts"
+        )
     packed = _permuted_bytes(bitmaps).reshape(parent_bits, n_rows, -1, _WORD_BYTES)
-    return np.ascontiguousarray(packed).view(np.dtype("<i4")).reshape(
-        parent_bits, n_rows, logical_k // _WORD_BITS
+    return (
+        np.ascontiguousarray(packed)
+        .view(np.dtype("<i4"))
+        .reshape(parent_bits, n_rows, logical_k // _WORD_BITS)
     )
 
 
@@ -154,9 +156,13 @@ def _validate_packed(packed: np.ndarray) -> np.ndarray:
     if packed.dtype.kind != "i" or packed.dtype.itemsize != _WORD_BYTES:
         raise TypeError(f"packed planes must use int32 storage, got {packed.dtype}")
     if packed.dtype.byteorder == ">":
-        raise ValueError("big-endian int32 packed storage is not supported by the pinned backend contract")
+        raise ValueError(
+            "big-endian int32 packed storage is not supported by the pinned backend contract"
+        )
     if sys.byteorder != "little":
-        raise RuntimeError("the pinned serialized int32 representation is only verified on little-endian hosts")
+        raise RuntimeError(
+            "the pinned serialized int32 representation is only verified on little-endian hosts"
+        )
     return np.ascontiguousarray(packed)
 
 
@@ -179,7 +185,9 @@ def unpack(
         precision = parent_bits
     precision = _validate_bits(precision, name="precision")
     if precision > parent_bits:
-        raise ValueError(f"precision={precision} needs {precision} planes, only {parent_bits} are present")
+        raise ValueError(
+            f"precision={precision} needs {precision} planes, only {parent_bits} are present"
+        )
 
     physical_k = words * _WORD_BITS
     if logical_shape is None:
@@ -222,7 +230,9 @@ def reconstruct(
     """
 
     if scales is not None:
-        raise ValueError("the pinned backend stores direct LUT values; separate scales are unsupported")
+        raise ValueError(
+            "the pinned backend stores direct LUT values; separate scales are unsupported"
+        )
     precision = _validate_bits(precision, name="precision")
     lut = np.asarray(lut)
     if lut.ndim != 2 or lut.shape[1] != (1 << precision):

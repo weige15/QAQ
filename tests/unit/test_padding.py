@@ -29,8 +29,6 @@ def test_pinned_source_pack_path_rejects_non_aligned_width(logical_k):
     with pytest.raises((AssertionError, ValueError)):
         bitmaps = np.empty((8, codes.size // 8), dtype=np.uint8)
         for plane in range(8):
-            bitmaps[plane] = np.packbits(
-                ((codes.reshape(-1) >> (7 - plane)) & 1).astype(bool)
-            )
+            bitmaps[plane] = np.packbits(((codes.reshape(-1) >> (7 - plane)) & 1).astype(bool))
         bitmaps = bitmaps.reshape(8, n_rows, logical_k // 8)
         pinned_pack._permute_bitmaps_int32(bitmaps)

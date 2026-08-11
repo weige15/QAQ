@@ -7,7 +7,9 @@ The intended baseline combines genuinely packed nested multi-precision weights r
 
 ## Current state
 
-The repository is at **S00 — Lock environment and specification** and has no implementation stage underway.
+The repository has completed S00, S01, and S02. The current recorded state is
+**S02 — Specify and verify physical bit-plane packing**; no later implementation
+stage is underway.
 Read `docs/STATUS.md`, `docs/DECISIONS.md`, and the current stage document before doing any work.
 Workers must complete only the current stage and stop at its decision gate.
 
@@ -38,4 +40,7 @@ python --version
 
 ## Scope boundary
 
-This initial scaffold does not implement quantization, model integration, routing, training, CUDA kernels, CPU/GPU loading, or experiments.
+This baseline does not implement production quantization, model integration,
+routing, training, CUDA kernels, CPU/GPU loading, or end-to-end experiments.
+S02 adds only a slow reference-only pack/unpack/reconstruct codec; the physical
+format and its production-storage boundary are documented in `docs/BITPLANE_FORMAT.md`.

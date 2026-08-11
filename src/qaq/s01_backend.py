@@ -59,8 +59,7 @@ def _source_commit() -> str:
     )
     if repository.returncode != 0:
         raise RuntimeError(
-            "Could not inspect pinned Any-Precision repository: "
-            f"{repository.stderr.strip()}"
+            f"Could not inspect pinned Any-Precision repository: {repository.stderr.strip()}"
         )
     if Path(repository.stdout.strip()).resolve() != ANY_PRECISION_ROOT.resolve():
         raise RuntimeError(f"Pinned Any-Precision source is not initialized: {ANY_PRECISION_ROOT}")
@@ -79,8 +78,7 @@ def _source_commit() -> str:
     )
     if status.returncode != 0:
         raise RuntimeError(
-            "Could not inspect pinned Any-Precision source status: "
-            f"{status.stderr.strip()}"
+            f"Could not inspect pinned Any-Precision source status: {status.stderr.strip()}"
         )
     if status.stdout.strip():
         raise RuntimeError(f"Pinned Any-Precision source is dirty: {status.stdout.strip()}")
@@ -91,12 +89,13 @@ def _source_commit() -> str:
         check=False,
     )
     if completed.returncode != 0:
-        raise RuntimeError(f"Could not inspect pinned Any-Precision source: {completed.stderr.strip()}")
+        raise RuntimeError(
+            f"Could not inspect pinned Any-Precision source: {completed.stderr.strip()}"
+        )
     commit = completed.stdout.strip()
     if commit != PINNED_ANY_PRECISION_COMMIT:
         raise RuntimeError(
-            "Any-Precision source mismatch: "
-            f"expected {PINNED_ANY_PRECISION_COMMIT}, got {commit}"
+            f"Any-Precision source mismatch: expected {PINNED_ANY_PRECISION_COMMIT}, got {commit}"
         )
     return commit
 
@@ -126,7 +125,9 @@ def _pack_parent_labels(labels8: np.ndarray) -> torch.Tensor:
     """Use the pinned pack helper for test-only physical parent-label packing."""
 
     if labels8.shape != (N, K) or labels8.dtype != np.uint8:
-        raise ValueError(f"expected uint8 labels with shape {(N, K)}, got {labels8.shape} {labels8.dtype}")
+        raise ValueError(
+            f"expected uint8 labels with shape {(N, K)}, got {labels8.shape} {labels8.dtype}"
+        )
 
     # These operations mirror the pinned pack.py caller: one MSB-first bitmap
     # per parent bit, followed by the source's warp/thread byte permutation.
@@ -144,7 +145,9 @@ def _pack_parent_labels(labels8: np.ndarray) -> torch.Tensor:
 
 def _synthetic_source() -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
     generator = torch.Generator(device="cpu").manual_seed(SEED)
-    source_weights = torch.empty((N, K), dtype=torch.float32).uniform_(-0.75, 0.75, generator=generator)
+    source_weights = torch.empty((N, K), dtype=torch.float32).uniform_(
+        -0.75, 0.75, generator=generator
+    )
     inputs = torch.empty((M, K), dtype=torch.float32).uniform_(-0.5, 0.5, generator=generator)
 
     row_min = source_weights.amin(dim=1, keepdim=True)
@@ -270,7 +273,10 @@ def storage_observations(case: BackendCase) -> dict[str, Any]:
                 "shape": list(case.linear._buffers[f"lut{bit}"].shape),
                 "dtype": str(case.linear._buffers[f"lut{bit}"].dtype),
                 "device": str(case.linear._buffers[f"lut{bit}"].device),
-                "bytes": int(case.linear._buffers[f"lut{bit}"].numel() * case.linear._buffers[f"lut{bit}"].element_size()),
+                "bytes": int(
+                    case.linear._buffers[f"lut{bit}"].numel()
+                    * case.linear._buffers[f"lut{bit}"].element_size()
+                ),
             }
             for bit in SUPPORTED_PRECISIONS
         },
@@ -292,7 +298,9 @@ def full_validation_report() -> dict[str, Any]:
         first = packed_output(case, bit)
         second = packed_output(case, bit)
         if not torch.equal(first, second):
-            raise AssertionError(f"repeated {bit}-bit packed executions are not bitwise deterministic")
+            raise AssertionError(
+                f"repeated {bit}-bit packed executions are not bitwise deterministic"
+            )
         deterministic[str(bit)] = {
             "bitwise_equal": True,
             "digest_first": tensor_digest(first),

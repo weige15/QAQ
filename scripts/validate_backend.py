@@ -15,7 +15,13 @@ from qaq.s01_backend import full_validation_report
 def main() -> int:
     try:
         report = full_validation_report()
-    except (AssertionError, ImportError, OSError, RuntimeError, ValueError) as exc:  # pragma: no cover
+    except (
+        AssertionError,
+        ImportError,
+        OSError,
+        RuntimeError,
+        ValueError,
+    ) as exc:  # pragma: no cover
         print(f"S01 validation FAILED: {exc}", file=sys.stderr)
         return 1
     print(json.dumps(report, indent=2, sort_keys=True))

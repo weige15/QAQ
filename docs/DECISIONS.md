@@ -141,7 +141,7 @@ Unspecified details must not be silently filled in.
 
 **Alternatives considered:** A test-only reimplementation of dequantization was unnecessary because the pinned helper is available. A full-model or real-weight test was excluded by the S01 scope gate.
 
-**Consequence:** The adapter delegates packing, dequantization, and matmul to the pinned source. S01 does not assert experimentally determined bit-plane order, padding, signed encoding, or serialization endianness; those remain S02 work.
+**Consequence:** The adapter delegates packing, dequantization, and matmul to the pinned source. S01 does not assert experimentally determined bit-plane order, padding, signed encoding, or serialization endianness; D017 records their later S02 resolution.
 
 **Reversal path:** If a later pinned-source review or target hardware changes the constructor, supported range, reference behavior, or tolerance contract, return S01 to IN_PROGRESS and preserve the new measured evidence rather than loosening checks silently.
 

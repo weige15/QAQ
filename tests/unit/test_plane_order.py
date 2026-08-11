@@ -14,9 +14,7 @@ def _pinned_pack(codes):
     bitmaps = np.empty((parent_bits, codes.size // 8), dtype=np.uint8)
     flat_codes = codes.reshape(-1)
     for plane in range(parent_bits):
-        bitmaps[plane] = np.packbits(
-            ((flat_codes >> (parent_bits - 1 - plane)) & 1).astype(bool)
-        )
+        bitmaps[plane] = np.packbits(((flat_codes >> (parent_bits - 1 - plane)) & 1).astype(bool))
     bitmaps = bitmaps.reshape(parent_bits, n_rows, logical_k // 8)
     return pinned_pack._permute_bitmaps_int32(bitmaps)
 

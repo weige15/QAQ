@@ -6,9 +6,7 @@ import torch
 
 
 def test_torch_serializes_contiguous_qweight_bytes_little_endian():
-    qweight = torch.tensor(
-        [-2147483648, 0x40000000, -1073741823, -1], dtype=torch.int32
-    )
+    qweight = torch.tensor([-2147483648, 0x40000000, -1073741823, -1], dtype=torch.int32)
     raw = qweight.numpy().tobytes()
     buffer = io.BytesIO()
     torch.save(qweight, buffer)

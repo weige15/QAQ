@@ -1,7 +1,9 @@
 # Experiments
 
-This file is an experiment-plan scaffold.
-No experiments are run or claimed complete by the project-control setup.
+This file records experiment plans and links to completed stage evidence.
+S02's physical-format evidence is authoritative in
+[`docs/stages/S02_BITPACKING.md`](stages/S02_BITPACKING.md) and
+[`docs/BITPLANE_FORMAT.md`](BITPLANE_FORMAT.md).
 
 ## S01 pinned backend evidence (2026-08-11)
 

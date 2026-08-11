@@ -44,4 +44,6 @@ def test_known_patterns_reconstruct_and_expose_word_order():
         assert _u32_words(packed[:, 0, 0]).tolist() == expected_words[name]
         assert hashlib.sha256(packed.tobytes()).hexdigest() == expected_digests[name]
         np.testing.assert_array_equal(unpack(packed), codes)
-        np.testing.assert_array_equal(reconstruct(packed, lut, precision=8), codes.astype(np.float32))
+        np.testing.assert_array_equal(
+            reconstruct(packed, lut, precision=8), codes.astype(np.float32)
+        )
