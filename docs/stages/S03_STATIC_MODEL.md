@@ -95,3 +95,26 @@ No Any-Precision quantizer, bitsandbytes, GPTQ, AWQ, fake quantization, packed Q
 `S03-B: quantize the verified Qwen3 target modules into one nested 4-bit/8-bit packed representation.`
 
 The S03-A gate is **CONTINUE**. The pinned model loaded and executed, the concrete module tree matches S00, exclusions and tied weights were verified, and no quantization was performed.
+
+## S03-B — Nested Qwen3 4/8-bit packed baseline
+
+**Status: IN_PROGRESS.** S03-B produced and validated the static nested checkpoint; the broader S03 static-baseline quality requirements remain open.
+
+- Pinned quantizer entry point: `any_precision.quantization.any_precision_quantize`, with its `any_precision.quantization.pack.pack` packing stage.
+- Exact mapping: `configs/qwen3_any_precision.yaml`, checked against the S03-A records in `docs/actual_model_modules.json` by exact set and count equality before quantization.
+- Source model: `Qwen/Qwen3-4B`, revision `1cfa9a7208912126459214e8b04321603b3df60c`; Any-Precision commit `a3257d02740cc5757c78673da534b0630ff3a4ea`.
+- Exact command: `source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:third_party/any-precision-llm python scripts/run_s03b.py --overwrite-artifact`.
+- Quantization: seed precision `4`, parent precision `8`, group count `1`, deterministic random state `1729`.
+- Calibration: pinned C4 loader, train split `allenai/c4` shard `en/c4-train.00000-of-01024.json.gz`, one sample, 64 tokens, tokenizer first-64-token truncation, Python/NumPy seed `1729`.
+- Runtime: `197.52182836900465` seconds on CUDA device `cuda:3` / NVIDIA GeForce RTX 3090. Peak quantization RAM was not captured; pre-quantization available RAM was `242553462784` bytes and GPU free VRAM was `24112726016` bytes. Static smoke peak allocated GPU memory was `5585867264` bytes at 4 bits and `5588298240` bytes at 8 bits.
+- Artifact: `quantized/s03b_qwen3_4b/backend_cache/packed/anyprec-(1cfa9a7208912126459214e8b04321603b3df60c)-w8_orig4-gc1-c4_s1_blk64`.
+- Target count: `252`; omitted, unexpected, duplicate, and excluded quantized targets: none.
+- Physical storage: parent `qweight` payload `3633315840` bytes as `torch.int32` `[8,N,K//32]` tensors; selected 4-bit prefix `1816657920` bytes; selected 8-bit payload `3633315840` bytes. LUT4 bytes `35389440`, LUT8 bytes `566231040`, separate scale bytes `0`, metadata-file bytes `15883586`, lookup/scale/metadata total `617504066` bytes. Total checkpoint/artifact bytes: `5525158010`.
+- Nested proof: each target has exactly one 8-plane parent payload and separate row LUTs of `[N,16]` and `[N,256]`; static 4-bit selects `qweight[:4]` with `lut4`, while static 8-bit selects all eight planes with `lut8`. No independent 4-bit qweight or 8-bit model copy exists. The parent suffix had `454160316` nonzero elements.
+- Full-precision baseline: BF16 logits shape `[1,8,151936]`, finite, digest `a59aa0c2a7d31a8e4a5e9687ce229f9fcaa461344d3ea68f506867355fd73a18`.
+- Static 4-bit smoke: finite logits `[1,8,151936]`, digest `8b28d8ae1cf0d27462b0704d2661ebe90f67073c4435bbd8e21ad2ef19a6aa5d`.
+- Static 8-bit smoke: finite logits `[1,8,151936]`, digest `9337bad41bf1f9294aca8ba7721a313ad5abfe14e279970e2cf45142946f04c3`.
+- Numerical sanity: FP-vs-4 mean/max absolute logit error `0.38069865107536316` / `3.34375`; FP-vs-8 `0.04913947731256485` / `0.6796875`. The 8-bit result is at least as faithful on both recorded measures.
+- Round-trip: the fresh-process integration checkpoint reload and manifest/hash checks passed.
+- Checkpoint hashes and complete tensor inventory are tracked in `docs/quantized_model_manifest.json`; weight payloads remain ignored and untracked.
+- Limitations: calibration is intentionally a one-sample smoke baseline, no generation or quality benchmark was run, peak quantization RAM was not measured, and S03 has not been declared complete. Routing, CPU-to-GPU on-demand loading, training, and S04 were not started.

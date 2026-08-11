@@ -159,6 +159,18 @@ Unspecified details must not be silently filled in.
 
 **Reversal path:** If a future dependency or model revision changes the concrete tree, rerun this actual-model inspection and return S03 to REVISE before quantization.
 
+### D019 — S03-B deterministic calibration procedure (2026-08-11)
+
+**Choice:** Use the smallest pinned-backend calibration run that exercises its required gradient path: one sample from the pinned C4 train shard, sequence length 64, tokenizer first-64-token truncation, Python and NumPy sampling seed `1729`, and Any-Precision `random_state=1729`.
+
+**Evidence:** The pinned `any_precision_quantization` entry point requires gradient-derived sensitivity data before seed quantization and incremental upscaling. Its `datautils` supports deterministic C4 sampling and the requested sequence length. The run completed without a large evaluation dataset or benchmark.
+
+**Alternatives rejected:** The backend default of 100 C4 samples at sequence length 512 was unnecessarily large for this static smoke baseline. A synthetic or silently substituted calibration source would not exercise the authoritative backend data path and was rejected.
+
+**Consequence:** The S03-B artifact is a deterministic baseline conversion, not a quality claim. Later static quality evaluation must use its own explicitly documented dataset and must not treat this one-sample calibration as sufficient evidence for S03 completion.
+
+**Reversal path:** If the S03 static quality gate requires a larger or different calibration set, record a new dated decision and regenerate the artifact without changing the pinned model or Any-Precision revision.
+
 ## Decision protocol
 
 A worker must add a dated or commit-linked entry when a stage resolves an unknown or introduces a new assumption.

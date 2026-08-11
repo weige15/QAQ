@@ -34,6 +34,21 @@ Compare:
 Record quality, selected routes, GPU memory, actual packed transfer bytes, and latency.
 Every result must include the exact command, environment versions, model and data identifiers, deterministic seed, and relevant configuration.
 
+## S03-B nested Qwen3 static baseline (2026-08-11)
+
+- Command: `source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:third_party/any-precision-llm python scripts/run_s03b.py --overwrite-artifact`.
+- Model: `Qwen/Qwen3-4B`, immutable revision `1cfa9a7208912126459214e8b04321603b3df60c`; tokenizer uses the same revision. Any-Precision commit: `a3257d02740cc5757c78673da534b0630ff3a4ea`.
+- Mapping and targets: explicit `configs/qwen3_any_precision.yaml`; exact S03-A target-set check passed for 252 projections, with no omitted, unexpected, duplicate, or excluded targets.
+- Quantizer settings: seed `4`, parent `8`, group count `1`, random state `1729`; pinned C4 train shard, one 64-token sample, tokenizer first-64-token truncation.
+- Quantization runtime: `197.52182836900465` seconds on CUDA `cuda:3`, NVIDIA GeForce RTX 3090.
+- Physical storage: packed parent planes `3633315840` bytes; selected 4-plane prefix `1816657920` bytes; selected 8-plane payload `3633315840` bytes; LUT4 `35389440` bytes; LUT8 `566231040` bytes; scales `0` bytes; lookup/scale/metadata `617504066` bytes; total artifact `5525158010` bytes.
+- Static 4-bit: logits `[1,8,151936]`, finite, digest `8b28d8ae1cf0d27462b0704d2661ebe90f67073c4435bbd8e21ad2ef19a6aa5d`, peak allocated GPU memory `5585867264` bytes.
+- Static 8-bit: logits `[1,8,151936]`, finite, digest `9337bad41bf1f9294aca8ba7721a313ad5abfe14e279970e2cf45142946f04c3`, peak allocated GPU memory `5588298240` bytes.
+- BF16 full-precision comparison digest: `a59aa0c2a7d31a8e4a5e9687ce229f9fcaa461344d3ea68f506867355fd73a18`.
+- FP-vs-4 error: mean/max absolute `0.38069865107536316` / `3.34375`. FP-vs-8 error: mean/max absolute `0.04913947731256485` / `0.6796875`.
+- Artifact: `quantized/s03b_qwen3_4b/backend_cache/packed/anyprec-(1cfa9a7208912126459214e8b04321603b3df60c)-w8_orig4-gc1-c4_s1_blk64`; complete hashes are in `docs/quantized_model_manifest.json`.
+- Fresh-process round-trip and manifest integration tests: `9 passed`. Relevant S01/S02 regression tests: `27 passed`. Ruff: clean.
+
 ## Boundaries before baseline freeze
 
 Do not introduce asynchronous transfers, prefetching, transfer prediction, bit-width cost penalties, cross-request caching, multi-query batching, or unrelated research improvements.
