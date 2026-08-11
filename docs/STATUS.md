@@ -1,8 +1,10 @@
-Current stage: S06
-Status: COMPLETE
+Current stage: S07
+Status: IN_PROGRESS
 
-S00, S01, S02, S03, S04, and S05 are COMPLETE. S06 is complete with the
-trainable soft router and differentiable packed 4-bit/8-bit mixture path.
+S00 through S06 are COMPLETE. S07-A is complete with reusable teacher-student
+distillation machinery, explicit completion masking, frozen teacher/packed
+student evidence, router-only optimization, deterministic hard routes, compact
+route logs/statistics, and router-only checkpoint round trips.
 
 S06 evidence:
 - 72 distinct routers: one per attention or FFN unit across 36 layers.
@@ -25,5 +27,18 @@ S06 evidence:
 
 Passing S06 implementation commit: `8f59215`.
 
-Next action: Begin S07: train the router through teacher-student distillation
-and evaluate deterministic hard argmax routes.
+S07-A evidence:
+- 8 focused S07 unit/integration tests passed on the deterministic tiny
+  fixture; both smoke steps had finite KD loss and finite router gradients,
+  and router parameters changed.
+- Teacher parameters and packed S06 student parameters remained frozen and
+  unchanged; the optimizer audit included only `routers.` parameters.
+- Explicit completion-mask tests proved prompt and padding changes do not
+  affect loss, completion changes do affect loss, and zero-completion inputs
+  fail. Alignment, hard argmax, route-log coverage, statistics, and checkpoint
+  probability/hard-route round trips passed.
+- Relevant S04-S06/S05 regression selection: 40 passed, 11 artifact-dependent
+  tests skipped because the disposable worktree has no S03-B artifact. No real
+  baseline training was run.
+
+Next action: S07-B: lock real training data and hyperparameters, perform the single baseline router-distillation run, then evaluate soft and deterministic hard routes.

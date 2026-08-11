@@ -78,6 +78,7 @@ class SoftRoutedQwen3ForCausalLM(nn.Module):
         request_state: QaqRequestState,
         phase: str = "prefill",
         trace: PrecisionTrace | None = None,
+        prompt_attention_mask: torch.Tensor | None = None,
         **kwargs: Any,
     ) -> Any:
         if not isinstance(request_state, QaqRequestState):
@@ -93,6 +94,7 @@ class SoftRoutedQwen3ForCausalLM(nn.Module):
             precision_plan=None,
             routing_policy=None,
             soft_router=self.route,
+            prompt_attention_mask=prompt_attention_mask,
             **kwargs,
         )
 
