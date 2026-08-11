@@ -150,3 +150,50 @@ Unspecified details must not be silently filled in.
 A worker must add a dated or commit-linked entry when a stage resolves an unknown or introduces a new assumption.
 The entry must state the evidence, alternatives considered when material, consequence, and reversal path.
 A stage cannot be declared complete while its required decision gate contains an unresolved blocker.
+
+### D017 — S02 pinned physical bit-plane contract (2026-08-11)
+
+**Choice:** Adopt the versioned v1 contract in `docs/BITPLANE_FORMAT.md` for
+the pinned Any-Precision revision `a3257d02740cc5757c78673da534b0630ff3a4ea`:
+contiguous `int32` qweight shape `[P,N,K//32]`, MSB-first plane order,
+the source's warp-oriented byte permutation, leading-plane 4-bit selection,
+row-wise `float16` direct LUTs, and a strict `K % 32 == 0` baseline boundary.
+
+**Status:** Resolved; S02 evidence passes on 2026-08-11.
+
+**Evidence:** The pinned source was inspected at `quantization/pack.py`,
+`modules/AnyPrecisionLinear.py`, `modules/kernels/main.cu`,
+`modules/kernels/dequant.cuh`, `modules/kernels/matmul.cuh`, and
+`quantization/quantize.py`. Deterministic known patterns established
+`0 -> 0x80000000`, `1 -> 0x40000000`, and `31 -> 0x00000001` in the `K=32`
+case; all-zero, all-one, alternating, one-plane, and adjacent-plane words
+are asserted with stable SHA-256 digests. The independent reference codec
+matches the pinned pack helper for a seeded `[3,1024]` random fixture and
+matches pinned CUDA dequantization at both 4 and 8 bits. The actual pinned
+nested quantizer produced one shared parent-label tensor and distinct `[N,16]`
+and `[N,256]` LUTs, with reconstruction checked at both precisions.
+Serialization checks confirmed PyTorch's little-endian data payload matches
+the contiguous `int32` tensor bytes. The production-facing qweight guard
+observed `torch.int32` storage and rejected byte-per-logical-bit accounting.
+
+**Alternatives considered:** A contiguous logical-bit word order was rejected
+because `_permute_bitmaps_int32` and the CUDA masks demonstrate the warp
+transpose plus per-word byte reversal. A byte-per-bit tensor remains a
+correctness-only oracle and cannot support resource claims. A sign plane,
+scale, or zero-point field was not added because the pinned quantizer stores
+unsigned labels and direct floating centroids in the LUTs; negative LUT values
+already provide signed reconstructed values. Implicit zero padding was rejected
+because the source rejects non-aligned widths and the constructor's floor
+division is not safe padding.
+
+**Consequence:** S02 reference and future baseline code must keep packed planes
+as the authoritative production representation, account for LUTs/scales (with
+the pinned backend having no separate scales) separately, and reject unsupported
+alignment or grouped-LUT layouts. No upstream source or production backend
+implementation was modified.
+
+**Reversal path:** If the pinned gitlink changes, if a future backend revision
+changes the masks/byte permutation, or if a supported grouped/padded format is
+introduced, preserve this contract and add a new dated decision with new
+known-word, reconstruction, serialization, and byte-count evidence before
+changing the format version.
