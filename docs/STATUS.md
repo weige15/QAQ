@@ -1,5 +1,5 @@
-Current stage: S07
-Status: COMPLETE
+Current stage: S08
+Status: IN_PROGRESS
 
 S00 through S06 are COMPLETE. S07-A is complete with reusable teacher-student
 distillation machinery, explicit completion masking, frozen teacher/packed
@@ -79,5 +79,23 @@ Result artifact: `docs/results/s07_router_training.json`.
 
 Passing corrected D008-1 evidence commit: `33631f5`.
 
-Next action: begin the repository-defined S08 work in a later task. This task
-stops at the completed S07 gate and does not begin S08.
+S08-A evidence:
+- The implementation subdivision S08-A established a synchronous loader for
+  one concrete request state and retained no process-global request cache.
+- The real S01 pinned fixture keeps `[8,64,32]` `torch.int32` qweight and
+  `torch.float16` row LUTs on CPU before first use.
+- First-use bytes were 34,816 for 4-bit, 98,304 for fresh 8-bit, and 65,536
+  incremental bytes for a 4-to-8 upgrade. Reuse events transferred zero
+  bytes.
+- Resident and transferred 4-bit and 8-bit fixture outputs were bitwise equal.
+  Request end released all retained GPU references, and duplicate textual IDs
+  used independent request-state ownership.
+- Focused S08-A tests passed: 8. Ruff passed for changed source and tests.
+- No full-model Qwen3 on-demand evaluation, memory comparison, latency
+  comparison, or S09 work was performed.
+
+S08-A gate: CONTINUE.
+
+Next action: integrate this verified loader with real hard-routed Qwen3
+execution and perform controlled memory, transfer, and latency measurements.
+Do not execute that next action as part of S08-A.

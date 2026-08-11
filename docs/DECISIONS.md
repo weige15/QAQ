@@ -402,6 +402,50 @@ reopened with a new decision if the baseline contract changes.
 
 **Reversal path:** Reopen S07 if any freeze, optimizer isolation, finite-value, masking, determinism, checkpoint, or regression property changes, or record a new decision before changing the locked baseline contract.
 
+### D029 — S08-A request-scoped synchronous packed loader (2026-08-11)
+
+**Choice:** Keep one verified nested parent `qweight` tensor and both row-wise
+lookup tables in a CPU-authoritative `PackedLinearSource`. A concrete
+`SynchronousPackedPlaneLoader` is bound to one `QaqRequestState` object, not to
+its textual `request_id`, and registers explicit cleanup with
+`QaqRequestState.end_request()`.
+
+**Transfer granularity:** The pinned Any-Precision CUDA path requires the
+leading `qweight` planes and the lookup table for the selected precision. A
+4-bit first use copies `qweight[:4]` and `lut4`; an 8-bit first use copies
+`qweight[:8]` and `lut8`. If a request upgrades from 4 to 8, it copies only
+`qweight[4:8]` and `lut8`, combines the newly copied suffix with the retained
+GPU prefix, and does not repeat the CPU transfer of the first four planes.
+The optional bias, when present, is copied once as another required backend
+buffer.
+
+**Evidence:** The pinned `AnyPrecisionLinear.forward` and CUDA kernels read
+exactly `w_bits` leading `int32` planes and the matching `float16` LUT. The
+S08-A fixture reused the real S01 physical `[8,64,32]` `int32` packed tensor
+and pinned `matmul_kbit` execution. Focused tests passed for CPU authority,
+first use, request-local reuse, 4-to-8 upgrade accounting, cleanup, duplicate
+textual IDs, invalid precision, and resident-versus-on-demand outputs.
+Measured first-use transfer bytes were `34,816` for 4-bit
+(`qweight[:4]` `32,768` + `lut4` `2,048`), `98,304` for fresh 8-bit
+(`qweight[:8]` `65,536` + `lut8` `32,768`), and `65,536` incremental bytes
+for the 4-to-8 upgrade (`qweight[4:8]` `32,768` + `lut8` `32,768`).
+
+**Alternatives rejected:** Copying the full parent payload for a 4-bit call
+would violate the verified leading-plane contract. A process-global request
+cache would violate S05 ownership. Repacking, dequantizing, asynchronous
+copies, streams, futures, and prefetching are outside the S08-A baseline.
+
+**Consequence:** S08-A establishes only the synchronous loader seam and small
+fixture correctness. It makes no full-model memory, transfer, or latency
+claim. The next S08 work unit may integrate this seam with real hard-routed
+Qwen3 execution and controlled measurements.
+
+**Reversal path:** If a future pinned backend changes the required planes or
+LUTs, rerun the source inspection and fixture parity tests before changing
+transfer granularity or byte accounting. If real integration requires a
+lifetime or ownership model different from `QaqRequestState.end_request()`,
+reopen this decision rather than adding a global registry.
+
 ## Decision protocol
 
 A worker must add a dated or commit-linked entry when a stage resolves an unknown or introduces a new assumption.

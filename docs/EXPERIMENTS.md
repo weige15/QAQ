@@ -205,3 +205,40 @@ Do not introduce asynchronous transfers, prefetching, transfer prediction, bit-w
   `13 tests`; the unit/S01/S02 selection passed `43 tests` with five expected
   artifact-path skips when run without `QAQ_S03_ARTIFACT`. No production packed
   representation or pinned upstream source was changed.
+
+## S08-A synchronous packed-plane loader fixture (2026-08-11)
+
+- Scope: establish and test the request-scoped synchronous loader contract only.
+  No Qwen3-4B on-demand evaluation, allocator/memory comparison, latency
+  comparison, asynchronous transfer, prefetching, or S09 work was run.
+- Fixture: the real S01 pinned Any-Precision CUDA fixture, seed `1729`,
+  `M=4`, `N=64`, `K=1024`, input/LUT/output `float16`, and physically packed
+  `int32` parent qweight `[8,64,32]`; the loader source was copied into CPU
+  authoritative buffers and the resident module remained the reference.
+- Commands:
+  `source ~/.venv/bin/activate && which python && python --version &&`
+  `PYTHONPATH=src:third_party/any-precision-llm pytest -q`
+  `tests/unit/test_s08_loader_contract.py`
+  `tests/integration/test_s08_sync_transfer.py`
+  `tests/integration/test_s08_request_lifetime.py`
+  Result: `8 passed in 8.77s` on CUDA device `cuda:0`, NVIDIA GeForce RTX 3090.
+  Ruff passed for the changed S08 source, request-state source, and focused
+  tests.
+- CPU authority: qweight `[8,64,32]` `torch.int32`, LUT4 `[64,16]` and LUT8
+  `[64,256]` `torch.float16`, all contiguous and CPU-resident before first use.
+- First-use accounting: 4-bit transferred `qweight[:4]` (`32,768` bytes) and
+  `lut4` (`2,048` bytes), total `34,816`; fresh 8-bit transferred `qweight[:8]`
+  (`65,536`) and `lut8` (`32,768`), total `98,304`. A 4-to-8 upgrade transferred
+  only `qweight[4:8]` (`32,768`) and `lut8` (`32,768`), total `65,536`.
+  Reuse transferred `0` bytes. Every event's count was the sum of actual
+  destination tensor `numel()*element_size()` values.
+- Lifecycle/isolation: explicit `QaqRequestState.end_request()` reduced the
+  retained GPU entry and buffer counts to zero. Two independent state objects
+  with the same textual request ID each recorded an independent first-use
+  transfer and had distinct state identities.
+- Correctness: on-demand 4-bit and 8-bit outputs were finite and bitwise equal
+  to the existing resident pinned execution. Copies used ordinary synchronous
+  `.to(device=...)` followed by `torch.cuda.synchronize`; no non-blocking copy,
+  stream, future, worker, cache, or prefetch path exists.
+- Decision: implementation details are recorded as D029 in
+  `docs/DECISIONS.md`. This evidence supports S08-A **CONTINUE** only.

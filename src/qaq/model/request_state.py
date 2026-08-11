@@ -66,6 +66,8 @@ class QaqRequestState:
     feature_dim: int | None = None
     layer_count: int = DEFAULT_LAYER_COUNT
     _owner: object | None = field(default=None, init=False, repr=False)
+    _cleanup_callbacks: list[object] = field(default_factory=list, init=False, repr=False)
+    _ended: bool = field(default=False, init=False, repr=False)
     _DEFAULT_LAYER_COUNT: ClassVar[int] = DEFAULT_LAYER_COUNT
 
     def __post_init__(self) -> None:
@@ -128,7 +130,35 @@ class QaqRequestState:
             raise ValueError("attention and FFN feature dimensions must match")
         self.feature_dim = ffn_dim or attention_dim
 
+    @property
+    def ended(self) -> bool:
+        """Whether explicit request-end cleanup has completed."""
+
+        return self._ended
+
+    def register_cleanup(self, callback: object) -> None:
+        """Register one request-owned cleanup callback for explicit request end."""
+
+        if self._ended:
+            raise RuntimeError("cannot register cleanup after request end")
+        if not callable(callback):
+            raise TypeError("request cleanup callback must be callable")
+        self._cleanup_callbacks.append(callback)
+
+    def end_request(self) -> None:
+        """Run and clear request-owned cleanup callbacks exactly once."""
+
+        if self._ended:
+            return
+        self._ended = True
+        callbacks = tuple(self._cleanup_callbacks)
+        self._cleanup_callbacks.clear()
+        for callback in callbacks:
+            callback()
+
     def bind_owner(self, owner: object) -> None:
+        if self._ended:
+            raise RuntimeError(f"request state {self.request_id!r} has already ended")
         if self._owner is None:
             self._owner = owner
         elif self._owner is not owner:
