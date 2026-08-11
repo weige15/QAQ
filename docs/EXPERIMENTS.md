@@ -65,3 +65,44 @@ Every result must include the exact command, environment versions, model and dat
 ## Boundaries before baseline freeze
 
 Do not introduce asynchronous transfers, prefetching, transfer prediction, bit-width cost penalties, cross-request caching, multi-query batching, or unrelated research improvements.
+
+## S04 explicit manual routing (2026-08-11)
+
+- Scope: one resident S03-B nested checkpoint, explicit immutable 36-layer
+  attention/FFN plans, no query features, learned router, request-specific
+  route generation, or on-demand loading.
+- Model and backend: `Qwen/Qwen3-4B` revision
+  `1cfa9a7208912126459214e8b04321603b3df60c`; Any-Precision commit
+  `a3257d02740cc5757c78673da534b0630ff3a4ea`; artifact and complete hashes are
+  recorded in `docs/quantized_model_manifest.json`.
+- Primary test command:
+  `source ~/.venv/bin/activate && which python && python --version && QAQ_S03_ARTIFACT=<artifact> QAQ_MODEL_DEVICE=cuda:3 pytest -q tests/integration/test_s04_manual_routing.py`.
+  Result: `8 passed in 425.13s`; Ruff passed for the S04 files.
+- Measurement environment: CUDA `cuda:3`, NVIDIA GeForce RTX 3090, deterministic
+  S03 smoke inputs, `use_cache=False`; manual and static models were loaded in
+  one process. Model/checkpoint loading took `415.39432963589206` seconds.
+- Plan contract: frozen `PrecisionPlan` with `attention_bits` and `ffn_bits`
+  as exactly 36-entry tuples; only 4 and 8 are accepted. Canonical JSON
+  serialization round-tripped an alternating plan; the unit validation and
+  serialization tests passed (`7 passed`).
+- Numerical parity against the underlying S03 static logits used `atol=1e-3`
+  and `rtol=1e-3`. All-4 and all-8 manual outputs were bitwise equal to their
+  static outputs: mean/max absolute error `0.0` / `0.0` for both. The manual
+  digests were the recorded S03 digests `8b28d8ae1cf0d27462b0704d2661ebe90f67073c4435bbd8e21ad2ef19a6aa5d`
+  (4-bit) and `9337bad41bf1f9294aca8ba7721a313ad5abfe14e279970e2cf45142946f04c3`
+  (8-bit). Each trace contained 252 exact calls.
+- Isolation: changing only layer-7 attention from 4 to 8 changed exactly its
+  four `q_proj`, `k_proj`, `v_proj`, and `o_proj` calls; changing only layer-19
+  FFN from 4 to 8 changed exactly its three `gate_proj`, `up_proj`, and
+  `down_proj` calls. Both changed final logits and both complete traces matched
+  their expected scope.
+- Mixed plans: attention-8/FFN-4, attention-4/FFN-8, and the deterministic
+  even-layer attention-4/FFN-8 / odd-layer attention-8/FFN-4 plan were finite,
+  bitwise repeatable, and exact 252-call trace matches.
+- Leakage: in one process, all-4 → all-8 → all-4 → attention-8/FFN-4 → all-8
+  reproduced the earlier all-4 and all-8 outputs exactly. No sequential plan
+  state leakage was observed.
+- Regression: the artifact-supplied S03 static/checkpoint selection passed
+  `13 tests`; the unit/S01/S02 selection passed `43 tests` with five expected
+  artifact-path skips when run without `QAQ_S03_ARTIFACT`. No production packed
+  representation or pinned upstream source was changed.

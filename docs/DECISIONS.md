@@ -183,6 +183,62 @@ Unspecified details must not be silently filled in.
 
 **Reversal path:** If a later implementation changes the model, tokenizer, checkpoint, evaluator accounting, or static representation, reopen S03 and rerun this evidence rather than carrying the result forward.
 
+### D021 — S04 explicit plan propagation and trace boundary (2026-08-11)
+
+**Choice:** Carry a frozen `PrecisionPlan` through a manual Qwen3 execution
+wrapper into each layer's attention or FFN unit, and pass the selected `4` or
+`8` value explicitly to every packed linear call. Capture debug records in a
+`PrecisionTrace` supplied for that forward call; do not store a selected plan,
+route, or trace on the model or in a module/global singleton.
+
+**Evidence:** The verified Qwen3 forward source calls attention projections
+inside `Qwen3Attention.forward` and calls `Qwen3MLP.forward` without a route
+argument. The existing S03 path selects a static precision through the mutable
+`AnyPrecisionLinear.set_precision()` state. S04 integration tests showed exact
+all-4 and all-8 parity with the S03 path, 252 exact trace records for every
+plan, four-call attention isolation, three-call FFN isolation, and exact
+reproduction after the all-4 → all-8 → all-4 → mixed → all-8 sequence.
+
+**Alternatives rejected:** A mutable module precision setter would make a
+sequential plan leak possible; a process-global/context-local route would hide
+the request boundary; and changing the pinned Transformers or Any-Precision
+source would violate the S03 baseline. A wrapper carrying the unchanged
+Qwen3 attention, FFN, normalization, rotary, and cache operations was selected
+because it is the smallest explicit seam that reaches both attention and FFN
+units without modifying upstream code.
+
+**Consequence:** S04 supports resident manual plans only. The route interface
+is intentionally not prompt-derived and does not imply request-specific state,
+on-demand transfer, or a learned router. Trace records are diagnostic and do
+not alter numerical operations.
+
+**Reversal path:** If a future pinned Transformers release exposes an official
+route argument through the model, decoder layer, and both units, replace the
+wrapper only after rerunning the exact parity, scope, mixed-plan, and leakage
+tests and recording the new source revision.
+
+### D022 — S04 parity tolerance (2026-08-11)
+
+**Choice:** Document `atol=1e-3` and `rtol=1e-3` for manual-versus-static
+logit comparisons.
+
+**Evidence:** On the verified S03-B artifact and deterministic smoke input,
+all-4 and all-8 manual logits were bitwise equal to the S03 static logits, with
+measured mean and maximum absolute errors of `0.0` for both. The tolerance is
+therefore a documented guard for future backend/runtime variation, not a
+substitute for the observed exact parity.
+
+**Alternatives rejected:** Comparing generated text would not test the
+underlying numerical logits. Reusing the S03 full-precision quality error
+threshold would conflate static quantization error with routing propagation.
+
+**Consequence:** A future manual wrapper or backend change that exceeds this
+tolerance must return S04 to REVISE; static baselines must not be redefined.
+
+**Reversal path:** Re-measure on the same pinned artifact and deterministic
+inputs after a justified runtime change, then record a new tolerance decision
+with mean/max error evidence.
+
 ## Decision protocol
 
 A worker must add a dated or commit-linked entry when a stage resolves an unknown or introduces a new assumption.
