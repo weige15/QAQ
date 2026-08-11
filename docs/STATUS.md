@@ -23,8 +23,7 @@ S06 evidence:
 - No real dataset training, distillation, hard argmax inference, or on-demand
   loading was performed.
 
-Passing S06 implementation commit: to be recorded immediately after the
-implementation commit.
+Passing S06 implementation commit: `8f59215`.
 
 Next action: Begin S07: train the router through teacher-student distillation
 and evaluate deterministic hard argmax routes.
