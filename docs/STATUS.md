@@ -1,5 +1,5 @@
-Current stage: S04
-Status: COMPLETE
+Current stage: S05
+Status: IN_PROGRESS
 
 S00, S01, S02, and S03 are COMPLETE. S03-A and S03-B were complete with CONTINUE evidence:
 - The exact pinned `Qwen/Qwen3-4B` revision `1cfa9a7208912126459214e8b04321603b3df60c` is cached locally.
@@ -18,4 +18,13 @@ S03-C static-baseline quality requirements are complete. Five fixed prompts, a 5
 
 S04 manual routing is COMPLETE at passing implementation commit `a5802358acd756751d4006705ebea961a27b0f8c`. The immutable 36-layer attention/FFN plan, explicit packed-linear propagation, trace instrumentation, all-4/all-8 numerical parity, route isolation, mixed-plan determinism, serialization, and sequential leakage tests passed. Evidence: `docs/stages/S04_MANUAL_ROUTING.md`, `docs/EXPERIMENTS.md`, and `tests/integration/test_s04_manual_routing.py`.
 
-Next action: Begin S05: implement prompt-derived query features and request-specific route state using a deterministic manual route policy.
+S05 implementation is present in `src/qaq/model/request_state.py`,
+`src/qaq/router/features.py`, and the S04 execution seam. Focused pooling,
+padding, request-state, timing, no-completion-leakage, decode-reuse, and
+request-isolation checks pass (`18 passed`, including a real tiny Qwen3
+prefill/decode wrapper check). Artifact-dependent CUDA parity and full
+cache-backed decode evidence remain to be run where the ignored S03 artifact is
+available; S05 is not yet complete.
+
+Next action: run the complete S01-S04 regression and artifact-backed S05
+prefill/decode parity gate, then update this status with the measured result.
