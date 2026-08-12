@@ -1,5 +1,5 @@
 Current stage: S09
-Status: IN_PROGRESS
+Status: COMPLETE
 
 ## S09-A closeout — canonical validation gate
 
@@ -271,8 +271,42 @@ unaffected FP/static evidence remains usable only after the execution-path
 check recorded in D036.
 
 Current stage: S09
-Status: IN_PROGRESS
-Next action: Rerun only the invalidated routed resident and routed synchronous
-on-demand S09-B evidence under the verified deterministic packed-execution
-repair; preserve and reuse the unaffected FP/static S09-B2 evidence only after
-confirming their execution paths were unchanged.
+Status: COMPLETE
+
+## S09-C final evidence review and baseline freeze
+
+The S09-B5 committed aggregation is `CONTINUE` with no errors. The read-only
+closeout aggregation also returned `CONTINUE` with no errors. The frozen
+protocol and fixed-input hashes remain unchanged.
+
+Passing routed repair commit: `4a0dc702178fef0f84eb9ffd9bd6d1810e5dc564`.
+Passing final evidence commit: `443f6994582500857afca9bad6032cc285448a86`.
+Canonical final evidence: `docs/results/s09b_b5/`.
+Frozen protocol SHA-256:
+`01ca65c6b3b7e16d7af66f1533140b1c9f31749c90bc91e097d096d463bf2e1c`.
+Frozen fixed-input SHA-256:
+`da1d33f0f2330cfc341c38945fe4b205f946223f8c9069c35d44999d400fbb49`.
+
+`docs/results/s09b/` is preserved failed S09-B2 evidence and is not the
+canonical final baseline. No production code, measurement code, configs,
+frozen inputs, pinned dependencies, or result JSON changed during closeout.
+The focused closeout suite passed `28 passed`.
+
+Established: S09-A froze the protocol before final results; S09-B2 returned
+REVISE because routed decode logits were not reproducible; S09-B3 isolated the
+pinned atomic k-split `matmul_kbit` path; S09-B4 repaired only the proven routed
+dispatch family; and S09-B5 reused the unaffected FP/static results while
+rerunning only the invalidated routed modes. B5 passed finite-output,
+deterministic-repeat, route-map, generated-token, logits-digest, transfer,
+cleanup, and hidden-copy criteria, plus both frozen quality gates.
+
+Unknown and not claimed: this is not an exact QAQ paper-score reproduction;
+route diversity remains observational `OTHER`; no post-baseline asynchronous,
+prefetch, caching, or other optimization was tested; and no claim is made that
+synchronous on-demand loading is faster than the resident baseline.
+
+Next action: Baseline frozen. Stop. Define an explicit post-baseline stage and
+decision before implementing any optimization or additional research mechanism.
+
+Current stage: S09
+Status: COMPLETE

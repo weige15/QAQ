@@ -666,6 +666,30 @@ divergence, nondeterminism, transfer or cleanup regression, or an execution
 path outside this condition is changed, return S09-B4 to REVISE and preserve
 this diagnosis without changing the frozen protocol or pinned dependency.
 
+### D037 — S09-C frozen baseline closeout (2026-08-13)
+
+**Established:** S09-B5 is the passing frozen baseline evidence, with canonical
+artifacts in `docs/results/s09b_b5/`. The old S09-B2 artifacts remain preserved
+in `docs/results/s09b/` as failed evidence. The routed deterministic fallback
+from `4a0dc702178fef0f84eb9ffd9bd6d1810e5dc564` is part of the frozen baseline
+implementation. FP/static reuse is justified because the execution-path diff
+from `a2e31188be952f97a1439ff7df46d9f43100bae5..4a0dc702178fef0f84eb9ffd9bd6d1810e5dc564`
+is empty for `scripts/run_s09b.py`, `src/qaq/s09_runner.py`,
+`src/qaq/s03_quality.py`, and `src/qaq/s03_static.py`; commit
+`443f6994582500857afca9bad6032cc285448a86` added only `docs/results/s09b_b5/`.
+The committed and temporary read-only aggregations returned `CONTINUE` with no
+errors, and all frozen release criteria passed.
+
+**Unknown:** Behavior of any post-baseline optimization remains unmeasured.
+This baseline is not an exact reproduction of QAQ paper scores, and `OTHER`
+remains an observational route-diversity classification.
+
+**Next-step rule:** No optimization begins automatically after S09. Later work
+requires an explicitly defined new stage and decision. No later authoritative
+stage is currently defined; the exact next action is: Baseline frozen. Stop.
+Define an explicit post-baseline stage and decision before implementing any
+optimization or additional research mechanism.
+
 ## Decision protocol
 
 A worker must add a dated or commit-linked entry when a stage resolves an unknown or introduces a new assumption.

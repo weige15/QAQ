@@ -356,3 +356,109 @@ Do not introduce asynchronous transfers, prefetching, transfer prediction, bit-w
 - Commands: the focused S08-B suite passed `3 tests in 438.03s`; the S08-A focused suite passed `8 tests in 8.55s`; Ruff passed for all changed S08 files. The previously recorded S08-B regression command remained valid at `8 passed in 651.74s` and was not rerun.
 - Result: `docs/results/s08_on_demand.json`, including code/worktree provenance, exact artifact identities, request identities, method, transfer records, allocator readings, cleanup evidence, and commands.
 - Gate: S08 **COMPLETE**; next action is S09, which was not executed.
+
+## S09-B2 failed five-mode evidence and diagnosis
+
+The actual S09-B2 runner execution command was:
+
+```text
+source ~/.venv/bin/activate && which python && python --version && python scripts/run_s09b.py --execute --config configs/s09_baseline_eval.json
+```
+
+It produced the historical five-mode evidence under `docs/results/s09b/`.
+The committed B2 aggregation command and result were:
+
+```text
+source ~/.venv/bin/activate && which python && python --version && python scripts/run_s09b.py --aggregate --config configs/s09_baseline_eval.json --results-dir docs/results/s09b
+```
+
+The result was `REVISE` with `deterministic repeat evidence is incomplete`.
+The quality, route, transfer, cleanup, and generated-token parity observations
+were otherwise sensible, but routed decode logits were not bitwise
+reproducible/equivalent. B3 isolated nondeterminism in the pinned atomic
+k-split `matmul_kbit` path at the real routed decode shape.
+
+## S09-B4 repair and S09-B5 targeted rerun
+
+B4 changed only the routed packed execution family proven by B3: the exact
+non-Orin, one-row, packed `K > 4096`, precision-at-least-7 dispatch uses pinned
+`dequant_kbit` plus `torch.matmul`; all other packed calls retain the pinned
+kernel. The Any-Precision source, frozen protocol, fixed inputs, and B2 JSON
+files were unchanged. The FP teacher and static 4/8-bit execution paths were
+unchanged by the diff.
+
+B5 invoked only the two explicit-mode runner children for
+`hard_routed_resident_packed` and
+`hard_routed_synchronous_on_demand_packed`, writing the targeted rerun to
+`/tmp/qaq-s09b5-routed-rerun/`; the per-child command lines are not embedded in
+the committed JSON and are not reconstructed here. The three unaffected
+FP/static JSON results were reused without modification. The committed B5
+aggregation records `CONTINUE` with `errors: []` and retains its temporary
+`results_dir` as execution provenance.
+
+Canonical final evidence is `docs/results/s09b_b5/`, committed at
+`443f6994582500857afca9bad6032cc285448a86`. Its exact quality values are FP
+`30.648146290315317`, static 4-bit `32.53290622283182`, static 8-bit
+`30.57498909612196`, routed resident `30.678448224528175`, and routed
+on-demand `30.678448224528175`. The ratios are
+`static8/static4 = 0.9398173310032849` and
+`routed-resident/static4 = 0.9429974689134236`.
+
+B5 had five agreeing deterministic repeats for all seven requests in all five
+modes. Resident/on-demand route maps, generated token IDs, and logits digests
+matched. Route diversity was five unique maps, four changed units,
+`0.05555555555555555` changed fraction, mean pairwise distance
+`0.022486772486772486`, classification `OTHER`, with per-request fractions in
+`docs/stages/S09_BASELINE_FREEZE.md`.
+
+Peak allocated/reserved bytes were FP
+`8125394944/8355053568`, static 4-bit
+`5622764544/5811208192`, static 8-bit
+`5622764544/5811208192`, routed resident
+`5726520832/5918162944`, and routed on-demand
+`4886706176/5167382528`. Physical packed residency was zero for FP, zero for
+on-demand, and `4234936320` for each packed resident mode. On-demand peak
+request-owned packed bytes were `3900211200`.
+
+On-demand actual physical transfer was `134138675200` bytes, independently
+expected bytes were `134138675200`, and decode transfer was zero. Cleanup
+returned 252 entries, 504 buffers, and the request-owned bytes to zero; the
+hidden-copy audit passed.
+
+Exact final five-repeat latency medians are recorded in the S09 stage document;
+they are retained directly from the B5 JSON without speed-gate interpretation.
+The routed latency changed after the deterministic fallback.
+
+## S09-C closeout validation
+
+The frozen protocol validation command was:
+
+```text
+source ~/.venv/bin/activate && which python && python --version && python scripts/validate_s09_protocol.py --config configs/s09_baseline_eval.json
+```
+
+It passed with the frozen protocol SHA-256
+`01ca65c6b3b7e16d7af66f1533140b1c9f31749c90bc91e097d096d463bf2e1c` and fixed
+input SHA-256
+`da1d33f0f2330cfc341c38945fe4b205f946223f8c9069c35d44999d400fbb49`.
+
+A new temporary copy was made at `/tmp/qaq-s09-closeout-verify`; copied JSON
+hashes matched before aggregation. The read-only closeout command was:
+
+```text
+source ~/.venv/bin/activate && which python && python --version && python scripts/run_s09b.py --aggregate --config configs/s09_baseline_eval.json --results-dir /tmp/qaq-s09-closeout-verify
+```
+
+It returned `CONTINUE` with `errors: []`. Committed B2 and B5 JSON hashes were
+rechecked afterward and were unchanged. The focused non-benchmark closeout
+command was:
+
+```text
+source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:. pytest -q tests/unit/test_s09_runner.py tests/integration/test_s09_runner_plan.py tests/unit/test_s09_protocol.py tests/integration/test_s09_protocol_inputs.py tests/integration/test_perplexity_evaluator.py
+```
+
+Result: `28 passed in 3.71s`. No GPU benchmark, model mode, production code,
+test, config, frozen input, pinned dependency, or result JSON was changed.
+S09 status is **COMPLETE**. No later stage is defined; the next action is to
+stop and define an explicit post-baseline stage and decision before any
+optimization or additional research mechanism.
