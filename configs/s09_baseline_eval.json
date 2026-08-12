@@ -1,0 +1,258 @@
+{
+  "schema": "qaq-s09-baseline-eval-v1",
+  "protocol_frozen_before_final_results": true,
+  "stage": "S09-A",
+  "protocol_status": "FROZEN_BEFORE_S09B",
+  "modes": [
+    {
+      "id": "full_precision_bf16_teacher",
+      "label": "full-precision BF16 teacher",
+      "model_kind": "full_precision",
+      "precision": "bf16",
+      "routing": "none",
+      "packed_artifact": false,
+      "loader": "resident"
+    },
+    {
+      "id": "static_packed_4bit",
+      "label": "static packed 4-bit",
+      "model_kind": "packed_static",
+      "precision": 4,
+      "routing": "static",
+      "packed_artifact": true,
+      "loader": "resident"
+    },
+    {
+      "id": "static_packed_8bit",
+      "label": "static packed 8-bit",
+      "model_kind": "packed_static",
+      "precision": 8,
+      "routing": "static",
+      "packed_artifact": true,
+      "loader": "resident"
+    },
+    {
+      "id": "hard_routed_resident_packed",
+      "label": "hard-routed resident packed model",
+      "model_kind": "packed_routed",
+      "precision": "4_or_8_per_unit",
+      "routing": "hard_query_level",
+      "router_checkpoint": "locked_s07",
+      "packed_artifact": true,
+      "loader": "resident"
+    },
+    {
+      "id": "hard_routed_synchronous_on_demand_packed",
+      "label": "hard-routed synchronous on-demand packed model",
+      "model_kind": "packed_routed",
+      "precision": "4_or_8_per_unit",
+      "routing": "hard_query_level",
+      "router_checkpoint": "locked_s07",
+      "packed_artifact": true,
+      "loader": "synchronous_on_demand"
+    }
+  ],
+  "identities": {
+    "model": {
+      "repository": "Qwen/Qwen3-4B",
+      "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+      "tokenizer_repository": "Qwen/Qwen3-4B",
+      "tokenizer_revision": "1cfa9a7208912126459214e8b04321603b3df60c"
+    },
+    "packed_artifact": {
+      "manifest_path": "docs/quantized_model_manifest.json",
+      "relative_path": "quantized/s03b_qwen3_4b/backend_cache/packed/anyprec-(1cfa9a7208912126459214e8b04321603b3df60c)-w8_orig4-gc1-c4_s1_blk64",
+      "checkpoint_file": "pytorch_model.bin",
+      "sha256": "29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee"
+    },
+    "any_precision": {
+      "manifest_commit": "a3257d02740cc5757c78673da534b0630ff3a4ea",
+      "submodule_path": "third_party/any-precision-llm"
+    },
+    "router": {
+      "checkpoint_path_env_override": "QAQ_S07_ROUTER_CHECKPOINT",
+      "sha256": "08bf646f19759c0d7949e159bdbe4f96bbea737204b96f8760d205c8d6fd1949",
+      "recorded_path_is_external_to_git": true
+    }
+  },
+  "comparison_contract": {
+    "same_model_and_tokenizer_revision": true,
+    "identical_applicable_input_token_ids": true,
+    "static_and_routed_use_exact_s03_packed_artifact": true,
+    "resident_and_on_demand_use_exact_s07_router_checkpoint": true,
+    "resident_and_on_demand_hard_route_maps_identical": true,
+    "resident_and_on_demand_generation_settings_identical": true,
+    "execution_equivalence_criterion": "resident and on-demand logits are finite and bitwise equal, generated token IDs match, and route maps match",
+    "on_demand_end_to_end_includes_transfer": true,
+    "soft_routing_final_mode": false,
+    "alternate_router": false,
+    "alternate_checkpoint": false
+  },
+  "perplexity": {
+    "evaluator": "qaq.s03_quality.build_perplexity_windows + qaq.s03_quality.evaluate_perplexity",
+    "dataset": "Salesforce/wikitext",
+    "config": "wikitext-2-raw-v1",
+    "revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+    "split": "test",
+    "selection": "concatenate non-empty rows in source order; take the first fixed valid windows; no random sampling",
+    "sequence_length": 128,
+    "source_window_length": 129,
+    "stride": 128,
+    "sample_count": 32,
+    "evaluated_token_count": 4096,
+    "padding": "none",
+    "generated_tokens": false,
+    "labels": "window[1:] aligned with logits from window[:-1]",
+    "loss": "float32 token-weighted summed causal cross-entropy divided by exact evaluated target-token count",
+    "tokenizer_revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "random_seed": null,
+    "quality_gates": {
+      "static_8_vs_static_4": "static_8_perplexity <= 1.10 * static_4_perplexity",
+      "routed_resident_vs_static_4": "routed_resident_perplexity <= 1.10 * static_4_perplexity",
+      "routed_on_demand_vs_resident": "agree under established execution-equivalence criterion"
+    }
+  },
+  "fixed_inputs": {
+    "path": "configs/s09_baseline_prompts.json",
+    "request_count": 7,
+    "request_ids": [
+      "s03-quality-0",
+      "s03-quality-1",
+      "s03-quality-2",
+      "s03-quality-3",
+      "s03-quality-4",
+      "validation-3",
+      "validation-1000"
+    ],
+    "runtime_prompt_generation": false,
+    "applicable_inputs_identical_across_modes": true,
+    "routed_recording": {
+      "layers": 36,
+      "unit_types": ["attention", "ffn"],
+      "units_per_request": 72,
+      "fraction_fields": ["4_bit", "8_bit", "overall"],
+      "route_map_digest": "canonical sorted-key JSON SHA-256",
+      "prompt_to_prompt_diversity": "record unique maps, changed units, changed fraction, and pairwise route distance; observational only",
+      "adaptivity_limitation": "retain S07 classification OTHER; no new diversity threshold"
+    }
+  },
+  "generation": {
+    "input_source": "fixed_inputs",
+    "batch_size": 1,
+    "decoding": "greedy",
+    "do_sample": false,
+    "num_beams": 1,
+    "temperature": null,
+    "max_new_tokens": 8,
+    "same_settings_and_limits_across_modes": true,
+    "records": ["input_token_ids_or_digest", "generated_token_ids", "output_digest", "finite_value_check", "normal_termination"],
+    "text_quality": "descriptive only; no subjective score"
+  },
+  "seeds": {
+    "global_reproducibility_seed": 1729,
+    "perplexity_random_sampling": false,
+    "generation_sampling": false,
+    "runtime_prompt_generation": false
+  },
+  "memory": {
+    "process_policy": "fresh process for each mode",
+    "record_for_all_modes": ["allocated_before", "reserved_before", "peak_allocated", "peak_reserved", "allocated_after_cleanup", "reserved_after_cleanup"],
+    "cuda_boundaries": ["torch.cuda.synchronize() before measured interval", "torch.cuda.reset_peak_memory_stats() immediately before measured interval", "torch.cuda.synchronize() after measured CUDA interval"],
+    "empty_cache_inside_interval": false,
+    "between_run_empty_cache": "permitted only between fresh processes and recorded in the result",
+    "distinct_quantities": ["allocated_memory", "reserved_allocator_memory", "physically_resident_packed_weight_bytes", "request_owned_on_demand_bytes"],
+    "reserved_is_not_live_residency": true,
+    "on_demand_extra_records": ["selected_packed_bytes_before_request_end", "retained_entries_before_cleanup", "retained_buffers_before_cleanup", "retained_entries_after_cleanup", "retained_buffers_after_cleanup", "retained_bytes_after_cleanup", "actual_cpu_to_gpu_packed_transfer_bytes"],
+    "physical_buffers_only": true,
+    "no_complete_packed_parent_on_gpu": true
+  },
+  "transfer": {
+    "mode": "hard-routed_synchronous_on_demand_only",
+    "rule": "D029 physical packed buffer rule: selected qweight planes plus the selected precision LUT, with actual destination numel*element_size bytes",
+    "record": ["first_use_bytes", "reuse_bytes", "prefill_bytes", "decode_bytes", "attention_bytes", "ffn_bytes", "total_bytes", "first_use_events", "reuse_events", "independently_expected_physical_bytes"],
+    "expected_bytes_inputs": ["actual hard route map", "actual S08 packed buffer layout", "D029 transfer rule"],
+    "require_actual_equals_expected": true,
+    "transfer_unpacked_weights": false
+  },
+  "latency": {
+    "same_warmup_policy_for_comparable_modes": true,
+    "warmup_requests": 1,
+    "end_on_demand_warmup_before_measurement": true,
+    "repeats_per_fixed_latency_request": 5,
+    "retain_every_raw_value": true,
+    "headline": "median of the five raw repeats",
+    "outlier_removal": false,
+    "subtract_transfer_time": false,
+    "cuda_boundaries": "torch.cuda.synchronize() before and after every measured CUDA interval",
+    "record_phases": ["prefill", "decode", "end_to_end"],
+    "on_demand_end_to_end_includes_transfer": true,
+    "cross_request_packed_planes": false
+  },
+  "hardware": {
+    "policy": "one fixed physical CUDA device for every mode; PAUSE rather than mix GPU models",
+    "preferred_device_index": 3,
+    "required_gpu_model": "NVIDIA GeForce RTX 3090",
+    "identical_rtx3090_substitution": "allowed only with pre-recorded identity and comparability",
+    "record_versions": ["device_index", "gpu_model", "driver", "cuda_runtime", "pytorch", "transformers", "python"]
+  },
+  "deterministic_criteria": {
+    "all_applicable_inputs_identical": true,
+    "finite_outputs_and_metrics": true,
+    "repeats_match_existing_deterministic_criteria": true,
+    "route_maps_complete": true,
+    "resident_on_demand_route_maps_equal": true,
+    "resident_on_demand_outputs_match_existing_correctness_criterion": true,
+    "clean_rerun_from_config_and_recorded_commands": true
+  },
+  "release_criteria": {
+    "structural_reproducibility_failures": [
+      "all five modes execute",
+      "required outputs are finite",
+      "artifact identities and hashes are exact",
+      "applicable input token IDs are identical",
+      "deterministic repeats satisfy existing criteria",
+      "resident and on-demand route maps are identical",
+      "resident and on-demand outputs match the existing correctness criterion",
+      "actual transfer bytes exactly equal independently expected physical bytes",
+      "cleanup releases request-owned loader references",
+      "on-demand has no hidden complete packed GPU copy",
+      "clean rerun commands and config are sufficient",
+      "relevant regressions pass"
+    ],
+    "quality_gates": {
+      "static_8_perplexity": {"operator": "<=", "rhs": "1.10 * static_4_perplexity", "margin": 1.10, "paper_score_claim": false},
+      "routed_resident_perplexity": {"operator": "<=", "rhs": "1.10 * static_4_perplexity", "margin": 1.10, "paper_score_claim": false},
+      "routed_on_demand_perplexity": {"criterion": "agrees with routed resident under the established execution-equivalence criterion", "paper_score_claim": false}
+    },
+    "performance_validity": [
+      "latency intervals are synchronized and comparable",
+      "on-demand end-to-end latency includes transfers",
+      "memory uses allocator measurements",
+      "residency and transfer use actual physical buffers",
+      "on-demand does not retain the complete packed parent on GPU",
+      "no memory-reduction percentage target; report exact measured reductions if any",
+      "record slower on-demand execution as a baseline limitation"
+    ],
+    "failure_outcomes": {"structural_or_quality_failure": "REVISE", "missing_hardware_or_external_resource": "PAUSE", "all_gates_pass": "CONTINUE_TO_S09B"},
+    "post_result_protocol_change": "Any genuine defect requires REVISE and invalidation of affected results; never silently edit frozen inputs or gates"
+  },
+  "deferred_mechanisms": [
+    "asynchronous loading",
+    "prefetching",
+    "transfer prediction",
+    "bit-width cost penalties",
+    "cross-request caching",
+    "multi-query batching",
+    "schedulers",
+    "post-baseline optimization",
+    "soft-routing final mode",
+    "alternate router or checkpoint"
+  ],
+  "validation": {
+    "validator": "scripts/validate_s09_protocol.py",
+    "command": "source ~/.venv/bin/activate && which python && python --version && python scripts/validate_s09_protocol.py --config configs/s09_baseline_eval.json",
+    "non_benchmark": true,
+    "does_not_load_all_five_models": true,
+    "does_not_run_final_comparison": true
+  }
+}

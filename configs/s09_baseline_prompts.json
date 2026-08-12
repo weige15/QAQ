@@ -1,0 +1,95 @@
+{
+  "format": "qaq-s09-fixed-inputs-v1",
+  "tokenizer": {
+    "repository": "Qwen/Qwen3-4B",
+    "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "add_special_tokens_for_s03_prompts": true,
+    "add_special_tokens_for_s07_validation": false,
+    "truncation": true,
+    "max_length": 128,
+    "padding": false,
+    "runtime_prompt_generation": false
+  },
+  "requests": [
+    {
+      "id": "s03-quality-0",
+      "source": "configs/s03_static_quality_prompts.txt",
+      "source_line": 1,
+      "kind": "s03_quality_prompt",
+      "prompt_text": "Explain why the sky appears blue in one concise paragraph.",
+      "input_ids": [840, 20772, 3170, 279, 12884, 7952, 6303, 304, 825, 63594, 14311, 13],
+      "input_token_count": 12,
+      "prompt_length": 12
+    },
+    {
+      "id": "s03-quality-1",
+      "source": "configs/s03_static_quality_prompts.txt",
+      "source_line": 2,
+      "kind": "s03_quality_prompt",
+      "prompt_text": "Write a Python function that returns the first n Fibonacci numbers.",
+      "input_ids": [7985, 264, 13027, 729, 429, 4675, 279, 1156, 308, 79683, 5109, 13],
+      "input_token_count": 12,
+      "prompt_length": 12
+    },
+    {
+      "id": "s03-quality-2",
+      "source": "configs/s03_static_quality_prompts.txt",
+      "source_line": 3,
+      "kind": "s03_quality_prompt",
+      "prompt_text": "A train leaves at 09:15 and travels 180 kilometers in 2 hours. What is its average speed?",
+      "input_ids": [32, 5426, 10901, 518, 220, 15, 24, 25, 16, 20, 323, 34192, 220, 16, 23, 15, 40568, 304, 220, 17, 4115, 13, 3555, 374, 1181, 5461, 4628, 30],
+      "input_token_count": 28,
+      "prompt_length": 28
+    },
+    {
+      "id": "s03-quality-3",
+      "source": "configs/s03_static_quality_prompts.txt",
+      "source_line": 4,
+      "kind": "s03_quality_prompt",
+      "prompt_text": "In a quiet library, the old clock stopped just before midnight.",
+      "input_ids": [641, 264, 11340, 6733, 11, 279, 2310, 8866, 10497, 1101, 1573, 32333, 13],
+      "input_token_count": 13,
+      "prompt_length": 13
+    },
+    {
+      "id": "s03-quality-4",
+      "source": "configs/s03_static_quality_prompts.txt",
+      "source_line": 5,
+      "kind": "s03_quality_prompt",
+      "prompt_text": "List three practical ways to reduce household water usage.",
+      "input_ids": [852, 2326, 14976, 5510, 311, 7949, 13732, 3015, 10431, 13],
+      "input_token_count": 10,
+      "prompt_length": 10
+    },
+    {
+      "id": "validation-3",
+      "source": "docs/results/s07_router_training.json",
+      "source_offset": 0,
+      "source_row": 3,
+      "kind": "s07_s08_validation_request",
+      "prompt_text": "Homarus gammarus , known as the European lobster or common lobster , is a species of clawed lobster from the eastern Atlantic Ocean , Mediterranean Sea and parts",
+      "input_ids": [49642, 50319, 9015, 5612, 355, 1154, 3881, 438, 279, 7513, 79715, 476, 4185, 79715, 1154, 374, 264, 9419, 315, 56490, 291, 79715, 504, 279, 23149, 22375, 21575, 1154, 37685, 15029, 323, 5479],
+      "full_input_ids": [49642, 50319, 9015, 5612, 355, 1154, 3881, 438, 279, 7513, 79715, 476, 4185, 79715, 1154, 374, 264, 9419, 315, 56490, 291, 79715, 504, 279, 23149, 22375, 21575, 1154, 37685, 15029, 323, 5479, 315, 279, 5235, 15029, 659, 1084, 374, 15148, 5435, 311, 279, 3693, 79715, 1154, 472, 13, 38442, 355, 659, 1084, 1231, 3063, 311, 264, 3084, 315, 220, 21, 15, 9961, 320, 220],
+      "full_input_ids_sha256": "bbd7a25c172570f90d29d6fff0efc65975139ab7d65bb22409e87d10094f404b",
+      "input_token_count": 32,
+      "full_input_token_count": 64,
+      "prompt_length": 32,
+      "prompt_token_range": [0, 32]
+    },
+    {
+      "id": "validation-1000",
+      "source": "docs/results/s07_router_training.json",
+      "source_offset": 1000,
+      "source_row": 1000,
+      "kind": "s07_s08_validation_request",
+      "prompt_text": "The future of the franchise was put into question when Radcliffe and his co @-@ leads Emma Watson and Rupert Grint hesitated signing on to continue their",
+      "input_ids": [785, 3853, 315, 279, 19024, 572, 2182, 1119, 3405, 979, 20605, 79456, 323, 806, 1062, 569, 12, 31, 11508, 34935, 31480, 323, 86169, 479, 1586, 19779, 32237, 15971, 389, 311, 3060, 862],
+      "full_input_ids": [785, 3853, 315, 279, 19024, 572, 2182, 1119, 3405, 979, 20605, 79456, 323, 806, 1062, 569, 12, 31, 11508, 34935, 31480, 323, 86169, 479, 1586, 19779, 32237, 15971, 389, 311, 3060, 862, 12783, 369, 279, 1590, 1378, 17770, 2587, 4764, 1154, 553, 5470, 220, 17, 15, 15, 22, 20605, 79456, 1030, 8499, 369, 279, 1590, 12351, 1154, 892, 2182, 458, 835, 311, 5555, 315],
+      "full_input_ids_sha256": "99c0183a064c79daea4cb461de16ddeb2144dbbe2af64b375f6f2088bb6e659e",
+      "input_token_count": 32,
+      "full_input_token_count": 64,
+      "prompt_length": 32,
+      "prompt_token_range": [0, 32]
+    }
+  ]
+}

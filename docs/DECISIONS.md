@@ -469,6 +469,82 @@ The repository next action is S09, but S09 must not be started as part of this d
 
 **Reversal path:** If a future change alters packed source authority, route parity, logits, transfer accounting, request cleanup, or measurement comparability, reopen S08-B and preserve this baseline result before changing the mechanism.
 
+### D031 — S09-A final evaluation protocol freeze (2026-08-12)
+
+**Choice:** Freeze the machine-readable S09-A protocol in
+`configs/s09_baseline_eval.json` before any final S09-B result exists. The
+comparison has exactly five modes: BF16 teacher, static packed 4-bit, static
+packed 8-bit, hard-routed resident packed, and hard-routed synchronous
+on-demand packed. The fixed request/input records are in
+`configs/s09_baseline_prompts.json`.
+
+The frozen protocol SHA-256 is
+`01ca65c6b3b7e16d7af66f1533140b1c9f31749c90bc91e097d096d463bf2e1c`.
+The complete contract is maintained in the config and the detailed procedure
+in `docs/stages/S09_BASELINE_FREEZE.md`; this decision records the rationale
+and gate, not a second copy of every protocol field.
+
+**Source-supported and established behavior:** The protocol reuses the S03
+token-weighted causal cross-entropy evaluator and the S08 synchronous loader
+contract. S07 establishes 72 separate attention/FFN hard-route units and the
+locked router checkpoint; S08 establishes physical selected-plane-plus-LUT
+transfer accounting and request cleanup. These sources do not establish a
+paper score, a final quality threshold, or a universal latency/memory target.
+
+**Implementation choices:** The dataset, inputs, generation, measurement,
+quality-gate, failure-outcome, and deferred-mechanism values are frozen in the
+authoritative config. The 10% quality factor is a QAQ baseline implementation
+gate, not a paper claim. Structural or quality failures are REVISE;
+missing/incomparable hardware or external artifacts are PAUSE.
+
+**Evidence:** The exact artifact and router provenance are recorded by the
+config and prior stage evidence. The non-benchmark validator and focused
+protocol checks passed at the freeze; no five-mode comparison or S09-B result
+exists in this decision.
+
+**Alternatives rejected:** A sixth or soft-routing final mode, alternate
+router/checkpoint, random prompt/data sampling, a divergent perplexity
+calculation, subjective text score, nominal bit-width memory estimates,
+reserved-memory residency claims, asynchronous/prefetch/caching/batching
+mechanisms, and changing the 10% gate after results are all outside this
+freeze. A later genuine defect requires REVISE plus invalidation of affected
+results, not an undocumented protocol edit.
+
+**Consequence:** S09-A is IN_PROGRESS and may hand off only to S09-B from the
+committed frozen config. The protocol is not a final quality, memory, latency,
+or transfer conclusion. Deferred mechanisms remain outside the baseline.
+
+**Reversal path:** If the S09-A validator or a later controlled check finds a
+protocol defect, mark the protocol REVISE, identify affected inputs/results,
+invalidate them, update this ledger with the replacement decision, and rerun
+the validation gate before any new S09-B execution.
+
+### D032 — S09-A validator review follow-up (2026-08-12)
+
+**Choice:** Keep the D031 S09-A protocol, inputs, seeds, five-mode matrix,
+measurement boundaries, and provenance unchanged while making the validator
+enforce the contract it already documents. The follow-up validates complete
+72-unit routed records and S07's `OTHER` limitation; fixed-input greedy
+generation and the complete seed policy; D029 physical transfer mode/rule and
+real expected-byte inputs; the fixed RTX 3090 comparability and identity
+record; exact deterministic dataset/label/loss wording; the live
+Any-Precision submodule revision; and the complete REVISE/invalidation,
+all-gates-pass, and deferred-mechanisms policies.
+
+**Evidence:** Mutation-focused S09 protocol tests pass, the lightweight
+validator passes with external artifact presence checks, Ruff passes, and the
+checked-out submodule revision is read from Git rather than trusted from the
+manifest alone. No S09-B benchmark or result artifact was generated.
+
+**Consequence:** S09-A remains frozen before results and may proceed only to
+the separately authorized S09-B evaluation after this review-fix commit and
+the no-mistakes gate. A future protocol change still requires REVISE and
+invalidation of affected results.
+
+**Reversal path:** If any focused check reveals a mismatch with D031, stop at
+S09-A, preserve the evidence, and record a replacement decision before any
+benchmark execution.
+
 ## Decision protocol
 
 A worker must add a dated or commit-linked entry when a stage resolves an unknown or introduces a new assumption.

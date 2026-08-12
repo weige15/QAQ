@@ -1,5 +1,43 @@
-Current stage: S08
-Status: COMPLETE
+Current stage: S09
+Status: IN_PROGRESS
+
+## S09-A review follow-up — authorized validator corrections
+
+The preserved protocol-freeze commit `c381269be2339536d0ab0c6bfa39983269e6c443`
+was cherry-picked into the isolated replacement branch as `40a9833`. The
+follow-up changes only validator enforcement and focused tests/docs: complete
+routed prompt recording and S07 `OTHER`, fixed inputs/generation/seeds,
+physical D029 transfer accounting, fixed-GPU identity/comparability, exact
+dataset/next-token/padding/token-weighted-loss wording, live Any-Precision
+submodule revision verification, and complete REVISE/all-gates/deferred
+policies.
+
+Evidence so far: `17 passed` for the focused S09 protocol/input/evaluator
+tests, Ruff passes for changed files, and the validator passes with real
+external artifact presence checks using `--skip-hashes`. The 5.2 GB artifact
+was not rehashed in this lightweight pass. No S09-B benchmark or result
+artifact exists.
+
+This review round additionally enforces exact mode dictionaries, synchronized
+memory/latency boundaries, complete cleanup and residency records, exact
+release gates, and superproject-linked Any-Precision provenance. The focused
+mutation suite passed `13 passed` in the isolated worktree. The worktree
+submodule is initialized at the pinned revision
+`a3257d02740cc5757c78673da534b0630ff3a4ea`, so the live provenance gate has
+the required checkout available.
+
+Next action: commit the review fixes, run the required no-mistakes flow, and
+stop at the S09-A gate; do not run S09-B.
+
+## S09-A protocol owner
+
+The authoritative machine-readable protocol is
+`configs/s09_baseline_eval.json`; its fixed inputs are
+`configs/s09_baseline_prompts.json`. The detailed human-readable procedure and
+validation gate are owned by `docs/stages/S09_BASELINE_FREEZE.md`. D031 records
+the freeze decision and D032 records the validator review follow-up; this
+status page records only the current state and evidence. No S09-B benchmark or
+final quality, memory, latency, or transfer conclusion exists.
 
 S00 through S06 are COMPLETE. S07-A is complete with reusable teacher-student
 distillation machinery, explicit completion masking, frozen teacher/packed
@@ -116,4 +154,6 @@ S08-B evidence:
 S08 gate: COMPLETE.
 
 Passing S08 implementation and evidence commit: `ee0d5e22b64713e97fb33596f60f0080f3b26df3`.
-Next action: S09. Do not execute S09 in this task.
+Next action at the S08 gate was to define S09-A; that protocol and its review
+follow-up are recorded above. S09-B remains deferred until the current gate
+is completed.

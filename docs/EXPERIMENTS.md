@@ -34,6 +34,26 @@ Compare:
 Record quality, selected routes, GPU memory, actual packed transfer bytes, and latency.
 Every result must include the exact command, environment versions, model and data identifiers, deterministic seed, and relevant configuration.
 
+## S09-A protocol freeze (2026-08-12)
+
+S09-A freezes the final comparison protocol before any S09-B result. The
+machine-readable owner is `configs/s09_baseline_eval.json`, and fixed request
+inputs are in `configs/s09_baseline_prompts.json`. The detailed procedure and
+validation gate are maintained in
+`docs/stages/S09_BASELINE_FREEZE.md`; this section records only the freeze and
+review evidence.
+
+The review follow-up preserved the five-mode matrix, inputs, seeds, metrics,
+measurement boundaries, release criteria, and provenance while strengthening
+validator enforcement.
+
+Recorded evidence is `17 passed` focused S09 protocol/input/evaluator checks,
+`13 passed` mutation-focused checks, Ruff passing for changed files, and
+validator success with external artifact presence checks using `--skip-hashes`.
+The pinned Any-Precision submodule is initialized at the configured revision.
+No S09-B benchmark, final result artifact, or final comparison number was
+produced.
+
 ## S03-B nested Qwen3 static baseline (2026-08-11)
 
 - Command: `source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:third_party/any-precision-llm python scripts/run_s03b.py --overwrite-artifact`.
