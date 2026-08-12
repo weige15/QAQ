@@ -602,6 +602,16 @@ S03, S07, or S08 seam cannot satisfy the frozen contract, stop and return
 `REVISE` without changing the frozen inputs, identities, gates, or mode list.
 The runner structure is an implementation assumption, not a paper fact.
 
+### D035 — S09-B3 routed decode diagnosis (2026-08-12)
+
+**Observation:** Preserved S09-B2 evidence has equal resident/on-demand route maps and generated token IDs for all seven requests, but different logits digests. Artifact-only analysis found resident `s03-quality-3` generated-token divergence at zero-based position 6; on-demand generated tokens were stable. The narrow diagnostic found bitwise-equal resident/on-demand prefill logits, then decode-logit divergence at the first decode step while selected tokens still matched. With the exact real-model shape `[1,1,9728]`, 8-bit `matmul_kbit` repeated outputs were not bitwise stable and differed between resident and on-demand executions; the corresponding `dequant_kbit` plus `torch.matmul` path was bitwise stable and equal across both buffer paths. The pinned kernel selects its `M=1`, `K>4096`, 8-bit k-split path, which combines partial sums with `atomicAdd`.
+
+**Decision:** S09-B2 remains **REVISE** and S09 remains **IN_PROGRESS**. The established failure mechanism is numerical nondeterminism in the pinned real-shape `matmul_kbit` k-split projection path, not route selection, request cleanup, transfer accounting, or result-file bookkeeping. CUDA determinism settings were observed but not changed. The diagnosis did not modify frozen protocol/configuration, production execution code, or preserved S09-B2 result files.
+
+**Consequence:** A future repair must first address the affected packed projection execution path without silently changing the frozen equivalence criterion, then rerun only the invalidated routed evidence and re-evaluate S09-B gates. The proposed repair has not been tested. Remaining unknowns include the smallest acceptable baseline-preserving repair and whether every affected routed projection requires the same treatment.
+
+**Reversal path:** If a separately authorized repair disproves the kernel-path explanation or changes the pinned baseline mechanism, preserve this diagnosis and record new evidence before revising the conclusion.
+
 ## Decision protocol
 
 A worker must add a dated or commit-linked entry when a stage resolves an unknown or introduces a new assumption.

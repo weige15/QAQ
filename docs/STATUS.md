@@ -208,3 +208,25 @@ Passing S08 implementation and evidence commit: `ee0d5e22b64713e97fb33596f60f008
 Next action at the S08 gate was to define S09-A; that protocol and its review
 follow-up are recorded above. S09-B remains deferred until the current gate
 is completed.
+
+## S09-B3 routed decode diagnosis — REVISE
+
+S09-B2 preserved all five mode results, but routed resident/on-demand logits
+were not equivalent under the frozen bitwise criterion. Artifact-only analysis
+found matching route maps and generated token IDs for all seven requests;
+resident `s03-quality-3` repeated generation diverged at zero-based generated
+token position 6, while on-demand generated tokens remained stable.
+
+The narrow S09-B3 diagnostic used only routed resident and synchronous
+on-demand modes, `s03-quality-3` and `validation-3`, on `cuda:3`, with seed
+1729. Prefill logits were bitwise equal. Decode logits diverged at the first
+step while selected tokens still matched. At the representative real shape
+`[1,1,9728]` with 8-bit routing, repeated pinned `matmul_kbit` outputs were
+not bitwise stable and resident/on-demand outputs differed; repeated
+`dequant_kbit` plus `torch.matmul` outputs were bitwise stable and equal.
+The pinned kernel's `M=1`, `K>4096`, 8-bit k-split path uses atomic accumulation.
+
+No frozen protocol/configuration, production execution code, or preserved
+S09-B2 result file was changed. S09 remains IN_PROGRESS. The next action is a
+separately authorized narrow repair decision and targeted routed re-evaluation;
+the repair has not been tested and S09 must not be marked complete.
