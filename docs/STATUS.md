@@ -21,62 +21,23 @@ artifact exists.
 This review round additionally enforces exact mode dictionaries, synchronized
 memory/latency boundaries, complete cleanup and residency records, exact
 release gates, and superproject-linked Any-Precision provenance. The focused
-mutation suite passed `13 passed` in the isolated worktree. Its submodule
-checkout is intentionally uninitialized here, so the live provenance gate
-must remain blocking until the required checkout is available.
+mutation suite passed `13 passed` in the isolated worktree. The worktree
+submodule is initialized at the pinned revision
+`a3257d02740cc5757c78673da534b0630ff3a4ea`, so the live provenance gate has
+the required checkout available.
 
 Next action: commit the review fixes, run the required no-mistakes flow, and
 stop at the S09-A gate; do not run S09-B.
 
-## S09-A workflow subdivision — protocol frozen before final results
+## S09-A protocol owner
 
-S09-A defines and validates the final five-mode comparison protocol before
-any S09-B result exists. The machine-readable owner is
-`configs/s09_baseline_eval.json`, schema `qaq-s09-baseline-eval-v1`, with
-SHA-256 `01ca65c6b3b7e16d7af66f1533140b1c9f31749c90bc91e097d096d463bf2e1c`.
-The committed fixed inputs are `configs/s09_baseline_prompts.json` with seven
-requests: five S03 quality prompts and S07/S08 `validation-3` and
-`validation-1000`. No runtime prompt generation is allowed.
-
-The exact five modes are full-precision BF16 teacher, static packed 4-bit,
-static packed 8-bit, hard-routed resident packed, and hard-routed synchronous
-on-demand packed. The model/tokenizer is `Qwen/Qwen3-4B` revision
-`1cfa9a7208912126459214e8b04321603b3df60c`; Any-Precision is
-`a3257d02740cc5757c78673da534b0630ff3a4ea`; the packed checkpoint SHA-256 is
-`29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee`; and the
-router checkpoint SHA-256 is
-`08bf646f19759c0d7949e159bdbe4f96bbea737204b96f8760d205c8d6fd1949`.
-
-Quality is the existing S03 evaluator with Salesforce/wikitext,
-`wikitext-2-raw-v1`, revision `b08601e04326c79dfdd32d625aee71d232d685c3`,
-test split, source-order deterministic windows of source length 129, sequence
-length 128, stride 128, first 32 windows, and 4096 token-weighted next-token
-targets. Generation is batch-one greedy, sampling disabled, temperature not
-applicable, and eight new tokens. Memory is fresh-process allocator accounting
-with synchronized boundaries and immediate peak reset; on-demand additionally
-records request-owned physical packed residency and exact transfer accounting.
-Latency uses one ended warm-up and five synchronized raw repeats per fixed
-request, median headlines, no outlier removal, and no transfer subtraction.
-
-Release gates are structural/reproducibility REVISE conditions; static-8 and
-routed-resident perplexity must each be at most `1.10 *` static-4, and
-routed-on-demand perplexity must agree with resident under the established
-execution-equivalence criterion. Deferred mechanisms are asynchronous loading,
-prefetching, transfer prediction, cost penalties, cross-request caching,
-batching, schedulers, post-baseline optimization, soft final modes, and
-alternate routers/checkpoints. A later genuine defect requires REVISE and
-invalidation of affected results, never a silent protocol edit.
-
-S09-A validation passed:
-
-```text
-source ~/.venv/bin/activate && which python && python --version && python scripts/validate_s09_protocol.py --config configs/s09_baseline_eval.json
-source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:. pytest -q tests/unit/test_s09_protocol.py tests/integration/test_s09_protocol_inputs.py tests/integration/test_perplexity_evaluator.py
-```
-
-The validator checked practical model/artifact/checkpoint resolution and all
-eight packed-artifact manifest hashes; focused protocol/evaluator tests passed
-10 tests. No final S09 quality, memory, latency, or transfer conclusion exists.
+The authoritative machine-readable protocol is
+`configs/s09_baseline_eval.json`; its fixed inputs are
+`configs/s09_baseline_prompts.json`. The detailed human-readable procedure and
+validation gate are owned by `docs/stages/S09_BASELINE_FREEZE.md`. D031 records
+the freeze decision and D032 records the validator review follow-up; this
+status page records only the current state and evidence. No S09-B benchmark or
+final quality, memory, latency, or transfer conclusion exists.
 
 S00 through S06 are COMPLETE. S07-A is complete with reusable teacher-student
 distillation machinery, explicit completion masking, frozen teacher/packed
@@ -193,4 +154,6 @@ S08-B evidence:
 S08 gate: COMPLETE.
 
 Passing S08 implementation and evidence commit: `ee0d5e22b64713e97fb33596f60f0080f3b26df3`.
-Next action: run S09-B from the frozen config without changing it.
+Next action at the S08 gate was to define S09-A; that protocol and its review
+follow-up are recorded above. S09-B remains deferred until the current gate
+is completed.

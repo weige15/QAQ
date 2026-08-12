@@ -480,6 +480,9 @@ on-demand packed. The fixed request/input records are in
 
 The frozen protocol SHA-256 is
 `01ca65c6b3b7e16d7af66f1533140b1c9f31749c90bc91e097d096d463bf2e1c`.
+The complete contract is maintained in the config and the detailed procedure
+in `docs/stages/S09_BASELINE_FREEZE.md`; this decision records the rationale
+and gate, not a second copy of every protocol field.
 
 **Source-supported and established behavior:** The protocol reuses the S03
 token-weighted causal cross-entropy evaluator and the S08 synchronous loader
@@ -488,30 +491,16 @@ locked router checkpoint; S08 establishes physical selected-plane-plus-LUT
 transfer accounting and request cleanup. These sources do not establish a
 paper score, a final quality threshold, or a universal latency/memory target.
 
-**Implementation choices:** Use Salesforce/wikitext `wikitext-2-raw-v1` at
-revision `b08601e04326c79dfdd32d625aee71d232d685c3`, test split, source-order
-windows of length 129 with sequence length 128, target stride 128, first 32
-windows, and 4096 target tokens. Keep S03's historical four-window defaults
-unchanged while parameterizing the same evaluator for S09's explicit count and
-stride. Use seven fixed requests (five S03 prompts plus the two S07/S08
-validation requests), greedy batch-one generation with eight new tokens, one
-warm-up request, five raw synchronized latency repeats, fresh processes, and
-the exact memory/transfer boundaries in the protocol.
+**Implementation choices:** The dataset, inputs, generation, measurement,
+quality-gate, failure-outcome, and deferred-mechanism values are frozen in the
+authoritative config. The 10% quality factor is a QAQ baseline implementation
+gate, not a paper claim. Structural or quality failures are REVISE;
+missing/incomparable hardware or external artifacts are PAUSE.
 
-The static-8 and routed-resident quality gates are each `<= 1.10 *` static-4
-perplexity. Routed on-demand must agree with routed resident under the
-established execution-equivalence criterion. The 10% factor is a QAQ baseline
-implementation gate, not a paper claim. Structural or quality failures are
-REVISE; missing/incomparable hardware or external artifacts are PAUSE.
-
-**Evidence:** The exact S03 artifact was copied from the verified pre-existing
-primary checkout without regeneration; all eight manifest file sizes and
-SHA-256 values pass. The artifact checkpoint hash is
-`29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee`. The
-router checkpoint hash is
-`08bf646f19759c0d7949e159bdbe4f96bbea737204b96f8760d205c8d6fd1949`.
-The non-benchmark validator and focused protocol/evaluator tests pass. No
-five-mode comparison or S09-B result exists in this decision.
+**Evidence:** The exact artifact and router provenance are recorded by the
+config and prior stage evidence. The non-benchmark validator and focused
+protocol checks passed at the freeze; no five-mode comparison or S09-B result
+exists in this decision.
 
 **Alternatives rejected:** A sixth or soft-routing final mode, alternate
 router/checkpoint, random prompt/data sampling, a divergent perplexity

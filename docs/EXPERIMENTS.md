@@ -36,71 +36,23 @@ Every result must include the exact command, environment versions, model and dat
 
 ## S09-A protocol freeze (2026-08-12)
 
-S09-A defines the final comparison protocol before final S09-B results. It does
-not run the five-mode benchmark and records no final quality, memory, latency,
-or transfer conclusions. The machine-readable owner is
-`configs/s09_baseline_eval.json` (schema `qaq-s09-baseline-eval-v1`), SHA-256
-`01ca65c6b3b7e16d7af66f1533140b1c9f31749c90bc91e097d096d463bf2e1c` at this
-freeze. Fixed request inputs, exact token IDs, prompt lengths, and source
-metadata are in `configs/s09_baseline_prompts.json`.
+S09-A freezes the final comparison protocol before any S09-B result. The
+machine-readable owner is `configs/s09_baseline_eval.json`, and fixed request
+inputs are in `configs/s09_baseline_prompts.json`. The detailed procedure and
+validation gate are maintained in
+`docs/stages/S09_BASELINE_FREEZE.md`; this section records only the freeze and
+review evidence.
 
-The exact five modes are the BF16 teacher, static packed 4-bit, static packed
-8-bit, hard-routed resident packed, and hard-routed synchronous on-demand
-packed. All applicable modes share the pinned Qwen3-4B model/tokenizer revision
-`1cfa9a7208912126459214e8b04321603b3df60c`; packed modes use the S03 artifact
-(`pytorch_model.bin` SHA-256
-`29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee`), and
-routed modes use the S07 router checkpoint SHA-256
-`08bf646f19759c0d7949e159bdbe4f96bbea737204b96f8760d205c8d6fd1949`.
-Any-Precision is pinned to `a3257d02740cc5757c78673da534b0630ff3a4ea`.
+The review follow-up preserved the five-mode matrix, inputs, seeds, metrics,
+measurement boundaries, release criteria, and provenance while strengthening
+validator enforcement.
 
-The quality sample is Salesforce/wikitext, config `wikitext-2-raw-v1`,
-revision `b08601e04326c79dfdd32d625aee71d232d685c3`, split `test`. The existing
-S03 evaluator is reused with explicit S09 arguments: source-order non-empty
-rows, no random sampling, source window 129, sequence length 128, stride 128,
-first 32 windows, 4096 target tokens, no padding, no generated tokens, and
-token-weighted next-token loss. S03's historical four-window/stride-129
-default remains unchanged.
-
-The fixed request set has five S03 quality prompts plus S07/S08
-`validation-3` and `validation-1000`, for seven total. Routed records must
-contain all 72 unit decisions, attention/FFN/overall 4/8 fractions, route-map
-digest, and an observational diversity summary; S07's OTHER classification is
-retained without a threshold. Generation is batch-one greedy, sampling off,
-temperature not applicable, and `max_new_tokens=8`; results record IDs,
-digests, finite values, and normal termination with no subjective text score.
-
-Every mode uses a fresh process and the same fixed CUDA device policy. Memory
-records allocator allocated/reserved before, peak, and after cleanup, with
-`torch.cuda.synchronize()` boundaries and immediate
-`torch.cuda.reset_peak_memory_stats()` before each measured interval; no
-`empty_cache()` occurs inside an interval. On-demand additionally records
-request-owned packed residency and exact physical transfer accounting using
-D029's selected-plane/LUT rule, requiring actual bytes to equal independent
-expected bytes. Latency uses one ended warm-up request, five synchronized raw
-repeats per fixed latency request, median headlines, retained slow runs, and
-end-to-end values including on-demand transfer.
-
-Release criteria are structural/reproducibility REVISE gates plus quality
-gates: static-8 perplexity `<= 1.10 *` static-4, routed-resident perplexity
-`<= 1.10 *` static-4, and routed on-demand agreement with resident under the
-existing execution-equivalence criterion (finite bitwise-equal logits,
-matching generated token IDs, and matching route maps). The 10% factor is frozen and is not
-a paper-score claim. Asynchronous loading, prefetching, transfer prediction,
-cost penalties, cross-request caching, batching, schedulers, post-baseline
-optimization, soft final modes, and alternate routers/checkpoints are
-deferred.
-
-Validation commands (all use `/nfs/home/s314511048/.venv/bin/python`) were:
-
-```text
-source ~/.venv/bin/activate && which python && python --version && python scripts/validate_s09_protocol.py --config configs/s09_baseline_eval.json
-source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:. pytest -q tests/unit/test_s09_protocol.py tests/integration/test_s09_protocol_inputs.py tests/integration/test_perplexity_evaluator.py
-```
-
-The validator passed with all external artifact hashes checked; the focused
-suite passed 10 tests. No S09-B benchmark, final result artifact, or final
-comparison number was produced.
+Recorded evidence is `17 passed` focused S09 protocol/input/evaluator checks,
+`13 passed` mutation-focused checks, Ruff passing for changed files, and
+validator success with external artifact presence checks using `--skip-hashes`.
+The pinned Any-Precision submodule is initialized at the configured revision.
+No S09-B benchmark, final result artifact, or final comparison number was
+produced.
 
 ## S03-B nested Qwen3 static baseline (2026-08-11)
 

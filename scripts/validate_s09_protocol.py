@@ -126,7 +126,9 @@ EXPECTED_TRANSFER_INPUTS = [
     "actual S08 packed buffer layout",
     "D029 transfer rule",
 ]
-EXPECTED_HARDWARE_POLICY = "one fixed physical CUDA device for every mode; PAUSE rather than mix GPU models"
+EXPECTED_HARDWARE_POLICY = (
+    "one fixed physical CUDA device for every mode; PAUSE rather than mix GPU models"
+)
 EXPECTED_GPU_SUBSTITUTION = "allowed only with pre-recorded identity and comparability"
 EXPECTED_HARDWARE_RECORD_VERSIONS = [
     "device_index",
@@ -273,12 +275,7 @@ def _gitlink_revision(root: Path, relative_path: str) -> str | None:
     except (OSError, subprocess.CalledProcessError):
         return None
     fields = result.stdout.strip().split(maxsplit=3)
-    if (
-        len(fields) != 4
-        or fields[0] != "160000"
-        or fields[2] != "0"
-        or fields[3] != relative_path
-    ):
+    if len(fields) != 4 or fields[0] != "160000" or fields[2] != "0" or fields[3] != relative_path:
         return None
     return fields[1]
 
@@ -460,7 +457,11 @@ def _validate_identities(
             not submodule_path.is_symlink(),
             f"Any-Precision submodule path must not be a symlink: {submodule_path}",
         )
-        _add(errors, submodule_path.is_dir(), f"Any-Precision submodule is unavailable: {submodule_path}")
+        _add(
+            errors,
+            submodule_path.is_dir(),
+            f"Any-Precision submodule is unavailable: {submodule_path}",
+        )
         if submodule_path.is_dir():
             _check_equal(
                 errors,
@@ -644,7 +645,9 @@ def _validate_dataset(config: dict[str, Any], errors: list[str]) -> None:
 
 def _validate_fixed_input_contract(config: dict[str, Any], errors: list[str]) -> None:
     fixed = config.get("fixed_inputs", {})
-    _check_equal(errors, fixed.get("path"), "configs/s09_baseline_prompts.json", "fixed input source")
+    _check_equal(
+        errors, fixed.get("path"), "configs/s09_baseline_prompts.json", "fixed input source"
+    )
     _check_equal(
         errors,
         fixed.get("runtime_prompt_generation"),

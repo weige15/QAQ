@@ -191,8 +191,12 @@ def evaluate_static_prompt_set(
             ),
         }
         records.append(record)
-    mean4 = sum(record["static_4"]["mean_absolute_logit_error"] for record in records) / len(records)
-    mean8 = sum(record["static_8"]["mean_absolute_logit_error"] for record in records) / len(records)
+    mean4 = sum(record["static_4"]["mean_absolute_logit_error"] for record in records) / len(
+        records
+    )
+    mean8 = sum(record["static_8"]["mean_absolute_logit_error"] for record in records) / len(
+        records
+    )
     max4 = max(record["static_4"]["maximum_absolute_logit_error"] for record in records)
     max8 = max(record["static_8"]["maximum_absolute_logit_error"] for record in records)
     return {
@@ -251,8 +255,12 @@ def evaluate_prompt_set(
                 "static_8": _prompt_result(fp_logits, logits8, repeat8, 8, inputs),
             }
         )
-    mean4 = sum(record["static_4"]["mean_absolute_logit_error"] for record in records) / len(records)
-    mean8 = sum(record["static_8"]["mean_absolute_logit_error"] for record in records) / len(records)
+    mean4 = sum(record["static_4"]["mean_absolute_logit_error"] for record in records) / len(
+        records
+    )
+    mean8 = sum(record["static_8"]["mean_absolute_logit_error"] for record in records) / len(
+        records
+    )
     max4 = max(record["static_4"]["maximum_absolute_logit_error"] for record in records)
     max8 = max(record["static_8"]["maximum_absolute_logit_error"] for record in records)
     return {
@@ -339,7 +347,9 @@ def _dataset_windows(
         "random_seed": None,
         "evaluated_token_count": sample_count * PERPLEXITY_SEQUENCE_LENGTH,
     }
-    return [__import__("torch").tensor(window, dtype=__import__("torch").long) for window in windows], metadata
+    return [
+        __import__("torch").tensor(window, dtype=__import__("torch").long) for window in windows
+    ], metadata
 
 
 def evaluate_perplexity(model: Any, windows: list[Any], device: str) -> dict[str, Any]:
@@ -405,17 +415,22 @@ def generate_fixed(
                     output_scores=True,
                     pad_token_id=tokenizer.eos_token_id,
                 )
-            if generated.scores and not all(bool(torch.isfinite(score).all().item()) for score in generated.scores):
+            if generated.scores and not all(
+                bool(torch.isfinite(score).all().item()) for score in generated.scores
+            ):
                 raise ValueError(f"generation prompt {index} produced non-finite scores")
             sequence = generated.sequences[0]
             outputs.append(
                 {
                     "sequence_sha256": _sequence_digest(sequence),
                     "text": tokenizer.decode(sequence, skip_special_tokens=True),
-                    "generated_token_count": max(0, int(sequence.numel() - inputs["input_ids"].shape[-1])),
+                    "generated_token_count": max(
+                        0, int(sequence.numel() - inputs["input_ids"].shape[-1])
+                    ),
                     "stopped_by_eos": bool(
                         tokenizer.eos_token_id is not None
-                        and tokenizer.eos_token_id in sequence[inputs["input_ids"].shape[-1] :].tolist()
+                        and tokenizer.eos_token_id
+                        in sequence[inputs["input_ids"].shape[-1] :].tolist()
                     ),
                 }
             )
@@ -423,7 +438,8 @@ def generate_fixed(
             {
                 "index": index,
                 "prompt": prompt,
-                "deterministic_repeat": outputs[0]["sequence_sha256"] == outputs[1]["sequence_sha256"],
+                "deterministic_repeat": outputs[0]["sequence_sha256"]
+                == outputs[1]["sequence_sha256"],
                 "first": outputs[0],
                 "repeat": outputs[1],
             }
