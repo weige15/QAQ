@@ -69,9 +69,16 @@ Non-benchmark evidence for S09-B1:
 
 Current stage: S09
 Status: IN_PROGRESS
+S09-B1R: runner correctness repair required before execution. The correction
+keeps the frozen protocol and fixed inputs unchanged, preserves measured S08
+cleanup and physical residency evidence, computes and validates five-repeat
+latency medians, records deterministic repeat evidence, enforces exact
+hardware and perplexity identities, validates packed identities for every
+packed mode, and persists the aggregation classification to `aggregation.json`.
+No S09-B mode was executed and no S09-B result artifact exists.
 Next action: Execute S09-B: run the frozen five-mode baseline evaluation using
-the verified S09-B runner and configs/s09_baseline_eval.json, then evaluate the
-frozen release gates.
+the corrected and verified S09-B runner and configs/s09_baseline_eval.json, then
+evaluate the frozen release gates.
 
 ## S09-A protocol owner
 

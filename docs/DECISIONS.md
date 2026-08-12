@@ -545,6 +545,31 @@ invalidation of affected results.
 S09-A, preserve the evidence, and record a replacement decision before any
 benchmark execution.
 
+### D034 — S09-B1R runner correctness repair (2026-08-12)
+
+**Choice:** Correct the frozen S09-B runner before any five-mode execution. Keep
+both frozen JSON files, the five-mode matrix, the S03/S07/S08 mechanisms, and
+all evaluation gates unchanged.
+
+**Evidence:** The first implementation dropped measured on-demand cleanup
+records, fabricated cleanup and hidden-copy success, omitted latency medians,
+used a constant deterministic-evidence flag, lacked exact perplexity-result
+validation, did not enforce cross-mode hardware comparability, validated
+Any-Precision identity only for routed modes, left physical packed-byte fields
+empty, and advertised but did not persist `aggregation.json`. The correction
+adds measured fixture coverage for each defect and routes cleanup, latency,
+repeat, hardware, perplexity, packed-identity, physical-residency, and
+aggregation evidence through the existing S03/S07/S08 seams.
+
+**Consequence:** S09-B1R is the required pre-execution correction. No model was
+loaded for the repair tests, no real five-mode evaluation ran, and no S09-B
+result artifact exists. The next action remains the separately authorized
+frozen S09-B execution only after this correction passes its gate.
+
+**Reversal path:** If safe validation finds another result-invalidating defect,
+return REVISE and invalidate no results because none exist; never change the
+frozen protocol to accommodate the runner.
+
 ### D033 — S09-B1 minimal runner structure (2026-08-12)
 
 **Choice:** Implement S09-B as one parent entry point,

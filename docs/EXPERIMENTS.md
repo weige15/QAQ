@@ -107,6 +107,28 @@ No S09-B mode child was launched and no final S09 result artifact was created.
 The next action is the frozen five-mode S09-B execution, which remains
 unexecuted.
 
+## S09-B1R runner correctness repair (2026-08-12)
+
+S09-B1R corrected the pre-execution runner without changing either frozen JSON
+file or creating any S09-B result. The on-demand result path now retains the
+measured cleanup records, derives cleanup summaries from those records, and
+records the S08 CPU-authority/hidden-copy audit. Every mode records actual
+physical packed-buffer residency rather than `None`. All fixed requests retain
+all five raw prefill/decode/end-to-end timings and median headlines, while
+repeat evidence proves fixed-input identity, finite outputs, deterministic
+generated outputs, and repeated hard-route agreement. Result validation now
+requires exact S09 perplexity setup and 4096 target tokens, exact packed and
+router identities where applicable, fixed RTX 3090 hardware comparability, and
+measured deterministic evidence. Aggregation writes its structured
+classification to the advertised `aggregation.json` path.
+
+The focused repair tests include a mocked complete on-demand result
+serialization path that exercises the former `retained_before_cleanup`
+KeyError boundary, plus negative aggregation tests for cleanup, hidden-copy,
+latency, hardware, perplexity, and deterministic evidence. No model was loaded,
+no CUDA benchmark ran, no real S09-B evaluation ran, and no S09-B result
+artifact exists.
+
 ## S03-B nested Qwen3 static baseline (2026-08-11)
 
 - Command: `source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:third_party/any-precision-llm python scripts/run_s03b.py --overwrite-artifact`.

@@ -20,6 +20,7 @@ from collections import Counter
 from collections.abc import Callable
 from itertools import combinations
 from pathlib import Path
+from statistics import median
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -227,7 +228,14 @@ def _validate_memory(result: dict[str, Any]) -> None:
     records = _require(result, "memory.records")
     if not isinstance(records, list) or not records:
         raise S09RunnerError("memory.records must be non-empty")
-    fields = ("allocated_before", "reserved_before", "peak_allocated", "peak_reserved", "allocated_after_cleanup", "reserved_after_cleanup")
+    fields = (
+        "allocated_before",
+        "reserved_before",
+        "peak_allocated",
+        "peak_reserved",
+        "allocated_after_cleanup",
+        "reserved_after_cleanup",
+    )
     for record in records:
         if not isinstance(record, dict):
             raise S09RunnerError("memory record is malformed")
@@ -235,8 +243,16 @@ def _validate_memory(result: dict[str, Any]) -> None:
             value = record.get(field)
             if not isinstance(value, int) or isinstance(value, bool) or value < 0:
                 raise S09RunnerError(f"memory field is invalid: {field}")
+    for field in ("physically_resident_packed_weight_bytes", "request_owned_on_demand_bytes"):
+        value = _require(result, f"memory.{field}")
+        if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+            raise S09RunnerError(f"memory physical evidence is invalid: {field}")
     method = _require(result, "memory.method")
-    if method.get("synchronize_before") != "torch.cuda.synchronize()" or method.get("reset_peak") != "torch.cuda.reset_peak_memory_stats()" or method.get("synchronize_after") != "torch.cuda.synchronize()":
+    if (
+        method.get("synchronize_before") != "torch.cuda.synchronize()"
+        or method.get("reset_peak") != "torch.cuda.reset_peak_memory_stats()"
+        or method.get("synchronize_after") != "torch.cuda.synchronize()"
+    ):
         raise S09RunnerError("memory measurement boundaries are incomplete")
     if method.get("empty_cache_inside_interval") is not False:
         raise S09RunnerError("empty_cache() is forbidden inside the memory interval")
@@ -247,10 +263,11 @@ def _validate_latency(result: dict[str, Any], repeats: int) -> None:
     if latency.get("warmup_requests") != 1 or latency.get("repeats_per_request") != repeats:
         raise S09RunnerError("latency warm-up or repeat count does not match the frozen protocol")
     raw = latency.get("raw_records")
-    if not isinstance(raw, list) or not raw:
-        raise S09RunnerError("latency.raw_records is missing")
+    request_ids = result.get("fixed_inputs", {}).get("request_ids")
+    if not isinstance(raw, list) or not raw or not isinstance(request_ids, list):
+        raise S09RunnerError("latency raw records are missing")
     counts = Counter(record.get("request_id") for record in raw if isinstance(record, dict))
-    if any(count != repeats for count in counts.values()):
+    if set(counts) != set(request_ids) or any(count != repeats for count in counts.values()):
         raise S09RunnerError("latency raw records do not retain exactly five repeats per request")
     for record in raw:
         if not isinstance(record, dict):
@@ -259,6 +276,21 @@ def _validate_latency(result: dict[str, Any], repeats: int) -> None:
             value = record.get(field)
             if not _finite(value) or value < 0:
                 raise S09RunnerError(f"latency field is invalid: {field}")
+    headlines = latency.get("median_seconds")
+    if not isinstance(headlines, dict) or set(headlines) != set(request_ids):
+        raise S09RunnerError("latency median headlines are missing")
+    for request_id in request_ids:
+        records = [record for record in raw if record.get("request_id") == request_id]
+        headline = headlines.get(request_id)
+        if not isinstance(headline, dict):
+            raise S09RunnerError(f"latency median headline is missing: {request_id}")
+        for field in ("prefill", "decode", "end_to_end"):
+            value = headline.get(field)
+            if not _finite(value) or value < 0:
+                raise S09RunnerError(f"latency median is invalid: {request_id}.{field}")
+            expected = median(record[f"{field}_seconds"] for record in records)
+            if value != expected:
+                raise S09RunnerError(f"latency median does not match raw repeats: {request_id}.{field}")
     if latency.get("outlier_removal") is not False or latency.get("subtract_transfer_time") is not False:
         raise S09RunnerError("latency filtering or transfer subtraction is not allowed")
 
@@ -297,35 +329,137 @@ def _validate_routed(result: dict[str, Any], requests: list[dict[str, Any]]) -> 
             raise S09RunnerError("routed result must contain complete 72-unit route maps")
         keys = {(item.get("layer"), item.get("unit_type")) for item in route_map if isinstance(item, dict)}
         expected = {(layer, unit) for layer in range(36) for unit in ("attention", "ffn")}
-        if keys != expected:
+        if keys != expected or any(item.get("selected_bits") not in (4, 8) for item in route_map):
             raise S09RunnerError("routed route map is incomplete")
         for field in ("route_map_digest", "attention_fractions", "ffn_fractions", "overall_fractions"):
             if field not in record:
                 raise S09RunnerError(f"routed result missing {field}")
-        for field in ("attention_fractions", "ffn_fractions", "overall_fractions"):
+        if record["route_map_digest"] != _route_digest(route_map):
+            raise S09RunnerError("routed route-map digest does not match the measured map")
+        for field, unit_type in (("attention_fractions", "attention"), ("ffn_fractions", "ffn"), ("overall_fractions", None)):
             values = record[field]
-            if not isinstance(values, dict) or not _finite(values.get("4_bit")) or not _finite(values.get("8_bit")):
-                raise S09RunnerError(f"routed fractions are incomplete: {field}")
+            selected = route_map if unit_type is None else [item for item in route_map if item["unit_type"] == unit_type]
+            expected_fractions = {"4_bit": sum(item["selected_bits"] == 4 for item in selected) / len(selected), "8_bit": sum(item["selected_bits"] == 8 for item in selected) / len(selected)}
+            if not isinstance(values, dict) or values != expected_fractions:
+                raise S09RunnerError(f"routed fractions are not measured: {field}")
     if not isinstance(routed.get("route_diversity"), dict):
         raise S09RunnerError("route diversity summary is missing")
 
 
 def _validate_on_demand(result: dict[str, Any]) -> None:
     payload = _require(result, "on_demand")
-    for field in ("first_use_bytes", "reuse_bytes", "prefill_bytes", "decode_bytes", "attention_bytes", "ffn_bytes", "total_transfer_bytes", "first_use_events", "reuse_events", "independently_expected_physical_bytes"):
+    for field in (
+        "first_use_bytes",
+        "reuse_bytes",
+        "prefill_bytes",
+        "decode_bytes",
+        "attention_bytes",
+        "ffn_bytes",
+        "total_transfer_bytes",
+        "first_use_events",
+        "reuse_events",
+        "independently_expected_physical_bytes",
+    ):
         value = payload.get(field)
         if not isinstance(value, int) or isinstance(value, bool) or value < 0:
             raise S09RunnerError(f"on-demand transfer field is invalid: {field}")
     if payload.get("actual_equals_expected") is not True:
         raise S09RunnerError("on-demand transfer equality evidence is missing")
-    for field in ("retained_entries_before_cleanup", "retained_buffers_before_cleanup", "retained_entries_after_cleanup", "retained_buffers_after_cleanup", "retained_bytes_after_cleanup"):
+    cleanup = payload.get("cleanup_records")
+    if not isinstance(cleanup, list) or not cleanup:
+        raise S09RunnerError("on-demand cleanup audit records are missing")
+    cleanup_fields = (
+        "retained_entries_before_cleanup",
+        "retained_buffers_before_cleanup",
+        "retained_entries_after_cleanup",
+        "retained_buffers_after_cleanup",
+        "retained_bytes_after_cleanup",
+    )
+    for record in cleanup:
+        if not isinstance(record, dict) or not isinstance(record.get("request_id"), str):
+            raise S09RunnerError("on-demand cleanup audit record is malformed")
+        for field in cleanup_fields:
+            value = record.get(field)
+            if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+                raise S09RunnerError(f"on-demand cleanup field is invalid: {field}")
+    for field in cleanup_fields:
         value = payload.get(field)
-        if not isinstance(value, int) or value < 0:
-            raise S09RunnerError(f"on-demand cleanup field is invalid: {field}")
-    if payload["retained_entries_after_cleanup"] != 0 or payload["retained_buffers_after_cleanup"] != 0 or payload["retained_bytes_after_cleanup"] != 0:
+        expected = max(record[field] for record in cleanup)
+        if value != expected:
+            raise S09RunnerError(f"on-demand cleanup summary is not measured: {field}")
+    if any(payload[field] for field in cleanup_fields[2:]):
         raise S09RunnerError("on-demand request resources were not released")
-    if payload.get("no_complete_packed_parent_on_gpu") is not True:
+    audit = payload.get("hidden_copy_audit")
+    if not isinstance(audit, dict):
+        raise S09RunnerError("on-demand hidden-copy audit evidence is missing")
+    for field in ("any_precision_module_count", "source_count"):
+        if not isinstance(audit.get(field), int) or audit[field] < 0:
+            raise S09RunnerError(f"on-demand hidden-copy audit field is invalid: {field}")
+    for field in ("all_source_qweights_cpu", "all_source_luts_cpu", "no_complete_packed_gpu_copy", "all_repeats_passed"):
+        if not isinstance(audit.get(field), bool):
+            raise S09RunnerError(f"on-demand hidden-copy audit field is invalid: {field}")
+    if audit["any_precision_module_count"] != 0 or not audit["all_source_qweights_cpu"] or not audit["all_source_luts_cpu"] or not audit["no_complete_packed_gpu_copy"] or not audit["all_repeats_passed"]:
         raise S09RunnerError("on-demand hidden-copy audit failed")
+        raise S09RunnerError("on-demand hidden-copy audit failed")
+    if payload.get("no_complete_packed_parent_on_gpu") is not audit["no_complete_packed_gpu_copy"]:
+        raise S09RunnerError("on-demand hidden-copy summary is not measured")
+
+
+def _validate_hardware(result: dict[str, Any], config: dict[str, Any]) -> None:
+    hardware = _require(result, "hardware")
+    expected_index = config["hardware"]["preferred_device_index"]
+    expected_model = config["hardware"]["required_gpu_model"]
+    if hardware.get("device_index") != expected_index or hardware.get("gpu_model") != expected_model:
+        raise S09RunnerError("hardware does not match the frozen CUDA device and GPU model")
+    comparability = hardware.get("comparability")
+    if comparability != {
+        "reference_device_index": expected_index,
+        "reference_gpu_model": expected_model,
+        "identity_recorded": True,
+        "compatible": True,
+    }:
+        raise S09RunnerError("hardware comparability evidence is missing or incompatible")
+
+
+def _validate_perplexity(result: dict[str, Any], config: dict[str, Any]) -> None:
+    perplexity = _require(result, "perplexity")
+    setup = perplexity.get("setup")
+    if not isinstance(setup, dict):
+        raise S09RunnerError("perplexity setup evidence is missing")
+    expected = frozen_perplexity_arguments(config)
+    for field, value in expected.items():
+        if setup.get(field) != value:
+            raise S09RunnerError(f"perplexity evidence mismatch: {field}")
+    for field in ("dataset", "config", "revision", "split", "tokenizer_revision"):
+        if setup.get(field) != config["perplexity"].get(field):
+            raise S09RunnerError(f"perplexity identity mismatch: {field}")
+    if perplexity.get("evaluated_token_count") != expected["evaluated_token_count"]:
+        raise S09RunnerError("perplexity must evaluate exactly 4096 target tokens")
+
+
+def _validate_deterministic_evidence(result: dict[str, Any]) -> None:
+    checks = result.get("deterministic_checks")
+    if not isinstance(checks, dict):
+        raise S09RunnerError("deterministic evidence is incomplete")
+    if checks.get("fixed_inputs_identical") is not True or checks.get("all_required_outputs_finite") is not True:
+        raise S09RunnerError("deterministic evidence is incomplete")
+    evidence = checks.get("repeat_evidence")
+    request_ids = result.get("fixed_inputs", {}).get("request_ids")
+    if not isinstance(evidence, list) or not isinstance(request_ids, list):
+        raise S09RunnerError("deterministic repeat evidence is missing")
+    if {record.get("request_id") for record in evidence if isinstance(record, dict)} != set(request_ids):
+        raise S09RunnerError("deterministic repeat evidence does not cover fixed requests")
+    for record in evidence:
+        if not isinstance(record, dict) or record.get("repeat_count") != 5:
+            raise S09RunnerError("deterministic repeat evidence must retain five measured repeats")
+        if record.get("input_ids_identical") is not True or record.get("all_outputs_finite") is not True or record.get("generated_outputs_agree") is not True:
+            raise S09RunnerError("deterministic repeat evidence is incomplete")
+        if record.get("routed_hard_routes_agree") is not True:
+            raise S09RunnerError("deterministic routed-repeat evidence is incomplete")
+        if not isinstance(record.get("generated_token_ids"), list) or len(record["generated_token_ids"]) != 5:
+            raise S09RunnerError("deterministic generated-repeat evidence is missing")
+        if not isinstance(record.get("route_map_digests"), list) or len(record["route_map_digests"]) not in (0, 5):
+            raise S09RunnerError("deterministic route-repeat evidence is missing")
 
 
 def validate_result(result: dict[str, Any], config: dict[str, Any], prompts: dict[str, Any], config_hash: str) -> None:
@@ -346,27 +480,31 @@ def validate_result(result: dict[str, Any], config: dict[str, Any], prompts: dic
     hardware = result.get("hardware")
     if not isinstance(hardware, dict) or any(key not in hardware for key in ("device_index", "gpu_model", "driver", "cuda_runtime", "pytorch", "transformers", "python")):
         raise S09RunnerError("hardware identity is incomplete")
+    _validate_hardware(result, config)
     if not isinstance(result.get("seed"), int) or result["seed"] != config["seeds"]["global_reproducibility_seed"]:
         raise S09RunnerError("seed identity is incomplete")
     fixed = result.get("fixed_inputs")
-    if not isinstance(fixed, dict) or not isinstance(fixed.get("input_digests"), dict):
-        raise S09RunnerError("fixed input digests are missing")
+    expected_input_digests = {item["id"]: item["input_ids_sha256"] for item in fixed_requests(prompts)}
+    if not isinstance(fixed, dict) or fixed.get("input_digests") != expected_input_digests:
+        raise S09RunnerError("fixed input digests are missing or changed")
     identities = result.get("identities")
     if not isinstance(identities, dict) or identities.get("model_repository") != config["identities"]["model"]["repository"] or identities.get("model_revision") != MODEL_REVISION or identities.get("tokenizer_revision") != MODEL_REVISION:
         raise S09RunnerError("model or tokenizer revision mismatch")
-    if mode["packed_artifact"] and identities.get("packed_checkpoint_sha256") != config["identities"]["packed_artifact"]["sha256"]:
-        raise S09RunnerError("packed checkpoint SHA-256 mismatch")
-    if mode_id in ROUTED_MODE_IDS:
-        if identities.get("router_checkpoint_sha256") != config["identities"]["router"]["sha256"]:
-            raise S09RunnerError("router checkpoint SHA-256 mismatch")
+    if mode["packed_artifact"]:
+        if identities.get("packed_checkpoint_sha256") != config["identities"]["packed_artifact"]["sha256"]:
+            raise S09RunnerError("packed checkpoint SHA-256 mismatch")
         if identities.get("any_precision_revision") != ANY_PRECISION_REVISION:
             raise S09RunnerError("Any-Precision revision mismatch")
+    if mode_id in ROUTED_MODE_IDS and identities.get("router_checkpoint_sha256") != config["identities"]["router"]["sha256"]:
+        raise S09RunnerError("router checkpoint SHA-256 mismatch")
     if result.get("fixed_inputs", {}).get("request_ids") != [item["id"] for item in fixed_requests(prompts)]:
         raise S09RunnerError("fixed request identity mismatch")
     _validate_finite_result(result)
+    _validate_perplexity(result, config)
     _validate_generation(result, fixed_requests(prompts), config)
     _validate_memory(result)
     _validate_latency(result, int(config["latency"]["repeats_per_fixed_latency_request"]))
+    _validate_deterministic_evidence(result)
     if mode_id in ROUTED_MODE_IDS:
         _validate_routed(result, fixed_requests(prompts))
     if mode_id == ON_DEMAND_MODE_ID:
@@ -376,11 +514,8 @@ def validate_result(result: dict[str, Any], config: dict[str, Any], prompts: dic
 def _validate_finite_result(result: dict[str, Any]) -> None:
     for path in ("perplexity.mean_negative_log_likelihood", "perplexity.perplexity"):
         _require_finite(result, path)
-    if _require(result, "perplexity.evaluated_token_count") <= 0:
-        raise S09RunnerError("perplexity token count must be positive")
-    checks = result.get("deterministic_checks")
-    if not isinstance(checks, dict) or checks.get("all_required_outputs_finite") is not True or checks.get("fixed_inputs_identical") is not True or checks.get("evidence_present") is not True:
-        raise S09RunnerError("deterministic evidence is incomplete")
+    if _require(result, "perplexity.evaluated_token_count") != 4096:
+        raise S09RunnerError("perplexity token count must be exactly 4096")
 
 
 def _route_digest(route_map: list[dict[str, Any]]) -> str:
@@ -447,15 +582,54 @@ def _identity_record(config: dict[str, Any], manifest: dict[str, Any], mode: dic
 
 def _environment(torch: Any, transformers: Any, device: str) -> dict[str, Any]:
     target = torch.device(device)
+    gpu_model = torch.cuda.get_device_name(target)
     return {
         "device_index": target.index,
-        "gpu_model": torch.cuda.get_device_name(target),
+        "gpu_model": gpu_model,
         "driver": getattr(torch.cuda, "driver_version", None) or "unknown",
         "cuda_runtime": torch.version.cuda,
         "pytorch": torch.__version__,
         "transformers": transformers.__version__,
         "python": platform.python_version(),
         "python_executable": sys.executable,
+        "comparability": {
+            "reference_device_index": 3,
+            "reference_gpu_model": "NVIDIA GeForce RTX 3090",
+            "identity_recorded": True,
+            "compatible": target.index == 3 and gpu_model == "NVIDIA GeForce RTX 3090",
+        },
+    }
+
+
+def _physical_residency_bytes(model: Any) -> int:
+    """Count actual packed qweight and LUT buffers resident in the model."""
+
+    total = 0
+    for module in model.modules():
+        if module.__class__.__name__ != "AnyPrecisionLinear":
+            continue
+        for name in ("qweight", "lut4", "lut8"):
+            tensor = getattr(module, name, None)
+            if tensor is None or tensor.device.type != "cuda":
+                raise S09RunnerError(f"packed residency evidence is not physically measurable: {name}")
+            total += int(tensor.numel() * tensor.element_size())
+    return total
+
+
+def _hidden_copy_audit(model: Any, context: Any) -> dict[str, Any]:
+    """Reuse S08's physical source/module audit for on-demand evidence."""
+
+    modules = sum(module.__class__.__name__ == "AnyPrecisionLinear" for module in model.modules())
+    sources = {} if context is None else context.sources
+    all_qweights_cpu = bool(sources) and all(source.qweight.device.type == "cpu" for source in sources.values())
+    all_luts_cpu = bool(sources) and all(source.lut4.device.type == "cpu" and source.lut8.device.type == "cpu" for source in sources.values())
+    no_complete_copy = modules == 0 and all_qweights_cpu and all_luts_cpu
+    return {
+        "any_precision_module_count": modules,
+        "source_count": len(sources),
+        "all_source_qweights_cpu": all_qweights_cpu,
+        "all_source_luts_cpu": all_luts_cpu,
+        "no_complete_packed_gpu_copy": no_complete_copy,
     }
 
 
@@ -640,7 +814,31 @@ def _measure_request(model: Any, student: Any | None, mode_id: str, request: dic
         retained_before = {"entries": 0, "buffers": 0, "bytes": 0}
         retained_after = retained_before
     after = {"allocated_after_cleanup": int(torch.cuda.memory_allocated()), "reserved_after_cleanup": int(torch.cuda.memory_reserved())}
-    return ({"request_id": request["id"], "prefill_seconds": prefill, "decode_seconds": decode, "end_to_end_seconds": end_to_end, "generated_token_ids": generated, **before, **peak, **after, "retained_before_cleanup": retained_before, "retained_after_cleanup": retained_after}, route, {"context": context, "actual_transfer_bytes": sum(record.transferred_bytes for record in context.records) if context is not None else 0, "expected_transfer_bytes": _expected_physical_bytes(context, route["route_map"])["total"] if context is not None and route is not None else 0, "actual_attention_bytes": sum(record.transferred_bytes for record in context.records if ".self_attn." in record.module_id) if context is not None else 0, "actual_ffn_bytes": sum(record.transferred_bytes for record in context.records if ".mlp." in record.module_id) if context is not None else 0})
+    return (
+        {
+            "request_id": request["id"],
+            "input_ids_sha256": request["input_ids_sha256"],
+            "prefill_seconds": prefill,
+            "decode_seconds": decode,
+            "end_to_end_seconds": end_to_end,
+            "generated_token_ids": generated,
+            "finite_outputs": bool(torch.isfinite(output.logits).all().item()),
+            **before,
+            **peak,
+            **after,
+            "retained_before_cleanup": retained_before,
+            "retained_after_cleanup": retained_after,
+        },
+        route,
+        {
+            "context": context,
+            "actual_transfer_bytes": sum(record.transferred_bytes for record in context.records) if context is not None else 0,
+            "expected_transfer_bytes": _expected_physical_bytes(context, route["route_map"])["total"] if context is not None and route is not None else 0,
+            "actual_attention_bytes": sum(record.transferred_bytes for record in context.records if ".self_attn." in record.module_id) if context is not None else 0,
+            "actual_ffn_bytes": sum(record.transferred_bytes for record in context.records if ".mlp." in record.module_id) if context is not None else 0,
+            "hidden_copy_audit": _hidden_copy_audit(model, context) if mode_id == ON_DEMAND_MODE_ID else None,
+        },
+    )
 
 
 def execute_mode(config_path: Path, mode_id: str, output_path: Path, device: str) -> dict[str, Any]:
@@ -690,12 +888,25 @@ def execute_mode(config_path: Path, mode_id: str, output_path: Path, device: str
     _measure_request(model, model if routed else None, mode_id, requests[0], device, torch)
     raw_latency = []
     memory_records = []
+    repeat_evidence: list[dict[str, Any]] = []
     transfer_totals = {key: 0 for key in ("first_use_bytes", "reuse_bytes", "prefill_bytes", "decode_bytes", "attention_bytes", "ffn_bytes", "total_transfer_bytes", "first_use_events", "reuse_events", "independently_expected_physical_bytes")}
+    hidden_copy_audits = []
     for request in requests:
+        measured_repeats = []
+        routes = []
         for repeat in range(repeats):
             measured, route, details = _measure_request(model, model if routed else None, mode_id, request, device, torch)
+            measured_repeats.append(measured)
+            routes.append(route)
             raw_latency.append({"request_id": request["id"], "repeat": repeat, **{key: measured[key] for key in ("prefill_seconds", "decode_seconds", "end_to_end_seconds")}})
-            memory_records.append({key: measured[key] for key in ("request_id", "allocated_before", "reserved_before", "peak_allocated", "peak_reserved", "allocated_after_cleanup", "reserved_after_cleanup")})
+            memory_records.append({
+                key: measured[key]
+                for key in ("request_id", "allocated_before", "reserved_before", "peak_allocated", "peak_reserved", "allocated_after_cleanup", "reserved_after_cleanup")
+            } | {
+                "retained_before_cleanup": dict(measured["retained_before_cleanup"]),
+                "retained_after_cleanup": dict(measured["retained_after_cleanup"]),
+                "finite_outputs": measured["finite_outputs"],
+            })
             if mode_id == ON_DEMAND_MODE_ID and details["context"] is not None:
                 context = details["context"]
                 records = context.records
@@ -710,9 +921,46 @@ def execute_mode(config_path: Path, mode_id: str, output_path: Path, device: str
                 transfer_totals["first_use_events"] += sum(record.event == "first_use" for record in records)
                 transfer_totals["reuse_events"] += sum(record.event == "reuse" for record in records)
                 transfer_totals["independently_expected_physical_bytes"] += expected["total"]
+                hidden_copy_audits.append(details["hidden_copy_audit"])
+        input_matches = all(item.get("input_ids_sha256") == request["input_ids_sha256"] for item in measured_repeats)
+        outputs_finite = all(item["finite_outputs"] for item in measured_repeats)
+        generated = [item["generated_token_ids"] for item in measured_repeats]
+        route_digests = [] if not routed else [runner["route_map_digest"] for runner in routes if runner is not None]
+        repeat_evidence.append({
+            "request_id": request["id"],
+            "input_ids_sha256": request["input_ids_sha256"],
+            "input_ids_identical": input_matches,
+            "repeat_count": len(measured_repeats),
+            "all_outputs_finite": outputs_finite,
+            "generated_token_ids": generated,
+            "generated_outputs_agree": len({json.dumps(value, separators=(",", ":")) for value in generated}) == 1,
+            "route_map_digests": route_digests,
+            "routed_hard_routes_agree": not routed or len(set(route_digests)) == 1,
+        })
     route_payload = None
     if routed:
         route_payload = {"requests": route_records, "route_diversity": _route_diversity(route_records)}
+    memory_physical_bytes = 0 if mode_id == ON_DEMAND_MODE_ID else _physical_residency_bytes(model)
+    cleanup_records = [
+        {
+            "request_id": record["request_id"],
+            "retained_entries_before_cleanup": record["retained_before_cleanup"]["entries"],
+            "retained_buffers_before_cleanup": record["retained_before_cleanup"]["buffers"],
+            "retained_bytes_before_cleanup": record["retained_before_cleanup"]["bytes"],
+            "retained_entries_after_cleanup": record["retained_after_cleanup"]["entries"],
+            "retained_buffers_after_cleanup": record["retained_after_cleanup"]["buffers"],
+            "retained_bytes_after_cleanup": record["retained_after_cleanup"]["bytes"],
+        }
+        for record in memory_records
+    ]
+    median_seconds = {
+        request["id"]: {
+            field: median(record[f"{field}_seconds"] for record in raw_latency if record["request_id"] == request["id"])
+            for field in ("prefill", "decode", "end_to_end")
+        }
+        for request in requests
+    }
+    physical_cleanup_bytes = max((record["retained_before_cleanup"]["bytes"] for record in memory_records), default=0)
     output = {
         "schema": RESULT_SCHEMA,
         "mode_id": mode_id,
@@ -722,16 +970,36 @@ def execute_mode(config_path: Path, mode_id: str, output_path: Path, device: str
         "hardware": _environment(torch, transformers, device),
         "seed": config["seeds"]["global_reproducibility_seed"],
         "fixed_inputs": {"path": config["fixed_inputs"]["path"], "request_ids": [item["id"] for item in requests], "input_digests": {item["id"]: item["input_ids_sha256"] for item in requests}},
-        "perplexity": {"setup": {**setup, "evaluator": config["perplexity"]["evaluator"], "sequence_length": config["perplexity"]["sequence_length"], "source_window_length": config["perplexity"]["source_window_length"], "stride": config["perplexity"]["stride"], "sample_count": config["perplexity"]["sample_count"], "evaluated_token_count": config["perplexity"]["evaluated_token_count"], "labels": config["perplexity"]["labels"]}, **perplexity},
+        "perplexity": {"setup": {**setup, "evaluator": config["perplexity"]["evaluator"], "sequence_length": config["perplexity"]["sequence_length"], "source_window_length": config["perplexity"]["source_window_length"], "stride": config["perplexity"]["stride"], "sample_count": config["perplexity"]["sample_count"], "evaluated_token_count": config["perplexity"]["evaluated_token_count"], "labels": config["perplexity"]["labels"], "dataset": config["perplexity"]["dataset"], "config": config["perplexity"]["config"], "revision": config["perplexity"]["revision"], "split": config["perplexity"]["split"], "tokenizer_revision": config["perplexity"]["tokenizer_revision"]}, **perplexity},
         "generation": {**generation_args, "records": generation_records},
-        "memory": {"method": _memory_method(), "records": memory_records, "physically_resident_packed_weight_bytes": None, "request_owned_on_demand_bytes": None},
-        "latency": {"warmup_requests": 1, "repeats_per_request": repeats, "outlier_removal": False, "subtract_transfer_time": False, "raw_records": raw_latency},
-        "deterministic_checks": {"all_required_outputs_finite": all(item["finite_value_check"] for item in generation_records), "fixed_inputs_identical": True, "evidence_present": True},
+        "memory": {"method": _memory_method(), "records": memory_records, "physically_resident_packed_weight_bytes": memory_physical_bytes, "request_owned_on_demand_bytes": physical_cleanup_bytes if mode_id == ON_DEMAND_MODE_ID else 0},
+        "latency": {"warmup_requests": 1, "repeats_per_request": repeats, "outlier_removal": False, "subtract_transfer_time": False, "raw_records": raw_latency, "median_seconds": median_seconds},
+        "deterministic_checks": {"all_required_outputs_finite": all(item["finite_value_check"] for item in generation_records) and all(item["all_outputs_finite"] for item in repeat_evidence), "fixed_inputs_identical": all(item["input_ids_identical"] for item in repeat_evidence), "repeat_evidence": repeat_evidence},
     }
     if route_payload is not None:
         output["routed"] = route_payload
     if mode_id == ON_DEMAND_MODE_ID:
-        output["on_demand"] = {**transfer_totals, "actual_equals_expected": transfer_totals["total_transfer_bytes"] == transfer_totals["independently_expected_physical_bytes"], "retained_entries_before_cleanup": max((item["retained_before_cleanup"]["entries"] for item in memory_records), default=0), "retained_buffers_before_cleanup": max((item["retained_before_cleanup"]["buffers"] for item in memory_records), default=0), "retained_entries_after_cleanup": 0, "retained_buffers_after_cleanup": 0, "retained_bytes_after_cleanup": 0, "no_complete_packed_parent_on_gpu": True}
+        hidden_copy_audit = {
+            **(hidden_copy_audits[-1] if hidden_copy_audits else {}),
+            "all_repeats_passed": bool(hidden_copy_audits) and all(
+                audit["no_complete_packed_gpu_copy"]
+                and audit["all_source_qweights_cpu"]
+                and audit["all_source_luts_cpu"]
+                for audit in hidden_copy_audits
+            ),
+        }
+        output["on_demand"] = {
+            **transfer_totals,
+            "actual_equals_expected": transfer_totals["total_transfer_bytes"] == transfer_totals["independently_expected_physical_bytes"],
+            "cleanup_records": cleanup_records,
+            "retained_entries_before_cleanup": max((item["retained_entries_before_cleanup"] for item in cleanup_records), default=0),
+            "retained_buffers_before_cleanup": max((item["retained_buffers_before_cleanup"] for item in cleanup_records), default=0),
+            "retained_entries_after_cleanup": max((item["retained_entries_after_cleanup"] for item in cleanup_records), default=0),
+            "retained_buffers_after_cleanup": max((item["retained_buffers_after_cleanup"] for item in cleanup_records), default=0),
+            "retained_bytes_after_cleanup": max((item["retained_bytes_after_cleanup"] for item in cleanup_records), default=0),
+            "no_complete_packed_parent_on_gpu": hidden_copy_audit.get("no_complete_packed_gpu_copy") is True,
+            "hidden_copy_audit": hidden_copy_audit,
+        }
     # Cleanup happens only after all mode evidence is collected; the process then exits.
     model.cpu()
     del model
@@ -744,6 +1012,13 @@ def execute_mode(config_path: Path, mode_id: str, output_path: Path, device: str
 
 def _aggregate_pairwise(results: dict[str, dict[str, Any]], config: dict[str, Any]) -> list[str]:
     errors = []
+    hardware_fields = ("device_index", "gpu_model", "driver", "cuda_runtime", "pytorch", "transformers", "python")
+    hardware_records = [results[mode_id]["hardware"] for mode_id in EXPECTED_MODE_IDS]
+    reference = tuple(hardware_records[0].get(field) for field in hardware_fields)
+    if any(tuple(record.get(field) for field in hardware_fields) != reference for record in hardware_records[1:]):
+        errors.append("hardware identities are not comparable across modes")
+    if any(record.get("gpu_model") != config["hardware"]["required_gpu_model"] for record in hardware_records):
+        errors.append("mixed or unsupported GPU models")
     static4 = results[EXPECTED_MODE_IDS[1]]["perplexity"]["perplexity"]
     static8 = results[EXPECTED_MODE_IDS[2]]["perplexity"]["perplexity"]
     resident = results[EXPECTED_MODE_IDS[3]]
@@ -768,6 +1043,15 @@ def _aggregate_pairwise(results: dict[str, dict[str, Any]], config: dict[str, An
     return errors
 
 
+def _persist_aggregation(results_dir: Path, payload: dict[str, Any]) -> dict[str, Any]:
+    try:
+        results_dir.mkdir(parents=True, exist_ok=True)
+        (results_dir / "aggregation.json").write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
+    except OSError as exc:
+        return {"classification": "REVISE", "errors": [f"cannot persist aggregation.json: {exc}"], "results_dir": str(results_dir)}
+    return payload
+
+
 def aggregate(config_path: Path, results_dir: Path) -> dict[str, Any]:
     config, prompts, config_hash = load_protocol(config_path)
     try:
@@ -775,7 +1059,7 @@ def aggregate(config_path: Path, results_dir: Path) -> dict[str, Any]:
 
         validate_protocol(config_path, check_external=False, verify_hashes=False)
     except (KeyError, OSError, ProtocolValidationError, TypeError, ValueError) as exc:
-        return {"classification": "REVISE", "errors": [f"frozen protocol validation failed: {exc}"], "results_dir": str(results_dir)}
+        return _persist_aggregation(results_dir, {"classification": "REVISE", "errors": [f"frozen protocol validation failed: {exc}"], "results_dir": str(results_dir)})
     modes = resolve_modes(config)
     results: dict[str, dict[str, Any]] = {}
     missing = []
@@ -788,12 +1072,12 @@ def aggregate(config_path: Path, results_dir: Path) -> dict[str, Any]:
             result = _json(path)
             validate_result(result, config, prompts, config_hash)
         except S09RunnerError as exc:
-            return {"classification": "REVISE", "errors": [str(exc)], "results_dir": str(results_dir)}
+            return _persist_aggregation(results_dir, {"classification": "REVISE", "errors": [str(exc)], "results_dir": str(results_dir)})
         results[mode["id"]] = result
     if missing:
-        return {"classification": "PAUSE", "missing_results": missing, "results_dir": str(results_dir)}
+        return _persist_aggregation(results_dir, {"classification": "PAUSE", "missing_results": missing, "results_dir": str(results_dir)})
     errors = _aggregate_pairwise(results, config)
-    return {"classification": "REVISE" if errors else "CONTINUE", "errors": errors, "mode_ids": list(results), "results_dir": str(results_dir), "protocol_config_sha256": config_hash}
+    return _persist_aggregation(results_dir, {"classification": "REVISE" if errors else "CONTINUE", "errors": errors, "mode_ids": list(results), "results_dir": str(results_dir), "protocol_config_sha256": config_hash})
 
 
 __all__ = [
