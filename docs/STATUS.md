@@ -1,33 +1,49 @@
 Current stage: S09
 Status: IN_PROGRESS
 
-## S09-A review follow-up — authorized validator corrections
+## S09-A closeout — canonical validation gate
 
-The preserved protocol-freeze commit `c381269be2339536d0ab0c6bfa39983269e6c443`
-was cherry-picked into the isolated replacement branch as `40a9833`. The
-follow-up changes only validator enforcement and focused tests/docs: complete
-routed prompt recording and S07 `OTHER`, fixed inputs/generation/seeds,
-physical D029 transfer accounting, fixed-GPU identity/comparability, exact
-dataset/next-token/padding/token-weighted-loss wording, live Any-Precision
-submodule revision verification, and complete REVISE/all-gates/deferred
-policies.
+PR #5 landed the frozen S09-A protocol and validator corrections at merge
+commit `0f5802a777983c210b6f65ca26fd55368f49bf51`. The implementation and
+review fixes are already merged; this closeout records the completed
+validation gate rather than treating them as pending changes.
 
-Evidence so far: `17 passed` for the focused S09 protocol/input/evaluator
-tests, Ruff passes for changed files, and the validator passes with real
-external artifact presence checks using `--skip-hashes`. The 5.2 GB artifact
-was not rehashed in this lightweight pass. No S09-B benchmark or result
-artifact exists.
+S09-A is **COMPLETE**. The frozen configuration and fixed inputs were not
+changed. The canonical full validator passed with hashes enabled:
 
-This review round additionally enforces exact mode dictionaries, synchronized
-memory/latency boundaries, complete cleanup and residency records, exact
-release gates, and superproject-linked Any-Precision provenance. The focused
-mutation suite passed `13 passed` in the isolated worktree. The worktree
-submodule is initialized at the pinned revision
-`a3257d02740cc5757c78673da534b0630ff3a4ea`, so the live provenance gate has
-the required checkout available.
+```text
+source ~/.venv/bin/activate
+which python
+python --version
+python scripts/validate_s09_protocol.py --config configs/s09_baseline_eval.json
+```
 
-Next action: commit the review fixes, run the required no-mistakes flow, and
-stop at the S09-A gate; do not run S09-B.
+The validator exited `0`, checked all five modes, seven fixed requests, and
+32 quality windows over 4096 target tokens. Packed artifact SHA-256 matched
+`29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee`; the S07
+router checkpoint matched
+`08bf646f19759c0d7949e159bdbe4f96bbea737204b96f8760d205c8d6fd1949`; the
+Qwen3-4B model and tokenizer matched revision
+`1cfa9a7208912126459214e8b04321603b3df60c`; and the Any-Precision submodule
+matched `a3257d02740cc5757c78673da534b0630ff3a4ea` in both the gitlink and
+checkout. The frozen protocol/config SHA-256 is
+`01ca65c6b3b7e16d7af66f1533140b1c9f31749c90bc91e097d096d463bf2e1c`.
+
+The focused S09-A command passed `18 passed`:
+
+```text
+PYTHONPATH=src:. pytest -q tests/unit/test_s09_protocol.py tests/integration/test_s09_protocol_inputs.py tests/integration/test_perplexity_evaluator.py
+```
+
+Ruff passed for the validator and focused S09-A test files. No S09-B
+benchmark, five-mode baseline evaluation, or final result artifact exists.
+S09-B execution machinery is **MISSING**: the repository has no complete
+executable S09-B runner; the committed S09 script is the non-benchmark
+protocol validator only.
+
+Next action: Implement the minimal S09-B evaluation runner required to execute
+the frozen `configs/s09_baseline_eval.json` contract, without running the final
+evaluation yet.
 
 ## S09-A protocol owner
 

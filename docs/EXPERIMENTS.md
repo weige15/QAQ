@@ -34,25 +34,53 @@ Compare:
 Record quality, selected routes, GPU memory, actual packed transfer bytes, and latency.
 Every result must include the exact command, environment versions, model and data identifiers, deterministic seed, and relevant configuration.
 
-## S09-A protocol freeze (2026-08-12)
+## S09-A protocol freeze and closeout (2026-08-12)
 
 S09-A freezes the final comparison protocol before any S09-B result. The
 machine-readable owner is `configs/s09_baseline_eval.json`, and fixed request
 inputs are in `configs/s09_baseline_prompts.json`. The detailed procedure and
 validation gate are maintained in
-`docs/stages/S09_BASELINE_FREEZE.md`; this section records only the freeze and
-review evidence.
+`docs/stages/S09_BASELINE_FREEZE.md`.
 
-The review follow-up preserved the five-mode matrix, inputs, seeds, metrics,
-measurement boundaries, release criteria, and provenance while strengthening
-validator enforcement.
+PR #5 landed the protocol and validator corrections at merge commit
+`0f5802a777983c210b6f65ca26fd55368f49bf51`. The frozen configuration and fixed
+inputs were unchanged during closeout. Its protocol/config SHA-256 is
+`01ca65c6b3b7e16d7af66f1533140b1c9f31749c90bc91e097d096d463bf2e1c`.
 
-Recorded evidence is `17 passed` focused S09 protocol/input/evaluator checks,
-`13 passed` mutation-focused checks, Ruff passing for changed files, and
-validator success with external artifact presence checks using `--skip-hashes`.
-The pinned Any-Precision submodule is initialized at the configured revision.
-No S09-B benchmark, final result artifact, or final comparison number was
-produced.
+The canonical full validation command was:
+
+```text
+source ~/.venv/bin/activate && which python && python --version && python scripts/validate_s09_protocol.py --config configs/s09_baseline_eval.json
+```
+
+It exited `0` with hashes enabled. The packed artifact SHA-256 matched
+`29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee`; the S07
+router checkpoint matched
+`08bf646f19759c0d7949e159bdbe4f96bbea737204b96f8760d205c8d6fd1949`; the
+Qwen3-4B model and tokenizer matched revision
+`1cfa9a7208912126459214e8b04321603b3df60c`; and the Any-Precision submodule
+matched `a3257d02740cc5757c78673da534b0630ff3a4ea`.
+
+The focused S09-A command was:
+
+```text
+source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:. pytest -q tests/unit/test_s09_protocol.py tests/integration/test_s09_protocol_inputs.py tests/integration/test_perplexity_evaluator.py
+```
+
+It passed `18 passed`. Ruff also passed with:
+
+```text
+source ~/.venv/bin/activate && which python && python --version && ruff check scripts/validate_s09_protocol.py tests/unit/test_s09_protocol.py tests/integration/test_s09_protocol_inputs.py tests/integration/test_perplexity_evaluator.py
+```
+
+S09-A is **COMPLETE**. No S09-B benchmark, five-mode baseline evaluation,
+final result artifact, or final comparison number was produced. S09-B
+execution machinery is **MISSING**: no complete executable S09-B runner exists
+in the repository beyond the non-benchmark protocol validator.
+
+Next action: Implement the minimal S09-B evaluation runner required to execute
+the frozen `configs/s09_baseline_eval.json` contract, without running the final
+evaluation yet.
 
 ## S03-B nested Qwen3 static baseline (2026-08-11)
 

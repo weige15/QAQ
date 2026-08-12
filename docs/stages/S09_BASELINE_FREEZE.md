@@ -44,13 +44,23 @@ protocol and report quality, routing, memory, transfer, and latency results.
 
 ## S09-A workflow subdivision — protocol freeze before results
 
-**Status: IN_PROGRESS — protocol frozen before final results.** The machine-readable
+**Status: COMPLETE — S09-A validation gate passed; protocol frozen before final results.** The machine-readable
 owner is [`configs/s09_baseline_eval.json`](../../configs/s09_baseline_eval.json),
 schema `qaq-s09-baseline-eval-v1`, with fixed inputs in
 [`configs/s09_baseline_prompts.json`](../../configs/s09_baseline_prompts.json).
 The protocol records `protocol_frozen_before_final_results: true`. Its SHA-256
 is recorded in `docs/STATUS.md` and `docs/EXPERIMENTS.md` after each intentional
 protocol edit; S09-B must use the committed value without modification.
+
+S09-A closeout evidence: PR #5 merge commit
+`0f5802a777983c210b6f65ca26fd55368f49bf51` is present; the canonical validator
+passed with hashes enabled and exited `0`; the packed artifact, S07 router,
+Qwen3-4B model/tokenizer, and Any-Precision identities matched their frozen
+values; and the focused protocol/input/evaluator suite passed `18 passed`.
+No S09-B benchmark or final result artifact exists. S09-B execution machinery is
+**MISSING**, so the next action is: implement the minimal S09-B evaluation
+runner required to execute the frozen `configs/s09_baseline_eval.json`
+contract, without running the final evaluation yet.
 
 ### Evaluation matrix and locked identities
 
