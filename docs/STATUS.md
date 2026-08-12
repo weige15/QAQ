@@ -35,15 +35,43 @@ The focused S09-A command passed `18 passed`:
 PYTHONPATH=src:. pytest -q tests/unit/test_s09_protocol.py tests/integration/test_s09_protocol_inputs.py tests/integration/test_perplexity_evaluator.py
 ```
 
-Ruff passed for the validator and focused S09-A test files. No S09-B
-benchmark, five-mode baseline evaluation, or final result artifact exists.
-S09-B execution machinery is **MISSING**: the repository has no complete
-executable S09-B runner; the committed S09 script is the non-benchmark
-protocol validator only.
+Ruff passed for the validator and focused S09-A test files. At S09-A closeout, no S09-B benchmark, five-mode baseline evaluation, or
+final result artifact existed. At that point S09-B execution machinery was
+**MISSING**; the committed S09 script was only the non-benchmark protocol
+validator.
 
-Next action: Implement the minimal S09-B evaluation runner required to execute
-the frozen `configs/s09_baseline_eval.json` contract, without running the final
-evaluation yet.
+## S09-B1 runner implementation — CONTINUE
+
+S09-B1 adds `scripts/run_s09b.py` and `qaq.s09_runner`. The parent resolves the
+five frozen mode IDs and launches one explicit `--execute-mode` child per mode,
+so no process can retain models for a second mode. The default path is the
+non-executing plan, which invokes the canonical validator, prints child and
+aggregation commands, and writes no result.
+
+The runner consumes `configs/s09_baseline_prompts.json`, passes S09's explicit
+32-window, stride-128, 4096-target perplexity arguments to the S03 evaluator,
+records fixed-input generation, routed 72-unit maps, S08 physical transfer
+accounting, request cleanup, allocator boundaries, and five raw latency repeats.
+The per-mode schema and aggregation path validate identities, deterministic
+evidence, release gates, route/output agreement, transfer equality, cleanup,
+and hidden-copy audits. Missing real results classify as PAUSE; structural or
+quality failures classify as REVISE; complete validated results classify as
+CONTINUE.
+
+Non-benchmark evidence for S09-B1:
+
+- Canonical S09-A validator passed with hashes enabled.
+- `python scripts/run_s09b.py --plan --config configs/s09_baseline_eval.json`
+  passed and resolved all five child commands plus the aggregation command.
+- Focused runner tests passed: `8 passed`.
+- No mode child was launched, no model evaluation ran, and no final S09 result
+  artifact was created.
+
+Current stage: S09
+Status: IN_PROGRESS
+Next action: Execute S09-B: run the frozen five-mode baseline evaluation using
+the verified S09-B runner and configs/s09_baseline_eval.json, then evaluate the
+frozen release gates.
 
 ## S09-A protocol owner
 

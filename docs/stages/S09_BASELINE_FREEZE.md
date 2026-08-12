@@ -203,6 +203,57 @@ python --version
 python scripts/validate_s09_protocol.py --config configs/s09_baseline_eval.json
 ```
 
+## S09-B1 runner implementation
+
+S09-B1 is an implementation-only continuation of the frozen S09-A protocol.
+It does not modify either frozen JSON file and does not produce comparison
+results.
+
+The entry point is `scripts/run_s09b.py`, backed by `qaq.s09_runner`.
+The parent process validates the frozen protocol and launches one fresh
+`--execute-mode <mode>` child for each mode.
+The child owns one model and one per-mode JSON result, then exits.
+No service, worker pool, persistent model process, or cross-request model cache
+is introduced.
+
+The five adapters are derived from the config in frozen order:
+`full_precision_bf16_teacher`, `static_packed_4bit`,
+`static_packed_8bit`, `hard_routed_resident_packed`, and
+`hard_routed_synchronous_on_demand_packed`.
+S03 loading, static precision selection, perplexity, and cleanup are reused;
+S07 hard routing and checkpoint loading are reused; and S08's request-owned
+synchronous packed loader and physical transfer sources are reused.
+
+Each per-mode result uses schema `qaq-s09b-per-mode-result-v1` and records
+provenance, frozen identities and hash, fixed input digests, S09 perplexity
+setup and metrics, fixed greedy generation, memory boundaries, five raw
+latency repeats, deterministic evidence, complete routed maps and fractions,
+and on-demand transfer and cleanup evidence where applicable.
+The aggregator validates all five result files and returns `PAUSE` for missing
+external results, `REVISE` for structural, identity, quality, route, transfer,
+cleanup, or deterministic failures, and `CONTINUE` only when all frozen gates
+pass.
+
+The safe non-executing command is:
+
+```text
+source ~/.venv/bin/activate && which python && python --version && python scripts/run_s09b.py --plan --config configs/s09_baseline_eval.json
+```
+
+It runs the existing protocol validator, resolves output locations, prints the
+five exact child commands and final aggregation command, and writes no result.
+The later execution command shape is:
+
+```text
+source ~/.venv/bin/activate && which python && python --version && python scripts/run_s09b.py --execute --config configs/s09_baseline_eval.json
+```
+
+The execution command is intentionally not run in S09-B1.
+Focused runner tests are in `tests/unit/test_s09_runner.py` and
+`tests/integration/test_s09_runner_plan.py`.
+No final S09-B five-mode evaluation, quality result, memory result, latency
+result, routing result, transfer result, or final artifact was produced.
+
 ## CONTINUE condition
 
 S09-A continues to S09-B only after the protocol validator and focused tests

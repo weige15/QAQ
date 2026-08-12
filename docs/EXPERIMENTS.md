@@ -82,6 +82,31 @@ Next action: Implement the minimal S09-B evaluation runner required to execute
 the frozen `configs/s09_baseline_eval.json` contract, without running the final
 evaluation yet.
 
+## S09-B1 runner implementation (2026-08-12)
+
+This work unit implemented the non-benchmark S09-B runner without changing
+`configs/s09_baseline_eval.json` or `configs/s09_baseline_prompts.json`.
+The frozen protocol/config SHA-256 remained
+`01ca65c6b3b7e16d7af66f1533140b1c9f31749c90bc91e097d096d463bf2e1c`.
+
+Executed commands:
+
+```text
+source ~/.venv/bin/activate && which python && python --version && python scripts/validate_s09_protocol.py --config configs/s09_baseline_eval.json
+source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:. pytest -q tests/unit/test_s09_runner.py tests/integration/test_s09_runner_plan.py
+source ~/.venv/bin/activate && which python && python --version && ruff check src/qaq/s09_runner.py scripts/run_s09b.py tests/unit/test_s09_runner.py tests/integration/test_s09_runner_plan.py
+source ~/.venv/bin/activate && which python && python --version && python scripts/run_s09b.py --plan --config configs/s09_baseline_eval.json --results-dir /tmp/qaq-s09b-plan
+```
+
+The validator passed with all five modes, seven fixed requests, 32 samples,
+and 4096 evaluated target tokens. The runner tests passed `8 passed`, Ruff
+passed, and the plan resolved five fresh-process child commands and one
+aggregation command while reporting no model loading, CUDA inference,
+benchmark, or final-result write.
+No S09-B mode child was launched and no final S09 result artifact was created.
+The next action is the frozen five-mode S09-B execution, which remains
+unexecuted.
+
 ## S03-B nested Qwen3 static baseline (2026-08-11)
 
 - Command: `source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:third_party/any-precision-llm python scripts/run_s03b.py --overwrite-artifact`.

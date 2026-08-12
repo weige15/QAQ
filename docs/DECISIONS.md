@@ -545,6 +545,38 @@ invalidation of affected results.
 S09-A, preserve the evidence, and record a replacement decision before any
 benchmark execution.
 
+### D033 — S09-B1 minimal runner structure (2026-08-12)
+
+**Choice:** Implement S09-B as one parent entry point,
+`scripts/run_s09b.py`, which launches itself as one explicit-mode child per
+frozen mode; keep result validation and aggregation in `qaq.s09_runner`.
+The default and explicit `--plan` paths validate the frozen protocol, consume
+the committed fixed-input file for identity planning, print all five child
+commands and the aggregation command, and write no result.
+
+**Established:** S03 supplies the pinned full-precision/static loaders,
+precision selection, causal perplexity evaluator, and cleanup; S07 supplies
+the router checkpoint and hard-route primitive; S08 supplies the synchronous
+request-owned packed source and physical transfer seams.
+
+**Unknown:** The real five-mode S09-B comparison values remain unknown because
+this decision does not execute any model mode.
+
+**Alternatives rejected:** A sequential parent model process, a persistent
+service, a worker pool, a sixth mode, regenerated prompt inputs, a second
+perplexity implementation, and synthetic final result data were rejected
+because they would weaken process isolation or the frozen comparison.
+
+**Consequence:** Each later mode execution has a fresh process boundary and a
+structured per-mode result; aggregation can classify missing results as
+`PAUSE` and structural or quality failures as `REVISE` without fabricating a
+comparison or marking S09 complete.
+
+**Reversal path:** If a later non-benchmark validation proves that an existing
+S03, S07, or S08 seam cannot satisfy the frozen contract, stop and return
+`REVISE` without changing the frozen inputs, identities, gates, or mode list.
+The runner structure is an implementation assumption, not a paper fact.
+
 ## Decision protocol
 
 A worker must add a dated or commit-linked entry when a stage resolves an unknown or introduces a new assumption.
