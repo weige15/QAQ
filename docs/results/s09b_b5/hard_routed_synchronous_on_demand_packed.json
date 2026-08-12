@@ -1,0 +1,4740 @@
+{
+  "deterministic_checks": {
+    "all_required_outputs_finite": true,
+    "fixed_inputs_identical": true,
+    "repeat_evidence": [
+      {
+        "all_outputs_finite": true,
+        "generated_outputs_agree": true,
+        "generated_token_ids": [
+          [
+            576,
+            4226,
+            1265,
+            387,
+            304,
+            279,
+            1352,
+            315
+          ],
+          [
+            576,
+            4226,
+            1265,
+            387,
+            304,
+            279,
+            1352,
+            315
+          ],
+          [
+            576,
+            4226,
+            1265,
+            387,
+            304,
+            279,
+            1352,
+            315
+          ],
+          [
+            576,
+            4226,
+            1265,
+            387,
+            304,
+            279,
+            1352,
+            315
+          ],
+          [
+            576,
+            4226,
+            1265,
+            387,
+            304,
+            279,
+            1352,
+            315
+          ]
+        ],
+        "input_ids_identical": true,
+        "input_ids_sha256": "4e6dbb04c3bd264a63a70693dce57d4f71147ad9274649e245be7829dea8a330",
+        "repeat_count": 5,
+        "request_id": "s03-quality-0",
+        "route_map_digests": [
+          "e12972fe0e73e5f7cc54baed4084e9538f793fb2089d6bbc293b0ff97cf1d10f",
+          "e12972fe0e73e5f7cc54baed4084e9538f793fb2089d6bbc293b0ff97cf1d10f",
+          "e12972fe0e73e5f7cc54baed4084e9538f793fb2089d6bbc293b0ff97cf1d10f",
+          "e12972fe0e73e5f7cc54baed4084e9538f793fb2089d6bbc293b0ff97cf1d10f",
+          "e12972fe0e73e5f7cc54baed4084e9538f793fb2089d6bbc293b0ff97cf1d10f"
+        ],
+        "routed_hard_routes_agree": true
+      },
+      {
+        "all_outputs_finite": true,
+        "generated_outputs_agree": true,
+        "generated_token_ids": [
+          [
+            576,
+            729,
+            1265,
+            387,
+            6941,
+            1565,
+            75326,
+            39345
+          ],
+          [
+            576,
+            729,
+            1265,
+            387,
+            6941,
+            1565,
+            75326,
+            39345
+          ],
+          [
+            576,
+            729,
+            1265,
+            387,
+            6941,
+            1565,
+            75326,
+            39345
+          ],
+          [
+            576,
+            729,
+            1265,
+            387,
+            6941,
+            1565,
+            75326,
+            39345
+          ],
+          [
+            576,
+            729,
+            1265,
+            387,
+            6941,
+            1565,
+            75326,
+            39345
+          ]
+        ],
+        "input_ids_identical": true,
+        "input_ids_sha256": "2eb519d6fe960e6d7dd39e4fc663c1964708daeb511436892f8bb11379fdeb6e",
+        "repeat_count": 5,
+        "request_id": "s03-quality-1",
+        "route_map_digests": [
+          "e12972fe0e73e5f7cc54baed4084e9538f793fb2089d6bbc293b0ff97cf1d10f",
+          "e12972fe0e73e5f7cc54baed4084e9538f793fb2089d6bbc293b0ff97cf1d10f",
+          "e12972fe0e73e5f7cc54baed4084e9538f793fb2089d6bbc293b0ff97cf1d10f",
+          "e12972fe0e73e5f7cc54baed4084e9538f793fb2089d6bbc293b0ff97cf1d10f",
+          "e12972fe0e73e5f7cc54baed4084e9538f793fb2089d6bbc293b0ff97cf1d10f"
+        ],
+        "routed_hard_routes_agree": true
+      },
+      {
+        "all_outputs_finite": true,
+        "generated_outputs_agree": true,
+        "generated_token_ids": [
+          [
+            7281,
+            11,
+            1128,
+            374,
+            279,
+            882,
+            979,
+            279
+          ],
+          [
+            7281,
+            11,
+            1128,
+            374,
+            279,
+            882,
+            979,
+            279
+          ],
+          [
+            7281,
+            11,
+            1128,
+            374,
+            279,
+            882,
+            979,
+            279
+          ],
+          [
+            7281,
+            11,
+            1128,
+            374,
+            279,
+            882,
+            979,
+            279
+          ],
+          [
+            7281,
+            11,
+            1128,
+            374,
+            279,
+            882,
+            979,
+            279
+          ]
+        ],
+        "input_ids_identical": true,
+        "input_ids_sha256": "4ac4e4a49a374be0630a6f57f9f54552fc4481701933c630536fd604cbba24d3",
+        "repeat_count": 5,
+        "request_id": "s03-quality-2",
+        "route_map_digests": [
+          "9e43d3d2d0124302b93c397e19f1eba7907f5eb1171c48f0db3f1e9da0802337",
+          "9e43d3d2d0124302b93c397e19f1eba7907f5eb1171c48f0db3f1e9da0802337",
+          "9e43d3d2d0124302b93c397e19f1eba7907f5eb1171c48f0db3f1e9da0802337",
+          "9e43d3d2d0124302b93c397e19f1eba7907f5eb1171c48f0db3f1e9da0802337",
+          "9e43d3d2d0124302b93c397e19f1eba7907f5eb1171c48f0db3f1e9da0802337"
+        ],
+        "routed_hard_routes_agree": true
+      },
+      {
+        "all_outputs_finite": true,
+        "generated_outputs_agree": true,
+        "generated_token_ids": [
+          [
+            576,
+            94207,
+            13686,
+            429,
+            279,
+            8866,
+            594,
+            6078
+          ],
+          [
+            576,
+            94207,
+            13686,
+            429,
+            279,
+            8866,
+            594,
+            6078
+          ],
+          [
+            576,
+            94207,
+            13686,
+            429,
+            279,
+            8866,
+            594,
+            6078
+          ],
+          [
+            576,
+            94207,
+            13686,
+            429,
+            279,
+            8866,
+            594,
+            6078
+          ],
+          [
+            576,
+            94207,
+            13686,
+            429,
+            279,
+            8866,
+            594,
+            6078
+          ]
+        ],
+        "input_ids_identical": true,
+        "input_ids_sha256": "f3fba7cf13c9fc64487f3f95f162890b2707c030a692b6b6f3db2bb4b0e0aeae",
+        "repeat_count": 5,
+        "request_id": "s03-quality-3",
+        "route_map_digests": [
+          "e12972fe0e73e5f7cc54baed4084e9538f793fb2089d6bbc293b0ff97cf1d10f",
+          "e12972fe0e73e5f7cc54baed4084e9538f793fb2089d6bbc293b0ff97cf1d10f",
+          "e12972fe0e73e5f7cc54baed4084e9538f793fb2089d6bbc293b0ff97cf1d10f",
+          "e12972fe0e73e5f7cc54baed4084e9538f793fb2089d6bbc293b0ff97cf1d10f",
+          "e12972fe0e73e5f7cc54baed4084e9538f793fb2089d6bbc293b0ff97cf1d10f"
+        ],
+        "routed_hard_routes_agree": true
+      },
+      {
+        "all_outputs_finite": true,
+        "generated_outputs_agree": true,
+        "generated_token_ids": [
+          [
+            220,
+            16,
+            13,
+            19716,
+            36696,
+            39422,
+            25,
+            1967
+          ],
+          [
+            220,
+            16,
+            13,
+            19716,
+            36696,
+            39422,
+            25,
+            1967
+          ],
+          [
+            220,
+            16,
+            13,
+            19716,
+            36696,
+            39422,
+            25,
+            1967
+          ],
+          [
+            220,
+            16,
+            13,
+            19716,
+            36696,
+            39422,
+            25,
+            1967
+          ],
+          [
+            220,
+            16,
+            13,
+            19716,
+            36696,
+            39422,
+            25,
+            1967
+          ]
+        ],
+        "input_ids_identical": true,
+        "input_ids_sha256": "96e260cbf5d1f9af58709c3f46e22d0e9c70881075c2b922fd87f02555806a72",
+        "repeat_count": 5,
+        "request_id": "s03-quality-4",
+        "route_map_digests": [
+          "4f80603e3afb7ed625eb74bdad684e15eeedb6f600d8e0c43a323a378d5220a1",
+          "4f80603e3afb7ed625eb74bdad684e15eeedb6f600d8e0c43a323a378d5220a1",
+          "4f80603e3afb7ed625eb74bdad684e15eeedb6f600d8e0c43a323a378d5220a1",
+          "4f80603e3afb7ed625eb74bdad684e15eeedb6f600d8e0c43a323a378d5220a1",
+          "4f80603e3afb7ed625eb74bdad684e15eeedb6f600d8e0c43a323a378d5220a1"
+        ],
+        "routed_hard_routes_agree": true
+      },
+      {
+        "all_outputs_finite": true,
+        "generated_outputs_agree": true,
+        "generated_token_ids": [
+          [
+            315,
+            279,
+            5235,
+            15029,
+            659,
+            1084,
+            374,
+            264
+          ],
+          [
+            315,
+            279,
+            5235,
+            15029,
+            659,
+            1084,
+            374,
+            264
+          ],
+          [
+            315,
+            279,
+            5235,
+            15029,
+            659,
+            1084,
+            374,
+            264
+          ],
+          [
+            315,
+            279,
+            5235,
+            15029,
+            659,
+            1084,
+            374,
+            264
+          ],
+          [
+            315,
+            279,
+            5235,
+            15029,
+            659,
+            1084,
+            374,
+            264
+          ]
+        ],
+        "input_ids_identical": true,
+        "input_ids_sha256": "182b8fae880fc4bbd0e8346161529c693ccdefc220fe2baf63287ee3c857dfdb",
+        "repeat_count": 5,
+        "request_id": "validation-3",
+        "route_map_digests": [
+          "5507a0f1d7dbf13af6d1233f7be53b3c0ac09a131a1ddc19401b148e52b89a15",
+          "5507a0f1d7dbf13af6d1233f7be53b3c0ac09a131a1ddc19401b148e52b89a15",
+          "5507a0f1d7dbf13af6d1233f7be53b3c0ac09a131a1ddc19401b148e52b89a15",
+          "5507a0f1d7dbf13af6d1233f7be53b3c0ac09a131a1ddc19401b148e52b89a15",
+          "5507a0f1d7dbf13af6d1233f7be53b3c0ac09a131a1ddc19401b148e52b89a15"
+        ],
+        "routed_hard_routes_agree": true
+      },
+      {
+        "all_outputs_finite": true,
+        "generated_outputs_agree": true,
+        "generated_token_ids": [
+          [
+            12783,
+            304,
+            279,
+            4531,
+            13,
+            4354,
+            11,
+            279
+          ],
+          [
+            12783,
+            304,
+            279,
+            4531,
+            13,
+            4354,
+            11,
+            279
+          ],
+          [
+            12783,
+            304,
+            279,
+            4531,
+            13,
+            4354,
+            11,
+            279
+          ],
+          [
+            12783,
+            304,
+            279,
+            4531,
+            13,
+            4354,
+            11,
+            279
+          ],
+          [
+            12783,
+            304,
+            279,
+            4531,
+            13,
+            4354,
+            11,
+            279
+          ]
+        ],
+        "input_ids_identical": true,
+        "input_ids_sha256": "b357bc018716119d4c27bc9ece4c107ba4e349abf33a4b72df7097b8d80c6dbe",
+        "repeat_count": 5,
+        "request_id": "validation-1000",
+        "route_map_digests": [
+          "fe7a2811a77cddc2ec42e613a88a395d40a2f88f02aa5e4080d87874064b7687",
+          "fe7a2811a77cddc2ec42e613a88a395d40a2f88f02aa5e4080d87874064b7687",
+          "fe7a2811a77cddc2ec42e613a88a395d40a2f88f02aa5e4080d87874064b7687",
+          "fe7a2811a77cddc2ec42e613a88a395d40a2f88f02aa5e4080d87874064b7687",
+          "fe7a2811a77cddc2ec42e613a88a395d40a2f88f02aa5e4080d87874064b7687"
+        ],
+        "routed_hard_routes_agree": true
+      }
+    ]
+  },
+  "fixed_inputs": {
+    "input_digests": {
+      "s03-quality-0": "4e6dbb04c3bd264a63a70693dce57d4f71147ad9274649e245be7829dea8a330",
+      "s03-quality-1": "2eb519d6fe960e6d7dd39e4fc663c1964708daeb511436892f8bb11379fdeb6e",
+      "s03-quality-2": "4ac4e4a49a374be0630a6f57f9f54552fc4481701933c630536fd604cbba24d3",
+      "s03-quality-3": "f3fba7cf13c9fc64487f3f95f162890b2707c030a692b6b6f3db2bb4b0e0aeae",
+      "s03-quality-4": "96e260cbf5d1f9af58709c3f46e22d0e9c70881075c2b922fd87f02555806a72",
+      "validation-1000": "b357bc018716119d4c27bc9ece4c107ba4e349abf33a4b72df7097b8d80c6dbe",
+      "validation-3": "182b8fae880fc4bbd0e8346161529c693ccdefc220fe2baf63287ee3c857dfdb"
+    },
+    "path": "configs/s09_baseline_prompts.json",
+    "request_ids": [
+      "s03-quality-0",
+      "s03-quality-1",
+      "s03-quality-2",
+      "s03-quality-3",
+      "s03-quality-4",
+      "validation-3",
+      "validation-1000"
+    ]
+  },
+  "generation": {
+    "batch_size": 1,
+    "do_sample": false,
+    "max_new_tokens": 8,
+    "num_beams": 1,
+    "records": [
+      {
+        "finite_value_check": true,
+        "generated_token_ids": [
+          576,
+          4226,
+          1265,
+          387,
+          304,
+          279,
+          1352,
+          315
+        ],
+        "input_ids_sha256": "4e6dbb04c3bd264a63a70693dce57d4f71147ad9274649e245be7829dea8a330",
+        "logits_digest": "09bedee01758ace257c1c156cbe06c4e9f32345c0898d073346b63050046ebe3",
+        "normal_termination": true,
+        "output_digest": "bcfdc3efe9aa5887bc135c196ccfafef2de8f0f91f733a1fe4adc0c450b83977",
+        "request_id": "s03-quality-0"
+      },
+      {
+        "finite_value_check": true,
+        "generated_token_ids": [
+          576,
+          729,
+          1265,
+          387,
+          6941,
+          1565,
+          75326,
+          39345
+        ],
+        "input_ids_sha256": "2eb519d6fe960e6d7dd39e4fc663c1964708daeb511436892f8bb11379fdeb6e",
+        "logits_digest": "18727e46758c8dffae89856795e3906affa408bb01a7f33c46494ce9cf4ec101",
+        "normal_termination": true,
+        "output_digest": "40ac3f39dca386bf66530a0014bed65c0d8abe21613fcc9a6535e136aa3f6d2d",
+        "request_id": "s03-quality-1"
+      },
+      {
+        "finite_value_check": true,
+        "generated_token_ids": [
+          7281,
+          11,
+          1128,
+          374,
+          279,
+          882,
+          979,
+          279
+        ],
+        "input_ids_sha256": "4ac4e4a49a374be0630a6f57f9f54552fc4481701933c630536fd604cbba24d3",
+        "logits_digest": "6119ac7e0e5da03cab426d6479122acaa7615caf855f26c7e3c7307e4417eef5",
+        "normal_termination": true,
+        "output_digest": "f340c44ae53495c97053092d4310da56590281c72c970bbf68d6cb0a1c7dedb1",
+        "request_id": "s03-quality-2"
+      },
+      {
+        "finite_value_check": true,
+        "generated_token_ids": [
+          576,
+          94207,
+          13686,
+          429,
+          279,
+          8866,
+          594,
+          6078
+        ],
+        "input_ids_sha256": "f3fba7cf13c9fc64487f3f95f162890b2707c030a692b6b6f3db2bb4b0e0aeae",
+        "logits_digest": "883212f2de819dfd39e70e66bba1bab63f0ccf940df852ef9f07294c6d65e391",
+        "normal_termination": true,
+        "output_digest": "4f4f8b7e02e7f9243ee004cffff495182b850429da04c991ca1c5d9bc487cd09",
+        "request_id": "s03-quality-3"
+      },
+      {
+        "finite_value_check": true,
+        "generated_token_ids": [
+          220,
+          16,
+          13,
+          19716,
+          36696,
+          39422,
+          25,
+          1967
+        ],
+        "input_ids_sha256": "96e260cbf5d1f9af58709c3f46e22d0e9c70881075c2b922fd87f02555806a72",
+        "logits_digest": "27f6505e25fe39d10265ccb6e9c240e56b81c82c9dab7f01baa23c0087852acf",
+        "normal_termination": true,
+        "output_digest": "2d4327e47ee447f0849ae07b86793ac763f87241faac93a5af0857458633aaa5",
+        "request_id": "s03-quality-4"
+      },
+      {
+        "finite_value_check": true,
+        "generated_token_ids": [
+          315,
+          279,
+          5235,
+          15029,
+          659,
+          1084,
+          374,
+          264
+        ],
+        "input_ids_sha256": "182b8fae880fc4bbd0e8346161529c693ccdefc220fe2baf63287ee3c857dfdb",
+        "logits_digest": "c37e18c8e94f5b32f5892433fad4a2ebfd919e9314a4c3e70bf26220272b6564",
+        "normal_termination": true,
+        "output_digest": "0e1a496409932c98a6ea3e88f09899ad13cb6043c5344cf01d7197d20409be52",
+        "request_id": "validation-3"
+      },
+      {
+        "finite_value_check": true,
+        "generated_token_ids": [
+          12783,
+          304,
+          279,
+          4531,
+          13,
+          4354,
+          11,
+          279
+        ],
+        "input_ids_sha256": "b357bc018716119d4c27bc9ece4c107ba4e349abf33a4b72df7097b8d80c6dbe",
+        "logits_digest": "37d330dbeb86e945ac6875f822e54ecab8d26a8603e56dce7fb0686894d509c7",
+        "normal_termination": true,
+        "output_digest": "5564f559dadca1a7d00b5926808c471f46986cd2c1e1fb470dab0979320cff09",
+        "request_id": "validation-1000"
+      }
+    ]
+  },
+  "hardware": {
+    "comparability": {
+      "compatible": true,
+      "identity_recorded": true,
+      "reference_device_index": 3,
+      "reference_gpu_model": "NVIDIA GeForce RTX 3090"
+    },
+    "cuda_runtime": "12.1",
+    "device_index": 3,
+    "driver": "unknown",
+    "gpu_model": "NVIDIA GeForce RTX 3090",
+    "python": "3.12.3",
+    "python_executable": "/nfs/home/s314511048/.venv/bin/python",
+    "pytorch": "2.2.2+cu121",
+    "transformers": "4.51.0"
+  },
+  "identities": {
+    "any_precision_revision": "a3257d02740cc5757c78673da534b0630ff3a4ea",
+    "model_repository": "Qwen/Qwen3-4B",
+    "model_revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "packed_checkpoint_sha256": "29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee",
+    "router_checkpoint_sha256": "08bf646f19759c0d7949e159bdbe4f96bbea737204b96f8760d205c8d6fd1949",
+    "tokenizer_revision": "1cfa9a7208912126459214e8b04321603b3df60c"
+  },
+  "latency": {
+    "median_seconds": {
+      "s03-quality-0": {
+        "decode": 0.48560827458277345,
+        "end_to_end": 8.18009682232514,
+        "prefill": 7.694171818904579
+      },
+      "s03-quality-1": {
+        "decode": 0.48185904417186975,
+        "end_to_end": 7.0792201817967,
+        "prefill": 6.561490010935813
+      },
+      "s03-quality-2": {
+        "decode": 0.47138573694974184,
+        "end_to_end": 6.008487404789776,
+        "prefill": 5.518259800970554
+      },
+      "s03-quality-3": {
+        "decode": 0.4959729607217014,
+        "end_to_end": 5.826189012732357,
+        "prefill": 5.299130752217025
+      },
+      "s03-quality-4": {
+        "decode": 0.47457674890756607,
+        "end_to_end": 5.664833359885961,
+        "prefill": 5.182901333086193
+      },
+      "validation-1000": {
+        "decode": 0.48139774799346924,
+        "end_to_end": 5.762501392979175,
+        "prefill": 5.290773496031761
+      },
+      "validation-3": {
+        "decode": 0.4650539942085743,
+        "end_to_end": 5.871282609645277,
+        "prefill": 5.403375862631947
+      }
+    },
+    "outlier_removal": false,
+    "raw_records": [
+      {
+        "decode_seconds": 0.5041080107912421,
+        "end_to_end_seconds": 8.342031033709645,
+        "prefill_seconds": 7.837919373065233,
+        "repeat": 0,
+        "request_id": "s03-quality-0"
+      },
+      {
+        "decode_seconds": 0.48560827458277345,
+        "end_to_end_seconds": 8.01241844985634,
+        "prefill_seconds": 7.5268080700188875,
+        "repeat": 1,
+        "request_id": "s03-quality-0"
+      },
+      {
+        "decode_seconds": 0.4859189400449395,
+        "end_to_end_seconds": 8.18009682232514,
+        "prefill_seconds": 7.694171818904579,
+        "repeat": 2,
+        "request_id": "s03-quality-0"
+      },
+      {
+        "decode_seconds": 0.4833220960572362,
+        "end_to_end_seconds": 8.60137861315161,
+        "prefill_seconds": 8.118054640945047,
+        "repeat": 3,
+        "request_id": "s03-quality-0"
+      },
+      {
+        "decode_seconds": 0.4832024807110429,
+        "end_to_end_seconds": 7.845718233846128,
+        "prefill_seconds": 7.362514277920127,
+        "repeat": 4,
+        "request_id": "s03-quality-0"
+      },
+      {
+        "decode_seconds": 0.48185904417186975,
+        "end_to_end_seconds": 7.544998275116086,
+        "prefill_seconds": 7.063137281686068,
+        "repeat": 0,
+        "request_id": "s03-quality-1"
+      },
+      {
+        "decode_seconds": 0.5177282220683992,
+        "end_to_end_seconds": 7.0792201817967,
+        "prefill_seconds": 6.561490010935813,
+        "repeat": 1,
+        "request_id": "s03-quality-1"
+      },
+      {
+        "decode_seconds": 0.4884149879217148,
+        "end_to_end_seconds": 7.379248485900462,
+        "prefill_seconds": 6.89083171216771,
+        "repeat": 2,
+        "request_id": "s03-quality-1"
+      },
+      {
+        "decode_seconds": 0.46553576504811645,
+        "end_to_end_seconds": 6.393783475738019,
+        "prefill_seconds": 5.928245835006237,
+        "repeat": 3,
+        "request_id": "s03-quality-1"
+      },
+      {
+        "decode_seconds": 0.46270794281736016,
+        "end_to_end_seconds": 6.057984567712992,
+        "prefill_seconds": 5.595275104045868,
+        "repeat": 4,
+        "request_id": "s03-quality-1"
+      },
+      {
+        "decode_seconds": 0.45100902020931244,
+        "end_to_end_seconds": 6.2350231618620455,
+        "prefill_seconds": 5.78401263197884,
+        "repeat": 0,
+        "request_id": "s03-quality-2"
+      },
+      {
+        "decode_seconds": 0.4902257979847491,
+        "end_to_end_seconds": 6.008487404789776,
+        "prefill_seconds": 5.518259800970554,
+        "repeat": 1,
+        "request_id": "s03-quality-2"
+      },
+      {
+        "decode_seconds": 0.47227225406095386,
+        "end_to_end_seconds": 6.101053209975362,
+        "prefill_seconds": 5.628778893034905,
+        "repeat": 2,
+        "request_id": "s03-quality-2"
+      },
+      {
+        "decode_seconds": 0.4699809458106756,
+        "end_to_end_seconds": 5.965848037041724,
+        "prefill_seconds": 5.495865287259221,
+        "repeat": 3,
+        "request_id": "s03-quality-2"
+      },
+      {
+        "decode_seconds": 0.47138573694974184,
+        "end_to_end_seconds": 5.961906365118921,
+        "prefill_seconds": 5.490518695209175,
+        "repeat": 4,
+        "request_id": "s03-quality-2"
+      },
+      {
+        "decode_seconds": 0.46172215789556503,
+        "end_to_end_seconds": 6.017385566607118,
+        "prefill_seconds": 5.555662026628852,
+        "repeat": 0,
+        "request_id": "s03-quality-3"
+      },
+      {
+        "decode_seconds": 0.6812287368811667,
+        "end_to_end_seconds": 6.133250573184341,
+        "prefill_seconds": 5.452020149212331,
+        "repeat": 1,
+        "request_id": "s03-quality-3"
+      },
+      {
+        "decode_seconds": 0.4959729607217014,
+        "end_to_end_seconds": 5.795105611905456,
+        "prefill_seconds": 5.299130752217025,
+        "repeat": 2,
+        "request_id": "s03-quality-3"
+      },
+      {
+        "decode_seconds": 0.49486531084403396,
+        "end_to_end_seconds": 5.7423759419471025,
+        "prefill_seconds": 5.247508700937033,
+        "repeat": 3,
+        "request_id": "s03-quality-3"
+      },
+      {
+        "decode_seconds": 0.542372731026262,
+        "end_to_end_seconds": 5.826189012732357,
+        "prefill_seconds": 5.283814386930317,
+        "repeat": 4,
+        "request_id": "s03-quality-3"
+      },
+      {
+        "decode_seconds": 0.45000603003427386,
+        "end_to_end_seconds": 5.857367242220789,
+        "prefill_seconds": 5.407359608914703,
+        "repeat": 0,
+        "request_id": "s03-quality-4"
+      },
+      {
+        "decode_seconds": 0.47457674890756607,
+        "end_to_end_seconds": 5.657479810062796,
+        "prefill_seconds": 5.182901333086193,
+        "repeat": 1,
+        "request_id": "s03-quality-4"
+      },
+      {
+        "decode_seconds": 0.4803244723007083,
+        "end_to_end_seconds": 5.863676865119487,
+        "prefill_seconds": 5.383347819093615,
+        "repeat": 2,
+        "request_id": "s03-quality-4"
+      },
+      {
+        "decode_seconds": 0.4871996180154383,
+        "end_to_end_seconds": 5.664833359885961,
+        "prefill_seconds": 5.177631791681051,
+        "repeat": 3,
+        "request_id": "s03-quality-4"
+      },
+      {
+        "decode_seconds": 0.4723167777992785,
+        "end_to_end_seconds": 5.548129006754607,
+        "prefill_seconds": 5.075809701811522,
+        "repeat": 4,
+        "request_id": "s03-quality-4"
+      },
+      {
+        "decode_seconds": 0.486257232259959,
+        "end_to_end_seconds": 5.871282609645277,
+        "prefill_seconds": 5.385022643953562,
+        "repeat": 0,
+        "request_id": "validation-3"
+      },
+      {
+        "decode_seconds": 0.49228949612006545,
+        "end_to_end_seconds": 9.76632206980139,
+        "prefill_seconds": 9.274030159693211,
+        "repeat": 1,
+        "request_id": "validation-3"
+      },
+      {
+        "decode_seconds": 0.46488823322579265,
+        "end_to_end_seconds": 7.50225047999993,
+        "prefill_seconds": 7.03735975176096,
+        "repeat": 2,
+        "request_id": "validation-3"
+      },
+      {
+        "decode_seconds": 0.4650539942085743,
+        "end_to_end_seconds": 5.8684312966652215,
+        "prefill_seconds": 5.403375862631947,
+        "repeat": 3,
+        "request_id": "validation-3"
+      },
+      {
+        "decode_seconds": 0.45112229604274035,
+        "end_to_end_seconds": 5.574967219028622,
+        "prefill_seconds": 5.123843033798039,
+        "repeat": 4,
+        "request_id": "validation-3"
+      },
+      {
+        "decode_seconds": 0.469645531848073,
+        "end_to_end_seconds": 5.770572624634951,
+        "prefill_seconds": 5.300925018731505,
+        "repeat": 0,
+        "request_id": "validation-1000"
+      },
+      {
+        "decode_seconds": 0.46912340400740504,
+        "end_to_end_seconds": 5.762501392979175,
+        "prefill_seconds": 5.293376149144024,
+        "repeat": 1,
+        "request_id": "validation-1000"
+      },
+      {
+        "decode_seconds": 0.4912346410565078,
+        "end_to_end_seconds": 5.739244198892266,
+        "prefill_seconds": 5.248007771093398,
+        "repeat": 2,
+        "request_id": "validation-1000"
+      },
+      {
+        "decode_seconds": 0.48139774799346924,
+        "end_to_end_seconds": 5.772173681296408,
+        "prefill_seconds": 5.290773496031761,
+        "repeat": 3,
+        "request_id": "validation-1000"
+      },
+      {
+        "decode_seconds": 0.6603029887191951,
+        "end_to_end_seconds": 5.744604968931526,
+        "prefill_seconds": 5.084299134090543,
+        "repeat": 4,
+        "request_id": "validation-1000"
+      }
+    ],
+    "repeats_per_request": 5,
+    "subtract_transfer_time": false,
+    "warmup_requests": 1
+  },
+  "memory": {
+    "method": {
+      "empty_cache_inside_interval": false,
+      "quantities": [
+        "allocated_memory",
+        "reserved_allocator_memory",
+        "physically_resident_packed_weight_bytes",
+        "request_owned_on_demand_bytes"
+      ],
+      "reset_peak": "torch.cuda.reset_peak_memory_stats()",
+      "synchronize_after": "torch.cuda.synchronize()",
+      "synchronize_before": "torch.cuda.synchronize()"
+    },
+    "physically_resident_packed_weight_bytes": 0,
+    "records": [
+      {
+        "allocated_after_cleanup": 886222336,
+        "allocated_before": 882231296,
+        "finite_outputs": true,
+        "peak_allocated": 4818781184,
+        "peak_reserved": 5167382528,
+        "request_id": "s03-quality-0",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3835002880,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 886959616,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4819518464,
+        "peak_reserved": 5167382528,
+        "request_id": "s03-quality-0",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3835002880,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 886959616,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4819518464,
+        "peak_reserved": 5167382528,
+        "request_id": "s03-quality-0",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3835002880,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 886959616,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4819518464,
+        "peak_reserved": 5167382528,
+        "request_id": "s03-quality-0",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3835002880,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 886959616,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4819518464,
+        "peak_reserved": 5167382528,
+        "request_id": "s03-quality-0",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3835002880,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 886959616,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4819518464,
+        "peak_reserved": 5167382528,
+        "request_id": "s03-quality-1",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3835002880,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 886959616,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4819518464,
+        "peak_reserved": 5167382528,
+        "request_id": "s03-quality-1",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3835002880,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 886959616,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4819518464,
+        "peak_reserved": 5167382528,
+        "request_id": "s03-quality-1",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3835002880,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 886959616,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4819518464,
+        "peak_reserved": 5167382528,
+        "request_id": "s03-quality-1",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3835002880,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 886959616,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4819518464,
+        "peak_reserved": 5167382528,
+        "request_id": "s03-quality-1",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3835002880,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 889318912,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4886706176,
+        "peak_reserved": 5167382528,
+        "request_id": "s03-quality-2",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3900211200,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 889318912,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4886706176,
+        "peak_reserved": 5167382528,
+        "request_id": "s03-quality-2",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3900211200,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 889318912,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4886706176,
+        "peak_reserved": 5167382528,
+        "request_id": "s03-quality-2",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3900211200,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 889318912,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4886706176,
+        "peak_reserved": 5167382528,
+        "request_id": "s03-quality-2",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3900211200,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 889318912,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4886706176,
+        "peak_reserved": 5167382528,
+        "request_id": "s03-quality-2",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3900211200,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 887107072,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4819970048,
+        "peak_reserved": 5167382528,
+        "request_id": "s03-quality-3",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3835002880,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 887107072,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4819970048,
+        "peak_reserved": 5167382528,
+        "request_id": "s03-quality-3",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3835002880,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 887107072,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4819970048,
+        "peak_reserved": 5167382528,
+        "request_id": "s03-quality-3",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3835002880,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 887107072,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4819970048,
+        "peak_reserved": 5167382528,
+        "request_id": "s03-quality-3",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3835002880,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 887107072,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4819970048,
+        "peak_reserved": 5167382528,
+        "request_id": "s03-quality-3",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3835002880,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 886664704,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4750917120,
+        "peak_reserved": 5167382528,
+        "request_id": "s03-quality-4",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3769794560,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 886664704,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4750917120,
+        "peak_reserved": 5167382528,
+        "request_id": "s03-quality-4",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3769794560,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 886664704,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4750917120,
+        "peak_reserved": 5167382528,
+        "request_id": "s03-quality-4",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3769794560,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 886664704,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4750917120,
+        "peak_reserved": 5167382528,
+        "request_id": "s03-quality-4",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3769794560,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 886664704,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4750917120,
+        "peak_reserved": 5167382528,
+        "request_id": "s03-quality-4",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3769794560,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 889908736,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4809164288,
+        "peak_reserved": 5167382528,
+        "request_id": "validation-3",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3817717760,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 889908736,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4809164288,
+        "peak_reserved": 5167382528,
+        "request_id": "validation-3",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3817717760,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 889908736,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4809164288,
+        "peak_reserved": 5167382528,
+        "request_id": "validation-3",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3817717760,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 889908736,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4809164288,
+        "peak_reserved": 5167382528,
+        "request_id": "validation-3",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3817717760,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 889908736,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4809164288,
+        "peak_reserved": 5167382528,
+        "request_id": "validation-3",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3817717760,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 889908736,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4822255104,
+        "peak_reserved": 5167382528,
+        "request_id": "validation-1000",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3835002880,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 889908736,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4822255104,
+        "peak_reserved": 5167382528,
+        "request_id": "validation-1000",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3835002880,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 889908736,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4822255104,
+        "peak_reserved": 5167382528,
+        "request_id": "validation-1000",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3835002880,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 889908736,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4822255104,
+        "peak_reserved": 5167382528,
+        "request_id": "validation-1000",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3835002880,
+          "entries": 252
+        }
+      },
+      {
+        "allocated_after_cleanup": 889908736,
+        "allocated_before": 882968576,
+        "finite_outputs": true,
+        "peak_allocated": 4822255104,
+        "peak_reserved": 5167382528,
+        "request_id": "validation-1000",
+        "reserved_after_cleanup": 5167382528,
+        "reserved_before": 5167382528,
+        "retained_after_cleanup": {
+          "buffers": 0,
+          "bytes": 0,
+          "entries": 0
+        },
+        "retained_before_cleanup": {
+          "buffers": 504,
+          "bytes": 3835002880,
+          "entries": 252
+        }
+      }
+    ],
+    "request_owned_on_demand_bytes": 3900211200
+  },
+  "mode_id": "hard_routed_synchronous_on_demand_packed",
+  "on_demand": {
+    "actual_equals_expected": true,
+    "attention_bytes": 32509050880,
+    "cleanup_records": [
+      {
+        "request_id": "s03-quality-0",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3835002880,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "s03-quality-0",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3835002880,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "s03-quality-0",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3835002880,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "s03-quality-0",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3835002880,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "s03-quality-0",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3835002880,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "s03-quality-1",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3835002880,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "s03-quality-1",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3835002880,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "s03-quality-1",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3835002880,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "s03-quality-1",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3835002880,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "s03-quality-1",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3835002880,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "s03-quality-2",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3900211200,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "s03-quality-2",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3900211200,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "s03-quality-2",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3900211200,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "s03-quality-2",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3900211200,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "s03-quality-2",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3900211200,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "s03-quality-3",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3835002880,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "s03-quality-3",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3835002880,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "s03-quality-3",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3835002880,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "s03-quality-3",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3835002880,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "s03-quality-3",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3835002880,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "s03-quality-4",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3769794560,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "s03-quality-4",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3769794560,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "s03-quality-4",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3769794560,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "s03-quality-4",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3769794560,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "s03-quality-4",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3769794560,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "validation-3",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3817717760,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "validation-3",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3817717760,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "validation-3",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3817717760,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "validation-3",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3817717760,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "validation-3",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3817717760,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "validation-1000",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3835002880,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "validation-1000",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3835002880,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "validation-1000",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3835002880,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "validation-1000",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3835002880,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      },
+      {
+        "request_id": "validation-1000",
+        "retained_buffers_after_cleanup": 0,
+        "retained_buffers_before_cleanup": 504,
+        "retained_bytes_after_cleanup": 0,
+        "retained_bytes_before_cleanup": 3835002880,
+        "retained_entries_after_cleanup": 0,
+        "retained_entries_before_cleanup": 252
+      }
+    ],
+    "decode_bytes": 0,
+    "ffn_bytes": 101629624320,
+    "first_use_bytes": 134138675200,
+    "first_use_events": 8820,
+    "hidden_copy_audit": {
+      "all_repeats_passed": true,
+      "all_source_luts_cpu": true,
+      "all_source_qweights_cpu": true,
+      "any_precision_module_count": 0,
+      "no_complete_packed_gpu_copy": true,
+      "source_count": 252
+    },
+    "independently_expected_physical_bytes": 134138675200,
+    "no_complete_packed_parent_on_gpu": true,
+    "prefill_bytes": 134138675200,
+    "retained_buffers_after_cleanup": 0,
+    "retained_buffers_before_cleanup": 504,
+    "retained_bytes_after_cleanup": 0,
+    "retained_entries_after_cleanup": 0,
+    "retained_entries_before_cleanup": 252,
+    "reuse_bytes": 0,
+    "reuse_events": 70560,
+    "total_transfer_bytes": 134138675200
+  },
+  "perplexity": {
+    "evaluated_token_count": 4096,
+    "mean_negative_log_likelihood": 3.42356039583683,
+    "perplexity": 30.678448224528175,
+    "setup": {
+      "config": "wikitext-2-raw-v1",
+      "dataset": "Salesforce/wikitext",
+      "evaluated_token_count": 4096,
+      "evaluator": "qaq.s03_quality.build_perplexity_windows + qaq.s03_quality.evaluate_perplexity",
+      "labels": "window[1:] aligned with logits from window[:-1]",
+      "random_seed": null,
+      "revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+      "sample_count": 32,
+      "sample_selection": "concatenate non-empty test rows in source order and take the first 32 fixed windows with target stride 128",
+      "sequence_length": 128,
+      "source_window_length": 129,
+      "split": "test",
+      "stride": 128,
+      "tokenizer_revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+      "window_start_offsets": [
+        0,
+        128,
+        256,
+        384,
+        512,
+        640,
+        768,
+        896,
+        1024,
+        1152,
+        1280,
+        1408,
+        1536,
+        1664,
+        1792,
+        1920,
+        2048,
+        2176,
+        2304,
+        2432,
+        2560,
+        2688,
+        2816,
+        2944,
+        3072,
+        3200,
+        3328,
+        3456,
+        3584,
+        3712,
+        3840,
+        3968
+      ],
+      "window_width": 129
+    }
+  },
+  "protocol": {
+    "config": "/nfs/home/s314511048/firstmate/projects/QAQ/configs/s09_baseline_eval.json",
+    "config_sha256": "01ca65c6b3b7e16d7af66f1533140b1c9f31749c90bc91e097d096d463bf2e1c",
+    "frozen": true
+  },
+  "provenance": {
+    "git_commit": "4a0dc702178fef0f84eb9ffd9bd6d1810e5dc564",
+    "worktree_status": ""
+  },
+  "routed": {
+    "requests": [
+      {
+        "attention_fractions": {
+          "4_bit": 0.2777777777777778,
+          "8_bit": 0.7222222222222222
+        },
+        "ffn_fractions": {
+          "4_bit": 0.1111111111111111,
+          "8_bit": 0.8888888888888888
+        },
+        "overall_fractions": {
+          "4_bit": 0.19444444444444445,
+          "8_bit": 0.8055555555555556
+        },
+        "request_id": "s03-quality-0",
+        "route_map": [
+          {
+            "layer": 0,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 1,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 2,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 3,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 4,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 5,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 6,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 7,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 8,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 9,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 10,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 11,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 12,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 13,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 14,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 15,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 16,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 17,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 18,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 19,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 20,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 21,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 22,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 23,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 24,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 25,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 26,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 27,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 28,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 29,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 30,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 31,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 32,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 33,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 34,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 35,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 0,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 1,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 2,
+            "selected_bits": 4,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 3,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 4,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 5,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 6,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 7,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 8,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 9,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 10,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 11,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 12,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 13,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 14,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 15,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 16,
+            "selected_bits": 4,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 17,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 18,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 19,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 20,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 21,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 22,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 23,
+            "selected_bits": 4,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 24,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 25,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 26,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 27,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 28,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 29,
+            "selected_bits": 4,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 30,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 31,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 32,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 33,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 34,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 35,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          }
+        ],
+        "route_map_digest": "e12972fe0e73e5f7cc54baed4084e9538f793fb2089d6bbc293b0ff97cf1d10f"
+      },
+      {
+        "attention_fractions": {
+          "4_bit": 0.2777777777777778,
+          "8_bit": 0.7222222222222222
+        },
+        "ffn_fractions": {
+          "4_bit": 0.1111111111111111,
+          "8_bit": 0.8888888888888888
+        },
+        "overall_fractions": {
+          "4_bit": 0.19444444444444445,
+          "8_bit": 0.8055555555555556
+        },
+        "request_id": "s03-quality-1",
+        "route_map": [
+          {
+            "layer": 0,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 1,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 2,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 3,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 4,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 5,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 6,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 7,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 8,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 9,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 10,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 11,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 12,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 13,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 14,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 15,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 16,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 17,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 18,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 19,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 20,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 21,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 22,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 23,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 24,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 25,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 26,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 27,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 28,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 29,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 30,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 31,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 32,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 33,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 34,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 35,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 0,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 1,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 2,
+            "selected_bits": 4,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 3,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 4,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 5,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 6,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 7,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 8,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 9,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 10,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 11,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 12,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 13,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 14,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 15,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 16,
+            "selected_bits": 4,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 17,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 18,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 19,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 20,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 21,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 22,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 23,
+            "selected_bits": 4,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 24,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 25,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 26,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 27,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 28,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 29,
+            "selected_bits": 4,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 30,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 31,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 32,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 33,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 34,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 35,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          }
+        ],
+        "route_map_digest": "e12972fe0e73e5f7cc54baed4084e9538f793fb2089d6bbc293b0ff97cf1d10f"
+      },
+      {
+        "attention_fractions": {
+          "4_bit": 0.25,
+          "8_bit": 0.75
+        },
+        "ffn_fractions": {
+          "4_bit": 0.08333333333333333,
+          "8_bit": 0.9166666666666666
+        },
+        "overall_fractions": {
+          "4_bit": 0.16666666666666666,
+          "8_bit": 0.8333333333333334
+        },
+        "request_id": "s03-quality-2",
+        "route_map": [
+          {
+            "layer": 0,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 1,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 2,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 3,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 4,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 5,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 6,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 7,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 8,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 9,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 10,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 11,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 12,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 13,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 14,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 15,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 16,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 17,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 18,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 19,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 20,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 21,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 22,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 23,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 24,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 25,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 26,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 27,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 28,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 29,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 30,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 31,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 32,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 33,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 34,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 35,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 0,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 1,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 2,
+            "selected_bits": 4,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 3,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 4,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 5,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 6,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 7,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 8,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 9,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 10,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 11,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 12,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 13,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 14,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 15,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 16,
+            "selected_bits": 4,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 17,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 18,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 19,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 20,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 21,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 22,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 23,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 24,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 25,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 26,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 27,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 28,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 29,
+            "selected_bits": 4,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 30,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 31,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 32,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 33,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 34,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 35,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          }
+        ],
+        "route_map_digest": "9e43d3d2d0124302b93c397e19f1eba7907f5eb1171c48f0db3f1e9da0802337"
+      },
+      {
+        "attention_fractions": {
+          "4_bit": 0.2777777777777778,
+          "8_bit": 0.7222222222222222
+        },
+        "ffn_fractions": {
+          "4_bit": 0.1111111111111111,
+          "8_bit": 0.8888888888888888
+        },
+        "overall_fractions": {
+          "4_bit": 0.19444444444444445,
+          "8_bit": 0.8055555555555556
+        },
+        "request_id": "s03-quality-3",
+        "route_map": [
+          {
+            "layer": 0,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 1,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 2,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 3,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 4,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 5,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 6,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 7,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 8,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 9,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 10,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 11,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 12,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 13,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 14,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 15,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 16,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 17,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 18,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 19,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 20,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 21,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 22,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 23,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 24,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 25,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 26,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 27,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 28,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 29,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 30,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 31,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 32,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 33,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 34,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 35,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 0,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 1,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 2,
+            "selected_bits": 4,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 3,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 4,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 5,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 6,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 7,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 8,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 9,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 10,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 11,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 12,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 13,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 14,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 15,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 16,
+            "selected_bits": 4,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 17,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 18,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 19,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 20,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 21,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 22,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 23,
+            "selected_bits": 4,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 24,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 25,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 26,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 27,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 28,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 29,
+            "selected_bits": 4,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 30,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 31,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 32,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 33,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 34,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 35,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          }
+        ],
+        "route_map_digest": "e12972fe0e73e5f7cc54baed4084e9538f793fb2089d6bbc293b0ff97cf1d10f"
+      },
+      {
+        "attention_fractions": {
+          "4_bit": 0.3055555555555556,
+          "8_bit": 0.6944444444444444
+        },
+        "ffn_fractions": {
+          "4_bit": 0.1388888888888889,
+          "8_bit": 0.8611111111111112
+        },
+        "overall_fractions": {
+          "4_bit": 0.2222222222222222,
+          "8_bit": 0.7777777777777778
+        },
+        "request_id": "s03-quality-4",
+        "route_map": [
+          {
+            "layer": 0,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 1,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 2,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 3,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 4,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 5,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 6,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 7,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 8,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 9,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 10,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 11,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 12,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 13,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 14,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 15,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 16,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 17,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 18,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 19,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 20,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 21,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 22,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 23,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 24,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 25,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 26,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 27,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 28,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 29,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 30,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 31,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 32,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 33,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 34,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 35,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 0,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 1,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 2,
+            "selected_bits": 4,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 3,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 4,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 5,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 6,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 7,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 8,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 9,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 10,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 11,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 12,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 13,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 14,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 15,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 16,
+            "selected_bits": 4,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 17,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 18,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 19,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 20,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 21,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 22,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 23,
+            "selected_bits": 4,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 24,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 25,
+            "selected_bits": 4,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 26,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 27,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 28,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 29,
+            "selected_bits": 4,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 30,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 31,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 32,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 33,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 34,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 35,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          }
+        ],
+        "route_map_digest": "4f80603e3afb7ed625eb74bdad684e15eeedb6f600d8e0c43a323a378d5220a1"
+      },
+      {
+        "attention_fractions": {
+          "4_bit": 0.3055555555555556,
+          "8_bit": 0.6944444444444444
+        },
+        "ffn_fractions": {
+          "4_bit": 0.1111111111111111,
+          "8_bit": 0.8888888888888888
+        },
+        "overall_fractions": {
+          "4_bit": 0.20833333333333334,
+          "8_bit": 0.7916666666666666
+        },
+        "request_id": "validation-3",
+        "route_map": [
+          {
+            "layer": 0,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 1,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 2,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 3,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 4,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 5,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 6,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 7,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 8,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 9,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 10,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 11,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 12,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 13,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 14,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 15,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 16,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 17,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 18,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 19,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 20,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 21,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 22,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 23,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 24,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 25,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 26,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 27,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 28,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 29,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 30,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 31,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 32,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 33,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 34,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 35,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 0,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 1,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 2,
+            "selected_bits": 4,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 3,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 4,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 5,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 6,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 7,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 8,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 9,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 10,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 11,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 12,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 13,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 14,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 15,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 16,
+            "selected_bits": 4,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 17,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 18,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 19,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 20,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 21,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 22,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 23,
+            "selected_bits": 4,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 24,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 25,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 26,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 27,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 28,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 29,
+            "selected_bits": 4,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 30,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 31,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 32,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 33,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 34,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 35,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          }
+        ],
+        "route_map_digest": "5507a0f1d7dbf13af6d1233f7be53b3c0ac09a131a1ddc19401b148e52b89a15"
+      },
+      {
+        "attention_fractions": {
+          "4_bit": 0.2777777777777778,
+          "8_bit": 0.7222222222222222
+        },
+        "ffn_fractions": {
+          "4_bit": 0.1111111111111111,
+          "8_bit": 0.8888888888888888
+        },
+        "overall_fractions": {
+          "4_bit": 0.19444444444444445,
+          "8_bit": 0.8055555555555556
+        },
+        "request_id": "validation-1000",
+        "route_map": [
+          {
+            "layer": 0,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 1,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 2,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 3,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 4,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 5,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 6,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 7,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 8,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 9,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 10,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 11,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 12,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 13,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 14,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 15,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 16,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 17,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 18,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 19,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 20,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 21,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 22,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 23,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 24,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 25,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 26,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 27,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 28,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 29,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 30,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 31,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 32,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 33,
+            "selected_bits": 4,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 34,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 35,
+            "selected_bits": 8,
+            "unit_type": "attention"
+          },
+          {
+            "layer": 0,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 1,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 2,
+            "selected_bits": 4,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 3,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 4,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 5,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 6,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 7,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 8,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 9,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 10,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 11,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 12,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 13,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 14,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 15,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 16,
+            "selected_bits": 4,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 17,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 18,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 19,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 20,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 21,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 22,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 23,
+            "selected_bits": 4,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 24,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 25,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 26,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 27,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 28,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 29,
+            "selected_bits": 4,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 30,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 31,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 32,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 33,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 34,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          },
+          {
+            "layer": 35,
+            "selected_bits": 8,
+            "unit_type": "ffn"
+          }
+        ],
+        "route_map_digest": "fe7a2811a77cddc2ec42e613a88a395d40a2f88f02aa5e4080d87874064b7687"
+      }
+    ],
+    "route_diversity": {
+      "adaptivity_classification": "OTHER",
+      "changed_fraction": 0.05555555555555555,
+      "changed_unit_count": 4,
+      "pairwise_route_distance_mean": 0.022486772486772486,
+      "unique_route_map_count": 5
+    }
+  },
+  "schema": "qaq-s09b-per-mode-result-v1",
+  "seed": 1729
+}

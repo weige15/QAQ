@@ -1,0 +1,13 @@
+{
+  "classification": "CONTINUE",
+  "errors": [],
+  "mode_ids": [
+    "full_precision_bf16_teacher",
+    "static_packed_4bit",
+    "static_packed_8bit",
+    "hard_routed_resident_packed",
+    "hard_routed_synchronous_on_demand_packed"
+  ],
+  "protocol_config_sha256": "01ca65c6b3b7e16d7af66f1533140b1c9f31749c90bc91e097d096d463bf2e1c",
+  "results_dir": "/tmp/qaq-s09b5-routed-rerun"
+}
