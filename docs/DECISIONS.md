@@ -612,6 +612,60 @@ The runner structure is an implementation assumption, not a paper fact.
 
 **Reversal path:** If a separately authorized repair disproves the kernel-path explanation or changes the pinned baseline mechanism, preserve this diagnosis and record new evidence before revising the conclusion.
 
+### D036 — S09-B4 deterministic routed packed execution repair (2026-08-13)
+
+**Established:** The pinned Any-Precision dispatch uses its atomic k-split
+kernel exactly when the device is not Orin, the effective row count is
+`M == 1`, the packed input width is `K > 4096`, and `w_bits >= 7`. Within QAQ's
+locked 4/8-bit route set, this is precisely the 8-bit, one-row, input-width-
+greater-than-4096 family. The pinned kernel source allocates
+`num_ksplit = ceil(K / 4096)` and combines partial sums with `atomicAdd`.
+
+**Repair:** A shared `execute_packed_linear` helper now mirrors that dispatch.
+The exact family uses the pinned `dequant_kbit` followed by
+`torch.matmul` with a temporary CUDA dense weight; all other one-to-eight-row
+calls retain `matmul_kbit`, and the pre-existing greater-than-eight-row
+reference path remains unchanged. Both `_RoutedPackedLinear` resident calls
+and `SynchronousPackedPlaneLoader` request-owned calls use the helper. The
+helper creates no registered parameter or buffer and no dense weight survives
+a projection call or request cleanup.
+
+**Evidence:** The focused real-shape test used `[1,1,9728]` and 8-bit packed
+inputs, passed five bitwise-identical finite executions, matched resident and
+request-owned results, and separately proved an unaffected 8-bit `K=1024`
+path still calls `matmul_kbit`. The real Qwen3 inventory has 252 targeted
+projections: only the 36 `model.layers.<i>.mlp.down_proj` projections have
+`in_features=9728` and can enter the fallback, and only when selected at
+8-bit; the remaining 216 targeted projections have `in_features=2560` and
+retain the packed kernel for 4/8-bit routes. Narrow CUDA validation on
+`cuda:3` passed for `s03-quality-3` and `validation-3`: prefill and all eight
+decode logits were finite and bitwise equal across resident/on-demand modes,
+route maps and selected tokens matched, and five repeated `s03-quality-3`
+generations had identical route maps, per-step logits digests, and token
+sequences in both modes. On-demand transfer remained packed-only and exactly
+matched expected bytes (`3,835,002,880` and `3,817,717,760`), decode transfer
+was zero, cleanup returned 252 entries/504 buffers to zero, and the hidden
+copy audit passed. The pinned Any-Precision submodule stayed clean at
+`a3257d02740cc5757c78673da534b0630ff3a4ea`; the frozen config/input hashes
+and all six failed S09-B2 artifacts remained unchanged.
+
+**Scope:** The FP teacher and static 4/8-bit paths are untouched by the diff.
+The original routed S09-B2 results are invalidated by this execution repair;
+the original FP/static results remain valid pending the later rerun's final
+comparison. Corrected routed quality, resource, and latency results remain
+unknown.
+
+**Proposed next step:** Rerun only the invalidated routed resident and routed
+synchronous on-demand S09-B evidence under this verified deterministic repair,
+then preserve and reuse unaffected FP/static S09-B2 evidence only after
+confirming their execution paths remain unchanged. Do not rerun S09-B's five-
+mode evaluation as part of this repair.
+
+**Reversal path:** If a later targeted run finds resident/on-demand bitwise
+divergence, nondeterminism, transfer or cleanup regression, or an execution
+path outside this condition is changed, return S09-B4 to REVISE and preserve
+this diagnosis without changing the frozen protocol or pinned dependency.
+
 ## Decision protocol
 
 A worker must add a dated or commit-linked entry when a stage resolves an unknown or introduces a new assumption.

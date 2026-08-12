@@ -8,8 +8,9 @@ packed planes and lookup tables synchronously on first use.
 from __future__ import annotations
 
 import sys
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
+from functools import lru_cache
 
 import torch
 
@@ -18,6 +19,56 @@ from .s03_static import ANY_PRECISION_ROOT, source_commit
 
 SUPPORTED_BITS = (4, 8)
 PARENT_PLANES = 8
+ATOMIC_K_SPLIT_MIN_K = 4096
+ATOMIC_K_SPLIT_MIN_BITS = 7
+
+
+@lru_cache(maxsize=1)
+def pinned_backend() -> tuple[Callable[..., torch.Tensor], Callable[..., torch.Tensor]]:
+    """Return the pinned CUDA dequantization and packed-matmul functions."""
+
+    source_commit()
+    if str(ANY_PRECISION_ROOT) not in sys.path:
+        sys.path.insert(0, str(ANY_PRECISION_ROOT))
+    from any_precision_ext import dequant_kbit, matmul_kbit
+
+    return dequant_kbit, matmul_kbit
+
+
+def uses_atomic_k_split(
+    inputs: torch.Tensor, qweight: torch.Tensor, precision: int
+) -> bool:
+    """Mirror the pinned ``matmul_kbit`` dispatch that uses atomic accumulation."""
+
+    if inputs.ndim == 0 or qweight.ndim != 3:
+        return False
+    rows = int(inputs.numel() // inputs.shape[-1])
+    in_features = int(qweight.shape[2] * 32)
+    device_name = torch.cuda.get_device_name(qweight.device)
+    return (
+        device_name != "Orin"
+        and rows == 1
+        and in_features > ATOMIC_K_SPLIT_MIN_K
+        and precision >= ATOMIC_K_SPLIT_MIN_BITS
+    )
+
+
+def execute_packed_linear(
+    inputs: torch.Tensor,
+    qweight: torch.Tensor,
+    lut: torch.Tensor,
+    precision: int,
+    *,
+    dequant_kbit: Callable[..., torch.Tensor],
+    matmul_kbit: Callable[..., torch.Tensor],
+) -> torch.Tensor:
+    """Use deterministic dequantized arithmetic only for pinned atomic k-split calls."""
+
+    rows = int(inputs.numel() // inputs.shape[-1])
+    if uses_atomic_k_split(inputs, qweight, precision) or rows > 8:
+        weight = dequant_kbit(qweight, lut, precision)
+        return torch.matmul(inputs, weight.transpose(0, 1))
+    return matmul_kbit(inputs, qweight, lut, precision)
 
 
 def _tensor_bytes(tensor: torch.Tensor) -> int:
@@ -250,11 +301,14 @@ class SynchronousPackedPlaneLoader:
         lut = self._lut4 if precision == 4 else self._lut8
         if self._qweight is None or lut is None:  # pragma: no cover - guarded by _ensure_precision
             raise RuntimeError("S08-A packed execution buffers were not retained")
-        if inputs.numel() // inputs.shape[-1] > 8:
-            weight = self._dequant_kbit(self._qweight, lut, precision)
-            output = torch.matmul(inputs, weight.transpose(0, 1))
-        else:
-            output = self._matmul_kbit(inputs, self._qweight, lut, precision)
+        output = execute_packed_linear(
+            inputs,
+            self._qweight,
+            lut,
+            precision,
+            dequant_kbit=self._dequant_kbit,
+            matmul_kbit=self._matmul_kbit,
+        )
         if self._bias is not None:
             output = output + self._bias
         return output
@@ -345,4 +399,7 @@ __all__ = [
     "SynchronousPackedPlaneLoader",
     "SynchronousPackedRequest",
     "TransferRecord",
+    "execute_packed_linear",
+    "pinned_backend",
+    "uses_atomic_k_split",
 ]

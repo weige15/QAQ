@@ -25,7 +25,12 @@ from .router.features import (
 )
 from .router.soft_linear import mix_packed_outputs
 from .s03_static import assert_target_invariant, load_static_model
-from .s08_loader import PackedLinearSource, SynchronousPackedRequest
+from .s08_loader import (
+    PackedLinearSource,
+    SynchronousPackedRequest,
+    execute_packed_linear,
+    pinned_backend,
+)
 
 LAYER_COUNT = 36
 SUPPORTED_BITS = (4, 8)
@@ -561,7 +566,20 @@ class _RoutedPackedLinear(nn.Module):
             module_path=self.module_path,
             selected_bits=precision,
         )
-        return self.packed(inputs, precision=precision)
+        if not hasattr(self.packed, "qweight"):
+            return self.packed(inputs, precision=precision)
+        dequant_kbit, matmul_kbit = pinned_backend()
+        output = execute_packed_linear(
+            inputs,
+            self.packed.qweight,
+            self.packed._buffers[f"lut{precision}"],
+            precision,
+            dequant_kbit=dequant_kbit,
+            matmul_kbit=matmul_kbit,
+        )
+        if self.packed.bias is not None:
+            output += self.packed.bias
+        return output
 
 
 class _ManualAttention(nn.Module):

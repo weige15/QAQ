@@ -230,3 +230,49 @@ No frozen protocol/configuration, production execution code, or preserved
 S09-B2 result file was changed. S09 remains IN_PROGRESS. The next action is a
 separately authorized narrow repair decision and targeted routed re-evaluation;
 the repair has not been tested and S09 must not be marked complete.
+
+## S09-B4 deterministic routed packed execution repair — CONTINUE
+
+The pinned kernel dispatch was source-verified: on non-Orin devices it uses
+atomic k-split accumulation exactly for effective `M == 1`, packed input width
+`K > 4096`, and `w_bits >= 7`. Under QAQ's locked 4/8-bit routes, the affected
+family is 8-bit one-row calls with `K > 4096`. The shared helper in
+`qaq.s08_loader` uses pinned `dequant_kbit` plus `torch.matmul` only for that
+family and preserves the existing packed path elsewhere. Resident
+`_RoutedPackedLinear` and synchronous on-demand loader calls share the helper.
+
+The Qwen3 target inventory contains 252 projections. The fallback can apply
+to the 36 `model.layers.<i>.mlp.down_proj` projections (`in_features=9728`)
+when selected at 8-bit. The other 216 targeted projections have
+`in_features=2560` and retain `matmul_kbit` for both supported precisions.
+The FP teacher and static packed paths are untouched by the diff.
+
+Focused real-shape dispatch tests passed `2`; the relevant regression selection
+passed `56`; the real S08 hard-routed regression passed `3`; and the follow-up
+tiny Qwen3/backend selection passed `8`. Ruff passed. The frozen protocol
+validator passed. Narrow CUDA validation on `cuda:3` passed for
+`s03-quality-3` and `validation-3`: prefill and all eight decode logits were
+finite and bitwise equal between resident and on-demand, route maps and tokens
+matched, and five repeated `s03-quality-3` generations were stable in both
+modes with matching per-step logits digests and sequences. On-demand transfer
+remained packed-only and matched expected bytes exactly (`3,835,002,880` for
+`s03-quality-3`; `3,817,717,760` for `validation-3`), decode transfer was zero,
+cleanup returned entries, buffers, and bytes to zero, and the hidden-copy audit
+passed. No persistent dense/dequantized model state was introduced.
+
+The pinned Any-Precision submodule remains clean at
+`a3257d02740cc5757c78673da534b0630ff3a4ea`. The frozen config/input hashes
+remain `01ca65c6b3b7e16d7af66f1533140b1c9f31749c90bc91e097d096d463bf2e1c`
+and `da1d33f0f2330cfc341c38945fe4b205f946223f8c9069c35d44999d400fbb49`.
+All six failed S09-B2 artifacts remain byte-for-byte unchanged. No final S09
+rerun was executed. Corrected routed quality, resource, and latency results
+remain unknown; the original routed S09-B2 results are invalidated, while
+unaffected FP/static evidence remains usable only after the execution-path
+check recorded in D036.
+
+Current stage: S09
+Status: IN_PROGRESS
+Next action: Rerun only the invalidated routed resident and routed synchronous
+on-demand S09-B evidence under the verified deterministic packed-execution
+repair; preserve and reuse the unaffected FP/static S09-B2 evidence only after
+confirming their execution paths were unchanged.

@@ -271,3 +271,28 @@ A comparison or reproducibility defect can be corrected without adding pre-freez
 ## STOP condition
 
 The modes are not comparable, resource claims are not grounded in packed data, or the baseline cannot be frozen without unresolved critical assumptions.
+
+## S09-B4 — narrow routed decode repair
+
+S09-B2's routed result files are preserved but invalidated because D035
+identified nondeterministic pinned `matmul_kbit` accumulation. D036 records the
+source-verified dispatch and repair gate. The repair uses a shared helper for
+resident and synchronous on-demand routed calls only: non-Orin, one effective
+row, packed `K > 4096`, and precision at least 7. For the locked QAQ precisions,
+this means 8-bit calls. It falls back to pinned `dequant_kbit` plus
+`torch.matmul` with a temporary per-call CUDA weight. Static and full-precision
+paths remain outside the diff, and no frozen protocol or final result file is
+changed.
+
+The Qwen3 inventory audit found 36 affected `mlp.down_proj` targets at
+`in_features=9728`; the remaining 216 targets are `in_features=2560` and do
+not satisfy the condition. Narrow validation covered only `s03-quality-3` and
+`validation-3`, with eight decode steps and five repeated generations for
+`s03-quality-3`. It passed bitwise resident/on-demand logits parity, route and
+token parity, repeat stability, packed transfer equality, zero decode transfer,
+request cleanup, and the hidden-copy audit. Corrected routed quality and
+resource results remain unknown.
+
+The next action is only to rerun the invalidated routed resident and routed
+synchronous on-demand S09-B evidence. The five-mode final evaluation must not
+be rerun as part of this repair.
