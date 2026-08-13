@@ -253,23 +253,87 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _persist_roundtrip_failure(
+    result: dict[str, Any],
+    result_path: Path,
+    *,
+    checkpoint_sha256: str | None,
+    checkpoint_identity_match: bool,
+    probabilities_match: bool | None = None,
+    soft_derived_hard_bits_match: bool | None = None,
+    hard_routes_match: bool | None = None,
+    hard_route_comparison: dict[str, Any] | None = None,
+    unchanged_packed_student: bool | None = None,
+    finite_logits: bool | None = None,
+    fixed_subset_count: int = 0,
+    route_maps_identical_on_repeat: bool = False,
+    logits_identical_on_repeat: bool = False,
+) -> None:
+    result["hard_route_determinism"] = {
+        "fixed_subset_count": fixed_subset_count,
+        "route_maps_identical_on_repeat": route_maps_identical_on_repeat,
+        "selected_precisions_identical_on_repeat": route_maps_identical_on_repeat,
+        "logits_identical_on_repeat": logits_identical_on_repeat,
+        "finite_logits": finite_logits if finite_logits is not None else False,
+        "tolerance": "bitwise equality",
+        "passed": False,
+    }
+    stage_gate = result.setdefault("stage_gate", {})
+    stage_gate["checkpoint_roundtrip_passed"] = False
+    stage_gate["hard_route_determinism_passed"] = False
+    stage_gate["engineering_gate"] = "REVISE"
+    stage_gate["next_action"] = "Repair S07C checkpoint round-trip evidence."
+
+    checkpoint_roundtrip = {
+        "fresh_process": True,
+        "checkpoint_sha256": checkpoint_sha256,
+        "recorded_checkpoint_sha256": result["checkpoint"].get("sha256"),
+        "expected_checkpoint_sha256": EXPECTED_CHECKPOINT_SHA256,
+        "checkpoint_identity_match": checkpoint_identity_match,
+        "passed": False,
+    }
+    optional_fields = {
+        "probabilities_match_recorded_result": probabilities_match,
+        "soft_derived_hard_bits_match_recorded_result": soft_derived_hard_bits_match,
+        "hard_routes_match_recorded_result": hard_routes_match,
+        "hard_route_comparison": hard_route_comparison,
+        "unchanged_packed_student": unchanged_packed_student,
+        "finite_logits": finite_logits,
+    }
+    checkpoint_roundtrip.update(
+        {name: value for name, value in optional_fields.items() if value is not None}
+    )
+    result["checkpoint_roundtrip"] = checkpoint_roundtrip
+    result_path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
+
+
 def _verify_checkpoint_identity(result: dict[str, Any], result_path: Path) -> str:
     checkpoint_path = Path(result["checkpoint"]["external_path"]).expanduser()
     if not checkpoint_path.is_file():
+        _persist_roundtrip_failure(
+            result,
+            result_path,
+            checkpoint_sha256=None,
+            checkpoint_identity_match=False,
+        )
         raise SystemExit(f"PAUSE: router checkpoint is unavailable: {checkpoint_path}")
     checkpoint_sha256 = _sha256(checkpoint_path)
-    if checkpoint_sha256 != EXPECTED_CHECKPOINT_SHA256:
-        result["checkpoint_roundtrip"] = {
-            "fresh_process": True,
-            "checkpoint_sha256": checkpoint_sha256,
-            "expected_checkpoint_sha256": EXPECTED_CHECKPOINT_SHA256,
-            "checkpoint_identity_match": False,
-            "passed": False,
-        }
-        result_path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
+    recorded_checkpoint_sha256 = result["checkpoint"].get("sha256")
+    checkpoint_identity_match = (
+        checkpoint_sha256 == EXPECTED_CHECKPOINT_SHA256
+        and checkpoint_sha256 == recorded_checkpoint_sha256
+    )
+    if not checkpoint_identity_match:
+        _persist_roundtrip_failure(
+            result,
+            result_path,
+            checkpoint_sha256=checkpoint_sha256,
+            checkpoint_identity_match=False,
+        )
         raise SystemExit(
             "REVISE: checkpoint identity mismatch; "
-            f"expected {EXPECTED_CHECKPOINT_SHA256}, got {checkpoint_sha256}; no retraining"
+            f"expected {EXPECTED_CHECKPOINT_SHA256}, recorded {recorded_checkpoint_sha256}, "
+            f"got {checkpoint_sha256}; no retraining"
         )
     return checkpoint_sha256
 
@@ -397,20 +461,21 @@ def main() -> int:
         candidate_ordering=metadata.candidate_ordering,
     )
     if not hard_route_comparison["passed"]:
-        result["checkpoint_roundtrip"] = {
-            "fresh_process": True,
-            "checkpoint_sha256": checkpoint_sha256,
-            "expected_checkpoint_sha256": EXPECTED_CHECKPOINT_SHA256,
-            "checkpoint_identity_match": True,
-            "probabilities_match_recorded_result": probability_match,
-            "soft_derived_hard_bits_match_recorded_result": soft_route_match,
-            "hard_routes_match_recorded_result": False,
-            "hard_route_comparison": hard_route_comparison,
-            "unchanged_packed_student": True,
-            "finite_logits": finite_logits,
-            "passed": False,
-        }
-        args.result.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
+        _persist_roundtrip_failure(
+            result,
+            args.result,
+            checkpoint_sha256=checkpoint_sha256,
+            checkpoint_identity_match=True,
+            probabilities_match=probability_match,
+            soft_derived_hard_bits_match=soft_route_match,
+            hard_routes_match=False,
+            hard_route_comparison=hard_route_comparison,
+            unchanged_packed_student=True,
+            finite_logits=finite_logits,
+            fixed_subset_count=len(hard_states),
+            route_maps_identical_on_repeat=hard_repeat_match,
+            logits_identical_on_repeat=hard_logits_match,
+        )
         raise SystemExit(
             "REVISE: direct hard-route comparison failed; "
             f"{json.dumps(hard_route_comparison, sort_keys=True)}; no retraining"
@@ -429,7 +494,7 @@ def main() -> int:
         and hard_logits_match
         and finite_logits
     )
-    result["hard_route_determinism"] = {
+    hard_route_determinism = {
         "fixed_subset_count": len(examples),
         "route_maps_identical_on_repeat": hard_repeat_match,
         "selected_precisions_identical_on_repeat": hard_repeat_match,
@@ -438,6 +503,7 @@ def main() -> int:
         "tolerance": "bitwise equality",
         "passed": hard_repeat_match and hard_logits_match and finite_logits,
     }
+    result["hard_route_determinism"] = hard_route_determinism
     result["soft_derived_hard_route_comparison"] = {
         "source": "reloaded soft probabilities passed through hard_route",
         "reference_source": "evaluation.soft.route_logs",
@@ -446,11 +512,15 @@ def main() -> int:
         "route_count": soft_route_count,
         "passed": probability_match and soft_route_match,
     }
-    result["checkpoint_roundtrip"] = {
+    checkpoint_roundtrip = {
         "fresh_process": True,
         "checkpoint_sha256": checkpoint_sha256,
+        "recorded_checkpoint_sha256": result["checkpoint"].get("sha256"),
         "expected_checkpoint_sha256": EXPECTED_CHECKPOINT_SHA256,
-        "checkpoint_identity_match": checkpoint_sha256 == EXPECTED_CHECKPOINT_SHA256,
+        "checkpoint_identity_match": (
+            checkpoint_sha256 == EXPECTED_CHECKPOINT_SHA256
+            and checkpoint_sha256 == result["checkpoint"].get("sha256")
+        ),
         "probabilities_match_recorded_result": probability_match,
         "soft_derived_hard_bits_match_recorded_result": soft_route_match,
         "hard_routes_match_recorded_result": hard_route_comparison["passed"],
@@ -459,8 +529,28 @@ def main() -> int:
         "finite_logits": finite_logits,
         "passed": passed,
     }
-    result["stage_gate"]["checkpoint_roundtrip_passed"] = result["checkpoint_roundtrip"]["passed"]
-    result["stage_gate"]["hard_route_determinism_passed"] = passed
+    result["checkpoint_roundtrip"] = checkpoint_roundtrip
+    if not passed:
+        _persist_roundtrip_failure(
+            result,
+            args.result,
+            checkpoint_sha256=checkpoint_sha256,
+            checkpoint_identity_match=True,
+            probabilities_match=probability_match,
+            soft_derived_hard_bits_match=soft_route_match,
+            hard_routes_match=hard_route_comparison["passed"],
+            hard_route_comparison=hard_route_comparison,
+            unchanged_packed_student=True,
+            finite_logits=finite_logits,
+            fixed_subset_count=len(hard_states),
+            route_maps_identical_on_repeat=hard_repeat_match,
+            logits_identical_on_repeat=hard_logits_match,
+        )
+    else:
+        result["hard_route_determinism"] = hard_route_determinism
+        result["checkpoint_roundtrip"] = checkpoint_roundtrip
+        result["stage_gate"]["checkpoint_roundtrip_passed"] = True
+        result["stage_gate"]["hard_route_determinism_passed"] = True
     args.result.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
     print(json.dumps({"checkpoint_roundtrip": result["checkpoint_roundtrip"], "hard_route_determinism": result["hard_route_determinism"]}, indent=2))
     return 0 if passed else 1
