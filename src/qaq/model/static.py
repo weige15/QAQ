@@ -14,7 +14,7 @@ DOCS = ROOT / "docs"
 ANY_PRECISION_ROOT = ROOT / "third_party" / "any-precision-llm"
 PINNED_ANY_PRECISION_COMMIT = "a3257d02740cc5757c78673da534b0630ff3a4ea"
 MODEL_REVISION = "1cfa9a7208912126459214e8b04321603b3df60c"
-TARGET_PRECISIONS = (4, 8)
+TARGET_PRECISIONS = (4, 6, 8)
 
 
 def expected_target_names() -> list[str]:
@@ -120,8 +120,12 @@ def _replace_module(root: Any, name: str, replacement: Any) -> None:
 
 
 def set_static_precision(model: Any, precision: int) -> None:
-    if precision not in TARGET_PRECISIONS:
-        raise ValueError(f"unsupported S03 precision: {precision}")
+    if (
+        isinstance(precision, bool)
+        or not isinstance(precision, int)
+        or precision not in TARGET_PRECISIONS
+    ):
+        raise ValueError(f"unsupported static precision: {precision}")
     for module in model.modules():
         if module.__class__.__name__ == "AnyPrecisionLinear":
             module.set_precision(precision)
