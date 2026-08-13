@@ -777,3 +777,39 @@ execution evidence.
 inclusive LUT contract, preserve this evidence and add a new decision after a
 fresh source/artifact review; do not silently broaden the public static set or
 modify router candidates.
+
+### D039 — S07C-EVIDENCE-005 direct hard-route round trip (2026-08-14)
+
+**Decision:** Treat a hard-route checkpoint round trip as valid only when the
+original `evaluation.hard.route_logs` keyed map
+`(request_id, layer, unit_type) -> hard_bit` matches the route selected by
+fresh hard execution in `QaqRequestState.attention_routes` and
+`QaqRequestState.ffn_routes`. Keep the existing probability and soft-derived
+`hard_bit` comparison as separate weaker evidence.
+
+**Evidence:** The repaired verifier checked the required checkpoint SHA-256
+`08bf646f19759c0d7949e159bdbe4f96bbea737204b96f8760d205c8d6fd1949` before
+model/data execution. For `validation-3` and `validation-1000`, recorded and
+actual coverage were each exactly 36 attention plus 36 FFN routes (72 per
+request), with exact attention matches `72/72`, FFN matches `72/72`, total
+matches `144/144`, no missing/unexpected/duplicate/invalid keys, and mismatch
+count `0`. Repeated actual route maps and selected precisions matched,
+repeated hard logits were bitwise equal, logits were finite, and the packed
+student remained unchanged. The focused regression proves that a deliberately
+altered hard record fails this direct assertion even when soft probabilities
+and soft-derived bits still match.
+
+**Historical boundary:** The old verifier established probability equality
+and soft-derived hard-bit equality after reload; it did not establish this
+actual-execution invariant. This entry records the repair and does not rewrite
+the earlier S07-B evidence.
+
+**Consequence:** S07C-EVIDENCE-005 is resolved with CONTINUE. No router
+training, router-semantic change, six-bit routing, objective change, or S10-B
+execution is part of this evidence repair. The next action is **Begin S10-B:
+Three-Way Router Semantics.**
+
+**Reversal path:** If a future route representation, candidate ordering, hard
+execution path, or checkpoint format changes, preserve this S07C evidence and
+reopen the gate with a new keyed actual-execution comparison before carrying
+the result forward.

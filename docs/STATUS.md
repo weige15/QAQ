@@ -168,6 +168,54 @@ Result artifact: `docs/results/s07_router_training.json`.
 
 Passing corrected D008-1 evidence commit: `33631f5`.
 
+## S07C-EVIDENCE-005 — hard-route checkpoint round-trip evidence repair
+
+Status: RESOLVED — CONTINUE.
+
+The previous fresh-process verifier proved checkpoint reload, probability
+equality, and equality of a `hard_bit` recomputed from reloaded soft
+probabilities against the recorded soft route logs. It did not prove that the
+route actually selected by hard execution matched the original S07-B hard
+route record. This repair adds that missing invariant without changing router
+semantics, the `[4, 8]` candidate ordering, training data, objective,
+checkpoint, or any router parameters.
+
+The new comparison builds the expected keyed map
+`(request_id, layer, unit_type) -> hard_bit` from
+`evaluation.hard.route_logs` and compares it with the routes selected during
+fresh-process `hard_once()` execution from
+`QaqRequestState.attention_routes[layer]` and
+`QaqRequestState.ffn_routes[layer]`. It rejects missing or unexpected keys,
+duplicate keys, `None` or unsupported precisions, layer/unit mismatches, and
+coverage other than exactly 36 attention plus 36 FFN routes (72 total) per
+request. The weaker soft-derived comparison remains separately named in the
+result artifact as `soft_derived_hard_route_comparison`.
+
+Exact verification command from the repository root (the isolated worktree
+used its absolute worktree-root equivalent for `cd projects/QAQ`):
+
+```text
+source ~/.venv/bin/activate
+which python
+python --version
+nvidia-smi
+PYTHONPATH=src:third_party/any-precision-llm python scripts/verify_s07b_roundtrip.py --device cuda:3 --result docs/results/s07_router_training.json
+```
+
+Measured result in `docs/results/s07_router_training.json`: checkpoint
+SHA-256 `08bf646f19759c0d7949e159bdbe4f96bbea737204b96f8760d205c8d6fd1949`
+matched the required identity; both validation requests had complete keyed
+coverage of 36 attention and 36 FFN recorded/actual routes; exact matches
+were attention `72/72`, FFN `72/72`, total `144/144`; mismatch count was `0`;
+probabilities and soft-derived bits matched; repeated actual route maps and
+selected precisions matched; repeated hard logits were bitwise equal; logits
+were finite; and packed-student invariants remained unchanged. The focused
+regression passed `1`, existing S07 checkpoint/round-trip tests passed `9`,
+and the relevant S06/S07 structural router suite passed `9`.
+
+No S07-B training or retraining occurred. S10-B was not started; the next
+action is **Begin S10-B: Three-Way Router Semantics.**
+
 S08-A evidence:
 - The implementation subdivision S08-A established a synchronous loader for
   one concrete request state and retained no process-global request cache.
@@ -340,4 +388,5 @@ checkpoint, and S06/S07 structural suites passed as recorded in
 `docs/stages/S10_6BIT_ROUTING.md`. Router semantics remain 4/8; no 6-bit
 routing stage was started.
 
-Next action: Await separate instruction for the next 6-bit routing stage.
+Next action: S07C-EVIDENCE-005 is resolved; await separate instruction before
+beginning S10-B, the next 6-bit routing stage.

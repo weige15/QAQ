@@ -30,10 +30,71 @@
     "sha256": "08bf646f19759c0d7949e159bdbe4f96bbea737204b96f8760d205c8d6fd1949"
   },
   "checkpoint_roundtrip": {
+    "checkpoint_identity_match": true,
+    "checkpoint_sha256": "08bf646f19759c0d7949e159bdbe4f96bbea737204b96f8760d205c8d6fd1949",
+    "expected_checkpoint_sha256": "08bf646f19759c0d7949e159bdbe4f96bbea737204b96f8760d205c8d6fd1949",
+    "finite_logits": true,
     "fresh_process": true,
+    "hard_route_comparison": {
+      "actual_coverage": {
+        "validation-1000": {
+          "actual": 72,
+          "attention": 36,
+          "complete": true,
+          "expected": 72,
+          "ffn": 36
+        },
+        "validation-3": {
+          "actual": 72,
+          "attention": 36,
+          "complete": true,
+          "expected": 72,
+          "ffn": 36
+        }
+      },
+      "actual_missing_keys": [],
+      "actual_source": "QaqRequestState.attention_routes and QaqRequestState.ffn_routes",
+      "actual_unexpected_keys": [],
+      "candidate_ordering": [
+        4,
+        8
+      ],
+      "duplicate_keys": [],
+      "exact_attention_matches": 72,
+      "exact_ffn_matches": 72,
+      "exact_route_matches": 144,
+      "expected_requests": 2,
+      "expected_route_count": 144,
+      "expected_routes_per_request": 72,
+      "expected_source": "evaluation.hard.route_logs",
+      "invalid_precision_keys": [],
+      "mismatch_count": 0,
+      "mismatches": [],
+      "passed": true,
+      "recorded_coverage": {
+        "validation-1000": {
+          "attention": 36,
+          "complete": true,
+          "expected": 72,
+          "ffn": 36,
+          "recorded": 72
+        },
+        "validation-3": {
+          "attention": 36,
+          "complete": true,
+          "expected": 72,
+          "ffn": 36,
+          "recorded": 72
+        }
+      },
+      "recorded_missing_keys": [],
+      "recorded_unexpected_keys": [],
+      "source": "direct actual hard execution comparison"
+    },
     "hard_routes_match_recorded_result": true,
     "passed": true,
     "probabilities_match_recorded_result": true,
+    "soft_derived_hard_bits_match_recorded_result": true,
     "unchanged_packed_student": true
   },
   "commands": {
@@ -4398,6 +4459,7 @@
     "trainable_parameter_count": 23620752
   },
   "hard_route_determinism": {
+    "finite_logits": true,
     "fixed_subset_count": 2,
     "logits_identical_on_repeat": true,
     "passed": true,
@@ -4420,6 +4482,14 @@
     "prior_run_gate": "REVISE"
   },
   "scope": "S07-B only; exactly one corrected D008-1 router-distillation run; no S08 loading",
+  "soft_derived_hard_route_comparison": {
+    "hard_bits_match_recorded_result": true,
+    "passed": true,
+    "probabilities_match_recorded_result": true,
+    "reference_source": "evaluation.soft.route_logs",
+    "route_count": 144,
+    "source": "reloaded soft probabilities passed through hard_route"
+  },
   "source_model": {
     "any_precision_revision": "a3257d02740cc5757c78673da534b0630ff3a4ea",
     "packed_student_checkpoint": "quantized/s03b_qwen3_4b/backend_cache/packed/anyprec-(1cfa9a7208912126459214e8b04321603b3df60c)-w8_orig4-gc1-c4_s1_blk64",
