@@ -2,7 +2,7 @@ import hashlib
 
 import numpy as np
 
-from qaq.s01_backend import load_pinned_backend
+from qaq.quantization.backend import load_pinned_backend
 
 
 def test_pinned_nested_quantizer_shares_parent_labels_but_changes_luts():

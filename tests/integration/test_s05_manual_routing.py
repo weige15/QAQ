@@ -3,8 +3,8 @@ from __future__ import annotations
 import pytest
 
 from qaq.model.request_state import QaqRequestState
-from qaq.s03_static import run_static_smoke
-from qaq.s04_manual import LAYER_COUNT, PrecisionPlan, PrecisionTrace
+from qaq.model.static import run_static_smoke
+from qaq.model.manual import LAYER_COUNT, PrecisionPlan, PrecisionTrace
 
 
 @pytest.mark.parametrize("bits", [4, 8])

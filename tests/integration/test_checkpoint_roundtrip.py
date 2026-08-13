@@ -4,7 +4,7 @@ import hashlib
 
 import torch
 
-from qaq.s03_static import load_static_model, run_static_smoke, smoke_inputs, source_commit
+from qaq.model.static import load_static_model, run_static_smoke, smoke_inputs, source_commit
 
 
 def _sha256(path):

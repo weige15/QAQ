@@ -7,14 +7,14 @@ import torch
 from torch import nn
 
 from qaq.model.request_state import QaqRequestState
-from qaq.s04_manual import (
+from qaq.model.manual import (
     ATTENTION_PROJECTIONS,
     FFN_PROJECTIONS,
     ManualRoutedQwen3ForCausalLM,
     _RoutedPackedLinear,
 )
-from qaq.s06_soft import SoftRoutedQwen3ForCausalLM
-from qaq.s07_distillation import (
+from qaq.router.soft_model import SoftRoutedQwen3ForCausalLM
+from qaq.router.distillation import (
     CAUSAL_TARGET_IGNORE_INDEX,
     DistillationBatch,
     DistillationExample,

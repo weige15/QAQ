@@ -31,9 +31,9 @@ def main() -> int:
     from transformers import AutoTokenizer
 
     from qaq.model.request_state import QaqRequestState
-    from qaq.s04_manual import PrecisionTrace
-    from qaq.s06_soft import load_soft_model
-    from qaq.s07_distillation import RouterCheckpointMetadata, hard_route, load_router_checkpoint
+    from qaq.model.manual import PrecisionTrace
+    from qaq.router.soft_model import load_soft_model
+    from qaq.router.distillation import RouterCheckpointMetadata, hard_route, load_router_checkpoint
 
     result = json.loads(args.result.read_text())
     manifest = json.loads((ROOT / "docs/quantized_model_manifest.json").read_text())

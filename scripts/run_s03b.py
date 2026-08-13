@@ -16,7 +16,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from qaq.s03_static import (
+from qaq.model.static import (
     MODEL_REVISION,
     PINNED_ANY_PRECISION_COMMIT,
     assert_target_invariant,

@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from qaq.model.request_state import QaqRequestState
-from qaq.s07_distillation import (
+from qaq.router.distillation import (
     DistillationBatch,
     DistillationExample,
     RouteLogCollector,
@@ -274,7 +274,7 @@ def _train(
     torch: Any,
 ) -> tuple[list[dict[str, Any]], dict[str, Any], dict[str, str], dict[str, str]]:
     from qaq.router.network import trainable_parameter_audit
-    from qaq.s07_distillation import build_router_optimizer, masked_kl_distillation_loss
+    from qaq.router.distillation import build_router_optimizer, masked_kl_distillation_loss
 
     for parameter in student.base.parameters():
         parameter.requires_grad_(False)
@@ -350,8 +350,8 @@ def _train(
 def _eval_mode(
     teacher_targets: dict[str, Any], student: Any, examples: list[Any], mode: str, torch: Any
 ) -> tuple[dict[str, Any], list[Any], list[Any]]:
-    from qaq.s04_manual import PrecisionPlan, PrecisionTrace
-    from qaq.s07_distillation import hard_route, masked_kl_distillation_loss
+    from qaq.model.manual import PrecisionPlan, PrecisionTrace
+    from qaq.router.distillation import hard_route, masked_kl_distillation_loss
 
     records = []
     per_example = []
@@ -483,10 +483,10 @@ def main() -> int:
     from datasets import load_dataset
     from transformers import AutoTokenizer
 
-    from qaq.s03_quality import load_full_precision_model
-    from qaq.s03_static import PINNED_ANY_PRECISION_COMMIT, load_manifest, source_commit
-    from qaq.s06_soft import load_soft_model
-    from qaq.s07_distillation import (
+    from qaq.evaluation.quality import load_full_precision_model
+    from qaq.model.static import PINNED_ANY_PRECISION_COMMIT, load_manifest, source_commit
+    from qaq.router.soft_model import load_soft_model
+    from qaq.router.distillation import (
         RouterCheckpointMetadata,
         freeze_teacher_and_packed_student,
         save_router_checkpoint,
@@ -581,7 +581,7 @@ def main() -> int:
         training_step=len(history),
         training_step_metadata={"seed": config["dataset"]["seed"], "format": config["format"]},
     )
-    optimizer_for_checkpoint, _ = __import__("qaq.s07_distillation", fromlist=["build_router_optimizer"]).build_router_optimizer(
+    optimizer_for_checkpoint, _ = __import__("qaq.router.distillation", fromlist=["build_router_optimizer"]).build_router_optimizer(
         student, lr=float(config["training"]["learning_rate"]), optimizer_cls=torch.optim.AdamW, weight_decay=0.0
     )
     save_router_checkpoint(args.checkpoint, student.routers, checkpoint_metadata, optimizer=optimizer_for_checkpoint)

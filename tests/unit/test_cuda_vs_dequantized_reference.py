@@ -1,4 +1,4 @@
-from qaq.s01_backend import assert_matches_reference, build_case, require_cuda
+from qaq.quantization.backend import assert_matches_reference, build_case, require_cuda
 
 
 def test_packed_cuda_matches_pinned_dequantized_reference_at_both_precisions():

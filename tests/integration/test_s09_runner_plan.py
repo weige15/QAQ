@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from qaq import s09_runner as runner
+from qaq.evaluation import runner
 
 ROOT = Path(__file__).resolve().parents[2]
 

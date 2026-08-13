@@ -3,7 +3,7 @@ import importlib
 import numpy as np
 
 from qaq.quantization.reference_codec import pack
-from qaq.s01_backend import ANY_PRECISION_ROOT, load_pinned_backend
+from qaq.quantization.backend import ANY_PRECISION_ROOT, load_pinned_backend
 
 
 def _pinned_pack(codes):

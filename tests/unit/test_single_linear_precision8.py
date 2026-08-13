@@ -1,4 +1,4 @@
-from qaq.s01_backend import (
+from qaq.quantization.backend import (
     QWEIGHT_DTYPE,
     K,
     M,

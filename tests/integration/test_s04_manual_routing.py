@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import pytest
 
-from qaq.s03_static import run_static_smoke, tensor_sha256
-from qaq.s04_manual import (
+from qaq.model.static import run_static_smoke, tensor_sha256
+from qaq.model.manual import (
     LAYER_COUNT,
     PrecisionPlan,
     PrecisionTrace,

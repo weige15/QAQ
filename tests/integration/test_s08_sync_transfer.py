@@ -4,8 +4,8 @@ import pytest
 import torch
 
 from qaq.model.request_state import QaqRequestState
-from qaq.s01_backend import build_case, packed_output
-from qaq.s08_loader import PackedLinearSource, SynchronousPackedPlaneLoader
+from qaq.quantization.backend import build_case, packed_output
+from qaq.loading.loader import PackedLinearSource, SynchronousPackedPlaneLoader
 
 
 def _loader(case, request_id: str):

@@ -8,15 +8,15 @@ from typing import Any
 import torch
 from torch import nn
 
-from .model.request_state import QaqRequestState
-from .router.network import (
+from ..model.request_state import QaqRequestState
+from .network import (
     ROUTER_HIDDEN_WIDTH,
     ROUTER_TEMPERATURE,
     SoftPrecisionRouter,
     router_parameter_count,
     trainable_parameter_audit,
 )
-from .s04_manual import LAYER_COUNT, PrecisionTrace, load_manual_model
+from ..model.manual import LAYER_COUNT, PrecisionTrace, load_manual_model
 
 
 class SoftRoutedQwen3ForCausalLM(nn.Module):

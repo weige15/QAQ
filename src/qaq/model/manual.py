@@ -16,16 +16,16 @@ from typing import Any, ClassVar
 import torch
 from torch import nn
 
-from .model.request_state import QaqRequestState
-from .router.features import (
+from .request_state import QaqRequestState
+from ..router.features import (
     coerce_manual_policy,
     masked_mean_pool,
     validate_policy_result,
     validate_prompt_mask,
 )
-from .router.soft_linear import mix_packed_outputs
-from .s03_static import assert_target_invariant, load_static_model
-from .s08_loader import (
+from ..router.soft_linear import mix_packed_outputs
+from .static import assert_target_invariant, load_static_model
+from ..loading.loader import (
     PackedLinearSource,
     SynchronousPackedRequest,
     execute_packed_linear,

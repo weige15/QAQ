@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from qaq.s03_quality import generate_fixed, read_prompt_file
+from qaq.evaluation.quality import generate_fixed, read_prompt_file
 
 ROOT = Path(__file__).resolve().parents[2]
 

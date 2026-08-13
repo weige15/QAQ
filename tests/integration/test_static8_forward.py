@@ -1,4 +1,4 @@
-from qaq.s03_static import run_static_smoke
+from qaq.model.static import run_static_smoke
 
 
 def test_static_eight_bit_forward_is_finite_and_deterministic(static_case, manifest):

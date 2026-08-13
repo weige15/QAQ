@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from qaq.s03_quality import read_prompt_file, run_logits, set_static_precision, tokenize_prompt
+from qaq.evaluation.quality import read_prompt_file, run_logits, set_static_precision, tokenize_prompt
 
 ROOT = Path(__file__).resolve().parents[2]
 

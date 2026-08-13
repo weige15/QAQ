@@ -1,4 +1,4 @@
-"""Small S01 adapter and deterministic evidence helpers for Any-Precision.
+"""Pinned Any-Precision adapter and deterministic backend evidence helpers.
 
 The adapter intentionally delegates packing, dequantization, and CUDA matmul to
 the pinned Any-Precision source.  Synthetic packing below is test-only: it
@@ -19,7 +19,7 @@ from typing import Any
 import numpy as np
 import torch
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
 ANY_PRECISION_ROOT = PROJECT_ROOT / "third_party" / "any-precision-llm"
 PINNED_ANY_PRECISION_COMMIT = "a3257d02740cc5757c78673da534b0630ff3a4ea"
 

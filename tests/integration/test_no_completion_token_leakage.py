@@ -1,7 +1,7 @@
 import torch
 
 from qaq.model.request_state import QaqRequestState
-from qaq.s04_manual import PrecisionTrace, _select_request_route
+from qaq.model.manual import PrecisionTrace, _select_request_route
 
 
 def test_completion_steps_cannot_change_prompt_features_or_routes():

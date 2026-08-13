@@ -45,7 +45,7 @@ def static_case(artifact):
     if not torch.cuda.is_available():
         pytest.skip("S03-B static integration tests require CUDA")
     device = os.environ.get("QAQ_MODEL_DEVICE", "cuda:3")
-    from qaq.s03_static import load_static_model, smoke_inputs
+    from qaq.model.static import load_static_model, smoke_inputs
 
     model = load_static_model(artifact, device)
     inputs, _ = smoke_inputs(artifact, device)
@@ -59,8 +59,8 @@ def manual_case(artifact):
     if not torch.cuda.is_available():
         pytest.skip("S04/S05 manual routing integration tests require CUDA")
     device = os.environ.get("QAQ_MODEL_DEVICE", "cuda:3")
-    from qaq.s03_static import smoke_inputs
-    from qaq.s04_manual import load_manual_model
+    from qaq.model.static import smoke_inputs
+    from qaq.model.manual import load_manual_model
 
     model = load_manual_model(artifact, device)
     inputs, _ = smoke_inputs(artifact, device)

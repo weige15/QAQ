@@ -4,9 +4,9 @@ import torch
 
 from qaq.model.request_state import QaqRequestState
 from qaq.router.soft_linear import SoftPackedLinear
-from qaq.s01_backend import build_case, packed_output
-from qaq.s03_static import run_static_smoke
-from qaq.s04_manual import PrecisionTrace
+from qaq.quantization.backend import build_case, packed_output
+from qaq.model.static import run_static_smoke
+from qaq.model.manual import PrecisionTrace
 
 
 def test_real_packed_soft_endpoints_match_pinned_4_and_8_bit_paths():

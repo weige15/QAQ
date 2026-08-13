@@ -7,7 +7,7 @@ import torch
 from torch import nn
 
 from qaq.router.network import SoftPrecisionRouter
-from qaq.s07_distillation import (
+from qaq.router.distillation import (
     CAUSAL_TARGET_IGNORE_INDEX,
     DistillationExample,
     ExecutionInputs,

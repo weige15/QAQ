@@ -20,8 +20,8 @@ The source PDFs under `papers/` are preserved project material and must not be m
 - `docs/` — plan, decisions, source inventory, bit-plane contract, experiment plan, and stage gates.
 - `.pi/prompts/` — reusable stage, review, and gate instructions.
 - `configs/` — reserved for explicit, versioned configuration.
-- `src/qaq/` — implementation package scaffold.
-- `tests/` — unit, integration, and system test scaffolds.
+- `src/qaq/` — implementation package, organized by reusable model, router, quantization, loading, and evaluation concerns.
+- `tests/` — unit, integration, and system test scaffolds.\n- Reusable implementation modules live under `qaq/model/`, `qaq/router/`, `qaq/quantization/`, `qaq/loading/`, and `qaq/evaluation/`; stage-era paths are not part of the active import surface.
 - `scripts/` — reproducible project scripts.
 - `third_party/` — pinned external source or integration material.
 

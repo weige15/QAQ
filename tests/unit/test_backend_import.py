@@ -1,6 +1,6 @@
 import inspect
 
-from qaq.s01_backend import load_pinned_backend, require_cuda
+from qaq.quantization.backend import load_pinned_backend, require_cuda
 
 
 def test_pinned_backend_import_and_constructor_contract():

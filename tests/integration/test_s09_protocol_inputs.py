@@ -7,7 +7,7 @@ from types import SimpleNamespace
 import pytest
 import torch
 
-from qaq.s03_quality import evaluate_perplexity, select_token_windows
+from qaq.evaluation.quality import evaluate_perplexity, select_token_windows
 from scripts.validate_s09_protocol import validate_protocol_payload
 
 ROOT = Path(__file__).resolve().parents[2]

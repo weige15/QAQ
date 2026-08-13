@@ -8,7 +8,7 @@ import torch
 from torch import nn
 
 from qaq.model.request_state import QaqRequestState
-from qaq.s08_loader import (
+from qaq.loading.loader import (
     PackedLinearSource,
     SynchronousPackedPlaneLoader,
     execute_packed_linear,

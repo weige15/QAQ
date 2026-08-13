@@ -10,7 +10,7 @@ from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
-from .s03_static import MODEL_REVISION, set_static_precision, tensor_sha256
+from ..model.static import MODEL_REVISION, set_static_precision, tensor_sha256
 
 REFERENCE_PROMPT = "QAQ full-precision smoke test."
 PROMPT_MAX_LENGTH = 128

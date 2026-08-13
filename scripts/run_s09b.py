@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "src"))
 
-from qaq.s09_runner import (
+from qaq.evaluation.runner import (
     DEFAULT_CONFIG,
     DEFAULT_RESULTS,
     S09RunnerError,

@@ -1,6 +1,6 @@
 import torch
 
-from qaq.s01_backend import (
+from qaq.quantization.backend import (
     build_case,
     dequantized_reference,
     packed_output,

@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 from qaq.quantization.reference_codec import pack, unpack
-from qaq.s01_backend import load_pinned_backend
+from qaq.quantization.backend import load_pinned_backend
 
 
 def test_aligned_width_is_supported_without_padding():

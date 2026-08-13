@@ -14,8 +14,8 @@ from functools import lru_cache
 
 import torch
 
-from .model.request_state import QaqRequestState
-from .s03_static import ANY_PRECISION_ROOT, source_commit
+from ..model.request_state import QaqRequestState
+from ..model.static import ANY_PRECISION_ROOT, source_commit
 
 SUPPORTED_BITS = (4, 8)
 PARENT_PLANES = 8

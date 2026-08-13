@@ -3,7 +3,7 @@ from types import SimpleNamespace
 import pytest
 import torch
 
-from qaq.s03_quality import evaluate_perplexity
+from qaq.evaluation.quality import evaluate_perplexity
 
 
 class ConstantTargetModel:

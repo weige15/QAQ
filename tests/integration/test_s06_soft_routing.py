@@ -4,14 +4,14 @@ import torch
 from torch import nn
 
 from qaq.model.request_state import QaqRequestState
-from qaq.s04_manual import (
+from qaq.model.manual import (
     ATTENTION_PROJECTIONS,
     FFN_PROJECTIONS,
     ManualRoutedQwen3ForCausalLM,
     PrecisionTrace,
     _RoutedPackedLinear,
 )
-from qaq.s06_soft import SoftRoutedQwen3ForCausalLM
+from qaq.router.soft_model import SoftRoutedQwen3ForCausalLM
 
 
 class _DistinctPrecisionLinear(nn.Module):

@@ -23,7 +23,7 @@ from pathlib import Path
 from statistics import median
 from typing import Any
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_CONFIG = ROOT / "configs" / "s09_baseline_eval.json"
 DEFAULT_PROMPTS = ROOT / "configs" / "s09_baseline_prompts.json"
 DEFAULT_RESULTS = ROOT / "docs" / "results" / "s09b"
@@ -98,7 +98,7 @@ def resolve_modes(config: dict[str, Any]) -> list[dict[str, Any]]:
 
 def frozen_perplexity_arguments(config: dict[str, Any]) -> dict[str, Any]:
     section = config["perplexity"]
-    expected = {"sample_count": 32, "sequence_length": 128, "source_window_length": 129, "stride": 128, "evaluated_token_count": 4096, "labels": "window[1:] aligned with logits from window[:-1]", "evaluator": "qaq.s03_quality.build_perplexity_windows + qaq.s03_quality.evaluate_perplexity"}
+    expected = {"sample_count": 32, "sequence_length": 128, "source_window_length": 129, "stride": 128, "evaluated_token_count": 4096, "labels": "window[1:] aligned with logits from window[:-1]", "evaluator": section["evaluator"]}
     for key, value in expected.items():
         if section.get(key) != value:
             raise S09RunnerError(f"S09 perplexity adapter drift: {key}")
@@ -646,7 +646,7 @@ def _fixed_tensor(torch: Any, request: dict[str, Any], device: str) -> Any:
 
 
 def _routed_policy(student: Any) -> Callable[[int, str, Any], int]:
-    from qaq.s07_distillation import hard_route
+    from qaq.router.distillation import hard_route
 
     def policy(layer: int, unit_type: str, feature: Any) -> int:
         return int(hard_route(student.route(layer, unit_type, feature)))
@@ -656,7 +656,7 @@ def _routed_policy(student: Any) -> Callable[[int, str, Any], int]:
 
 def _routed_forward(student: Any, request_id: str, input_ids: Any, prompt_length: int, device: str, *, use_cache: bool = False, past_key_values: Any = None, phase: str = "prefill", context: Any = None, state: Any = None) -> tuple[Any, Any, Any]:
     from qaq.model.request_state import QaqRequestState
-    from qaq.s04_manual import PrecisionTrace
+    from qaq.model.manual import PrecisionTrace
 
     if state is None:
         state = QaqRequestState(request_id, prompt_length=prompt_length, layer_count=36)
@@ -718,8 +718,8 @@ def _perplexity_adapter(model: Any, mode_id: str, device: str) -> Any:
 def _load_mode(mode: dict[str, Any], config: dict[str, Any], device: str) -> tuple[Any, Any | None, dict[str, Any]]:
     from transformers import AutoTokenizer
 
-    from qaq.s03_quality import load_full_precision_model
-    from qaq.s03_static import load_manifest, load_static_model
+    from qaq.evaluation.quality import load_full_precision_model
+    from qaq.model.static import load_manifest, load_static_model
 
     manifest = load_manifest(ROOT / "docs/quantized_model_manifest.json")
     artifact = ROOT / config["identities"]["packed_artifact"]["relative_path"]
@@ -729,12 +729,12 @@ def _load_mode(mode: dict[str, Any], config: dict[str, Any], device: str) -> tup
         return load_full_precision_model(snapshot, device), tokenizer, manifest
     if mode["id"] in (EXPECTED_MODE_IDS[1], EXPECTED_MODE_IDS[2]):
         model = load_static_model(artifact, device)
-        from qaq.s03_static import set_static_precision
+        from qaq.model.static import set_static_precision
         set_static_precision(model, int(mode["precision"][0]) if isinstance(mode["precision"], str) else int(mode["precision"]))
         return model, tokenizer, manifest
-    from qaq.s04_manual import load_on_demand_model
-    from qaq.s06_soft import SoftRoutedQwen3ForCausalLM, load_soft_model
-    from qaq.s07_distillation import RouterCheckpointMetadata, load_router_checkpoint
+    from qaq.model.manual import load_on_demand_model
+    from qaq.router.soft_model import SoftRoutedQwen3ForCausalLM, load_soft_model
+    from qaq.router.distillation import RouterCheckpointMetadata, load_router_checkpoint
     if mode["loader"] == "resident":
         student = load_soft_model(artifact, device)
     else:
@@ -852,8 +852,8 @@ def execute_mode(config_path: Path, mode_id: str, output_path: Path, device: str
     import torch
     import transformers
 
-    from qaq.s03_quality import build_perplexity_windows, evaluate_perplexity
-    from qaq.s03_static import file_sha256, source_commit
+    from qaq.evaluation.quality import build_perplexity_windows, evaluate_perplexity
+    from qaq.model.static import file_sha256, source_commit
 
     if not torch.cuda.is_available():
         raise S09RunnerError("PAUSE: CUDA is unavailable")

@@ -12,7 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from qaq.s03_quality import (
+from qaq.evaluation.quality import (
     REFERENCE_PROMPT,
     build_perplexity_windows,
     capture_full_precision_prompt_set,
@@ -24,7 +24,7 @@ from qaq.s03_quality import (
     read_prompt_file,
     unload_model,
 )
-from qaq.s03_static import (
+from qaq.model.static import (
     MODEL_REVISION,
     PINNED_ANY_PRECISION_COMMIT,
     assert_target_invariant,
@@ -108,7 +108,7 @@ def main() -> int:
     static_generation = {}
     static_memory = {}
     for precision in (4, 8):
-        from qaq.s03_static import set_static_precision
+        from qaq.model.static import set_static_precision
 
         torch.cuda.reset_peak_memory_stats(torch.device(args.device))
         set_static_precision(static_model, precision)

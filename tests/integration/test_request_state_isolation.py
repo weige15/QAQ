@@ -1,7 +1,7 @@
 import torch
 
 from qaq.model.request_state import QaqRequestState
-from qaq.s04_manual import PrecisionTrace, _select_request_route
+from qaq.model.manual import PrecisionTrace, _select_request_route
 
 
 def test_interleaved_request_states_do_not_share_features_or_routes():

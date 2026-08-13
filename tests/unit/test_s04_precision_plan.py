@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from qaq.s04_manual import LAYER_COUNT, PrecisionPlan
+from qaq.model.manual import LAYER_COUNT, PrecisionPlan
 
 
 def test_precision_plan_is_immutable_and_round_trips_deterministically():

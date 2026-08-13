@@ -1,7 +1,7 @@
 import torch
 
 from qaq.model.request_state import QaqRequestState
-from qaq.s04_manual import PrecisionTrace, _select_request_route
+from qaq.model.manual import PrecisionTrace, _select_request_route
 
 
 def test_decode_reuses_each_prefill_route_without_policy_calls():

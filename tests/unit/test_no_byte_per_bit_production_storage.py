@@ -1,6 +1,6 @@
 import torch
 
-from qaq.s01_backend import QWEIGHT_DTYPE, K, N, build_case, require_cuda
+from qaq.quantization.backend import QWEIGHT_DTYPE, K, N, build_case, require_cuda
 
 
 def test_production_facing_qweight_uses_int32_packed_planes():

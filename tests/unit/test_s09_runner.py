@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from qaq import s09_runner as runner
+from qaq.evaluation import runner
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -69,7 +69,7 @@ def _fixture(mode_id: str, config: dict, prompts: dict, config_hash: str, *, ppl
         "fixed_inputs": {"request_ids": [item["id"] for item in requests], "input_digests": {item["id"]: item["input_ids_sha256"] for item in requests}},
         "perplexity": {
             "setup": {
-                "evaluator": "qaq.s03_quality.build_perplexity_windows + qaq.s03_quality.evaluate_perplexity",
+                "evaluator": config["perplexity"]["evaluator"],
                 "dataset": "Salesforce/wikitext",
                 "config": "wikitext-2-raw-v1",
                 "revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
@@ -182,7 +182,7 @@ def test_environment_guard_and_frozen_config_are_explicit(monkeypatch):
         "stride": 128,
         "evaluated_token_count": 4096,
         "labels": "window[1:] aligned with logits from window[:-1]",
-        "evaluator": "qaq.s03_quality.build_perplexity_windows + qaq.s03_quality.evaluate_perplexity",
+        "evaluator": config["perplexity"]["evaluator"],
     }
     assert runner.frozen_generation_arguments(config) == {"batch_size": 1, "do_sample": False, "num_beams": 1, "max_new_tokens": 8}
     assert runner.frozen_latency_repeats(config) == 5
@@ -374,10 +374,10 @@ def test_on_demand_execute_mode_serializes_measured_cleanup_without_keyerror(tmp
     monkeypatch.setattr(torch.cuda, "is_available", lambda: True)
     monkeypatch.setattr(torch.cuda, "set_device", lambda device: None)
     monkeypatch.setattr(torch.cuda, "empty_cache", lambda: None)
-    monkeypatch.setattr("qaq.s03_static.source_commit", lambda: runner.ANY_PRECISION_REVISION)
-    monkeypatch.setattr("qaq.s03_static.file_sha256", lambda path: config["identities"]["router"]["sha256"] if str(path) == str(checkpoint) else config["identities"]["packed_artifact"]["sha256"])
-    monkeypatch.setattr("qaq.s03_quality.build_perplexity_windows", lambda tokenizer, sample_count, stride: ([], {**setup, "sample_count": 32, "sequence_length": 128, "source_window_length": 129, "stride": 128, "evaluated_token_count": 4096}))
-    monkeypatch.setattr("qaq.s03_quality.evaluate_perplexity", lambda model, windows, device: {"mean_negative_log_likelihood": 1.0, "perplexity": 2.0, "evaluated_token_count": 4096})
+    monkeypatch.setattr("qaq.model.static.source_commit", lambda: runner.ANY_PRECISION_REVISION)
+    monkeypatch.setattr("qaq.model.static.file_sha256", lambda path: config["identities"]["router"]["sha256"] if str(path) == str(checkpoint) else config["identities"]["packed_artifact"]["sha256"])
+    monkeypatch.setattr("qaq.evaluation.quality.build_perplexity_windows", lambda tokenizer, sample_count, stride: ([], {**setup, "sample_count": 32, "sequence_length": 128, "source_window_length": 129, "stride": 128, "evaluated_token_count": 4096}))
+    monkeypatch.setattr("qaq.evaluation.quality.evaluate_perplexity", lambda model, windows, device: {"mean_negative_log_likelihood": 1.0, "perplexity": 2.0, "evaluated_token_count": 4096})
     monkeypatch.setattr("transformers.__version__", "fixture")
     monkeypatch.setattr(torch.cuda, "manual_seed_all", lambda seed: None)
 

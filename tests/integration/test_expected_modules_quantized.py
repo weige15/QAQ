@@ -1,4 +1,4 @@
-from qaq.s03_static import assert_target_invariant
+from qaq.model.static import assert_target_invariant
 
 
 def test_exact_verified_quantized_target_set(checkpoint, manifest):

@@ -34,8 +34,8 @@ ARTIFACT = Path(
     )
 ).resolve()
 CODE_PATHS = (
-    Path("src/qaq/s04_manual.py"),
-    Path("src/qaq/s08_loader.py"),
+    Path("src/qaq/model/manual.py"),
+    Path("src/qaq/loading/loader.py"),
     Path("scripts/run_s08b.py"),
     Path("tests/integration/test_s08_real_hard_routed.py"),
 )
@@ -109,7 +109,7 @@ def _load_examples() -> list[Any]:
 
 
 def _checkpoint_metadata(manifest: dict[str, Any], router: Any) -> Any:
-    from qaq.s07_distillation import RouterCheckpointMetadata
+    from qaq.router.distillation import RouterCheckpointMetadata
 
     return RouterCheckpointMetadata(
         model_repository="Qwen/Qwen3-4B",
@@ -133,9 +133,9 @@ def _checkpoint_metadata(manifest: dict[str, Any], router: Any) -> Any:
 
 
 def _load_student(mode: str) -> Any:
-    from qaq.s04_manual import load_on_demand_model
-    from qaq.s06_soft import SoftRoutedQwen3ForCausalLM, load_soft_model
-    from qaq.s07_distillation import load_router_checkpoint
+    from qaq.model.manual import load_on_demand_model
+    from qaq.router.soft_model import SoftRoutedQwen3ForCausalLM, load_soft_model
+    from qaq.router.distillation import load_router_checkpoint
 
     manifest = json.loads((ROOT / "docs/quantized_model_manifest.json").read_text())
     if mode == "resident":
@@ -152,7 +152,7 @@ def _load_student(mode: str) -> Any:
 
 
 def _policy(student: Any):
-    from qaq.s07_distillation import hard_route
+    from qaq.router.distillation import hard_route
 
     def choose(layer: int, unit_type: str, feature: torch.Tensor) -> int:
         return int(hard_route(student.route(layer, unit_type, feature)))
@@ -175,7 +175,7 @@ def _context_for(student: Any, example: Any, request_id: str):
 
 
 def _hard_forward(student: Any, example: Any, *, request_id: str, input_ids: torch.Tensor, use_cache: bool):
-    from qaq.s04_manual import PrecisionTrace
+    from qaq.model.manual import PrecisionTrace
 
     state, context = _context_for(student, example, request_id)
     attention_mask = torch.ones_like(input_ids, dtype=torch.bool)
@@ -300,7 +300,7 @@ def _transfer_summary(context: Any, route_map: list[dict[str, Any]], *, prefill_
 def _generation(student: Any, example: Any, *, request_id: str, steps: int = 4) -> dict[str, Any]:
     prompt = example.input_ids[:32].unsqueeze(0).to(DEVICE)
     state, context = _context_for(student, example, request_id)
-    from qaq.s04_manual import PrecisionTrace
+    from qaq.model.manual import PrecisionTrace
 
     prefill_trace = PrecisionTrace()
     output = student.base(
@@ -450,7 +450,7 @@ def _measure(mode: str, examples: list[Any], repeats: int) -> dict[str, Any]:
         pre_allocated = int(torch.cuda.memory_allocated(device))
         pre_reserved = int(torch.cuda.memory_reserved(device))
         state, context = _context_for(student, example, f"{mode}-measured-{repeat}")
-        trace = __import__("qaq.s04_manual", fromlist=["PrecisionTrace"]).PrecisionTrace()
+        trace = __import__("qaq.model.manual", fromlist=["PrecisionTrace"]).PrecisionTrace()
         start = time.perf_counter()
         prefill_start = time.perf_counter()
         output = student.base(

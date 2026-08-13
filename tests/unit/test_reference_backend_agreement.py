@@ -2,7 +2,7 @@ import numpy as np
 import torch
 
 from qaq.quantization.reference_codec import pack, reconstruct
-from qaq.s01_backend import load_pinned_backend, require_cuda
+from qaq.quantization.backend import load_pinned_backend, require_cuda
 
 
 def test_reference_reconstruction_matches_pinned_dequantization_for_4_and_8_bits():
