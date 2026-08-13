@@ -29,7 +29,7 @@ Unspecified details must not be silently filled in.
 
 ### D003 — Supported routes
 
-**Choice:** Initially support only 4-bit and 8-bit routes.
+**Choice:** Initially support only 4-bit and 8-bit router candidates.
 **Status:** Baseline scope.
 **Source basis:** Implementation scope choice; not asserted as a limitation of the papers.
 
@@ -742,3 +742,38 @@ changes the masks/byte permutation, or if a supported grouped/padded format is
 introduced, preserve this contract and add a new dated decision with new
 known-word, reconstruction, serialization, and byte-count evidence before
 changing the format version.
+
+### D038 — S10-A static six-bit gate (2026-08-13)
+
+**Choice:** Expose exactly `(4, 6, 8)` from `qaq.model.static` while retaining
+the pinned Any-Precision constructor's inclusive 4–8 internal buffers. Static
+precision 6 uses the existing parent `qweight[:6]` and the artifact's existing
+`lut6`; no artifact regeneration, separate six-bit qweight, dense persistent
+weight, router change, or new routing behavior is introduced.
+
+**Evidence:** The identity-matched Qwen3 artifact contains all 252 expected
+parent qweights as `[8,N,K//32]` `torch.int32`, all 252 finite `torch.float16`
+LUT6 tensors with `[N,64]` shape, and 141,557,760 LUT6 bytes. A real
+representative precision-6 CUDA call on pinned Any-Precision commit
+`a3257d02740cc5757c78673da534b0630ff3a4ea` matched the pinned dequantizer plus
+FP16 matmul at the established `atol=0.05`, `rtol=0.01` tolerance and was
+bitwise deterministic. Full-model static precision-6 smoke, existing 4/8
+static paths, target inventory, duplicate-model, S06, and S07 structural
+regressions passed.
+
+**Alternatives considered:** Adding a six-bit router candidate was rejected as
+out of scope for S10-A and would alter the frozen 4/8 router semantics.
+Regenerating or requantizing the nested artifact was rejected because the
+existing LUT6 state is already identity-matched and verified. Adding a dense
+6-bit reconstruction as module state was rejected because it would violate the
+packed-storage baseline boundary.
+
+**Consequence:** Static model callers may select only 4, 6, or 8 and invalid
+values fail before module dispatch. The next 6-bit routing stage must make a
+separate decision about routing semantics and must preserve this static
+execution evidence.
+
+**Reversal path:** If a future pinned backend or artifact format changes the
+inclusive LUT contract, preserve this evidence and add a new decision after a
+fresh source/artifact review; do not silently broaden the public static set or
+modify router candidates.
