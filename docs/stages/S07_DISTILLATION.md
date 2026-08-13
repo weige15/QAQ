@@ -179,6 +179,17 @@ Engineering gate: **CONTINUE**. Query-adaptivity demonstrated: **NO**.
 The existing classification remains `OTHER` and is non-blocking under this
 S07 gate. No S08 work was started.
 
+## S07C-EVIDENCE-005 — hard-route checkpoint round-trip repair
+
+This evidence repair is resolved with **CONTINUE**. The decision and exact
+direct actual-route comparison are owned by
+[`D039`](../DECISIONS.md#d039--s07c-evidence-005-direct-hard-route-round-trip);
+the machine-readable evidence is recorded in
+[`docs/results/s07_router_training.json`](../results/s07_router_training.json),
+and the current status and next action remain owned by
+[`docs/STATUS.md`](../STATUS.md). No router training, router-semantic change,
+six-bit routing, or S10-B execution was part of this repair.
+
 ## Goal
 
 Train the router from a full-precision teacher using the documented baseline objective and evaluate deterministic hard routes.

@@ -341,7 +341,9 @@ def _verify_checkpoint_identity(result: dict[str, Any], result_path: Path) -> st
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--device", default="cuda:3")
-    parser.add_argument("--result", type=Path, default=ROOT / "docs/results/s07_router_training.json")
+    parser.add_argument(
+        "--result", type=Path, default=ROOT / "docs/results/s07_router_training.json"
+    )
     args = parser.parse_args()
     if not str(Path.home() / ".venv") in str(Path(sys.executable).parent):
         raise SystemExit("PAUSE: ~/.venv is not active")
@@ -399,7 +401,9 @@ def main() -> int:
     stored_hard_logs = result["evaluation"]["hard"]["route_logs"]
 
     def soft_once(example):
-        state = QaqRequestState(example.example_id, int(example.prompt_mask().sum()), layer_count=36)
+        state = QaqRequestState(
+            example.example_id, int(example.prompt_mask().sum()), layer_count=36
+        )
         with torch.no_grad():
             output = student(
                 **run_s07b._model_kwargs(example),
@@ -412,7 +416,9 @@ def main() -> int:
         return output.logits.detach(), records
 
     def hard_once(example):
-        state = QaqRequestState(example.example_id, int(example.prompt_mask().sum()), layer_count=36)
+        state = QaqRequestState(
+            example.example_id, int(example.prompt_mask().sum()), layer_count=36
+        )
 
         def policy(layer, unit_type, feature):
             return int(hard_route(student.route(layer, unit_type, feature)))
@@ -552,7 +558,15 @@ def main() -> int:
         result["stage_gate"]["checkpoint_roundtrip_passed"] = True
         result["stage_gate"]["hard_route_determinism_passed"] = True
     args.result.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
-    print(json.dumps({"checkpoint_roundtrip": result["checkpoint_roundtrip"], "hard_route_determinism": result["hard_route_determinism"]}, indent=2))
+    print(
+        json.dumps(
+            {
+                "checkpoint_roundtrip": result["checkpoint_roundtrip"],
+                "hard_route_determinism": result["hard_route_determinism"],
+            },
+            indent=2,
+        )
+    )
     return 0 if passed else 1
 
 

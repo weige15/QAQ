@@ -388,4 +388,5 @@ checkpoint, and S06/S07 structural suites passed as recorded in
 `docs/stages/S10_6BIT_ROUTING.md`. Router semantics remain 4/8; no 6-bit
 routing stage was started.
 
-Next action: Await separate instruction for the next 6-bit routing stage.
+Next action: S07C-EVIDENCE-005 is resolved; await separate instruction before
+beginning S10-B, the next 6-bit routing stage.
