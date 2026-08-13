@@ -310,3 +310,34 @@ decision before implementing any optimization or additional research mechanism.
 
 Current stage: S09
 Status: COMPLETE
+
+## S10-A — static six-bit execution
+
+Current stage: S10-A
+Status: COMPLETE
+
+Gate outcome: CONTINUE.
+
+S10-A is complete on implementation commit
+`b7300e1621f9c5d2ac5c8c9e1b0c01fb092f6426`. The existing identity-matched
+Qwen3 artifact remains at
+`quantized/s03b_qwen3_4b/backend_cache/packed/anyprec-(1cfa9a7208912126459214e8b04321603b3df60c)-w8_orig4-gc1-c4_s1_blk64`
+with recorded model hash
+`29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee`.
+All 252 targets retain one `[8,N,K//32]` `torch.int32` parent qweight;
+LUT6 inventory is 252 finite `torch.float16` `[N,64]` tensors totaling
+141,557,760 bytes, and the selected six-plane payload is 2,724,986,880
+bytes. The pinned Any-Precision submodule is clean at
+`a3257d02740cc5757c78673da534b0630ff3a4ea`.
+
+Real precision-6 backend execution matched the pinned dequantizer/reference
+under `atol=0.05`, `rtol=0.01` (`max_abs_error=0.015625`), was bitwise
+deterministic, and had no persistent dense weight. Full Qwen3 static-6 smoke
+returned finite `[1,8,151936]` logits with deterministic digest
+`4e0856454ebab64588183a1e72acc2fc34ffea68d82c590526624edd804e3390`.
+Unit, S10-A integration, existing static 4/8/inventory/duplicate/byte/
+checkpoint, and S06/S07 structural suites passed as recorded in
+`docs/stages/S10_6BIT_ROUTING.md`. Router semantics remain 4/8; no 6-bit
+routing stage was started.
+
+Next action: Await separate instruction for the next 6-bit routing stage.
