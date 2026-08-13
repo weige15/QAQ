@@ -8,6 +8,12 @@ nested Qwen3 4→8 artifact. The implementation change is limited to
 The pinned Any-Precision source, artifact, router source, request loading,
 hard routing, router checkpoints, and S09 evidence were not changed.
 
+The artifact-backed results below are the recorded implementation-gate
+evidence. The current isolated validation worktree does not contain the
+ignored artifact, so its focused integration rerun skips as recorded in
+[`doc/debug-report.md`](../../doc/debug-report.md); no artifact was regenerated
+or substituted.
+
 ## Sources, identity, and artifact inventory
 
 The authoritative S09 closeout establishes S01–S08 complete and S09 frozen and
@@ -94,7 +100,7 @@ The precision-6 smoke was repeated bitwise deterministically. Existing static
 4-bit and 8-bit forward, checkpoint, target-inventory, duplicate-model, and
 physical-byte regressions also passed.
 
-## Validation commands
+## Recorded validation commands
 
 Every command was preceded by the mandated `~/.venv` activation, interpreter
 check, and successful `nvidia-smi` check. `PYTHONPATH=src:.` was used where

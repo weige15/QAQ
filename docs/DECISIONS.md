@@ -29,7 +29,7 @@ Unspecified details must not be silently filled in.
 
 ### D003 — Supported routes
 
-**Choice:** Initially support only 4-bit and 8-bit routes.
+**Choice:** Initially support only 4-bit and 8-bit router candidates.
 **Status:** Baseline scope.
 **Source basis:** Implementation scope choice; not asserted as a limitation of the papers.
 

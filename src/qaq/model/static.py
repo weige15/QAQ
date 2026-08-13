@@ -45,11 +45,7 @@ def mapping_target_names() -> list[str]:
         "mlp.up_proj",
         "mlp.down_proj",
     )
-    return [
-        f"model.layers.{layer}.{path}"
-        for layer in range(36)
-        for path in relative
-    ]
+    return [f"model.layers.{layer}.{path}" for layer in range(36) for path in relative]
 
 
 def assert_target_invariant() -> list[str]:
@@ -150,7 +146,9 @@ def load_static_model(artifact: str | os.PathLike[str], device: str):
     model = AutoModelForCausalLM.from_config(
         config=config, torch_dtype=torch.float16, trust_remote_code=False
     )
-    supported_bits = list(range(config.anyprec["seed_precision"], config.anyprec["parent_precision"] + 1))
+    supported_bits = list(
+        range(config.anyprec["seed_precision"], config.anyprec["parent_precision"] + 1)
+    )
     target_names = assert_target_invariant()
     for name in target_names:
         module = dict(model.named_modules())[name]
@@ -164,7 +162,9 @@ def load_static_model(artifact: str | os.PathLike[str], device: str):
         )
         _replace_module(model, name, replacement)
 
-    checkpoint = torch.load(artifact_path / "pytorch_model.bin", map_location="cpu", weights_only=False)
+    checkpoint = torch.load(
+        artifact_path / "pytorch_model.bin", map_location="cpu", weights_only=False
+    )
     missing, unexpected = model.load_state_dict(checkpoint, strict=False)
     if missing or unexpected:
         raise ValueError(f"checkpoint graph mismatch: missing={missing}, unexpected={unexpected}")
@@ -176,14 +176,14 @@ def load_static_model(artifact: str | os.PathLike[str], device: str):
 def smoke_inputs(artifact: str | os.PathLike[str], device: str):
     from transformers import AutoTokenizer
 
-    tokenizer = AutoTokenizer.from_pretrained(
-        str(Path(artifact).resolve()), local_files_only=True
-    )
+    tokenizer = AutoTokenizer.from_pretrained(str(Path(artifact).resolve()), local_files_only=True)
     encoded = tokenizer("QAQ full-precision smoke test.", return_tensors="pt")
     return {key: value.to(device) for key, value in encoded.items()}, tokenizer
 
 
-def run_static_smoke(model: Any, inputs: dict[str, Any], precision: int, torch: Any) -> dict[str, Any]:
+def run_static_smoke(
+    model: Any, inputs: dict[str, Any], precision: int, torch: Any
+) -> dict[str, Any]:
     set_static_precision(model, precision)
     torch.cuda.reset_peak_memory_stats(inputs["input_ids"].device)
     with torch.inference_mode():
@@ -197,6 +197,8 @@ def run_static_smoke(model: Any, inputs: dict[str, Any], precision: int, torch: 
         "finite_values": bool(torch.isfinite(logits).all().item()),
         "logits_sha256": tensor_sha256(logits.float()),
         "selected_logits": [float(value) for value in logits[0, -1, :8].float().cpu()],
-        "peak_allocated_gpu_bytes": int(torch.cuda.max_memory_allocated(inputs["input_ids"].device)),
+        "peak_allocated_gpu_bytes": int(
+            torch.cuda.max_memory_allocated(inputs["input_ids"].device)
+        ),
         "logits": logits,
     }

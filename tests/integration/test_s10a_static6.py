@@ -9,7 +9,9 @@ from qaq.model.static import add_pinned_backend_to_path, assert_target_invariant
 
 
 def _quantized_modules(model):
-    return [module for module in model.modules() if module.__class__.__name__ == "AnyPrecisionLinear"]
+    return [
+        module for module in model.modules() if module.__class__.__name__ == "AnyPrecisionLinear"
+    ]
 
 
 def test_real_artifact_has_finite_lut6_and_shared_parent_accounting(checkpoint, manifest):
@@ -63,9 +65,9 @@ def test_real_pinned_precision6_execution_matches_dequantized_reference(checkpoi
         linear.qweight.copy_(qweight.to(device))
         linear.lut6.copy_(lut6.to(device))
     generator = torch.Generator(device="cpu").manual_seed(1729)
-    inputs = torch.randn(
-        (4, qweight.shape[2] * 32), generator=generator, dtype=torch.float32
-    ).to(device=device, dtype=torch.float16)
+    inputs = torch.randn((4, qweight.shape[2] * 32), generator=generator, dtype=torch.float32).to(
+        device=device, dtype=torch.float16
+    )
 
     with torch.no_grad():
         actual = linear(inputs, precision=6)

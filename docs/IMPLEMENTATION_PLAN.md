@@ -22,12 +22,13 @@ Unresolved questions remain unresolved until a stage produces evidence.
 8. S07 — Distill the router from a full-precision teacher and evaluate hard routes.
 9. S08 — Add synchronous on-demand loading of selected packed planes.
 10. S09 — Compare modes and freeze the reproducible baseline.
+11. S10-A — Enable static 6-bit execution.
 
 No stage may begin automatically. A stage stops at its decision gate and updates `docs/STATUS.md` before handoff.
 
 ## Initial implementation choices
 
-The decision ledger in `docs/DECISIONS.md` is authoritative for the initial choices, including the upstream Any-Precision starting point, the 4/8-bit scope, unit-level routing, BF16/FP16 non-quantized components, prompt feature construction, distillation objective, hard routing, synchronous request-scoped loading, batch-size-one scope, and baseline freeze boundaries.
+The decision ledger in `docs/DECISIONS.md` is authoritative for the initial choices, including the upstream Any-Precision starting point, the initial 4/8-bit router candidate scope, unit-level routing, BF16/FP16 non-quantized components, prompt feature construction, distillation objective, hard routing, synchronous request-scoped loading, batch-size-one scope, and baseline freeze boundaries.
 
 ## Comparative evaluation at S09
 
