@@ -9,10 +9,10 @@ The pinned Any-Precision source, artifact, router source, request loading,
 hard routing, router checkpoints, and S09 evidence were not changed.
 
 The artifact-backed results below are the recorded implementation-gate
-evidence. The current isolated validation worktree does not contain the
-ignored artifact, so its focused integration rerun skips as recorded in
-[`doc/debug-report.md`](../../doc/debug-report.md); no artifact was regenerated
-or substituted.
+evidence. The exact identity-matched S03-B artifact was authorized read-only
+from the original QAQ worktree through `QAQ_S03_ARTIFACT`, and its
+`pytorch_model.bin` SHA-256 was verified. The focused integration and
+preservation reruns passed; no artifact was regenerated or substituted.
 
 ## Sources, identity, and artifact inventory
 
@@ -110,10 +110,13 @@ needed to avoid an ambient unrelated `scripts` package on `PYTHONPATH`.
 PYTHONPATH=src:. pytest -q tests/unit
 110 passed
 
-QAQ_MODEL_DEVICE=cuda:0 pytest -q tests/integration/test_s10a_static6.py
+PYTHONPATH=src:third_party/any-precision-llm:. \
+  QAQ_S03_ARTIFACT=<identity-matched S03-B artifact> \
+  QAQ_MODEL_DEVICE=cuda:0 pytest -q tests/integration/test_s10a_static6.py
 3 passed in 221.42s
 
-PYTHONPATH=src:. QAQ_MODEL_DEVICE=cuda:0 pytest -q \
+PYTHONPATH=src:. QAQ_S03_ARTIFACT=<identity-matched S03-B artifact> \
+  QAQ_MODEL_DEVICE=cuda:0 pytest -q \
   tests/integration/test_static4_forward.py \
   tests/integration/test_static8_forward.py \
   tests/integration/test_expected_modules_quantized.py \
