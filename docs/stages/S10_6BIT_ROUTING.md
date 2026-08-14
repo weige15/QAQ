@@ -260,5 +260,64 @@ support is claimed. The packed artifact, Any-Precision source, S07/S09 results,
 and historical S07 checkpoint were not modified. No quality, latency, memory,
 transfer, or routing-quality evaluation was performed.
 
-**Next action:** Begin S10-C: define and validate the cost-aware 4/6/8 router
-objective. This document records the next action only; S10-C was not started.
+**Historical next action:** Begin S10-C: define and validate the cost-aware
+4/6/8 router objective. The completed S10-C gate is recorded below.
+
+## S10-C — Cost-aware 4/6/8 router objective
+
+**Gate: CONTINUE.** S10-C adds reusable objective composition primitives only;
+it does not train or retrain a router and does not select a production cost
+coefficient.
+
+### Established facts and implementation choice
+
+S07's established training objective remains completion-only teacher-student
+`T^2 * masked KL(teacher || student)`. `masked_kl_distillation_loss()` is
+unchanged and remains the sole KD implementation. S10-B establishes explicit
+learned-router orderings `(4, 8)` and `(4, 6, 8)`, with the three-way order
+`[p4, p6, p8]`, and all 72 attention/FFN routing units expose differentiable
+probabilities. S10-C records the implementation choice to add a normalized
+bit-plane-count surrogate as a composable auxiliary term. Its reduction is an
+unweighted arithmetic mean over every included attention and FFN decision;
+this is not measured hardware weighting.
+
+For an explicit candidate tuple, the normalized candidate cost is:
+
+```text
+c(bit) = (bit - 4) / (8 - 4)
+C(p) = sum_b p_b * c(b)
+L_bit = mean_r C(p_r)
+L_total = L_KD + lambda_bit * L_bit
+```
+
+The cost vectors are `[0.0, 0.5, 1.0]` for `(4, 6, 8)` and `[0.0, 1.0]`
+for historical `(4, 8)`. The implementation constructs this vector from the
+explicit ordering, never from vector length. For three-way routing,
+`expected_bit_width = 4 + 4 * L_bit` is a diagnostic relationship only.
+`expected_bit_cost()`, `mean_expected_bit_cost()`,
+`request_state_expected_bit_cost()`, and
+`cost_aware_distillation_loss()` keep the probability tensors attached to
+autograd. Request-state aggregation includes each stored attention and FFN
+probability exactly once and gives every decision equal weight.
+
+`lambda_bit` is validated as numeric, finite, non-negative, and not boolean.
+Zero is the optional backwards-compatible default and returns the KD scalar
+unchanged, including equivalent KD gradients. A clearly labeled positive
+lambda is used only in tests to verify `4 < 6 < 8` objective ordering and
+cost-gradient pressure away from an 8-bit-dominant softmax toward lower-cost
+alternatives. No nonzero production lambda is established.
+
+Candidate validation remains restricted to `(4, 6, 8)` and historical `(4, 8)`;
+5-bit, 7-bit, reordered, malformed, non-finite, negative, wrongly shaped, or
+non-unit-sum probabilities are rejected. This objective is a normalized
+bit-plane-count surrogate, not a claim about latency, memory, transfer,
+energy, kernel runtime, or any other hardware cost.
+
+Focused S10-C tests cover exact endpoint and mixed/uniform costs, historical
+scaling, bounded finite aggregation, explicit ordering and probability/weight
+validation, expected-width diagnostics, positive test-only lambda ordering,
+lambda-zero scalar and gradient compatibility, 8-bit-dominant softmax
+pressure, complete request-state aggregation with gradients, finite combined
+gradients, and frozen-state preservation. Existing S07 and S10-B regression
+suites remain required; no artifact-backed Qwen3 execution is needed for this
+objective-only stage.

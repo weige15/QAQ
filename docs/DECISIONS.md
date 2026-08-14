@@ -853,3 +853,43 @@ historical callers and the S07 checkpoint remain 4/8-compatible. No S08
 **Reversal path:** If a future candidate set, checkpoint schema, or packed
 loading boundary changes, add a new stage decision with fresh compatibility and
 artifact-backed evidence rather than widening this validator implicitly.
+
+### D041 — S10-C normalized cost-aware router objective (2026-08-14)
+
+**Implementation choice:** Compose the unchanged S07 completion-only masked KL
+loss with an optional normalized bit-plane-count surrogate. For explicit
+candidate ordering, use `c(bit) = (bit - 4) / (8 - 4)`, compute
+`C(p) = sum_b p_b*c(b)`, and reduce `L_bit` as an unweighted arithmetic mean
+across every included attention and FFN routing decision. The supported cost
+vectors are `[0.0, 0.5, 1.0]` for `(4, 6, 8)` and `[0.0, 1.0]` for historical
+`(4, 8)`; expected three-way width is the diagnostic `4 + 4*L_bit`.
+
+**Source/project-established facts:** S07 establishes the KL-only objective;
+S10-B establishes explicit `(4, 8)` and `(4, 6, 8)` ordering and differentiable
+probability outputs for all 72 learned units. No cost coefficient was
+established elsewhere. The new term is an implementation choice, not a paper
+claim or measured hardware cost.
+
+**Compatibility choice:** `lambda_bit` is validated as finite, numeric,
+non-negative, and non-boolean. Its default is zero for backwards-compatible
+KD scalar and gradient behavior; no nonzero production value is selected. The
+request-state aggregator preserves the probability autograd graph and counts
+each attention and FFN slot exactly once. Invalid candidate orderings,
+probability shapes/values, and weights are rejected explicitly.
+
+**Alternatives rejected:** Modifying or duplicating `masked_kl_distillation_loss`,
+selecting a production lambda, sweeping lambda, weighting by measured
+hardware, adding route quotas, entropy or exploration terms, or adding any
+latency/memory/transfer/energy/kernel objective were outside S10-C.
+
+**Evidence:** Focused S10-C unit tests passed exact endpoint, historical,
+mixed/uniform, boundedness, validation, width, positive test-only lambda,
+lambda-zero scalar/gradient, 8-bit gradient-pressure, request-state
+aggregation, finite-gradient, and frozen-state checks. No training,
+checkpoint generation, artifact-backed Qwen3 execution, S08 loader change,
+Any-Precision change, or historical-result rewrite occurred.
+
+**Reversal path:** If a future caller needs a different candidate set, cost
+scale, weighting, production coefficient, or hardware objective, preserve this
+normalized baseline and record a new decision before changing the composition
+API or training path.
