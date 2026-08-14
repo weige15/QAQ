@@ -478,3 +478,122 @@ reintroduced values. They are lightweight configuration tests and execute no
 experiment. S10-E stops after this freeze; the next action after a passing
 commit is **Begin S10-F: execute the frozen three-seed frontier confirmation
 protocol.**
+
+## S10-F — Frozen three-seed frontier confirmation
+
+**Worker classification: REVISE.** The canonical matrix completed all nine
+ordered trials, but a runner audit defect invalidated the gate evidence after
+execution. No trial was repaired or rerun.
+
+### Exact execution and identities
+
+The run used implementation base
+`7fc136eabdba302e199354ae001cd1e1cd42199f`, the merged S10-E commit, rather
+than the historical `required_starting_commit` retained in the frozen config.
+The frozen config remained byte-identical at SHA-256
+`fe5ff8826f17605ca8b2dc7d83555e858d3d9f5fa67d14b49bb09b7cbf66a879`.
+All trials used one explicit `cuda:0` NVIDIA GeForce RTX 3090. The pinned
+Qwen3-4B model and tokenizer revision was
+`1cfa9a7208912126459214e8b04321603b3df60c`; the Wikitext revision was
+`b08601e04326c79dfdd32d625aee71d232d685c3`; the packed artifact SHA-256 was
+`29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee`; and
+the Any-Precision revision was `a3257d02740cc5757c78673da534b0630ff3a4ea`.
+The artifact and backend source were read-only explicit overrides because the
+disposable worktree's gitlink was uninitialized; neither was copied or
+modified.
+
+The exact ordered matrix was, for each seed in `[1729,1730,1731]`, lambdas
+`[0.0,0.03,0.1]`: nine pairs total. Each seed used one fresh canonical
+three-way router state cloned identically across lambdas, a fresh AdamW, and
+exactly four optimizer steps. The teacher and packed student base remained
+frozen, and no historical S07 checkpoint, static S10-D reference, S08 loader,
+adaptive lambda, or prohibited serving/resource measurement was used.
+
+### Observed evidence and gate values
+
+The result is `docs/results/s10f_frontier_confirmation.json`, SHA-256
+`d68f041e0a3dc32c465e8b8068ca3ab230d39253757e30f3019ca7e681b14233`. It
+contains all nine per-trial records, both exact 72-entry layer-major hard
+route maps for each validation ID, route variation, distinct-map counts,
+finite/freeze/base/optimizer fields, soft and hard metrics, and the one
+immediate same-state hard-validation reproducibility repeat per trial.
+
+Measured aggregates were:
+
+- `0.03` was on the hard KD/selected-width frontier in `2/3` seeds.
+- Paired hard KD delta median (`0.03 - 0.0`) was
+  `-0.004020056687295437`.
+- Paired hard selected-width delta median (`0.03 - 0.0`) was
+  `-0.16666666666666696`.
+- Reproducibility failures: `0`.
+- No invalid or degenerate collapse was observed; collapse labels were
+  `ADAPTIVE_OBSERVED` or `OTHER`.
+
+The generated artifact reports `REFINE` because its nine
+`router_only_optimizer_audit` and `fresh_adamw_audit` fields are `false`.
+This is a software defect in result interpretation: the inherited optimizer
+audit is a Python tuple `("routers.",)` while the runner compared it only to
+`["routers."]`. The raw audit simultaneously records fresh optimizer state,
+the `routers.` prefix, and the expected 23,630,040 router scalars. Because the
+defect could affect gate validity and was discovered after canonical trials,
+the worker classification is `REVISE`; all nine records are preserved but not
+treated as a valid CONTINUE gate.
+
+### Limitations and next action
+
+This is fixed four-example/four-step confirmation evidence only. It does not
+select a production lambda or checkpoint and does not authorize broader
+validation. Firstmate must resolve the runner audit interpretation and decide
+what evidence policy applies; this task performs no repair or rerun.
+
+### S10-F audit repair and historical-evidence decision
+
+The repair preflight used `/nfs/home/s314511048/.venv/bin/python` with Python
+`3.12.3` and healthy RTX 3090 visibility. The original packed artifact hash
+remained `29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee`.
+The preserved result remained byte-identical at
+`d68f041e0a3dc32c465e8b8068ca3ab230d39253757e30f3019ca7e681b14233`.
+
+The smallest deterministic reproduction showed that the runner evaluated a
+tuple operand `("routers.",)` against a list operand `["routers."]`; contents
+match but Python equality is false. Existing parameter-identity auditing
+rejects missing router parameters, extra non-router parameters, and duplicate
+tensors. The S10-F repair normalizes only the prefix container before the
+exact one-prefix comparison and adds strict fresh-state classification. No
+S10-D, router, packed-artifact, Any-Precision, dataset, or frozen-config
+semantics changed.
+
+The repair tests passed `4`; the S10-E/S10-F focused suite passed `65`; the
+inherited regression selection passed `46`; Ruff passed for the changed
+Python files; and `git diff --check` passed. The original nine-trial result
+and all measured frontier values were not rewritten.
+
+Historical revalidation cannot take Branch A. For router membership, the
+preserved result has only per-trial prefix/count summaries and omits the
+included parameter names/identities, group membership, and duplicate audit.
+For fresh AdamW, it has only a boolean fresh-state field and no independent
+preserved optimizer-state snapshot. Neither audit therefore has sufficient
+preserved runtime evidence without inferring behavior from source/tests.
+The resulting primary outcome is **PAUSE / RERUN_REQUIRED**. No canonical
+training or evaluation rerun, extra trial, broader validation, production
+lambda selection, or success commit occurred; S10-F remains the current
+stage.
+
+### S10-F canonical rerun — CONTINUE
+
+Attempt 2 executed exactly the frozen nine ordered pairs on `cuda:0`, preserving
+attempt 1 at `docs/results/s10f_frontier_confirmation.json` with SHA-256
+`d68f041e0a3dc32c465e8b8068ca3ab230d39253757e30f3019ca7e681b14233`. The new
+artifact is `docs/results/s10f_frontier_confirmation_rerun.json`, SHA-256
+`b3bcc0e45d45852ac5060209c4789453ed452462f528f7bffd4cb80fb1ef58cb`.
+
+Every trial records expected and actual optimizer parameter counts and stable
+name digests, identity-based membership, missing/extra/duplicate counts,
+construction serial, zero state entries before training, and fresh AdamW
+status. All runtime, freeze, finite-value, four-step, route-map, and
+reproducibility audits passed. The frozen aggregates are `0.03` frontier `2/3`,
+paired hard KD median delta `-0.004020056687295437`, paired hard width median
+delta `-0.16666666666666696`, and zero reproducibility failures. Focused tests
+passed `65`, inherited regressions passed `46`, Ruff passed, and
+`git diff --check` passed. S10-F gate outcome: **CONTINUE**. No later stage,
+production lambda, or broader validation was started.

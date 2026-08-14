@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import itertools
 import json
 import math
 import os
@@ -61,6 +62,7 @@ DATASET_REVISION = "b08601e04326c79dfdd32d625aee71d232d685c3"
 CANDIDATE_BITS = S10_CANDIDATE_BITS
 LAYER_COUNT = 36
 MIN_FREE_GPU_BYTES = 20 * 1024**3
+_OPTIMIZER_CONSTRUCTION_SERIALS = itertools.count(1)
 LOCKED_CONFIG_SHA256 = "22649ec4cdafa7a8ff669f72c159c7fbfbaa33ecea50888a953301a8225bb5c1"
 
 
@@ -158,6 +160,51 @@ def fresh_router_optimizer(model: torch.nn.Module, config: dict[str, Any]):
 
 def _module_state_hash(module: torch.nn.Module) -> str:
     return router_state_hash(_state_snapshot(module.state_dict()))
+
+
+def _optimizer_runtime_evidence(
+    model: torch.nn.Module,
+    optimizer: torch.optim.Optimizer,
+    audit: Any,
+    construction_serial: int,
+) -> dict[str, Any]:
+    expected = [(name, parameter) for name, parameter in model.named_parameters() if name.startswith("routers.")]
+    expected_ids = {id(parameter) for _, parameter in expected}
+    actual_parameters = [
+        parameter for group in optimizer.param_groups for parameter in group["params"]
+    ]
+    actual_ids = [id(parameter) for parameter in actual_parameters]
+    expected_names = tuple(sorted(name for name, _ in expected))
+    actual_names = tuple(
+        sorted(name for name, parameter in expected if id(parameter) in set(actual_ids))
+    )
+    return {
+        "expected_router_parameter_count": len(expected),
+        "actual_optimizer_parameter_count": len(actual_parameters),
+        "expected_router_parameter_names_sha256": hashlib.sha256(
+            "\\n".join(expected_names).encode()
+        ).hexdigest(),
+        "actual_optimizer_parameter_names_sha256": hashlib.sha256(
+            "\\n".join(actual_names).encode()
+        ).hexdigest(),
+        "unexpected_optimizer_parameter_count": len(set(actual_ids) - expected_ids),
+        "missing_router_parameter_count": len(expected_ids - set(actual_ids)),
+        "duplicate_optimizer_parameter_count": len(actual_ids) - len(set(actual_ids)),
+        "runtime_identity_based_membership_result": (
+            len(actual_ids) == len(set(actual_ids)) and set(actual_ids) == expected_ids
+        ),
+        "expected_router_parameter_names": list(expected_names),
+        "actual_optimizer_parameter_names": list(actual_names),
+        "optimizer_construction_serial": construction_serial,
+        "optimizer_state_entry_count_before_first_step": len(optimizer.state),
+        "optimizer_state_entry_count_before_training_begins": len(optimizer.state),
+        "router_only_optimizer_audit": (
+            audit.included_name_prefixes == ("routers.",)
+            and len(actual_ids) == len(set(actual_ids))
+            and set(actual_ids) == expected_ids
+        ),
+        "fresh_adamw_audit": isinstance(optimizer, torch.optim.AdamW) and not optimizer.state,
+    }
 
 
 def _finite(value: torch.Tensor) -> bool:
@@ -710,6 +757,10 @@ def _run_trial(
 ) -> dict[str, Any]:
     initial_hash = restore_router_state(student.routers, canonical_state)
     optimizer, optimizer_audit = fresh_router_optimizer(student, config)
+    optimizer_construction_serial = next(_OPTIMIZER_CONSTRUCTION_SERIALS)
+    runtime_optimizer_evidence = _optimizer_runtime_evidence(
+        student, optimizer, optimizer_audit, optimizer_construction_serial
+    )
     if initial_hash != router_state_hash(canonical_state):
         raise RuntimeError("REVISE: lambda trial did not start from canonical router state")
     base_hash_before = _module_state_hash(student.base)
@@ -824,6 +875,7 @@ def _run_trial(
         "initial_router_state_sha256": initial_hash,
         "final_router_state_sha256": router_state_hash(router_only_state(student.routers)),
         "optimizer": optimizer_audit.to_dict(),
+        "runtime_optimizer_evidence": runtime_optimizer_evidence,
         "optimizer_state_was_fresh": True,
         "history": history,
         "gradient_diagnostic": gradient_diagnostic,

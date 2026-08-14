@@ -1,5 +1,5 @@
-Current stage: S10-E
-Status: COMPLETE
+Current stage: S10-F
+Status: PAUSE / RERUN_REQUIRED
 
 ## S09-A closeout — canonical validation gate
 
@@ -531,3 +531,86 @@ full training, adaptive extension, production lambda selection, or S10-F work
 was performed. No `scripts/run_s10e.py` exists.
 
 Next action: Begin S10-F: execute the frozen three-seed frontier confirmation protocol.
+
+## S10-F — Frozen three-seed frontier confirmation
+
+Status: REVISE. The exact nine ordered pairs completed on one explicit
+`cuda:0` NVIDIA GeForce RTX 3090 from merged implementation base
+`7fc136eabdba302e199354ae001cd1e1cd42199f`. The frozen S10-E config remained
+byte-identical (`fe5ff8826f17605ca8b2dc7d83555e858d3d9f5fa67d14b49bb09b7cbf66a879`).
+Pinned model/tokenizer, Wikitext, packed-artifact, and Any-Precision identities
+were verified; the packed artifact and backend were consumed through explicit
+read-only overrides. No S10-D static references, historical S07 checkpoint,
+S08 loader, adaptive lambda, production selection, or prohibited
+serving/resource measurement occurred.
+
+The canonical result is `docs/results/s10f_frontier_confirmation.json` with
+SHA-256 `d68f041e0a3dc32c465e8b8068ca3ab230d39253757e30f3019ca7e681b14233`.
+It records all nine trials, paired fresh initializations and AdamW audits,
+four steps per trial, finite/freeze/base audits, both 72-entry validation
+route maps, route variation, collapse labels, soft/hard metrics, and one
+immediate same-state hard-validation repeat per trial. Observed aggregates:
+`0.03` frontier membership `2/3`, paired hard KD delta median
+`-0.004020056687295437`, paired hard width delta median
+`-0.16666666666666696`, and reproducibility failures `0`.
+
+The runner falsely serialized `router_only_optimizer_audit` and
+`fresh_adamw_audit` as `false` for all nine trials by comparing the inherited
+Python tuple `("routers.",)` only to a list. Raw audit records show fresh state
+and the `routers.` prefix, but this post-trial defect can affect gate validity.
+The artifact's generated classification is `REFINE`; the worker classification
+is `REVISE`. All nine records are preserved, no repair or rerun was performed,
+and the next action is for firstmate to resolve the runner defect and evidence
+policy before any broader validation.
+
+### S10-F audit repair — PAUSE / RERUN_REQUIRED
+
+The captain-authorized repair began with the mandated preflight: Python was
+`/nfs/home/s314511048/.venv/bin/python` at version `3.12.3`, and `nvidia-smi`
+reported eight idle NVIDIA GeForce RTX 3090 GPUs. The original packed artifact
+hash matched `29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee`.
+The preserved S10-F result remained unchanged at its original SHA-256
+`d68f041e0a3dc32c465e8b8068ca3ab230d39253757e30f3019ca7e681b14233`.
+
+The repaired expression accepts the inherited tuple `("routers.",)` and the
+JSON list `["routers."]` as the same one-prefix audit, while retaining exact
+identity-based rejection of missing router parameters, extra non-router
+parameters, and duplicate tensors. Fresh AdamW coverage requires empty state
+before the first step and rejects a reused optimizer with state. The original
+REVISE outcome and all measured frontier values remain measured-original; the
+result JSON was not rewritten with repair-corrected fields.
+
+Historical evidence is insufficient for Branch A. The result preserves only
+per-trial prefix/count summaries and a fresh-state boolean, not the actual
+included parameter identities/names, group membership, duplicate audit, or an
+independent optimizer-state snapshot. Reclassifying either historical audit
+would infer runtime proof from source/tests, so the resulting primary outcome
+is `PAUSE / RERUN_REQUIRED`. No canonical training or evaluation rerun, extra
+trial, broader validation, production-lambda selection, or success commit was
+performed.
+
+Repair verification: the focused repair subset passed `4`; the S10-E/S10-F
+focused suite passed `65`; the inherited S10-F regression selection passed
+`46`; Ruff passed on the two changed Python files; and `git diff --check`
+passed.
+
+### S10-F canonical rerun — COMPLETE / CONTINUE
+
+Attempt 2 completed exactly the nine fresh ordered trials on the same explicit
+`cuda:0` RTX 3090 under the repaired optimizer audits. Attempt 1 remains at
+`docs/results/s10f_frontier_confirmation.json` with its original SHA-256
+`d68f041e0a3dc32c465e8b8068ca3ab230d39253757e30f3019ca7e681b14233`; it was
+not overwritten or used as attempt-2 evidence. The new artifact is
+`docs/results/s10f_frontier_confirmation_rerun.json` with SHA-256
+`b3bcc0e45d45852ac5060209c4789453ed452462f528f7bffd4cb80fb1ef58cb`.
+
+All runtime audits passed for every trial, including identity-based
+router-only membership, zero missing/extra/duplicate parameters, fresh AdamW
+construction serials with zero state before training, finite loss/gradients,
+teacher/base freeze, exact four-step budgets, and reproducibility repeats.
+The frozen aggregates are `0.03` frontier membership `2/3`, paired hard KD
+median delta `-0.004020056687295437`, paired hard selected-width median delta
+`-0.16666666666666696`, and zero reproducibility failures. Focused tests passed
+`65`, inherited regressions passed `46`, Ruff passed, and `git diff --check`
+passed. The S10-F gate outcome is **CONTINUE**; the next action is a
+separately scoped broader-validation decision, not execution here.

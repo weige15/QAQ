@@ -1006,3 +1006,123 @@ S10-F work is authorized here.
 **Reversal path:** If a later protocol review finds an identity, semantic, or
 gate defect, return S10-E to REVISE, preserve all S10-D historical evidence,
 and record a replacement decision before any confirmation execution.
+
+### D045 — S10-F frozen execution interpretations (2026-08-15)
+
+**Implementation choices made before canonical trials:** S10-F accepts only
+the byte-identical S10-E config and requires the merged S10-E implementation
+base `7fc136eabdba302e199354ae001cd1e1cd42199f` as an ancestor. The config's
+historical `required_starting_commit` remains provenance for the frozen
+protocol and is not used as the S10-F execution base.
+
+The S10-D diagnostic entropy base `2.0` is reused because S10-E inherits the
+S10-D route-statistics contract without restating that diagnostic value. The
+reproducibility audit is one immediate hard-validation repeat at the unchanged
+trained router state; it requires exact equality of both 72-entry validation
+route maps, hard summary metrics, and finite-output status, and performs no
+additional optimizer trial. This is the smallest repeat audit consistent with
+the established S07 deterministic hard-route precedent.
+
+The existing S10-D collapse labels are interpreted as follows: any
+`COLLAPSED_TO_4`, `COLLAPSED_TO_6`, or `COLLAPSED_TO_8` label is an invalid or
+degenerate collapse for this gate; `PROMPT_INVARIANT`, `ADAPTIVE_OBSERVED`, and
+`OTHER` remain observational labels and do not invalidate a trial. A hard
+frontier point is non-dominated on validation hard KD and selected width,
+with both axes lower-is-better and one strict improvement required for
+domination. The `0.03` versus `0.0` aggregate is computed within each seed
+before taking the median.
+
+The inherited regression requirement is an external pre-run evidence input to
+the runner; absent evidence is `PAUSE`, a failed inherited selection is
+`REVISE`, and a complete nine-trial matrix with a failed frozen result gate is
+`REFINE`. No static S10-D references, historical S07 two-way checkpoint,
+adaptive lambda, production selection, or prohibited serving/resource
+measurement is part of S10-F.
+
+### D046 — S10-F canonical execution invalidated by runner audit defect (2026-08-15)
+
+**Observed evidence:** The frozen nine-pair matrix completed on `cuda:0`,
+NVIDIA GeForce RTX 3090, from implementation base
+`7fc136eabdba302e199354ae001cd1e1cd42199f`, with the pinned model/tokenizer,
+dataset, packed artifact, and Any-Precision identities. The result artifact
+is `docs/results/s10f_frontier_confirmation.json` with SHA-256
+`d68f041e0a3dc32c465e8b8068ca3ab230d39253757e30f3019ca7e681b14233`.
+
+The measured aggregate values in that artifact are frontier membership for
+`0.03` in `2/3` seeds, paired hard KD delta median
+`-0.004020056687295437`, paired hard selected-width delta median
+`-0.16666666666666696`, and zero reproducibility failures. All finite,
+teacher-frozen, packed-base, route-map, collapse, and repeat observations were
+recorded. However, the runner compared the inherited optimizer audit's Python
+tuple `("routers.",)` only to a list, so all nine serialized
+`router_only_optimizer_audit` and `fresh_adamw_audit` fields were falsely
+recorded as `false`, despite the raw audit recording fresh state and the
+`routers.` prefix. The generated artifact therefore reports `REFINE`, but its
+gate evidence is invalidated by this implementation defect.
+
+**Decision:** Classify this completion as `REVISE`, preserve all nine raw trial
+records and their hashes, do not repair the runner or rerun any trial in this
+task, and do not authorize broader validation or production-lambda selection.
+
+### D047 — S10-F audit repair and historical evidence decision (2026-08-15)
+
+The original packed artifact preflight passed with SHA-256
+`29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee`. The
+preserved S10-F result remained byte-identical at SHA-256
+`d68f041e0a3dc32c465e8b8068ca3ab230d39253757e30f3019ca7e681b14233`.
+The exact defect was `optimizer["included_name_prefixes"] == ["routers."]`:
+the left operand was the tuple `("routers.",)` and the right operand was the
+list `["routers."]`; they have equal contents but Python semantic equality is
+false. The lower-level identity audit separately rejects missing router
+parameters, extra non-router parameters, and duplicate parameter tensors.
+
+The S10-F-only repair normalizes the accepted prefix container to a tuple
+before comparing it with the single exact `("routers.",)` prefix and requires
+the fresh-state observation to be the explicit boolean `True`. It does not
+change S10-D or router semantics. Regression coverage proves list/tuple
+representation equivalence, missing/extra/duplicate identity rejection,
+fresh AdamW empty state before its first step, and rejection of reused state.
+
+Historical revalidation is **Branch B: `PAUSE / RERUN_REQUIRED`**. The
+preserved per-trial result contains only `included_name_prefixes` and the
+router scalar count; it does not preserve included parameter names or
+parameter identities, group membership, or duplicate checks. It also records
+only a fresh-state boolean, not an independent preserved optimizer-state
+snapshot. Reclassifying either audit would therefore require inferring
+runtime proof from source behavior, which is not allowed. The measured
+frontier values and original result artifact remain unmodified; no repaired
+historical audit fields or CONTINUE gate are claimed. No canonical training,
+evaluation, extra trial, or broader validation rerun is authorized by this
+decision.
+
+### D048 — S10-F canonical rerun with runtime optimizer evidence (2026-08-15)
+
+**Choice:** Execute one fresh attempt-2 nine-trial S10-F matrix after adding
+observational optimizer evidence to the runner. The frozen protocol, seeds,
+lambdas, data, training budget, objective, routing, and GPU selection were
+unchanged. The instrumentation records identity-based membership, expected and
+actual parameter counts and name digests, missing/extra/duplicate counts,
+construction serials, and empty optimizer state before training; it does not
+alter optimizer behavior.
+
+**Evidence:** Attempt 2 completed all nine ordered trials on `cuda:0` with the
+pinned artifact hash `29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee`,
+model/tokenizer revision `1cfa9a7208912126459214e8b04321603b3df60c`, dataset
+revision `b08601e04326c79dfdd32d625aee71d232d685c3`, and Any-Precision revision
+`a3257d02740cc5757c78673da534b0630ff3a4ea`. Every runtime audit passed.
+The new result is `docs/results/s10f_frontier_confirmation_rerun.json` with
+SHA-256 `b3bcc0e45d45852ac5060209c4789453ed452462f528f7bffd4cb80fb1ef58cb`.
+Attempt 1 remains byte-identical at
+`d68f041e0a3dc32c465e8b8068ca3ab230d39253757e30f3019ca7e681b14233`.
+The frozen aggregates give `0.03` frontier membership `2/3`, paired hard KD
+median delta `-0.004020056687295437`, paired hard width median delta
+`-0.16666666666666696`, and zero reproducibility failures. Focused tests passed
+`65`, inherited regressions passed `46`, Ruff and `git diff --check` passed.
+
+**Consequence:** S10-F is **CONTINUE**. This authorizes only a separately
+scoped broader-validation decision; no production lambda or later stage was
+started.
+
+**Reversal path:** If any implementation or runtime audit identity changes,
+reopen S10-F and invalidate attempt 2 rather than interpreting the result as a
+valid confirmation.
