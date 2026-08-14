@@ -1,0 +1,205 @@
+{
+  "format": "qaq-s10e-frontier-confirmation-v1",
+  "stage": "S10-E",
+  "required_starting_commit": "e718f27fe6b02082709d65665396640e251e602c",
+  "protocol": {
+    "candidate_bits": [4, 6, 8],
+    "lambdas": [0.0, 0.03, 0.1],
+    "seeds": [1729, 1730, 1731],
+    "trial_count": 9,
+    "paired_control_lambda": 0.0,
+    "confirmation_lambda": 0.03,
+    "pairing": {
+      "one_canonical_fresh_three_way_router_initialization_per_seed": true,
+      "clone_canonical_initialization_identically_across_lambdas": true,
+      "fresh_adamw_per_lambda": true,
+      "same_lambda_order_per_seed": true,
+      "warm_start_allowed": false,
+      "historical_s07_two_way_checkpoint_loading_allowed": false,
+      "historical_s07_two_way_checkpoint_sha256": "08bf646f19759c0d7949e159bdbe4f96bbea737204b96f8760d205c8d6fd1949"
+    }
+  },
+  "inherited_s10d_contract": {
+    "dataset": {
+      "repository": "Salesforce/wikitext",
+      "config": "wikitext-2-raw-v1",
+      "revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+      "train_split": "train",
+      "validation_split": "validation",
+      "train_offsets": [0, 1000, 2000, 3000],
+      "validation_offsets": [0, 1000],
+      "train_example_ids": ["train-3", "train-1003", "train-2002", "train-3037"],
+      "validation_example_ids": ["validation-3", "validation-1000"],
+      "train_examples": 4,
+      "validation_examples": 2,
+      "sequence_length": 64,
+      "prompt_tokens": 32,
+      "completion_tokens": 32,
+      "prompt_boundary": [0, 32],
+      "completion_boundary": [32, 64],
+      "preprocessing": "tokenize each raw row with the pinned tokenizer and add_special_tokens=false; retain the first 64 tokens; prompt is tokens [0,32), completion is tokens [32,64)",
+      "source_order": {
+        "train_offsets": [0, 1000, 2000, 3000],
+        "validation_offsets": [0, 1000],
+        "train_example_ids": ["train-3", "train-1003", "train-2002", "train-3037"],
+        "validation_example_ids": ["validation-3", "validation-1000"]
+      },
+      "tokenizer_revision": "1cfa9a7208912126459214e8b04321603b3df60c"
+    },
+    "training": {
+      "batch_size": 1,
+      "gradient_accumulation_steps": 1,
+      "optimizer": "AdamW",
+      "learning_rate": 0.001,
+      "weight_decay": 0.0,
+      "epochs": 1,
+      "optimizer_steps": 4,
+      "scheduler": "none",
+      "distillation_temperature": 2.0,
+      "routing_temperature": 1.0,
+      "logging_interval_steps": 1
+    },
+    "objective": {
+      "candidate_bits": [4, 6, 8],
+      "normalized_bit_cost_formula": "c(bit) = (bit - 4) / (8 - 4)",
+      "normalized_bit_costs": [0.0, 0.5, 1.0],
+      "cost_order": [4, 6, 8],
+      "loss_formula": "L_total = L_KD + lambda_bit * L_bit",
+      "kd_loss": "unchanged completion-only T^2 masked KL teacher-student distillation",
+      "cost_reduction": "unweighted arithmetic mean across all 36 attention and 36 FFN decisions",
+      "hardware_cost_claim": false
+    },
+    "frozen_components": {
+      "teacher_frozen": true,
+      "packed_student_base_frozen": true,
+      "router_only_optimizer": true,
+      "packed_artifact": "quantized/s03b_qwen3_4b/backend_cache/packed/anyprec-(1cfa9a7208912126459214e8b04321603b3df60c)-w8_orig4-gc1-c4_s1_blk64",
+      "packed_artifact_pytorch_model_sha256": "29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee",
+      "any_precision_revision": "a3257d02740cc5757c78673da534b0630ff3a4ea",
+      "model_repository": "Qwen/Qwen3-4B",
+      "model_revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+      "historical_s07_checkpoint_used": false
+    }
+  },
+  "router_contract": {
+    "router_count": 72,
+    "router_parameter_count": 23630040,
+    "candidate_bits": [4, 6, 8],
+    "soft_routing": "resident three-way packed mixture in explicit [p4,p6,p8] order",
+    "hard_routing": "deterministic argmax in explicit [p4,p6,p8] order",
+    "request_owned_routing_state": true,
+    "completion_only_kd_objective_unchanged": true
+  },
+  "future_measurements": {
+    "execution_scope": "confirmation measurements only; no S10-E experiment is executed by this freeze",
+    "per_trial_required_fields": [
+      "seed",
+      "lambda_bit",
+      "initial_router_state_sha256",
+      "final_router_state_sha256",
+      "initial_kd_gradient_norm",
+      "initial_bit_cost_gradient_norm",
+      "lambda_weighted_gradient_ratio",
+      "finite_loss_audit",
+      "finite_gradient_audit",
+      "teacher_frozen_audit",
+      "packed_student_base_unchanged_audit",
+      "router_only_optimizer_audit",
+      "fresh_adamw_audit",
+      "soft_validation_kd",
+      "soft_validation_mean_expected_bit_width",
+      "soft_validation_mean_p4",
+      "soft_validation_mean_p6",
+      "soft_validation_mean_p8",
+      "soft_validation_mean_entropy",
+      "hard_validation_kd",
+      "hard_validation_mean_selected_bit_width",
+      "hard_validation_fraction_4",
+      "hard_validation_fraction_6",
+      "hard_validation_fraction_8",
+      "hard_validation_route_map_validation-3",
+      "hard_validation_route_map_validation-1000",
+      "route_variation",
+      "distinct_hard_route_map_count",
+      "reproducibility_audit"
+    ],
+    "soft_validation_metrics": [
+      "validation_kd",
+      "mean_expected_bit_width",
+      "mean_p4",
+      "mean_p6",
+      "mean_p8",
+      "mean_entropy"
+    ],
+    "hard_validation_metrics": [
+      "validation_kd",
+      "mean_selected_bit_width",
+      "fraction_4",
+      "fraction_6",
+      "fraction_8",
+      "route_map_validation-3",
+      "route_map_validation-1000",
+      "route_variation",
+      "distinct_hard_route_map_count"
+    ],
+    "route_map_contract": {
+      "validation_ids_in_order": ["validation-3", "validation-1000"],
+      "units_per_map": 72,
+      "unit_order": "layer 0..35 attention followed by layer 0..35 ffn",
+      "allowed_bits": [4, 6, 8]
+    },
+    "cross_seed_aggregate_required_fields": [
+      "per_lambda_median_hard_validation_kd",
+      "per_lambda_median_hard_mean_selected_bit_width",
+      "per_seed_hard_frontier_membership_for_lambda_0.03",
+      "lambda_0.03_frontier_seed_count",
+      "paired_control_hard_kd_delta_median_lambda_0.03_minus_lambda_0.0",
+      "paired_control_hard_width_delta_median_lambda_0.03_minus_lambda_0.0",
+      "reproducibility_failure_count"
+    ],
+    "forbidden_measurements": [
+      "latency",
+      "memory",
+      "transfer",
+      "throughput",
+      "energy"
+    ]
+  },
+  "decision_rules": {
+    "all_nine_trials_complete": true,
+    "all_required_audits_pass": true,
+    "invalid_or_degenerate_collapse_allowed": false,
+    "confirmation_lambda_on_per_seed_hard_kd_width_frontier": {
+      "lambda": 0.03,
+      "minimum_seed_count": 2,
+      "seed_count": 3,
+      "frontier_axes": ["hard_validation_kd", "hard_validation_mean_selected_bit_width"],
+      "lower_is_better": true
+    },
+    "paired_control": {
+      "candidate_lambda": 0.03,
+      "control_lambda": 0.0,
+      "hard_kd_delta": "median(candidate hard KD - control hard KD) <= 0.0",
+      "hard_selected_width_delta": "median(candidate hard selected width - control hard selected width) < 0.0"
+    },
+    "no_reproducibility_failure": true,
+    "success_outcome": "CONTINUE; authorize only later broader validation",
+    "failure_outcome": "REFINE",
+    "incomplete_evidence_outcome": "PAUSE",
+    "scalar_combined_score_allowed": false,
+    "arbitrary_quality_loss_threshold_allowed": false,
+    "production_lambda_selection": false
+  },
+  "prohibitions": {
+    "adaptive_extension_allowed": false,
+    "production_lambda_selection_allowed": false,
+    "full_training_allowed": false,
+    "historical_s07_two_way_checkpoint_loading_prohibited": true,
+    "s10e_confirmation_trial_execution_allowed": false,
+    "latency_measurement_allowed": false,
+    "memory_measurement_allowed": false,
+    "transfer_measurement_allowed": false,
+    "throughput_measurement_allowed": false,
+    "energy_measurement_allowed": false
+  }
+}

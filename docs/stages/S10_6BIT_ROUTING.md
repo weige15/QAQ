@@ -412,3 +412,64 @@ tuning, quotas, entropy terms, temperature changes, optimizer changes, and
 extensions not authorized by the protocol were not run. The next decision is
 owned by firstmate/captain: refine, confirm, or begin full training after
 reviewing the observed frontier.
+
+## S10-E — Frontier Confirmation Protocol Freeze
+
+**Gate: CONTINUE.** S10-E freezes the machine-readable confirmation protocol in
+`configs/s10e_frontier_confirmation.json`. This stage defines the future
+confirmation trial only; it does not execute a trial, train a router, select a
+production lambda, or begin S10-F.
+
+### Source/project-established facts
+
+S10-A through S10-D are complete at the merged starting point
+`e718f27fe6b02082709d65665396640e251e602c`, which is PR #9/S10-D in
+`origin/main`. S10-D's canonical result is
+`docs/results/s10d_lambda_calibration.json` and its locked configuration is
+`configs/s10d_lambda_calibration.json`. That evidence completed exactly
+`0.0, 0.003, 0.01, 0.03, 0.1`, performed no adaptive extension, selected no
+production lambda, and observed the hard KD/width frontier at `0.03` and
+`0.1`. S10-B establishes the explicit resident three-way `(4,6,8)` router,
+72 request-routed attention/FFN units, and deterministic hard routing; S10-C
+establishes the unchanged completion-only KD composition with normalized
+bit-plane cost; S07 establishes the frozen teacher/packed-base and locked data
+and training contract.
+
+The S10-D source/result documents establish the inherited identities and
+contract, but they do not establish the S10-E seeds, candidate subset, paired
+controls, or confirmation decision rule.
+
+### Implementation choice — captain-selected controls
+
+The captain-selected confirmation controls are exactly three seeds
+`[1729, 1730, 1731]`, candidates/lambdas `[0.0, 0.03, 0.1]`, and nine paired
+trials. For each seed, one fresh canonical three-way router initialization is
+cloned identically before each lambda; every lambda gets a fresh AdamW in the
+same order, with no warm start and no historical two-way S07 checkpoint.
+These seeds and the three-candidate confirmation are implementation choices,
+not source-paper facts.
+
+The protocol requires initial/final router hashes, initial KD and bit-cost
+gradient norms, the lambda-weighted gradient ratio, finite-value and frozen-
+component/router-only optimizer audits, soft and hard validation metrics,
+explicit hard fraction 6, both validation route maps, route variation,
+distinct map count, and cross-seed aggregates. It explicitly forbids latency,
+memory, transfer, throughput, and energy measurements.
+
+Success requires all nine trials and audits, no invalid or degenerate collapse,
+`0.03` on the per-seed hard KD/width frontier in at least two of three seeds,
+paired-control median hard KD delta (candidate minus `0.0`) no greater than
+`0.0`, strictly lower paired-control median hard selected width, and no
+reproducibility failure. There is no scalar combined score and no arbitrary
+quality-loss threshold. Success authorizes only later broader validation;
+failure is `REFINE`; incomplete evidence is `PAUSE`.
+
+### Verification boundary
+
+The focused protocol tests validate exact identities, ordering, counts,
+training values, paired-initialization semantics, measurement fields,
+prohibitions, and gate rules by rejecting missing, extra, reordered, or
+reintroduced values. They are lightweight configuration tests and execute no
+experiment. S10-E stops after this freeze; the next action after a passing
+commit is **Begin S10-F: execute the frozen three-seed frontier confirmation
+protocol.**

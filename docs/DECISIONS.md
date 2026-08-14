@@ -956,3 +956,49 @@ threshold, and missing-gradient regressions.
 protocol, and `QAQ_MODEL_SNAPSHOT` cannot redirect the run to another local
 snapshot. No production lambda or later-stage work is authorized by this
 repair.
+
+### D044 — S10-E frontier confirmation protocol freeze (2026-08-14)
+
+**Source/project-established facts:** The merged starting point is
+`e718f27fe6b02082709d65665396640e251e602c`, and S10-A through S10-D are
+complete. The canonical S10-D evidence completed exactly
+`0.0, 0.003, 0.01, 0.03, 0.1`, ran no adaptive extension, selected no
+production lambda, and records the hard frontier at `0.03` and `0.1`. S07,
+S10-B, and S10-C establish the inherited data/training, three-way resident
+routing, frozen teacher/packed base, normalized cost, and unchanged
+completion-only KD semantics.
+
+**Implementation choice — captain-selected controls:** Freeze exactly three
+seeds `[1729, 1730, 1731]`, exactly the three candidates/lambdas
+`[0.0, 0.03, 0.1]`, and nine paired trials. Each seed has one fresh canonical
+three-way router initialization cloned identically across lambdas; each lambda
+uses a fresh AdamW in the same order, with no warm start and no historical
+S07 two-way checkpoint. The seeds and three-candidate confirmation are
+captain-selected controls, not source-paper facts.
+
+The machine-readable protocol also freezes the 72-router/
+23,630,040-scalar contract, resident soft and deterministic hard routing,
+request-owned state, explicit validation route maps and `fraction_6`, finite
+and freeze/optimizer audits, and cross-seed aggregates. It forbids latency,
+memory, transfer, throughput, and energy measurements. The confirmation gate
+requires all nine complete trials, passing audits, no invalid or degenerate
+collapse, `0.03` on the per-seed hard KD/width frontier in at least two of
+three seeds, paired-control median hard KD delta no greater than `0.0`,
+strictly lower paired-control median hard selected width, and no
+reproducibility failure. There is no scalar combined score or arbitrary
+quality-loss threshold. Success authorizes only later broader validation;
+failure is `REFINE`; incomplete evidence is `PAUSE`.
+
+**Evidence:** The focused protocol tests validate exact fields and reject
+missing, extra, reordered, or reintroduced seeds/lambdas, adaptive extension,
+data/order/training/candidate/router/selection drift, missing pairing
+semantics, and forbidden measurement drift. They execute no experiment.
+
+**Consequence:** S10-E freezes only `configs/s10e_frontier_confirmation.json`,
+its focused tests, and this stage/decision documentation. No S10-E
+confirmation trial, full training, production selection, S10-D rewrite, or
+S10-F work is authorized here.
+
+**Reversal path:** If a later protocol review finds an identity, semantic, or
+gate defect, return S10-E to REVISE, preserve all S10-D historical evidence,
+and record a replacement decision before any confirmation execution.
