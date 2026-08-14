@@ -462,7 +462,7 @@ loader/artifact/Any-Precision change, historical-result rewrite, or unrelated
 refactor occurred. Changed paths are limited to the objective/state seam, its
 focused tests, and stage/decision/status documentation.
 
-Next action: Begin S10-D. Do not begin it in this task.
+Historical next action: Begin S10-D. The completed S10-D gate is recorded below.
 
 ## S10-D — Bit-Cost Coefficient Calibration
 

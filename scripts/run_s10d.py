@@ -54,10 +54,7 @@ MODEL_SNAPSHOT = Path(
     )
 ).expanduser()
 EXPECTED_MODEL_SNAPSHOT = (
-    Path.home()
-    / ".cache/huggingface/hub/models--Qwen--Qwen3-4B"
-    / "snapshots"
-    / MODEL_REVISION
+    Path.home() / ".cache/huggingface/hub/models--Qwen--Qwen3-4B" / "snapshots" / MODEL_REVISION
 )
 ANY_PRECISION_REVISION = "a3257d02740cc5757c78673da534b0630ff3a4ea"
 DATASET_REVISION = "b08601e04326c79dfdd32d625aee71d232d685c3"
@@ -80,7 +77,10 @@ def _load_config(path: Path = CONFIG_PATH) -> dict[str, Any]:
         raise RuntimeError("REVISE: locked model revision differs from S10-D")
     if config["model"]["any_precision_revision"] != ANY_PRECISION_REVISION:
         raise RuntimeError("REVISE: locked Any-Precision revision differs from S10-D")
-    if config["model"]["router_count"] != 72 or config["model"]["router_parameter_count"] != 23_630_040:
+    if (
+        config["model"]["router_count"] != 72
+        or config["model"]["router_parameter_count"] != 23_630_040
+    ):
         raise RuntimeError("REVISE: locked three-way router count differs from S10-D")
     if config["lambda_grid"] != [0.0, 0.003, 0.01, 0.03, 0.1]:
         raise RuntimeError("REVISE: S10-D lambda grid is not the locked grid")
@@ -334,14 +334,19 @@ def classify_collapse(stats: dict[str, Any], *, collapse_fraction: float = 0.95)
     if stats["hard_fraction_8"] >= collapse_fraction:
         return "COLLAPSED_TO_8"
     variation = stats["route_variation_across_prompts"]
-    if variation["changed_fraction"] > 0 and stats.get("prompt_to_prompt_route_distance", 0.0) >= 0.05:
+    if (
+        variation["changed_fraction"] > 0
+        and stats.get("prompt_to_prompt_route_distance", 0.0) >= 0.05
+    ):
         return "ADAPTIVE_OBSERVED"
     if variation["changed_fraction"] == 0:
         return "PROMPT_INVARIANT"
     return "OTHER"
 
 
-def _pareto_frontier(points: Iterable[dict[str, Any]], *, kd_key: str, width_key: str) -> list[dict[str, Any]]:
+def _pareto_frontier(
+    points: Iterable[dict[str, Any]], *, kd_key: str, width_key: str
+) -> list[dict[str, Any]]:
     """Return deterministic non-dominated points on (KD, width), lower is better."""
 
     ordered = sorted(
@@ -451,10 +456,15 @@ def _evaluate_static(
         result[mode] = {
             "precision": bits,
             "count": len(per_example),
-            "masked_kd_loss": sum(item["masked_kd_loss"] for item in per_example) / len(per_example),
-            "mean_absolute_logit_error": sum(item["mean_absolute_logit_error"] for item in per_example)
+            "masked_kd_loss": sum(item["masked_kd_loss"] for item in per_example)
             / len(per_example),
-            "maximum_absolute_logit_error": max(item["maximum_absolute_logit_error"] for item in per_example),
+            "mean_absolute_logit_error": sum(
+                item["mean_absolute_logit_error"] for item in per_example
+            )
+            / len(per_example),
+            "maximum_absolute_logit_error": max(
+                item["maximum_absolute_logit_error"] for item in per_example
+            ),
             "finite_logits": all(item["finite_logits"] for item in per_example),
             "per_example": per_example,
         }
@@ -462,7 +472,10 @@ def _evaluate_static(
 
 
 def _fill_hard_probabilities(student: torch.nn.Module, state: QaqRequestState) -> None:
-    for unit_type, features in (("attention", state.attention_features), ("ffn", state.ffn_features)):
+    for unit_type, features in (
+        ("attention", state.attention_features),
+        ("ffn", state.ffn_features),
+    ):
         for layer, feature in enumerate(features):
             if feature is None:
                 raise RuntimeError(f"REVISE: missing hard-route {unit_type} feature {layer}")
@@ -501,6 +514,7 @@ def _evaluate_learned(
                     prompt_attention_mask=example.prompt_mask().unsqueeze(0),
                 )
             else:
+
                 def policy(layer: int, unit_type: str, feature: torch.Tensor) -> int:
                     probabilities = student.route(layer, unit_type, feature)
                     return int(hard_route(probabilities, candidate_bits=CANDIDATE_BITS))
@@ -561,10 +575,15 @@ def _evaluate_learned(
     summary.update(
         {
             "count": len(per_example),
-            "validation_kd_loss": sum(item["masked_kd_loss"] for item in per_example) / len(per_example),
-            "mean_absolute_logit_error": sum(item["mean_absolute_logit_error"] for item in per_example)
+            "validation_kd_loss": sum(item["masked_kd_loss"] for item in per_example)
             / len(per_example),
-            "maximum_absolute_logit_error": max(item["maximum_absolute_logit_error"] for item in per_example),
+            "mean_absolute_logit_error": sum(
+                item["mean_absolute_logit_error"] for item in per_example
+            )
+            / len(per_example),
+            "maximum_absolute_logit_error": max(
+                item["maximum_absolute_logit_error"] for item in per_example
+            ),
             "per_example": per_example,
             "collapse_classification": (
                 classify_collapse(
@@ -581,7 +600,9 @@ def _evaluate_learned(
     return summary
 
 
-def _baseline_deltas(trial: dict[str, Any], baseline: dict[str, Any]) -> dict[str, dict[str, float]]:
+def _baseline_deltas(
+    trial: dict[str, Any], baseline: dict[str, Any]
+) -> dict[str, dict[str, float]]:
     metric_names = (
         "validation_kd_loss",
         "mean_absolute_logit_error",
@@ -696,7 +717,9 @@ def _run_trial(
     history = []
     gradient_diagnostic = None
     temperature = float(config["training"]["distillation_temperature"])
-    router_parameters = [parameter for name, parameter in student.named_parameters() if name.startswith("routers.")]
+    router_parameters = [
+        parameter for name, parameter in student.named_parameters() if name.startswith("routers.")
+    ]
     for step, example in enumerate(train_examples, start=1):
         batch = DistillationBatch.from_examples([example])
         optimizer.zero_grad(set_to_none=True)
@@ -814,7 +837,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, default=CONFIG_PATH)
     parser.add_argument("--device", default=None)
-    parser.add_argument("--output", type=Path, default=ROOT / "docs/results/s10d_lambda_calibration.json")
+    parser.add_argument(
+        "--output", type=Path, default=ROOT / "docs/results/s10d_lambda_calibration.json"
+    )
     args = parser.parse_args()
     config = _load_config(args.config)
     device = args.device or str(config["device"])
@@ -880,7 +905,9 @@ def main() -> int:
     if len(train_examples_cpu) != 4 or len(validation_examples_cpu) != 2:
         raise RuntimeError("REVISE: locked example counts are not 4 train and 2 validation")
     train_examples = [_device_example(example, device, torch) for example in train_examples_cpu]
-    validation_examples = [_device_example(example, device, torch) for example in validation_examples_cpu]
+    validation_examples = [
+        _device_example(example, device, torch) for example in validation_examples_cpu
+    ]
 
     print("S10-D: loading pinned teacher", flush=True)
     teacher = load_full_precision_model(MODEL_SNAPSHOT, device)
@@ -963,15 +990,17 @@ def main() -> int:
     high_lambda = float(high_policy["trigger_lambda"])
     high_trial = trial_by_lambda[high_lambda]
     zero_trial = trial_by_lambda[0.0]
-    exact_hard_map = high_trial["hard"]["per_validation_route_maps"] == zero_trial["hard"]["per_validation_route_maps"]
+    exact_hard_map = (
+        high_trial["hard"]["per_validation_route_maps"]
+        == zero_trial["hard"]["per_validation_route_maps"]
+    )
     soft_width_delta = abs(
         high_trial["soft"]["mean_expected_bit_width"]
         - zero_trial["soft"]["mean_expected_bit_width"]
     )
-    if (
-        exact_hard_map == bool(high_policy["trigger_exact_lambda_zero_hard_map"])
-        and soft_width_delta < float(high_policy["trigger_soft_width_delta_bits"])
-    ):
+    if exact_hard_map == bool(
+        high_policy["trigger_exact_lambda_zero_hard_map"]
+    ) and soft_width_delta < float(high_policy["trigger_soft_width_delta_bits"]):
         extensions.append(float(high_policy["point"]))
     extensions = list(dict.fromkeys(extensions))[: int(config["adaptive_extensions"]["max_points"])]
 
@@ -1074,7 +1103,9 @@ def main() -> int:
         "pareto_frontiers": pareto_frontiers(trial_results),
         "audits": {
             "teacher_frozen_before_precompute": teacher_frozen_before,
-            "teacher_frozen_after": all(not parameter.requires_grad for parameter in teacher.parameters()),
+            "teacher_frozen_after": all(
+                not parameter.requires_grad for parameter in teacher.parameters()
+            ),
             "teacher_gradients_absent_after_targets_and_trials": teacher_gradients_absent,
             "teacher_state_sha256_before": teacher_hash_before,
             "teacher_state_sha256_after": teacher_hash_after,
@@ -1086,10 +1117,15 @@ def main() -> int:
                 or tuple(trial["optimizer"]["included_name_prefixes"]) == ("routers.",)
                 for trial in trial_results
             ),
-            "fresh_adamw_per_trial": all(trial["optimizer_state_was_fresh"] for trial in trial_results),
+            "fresh_adamw_per_trial": all(
+                trial["optimizer_state_was_fresh"] for trial in trial_results
+            ),
             "all_initial_hashes_match": len(set(initial_hashes_by_lambda.values())) == 1,
             "finite_measurements": all(
-                all(item["finite_kd_loss"] and item["finite_bit_cost"] and item["finite_total_loss"] for item in trial["history"])
+                all(
+                    item["finite_kd_loss"] and item["finite_bit_cost"] and item["finite_total_loss"]
+                    for item in trial["history"]
+                )
                 and trial["soft"]["finite_logits"]
                 and trial["hard"]["finite_logits"]
                 for trial in trial_results

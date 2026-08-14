@@ -40,7 +40,11 @@ def test_fresh_optimizer_has_no_lambda_state_leakage():
         def __init__(self):
             super().__init__()
             self.routers = nn.ModuleDict(
-                {"attention_0": SoftPrecisionRouter(4, hidden_width=4, candidate_bits=S10_CANDIDATE_BITS)}
+                {
+                    "attention_0": SoftPrecisionRouter(
+                        4, hidden_width=4, candidate_bits=S10_CANDIDATE_BITS
+                    )
+                }
             )
             self.base = nn.Linear(4, 4)
             for parameter in self.base.parameters():
@@ -93,7 +97,9 @@ def test_probability_metrics_hard_fractions_and_width_are_finite():
         validation_ids=("validation-3", "validation-1000"),
         logits_finite=True,
     )
-    assert summary["hard_fraction_4"] + summary["hard_fraction_6"] + summary["hard_fraction_8"] == pytest.approx(1.0)
+    assert summary["hard_fraction_4"] + summary["hard_fraction_6"] + summary[
+        "hard_fraction_8"
+    ] == pytest.approx(1.0)
     assert summary["mean_p6"] == pytest.approx(0.5)
     assert summary["mean_expected_bit_width"] == pytest.approx(5.0)
     assert summary["finite_logits"]
@@ -133,7 +139,9 @@ def test_three_way_collapse_labels_follow_locked_threshold():
     assert classify_collapse(stats((0.95, 0.05, 0.0))) == "COLLAPSED_TO_4"
     assert classify_collapse(stats((0.0, 0.95, 0.05))) == "COLLAPSED_TO_6"
     assert classify_collapse(stats((0.0, 0.05, 0.95))) == "COLLAPSED_TO_8"
-    assert classify_collapse(stats((0.4, 0.3, 0.3), changed=0.2, distance=0.1)) == "ADAPTIVE_OBSERVED"
+    assert (
+        classify_collapse(stats((0.4, 0.3, 0.3), changed=0.2, distance=0.1)) == "ADAPTIVE_OBSERVED"
+    )
     assert classify_collapse(stats((0.4, 0.3, 0.3))) == "PROMPT_INVARIANT"
     assert classify_collapse(stats((0.9, 0.1, 0.0)), collapse_fraction=0.9) == "COLLAPSED_TO_4"
 
