@@ -145,7 +145,7 @@
     "route_map_contract": {
       "validation_ids_in_order": ["validation-3", "validation-1000"],
       "units_per_map": 72,
-      "unit_order": "layer 0..35 attention followed by layer 0..35 ffn",
+      "unit_order": "layer-major: layer 0 attention, layer 0 ffn, then layer 1 attention, layer 1 ffn, through layer 35",
       "allowed_bits": [4, 6, 8]
     },
     "cross_seed_aggregate_required_fields": [

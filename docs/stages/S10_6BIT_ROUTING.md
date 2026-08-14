@@ -456,6 +456,11 @@ explicit hard fraction 6, both validation route maps, route variation,
 distinct map count, and cross-seed aggregates. It explicitly forbids latency,
 memory, transfer, throughput, and energy measurements.
 
+Both validation route maps use the inherited S10-D serializer's layer-major
+order: layer 0 attention, layer 0 FFN, then layer 1 attention, layer 1 FFN,
+through layer 35. This ordering is frozen for S10-E and keeps route-map
+interpretation compatible with the existing S10-D evidence.
+
 Success requires all nine trials and audits, no invalid or degenerate collapse,
 `0.03` on the per-seed hard KD/width frontier in at least two of three seeds,
 paired-control median hard KD delta (candidate minus `0.0`) no greater than

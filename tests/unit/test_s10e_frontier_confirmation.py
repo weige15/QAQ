@@ -13,6 +13,41 @@ EXPECTED_LAMBDAS = [0.0, 0.03, 0.1]
 EXPECTED_SEEDS = [1729, 1730, 1731]
 EXPECTED_TRAIN_IDS = ["train-3", "train-1003", "train-2002", "train-3037"]
 EXPECTED_VALIDATION_IDS = ["validation-3", "validation-1000"]
+EXPECTED_UNIT_ORDER = (
+    "layer-major: layer 0 attention, layer 0 ffn, then layer 1 attention, "
+    "layer 1 ffn, through layer 35"
+)
+EXPECTED_PER_TRIAL_FIELDS = [
+    "seed",
+    "lambda_bit",
+    "initial_router_state_sha256",
+    "final_router_state_sha256",
+    "initial_kd_gradient_norm",
+    "initial_bit_cost_gradient_norm",
+    "lambda_weighted_gradient_ratio",
+    "finite_loss_audit",
+    "finite_gradient_audit",
+    "teacher_frozen_audit",
+    "packed_student_base_unchanged_audit",
+    "router_only_optimizer_audit",
+    "fresh_adamw_audit",
+    "soft_validation_kd",
+    "soft_validation_mean_expected_bit_width",
+    "soft_validation_mean_p4",
+    "soft_validation_mean_p6",
+    "soft_validation_mean_p8",
+    "soft_validation_mean_entropy",
+    "hard_validation_kd",
+    "hard_validation_mean_selected_bit_width",
+    "hard_validation_fraction_4",
+    "hard_validation_fraction_6",
+    "hard_validation_fraction_8",
+    "hard_validation_route_map_validation-3",
+    "hard_validation_route_map_validation-1000",
+    "route_variation",
+    "distinct_hard_route_map_count",
+    "reproducibility_audit",
+]
 
 
 def load_protocol() -> dict[str, object]:
@@ -115,34 +150,7 @@ def validate_protocol(protocol: dict[str, object]) -> None:
     assert router["completion_only_kd_objective_unchanged"] is True
 
     measurements = protocol["future_measurements"]
-    required = set(measurements["per_trial_required_fields"])
-    assert {
-        "initial_router_state_sha256",
-        "final_router_state_sha256",
-        "initial_kd_gradient_norm",
-        "initial_bit_cost_gradient_norm",
-        "lambda_weighted_gradient_ratio",
-        "finite_loss_audit",
-        "finite_gradient_audit",
-        "teacher_frozen_audit",
-        "packed_student_base_unchanged_audit",
-        "router_only_optimizer_audit",
-        "soft_validation_kd",
-        "soft_validation_mean_expected_bit_width",
-        "soft_validation_mean_p4",
-        "soft_validation_mean_p6",
-        "soft_validation_mean_p8",
-        "soft_validation_mean_entropy",
-        "hard_validation_kd",
-        "hard_validation_mean_selected_bit_width",
-        "hard_validation_fraction_4",
-        "hard_validation_fraction_6",
-        "hard_validation_fraction_8",
-        "hard_validation_route_map_validation-3",
-        "hard_validation_route_map_validation-1000",
-        "route_variation",
-        "distinct_hard_route_map_count",
-    } <= required
+    assert measurements["per_trial_required_fields"] == EXPECTED_PER_TRIAL_FIELDS
     assert measurements["cross_seed_aggregate_required_fields"] == [
         "per_lambda_median_hard_validation_kd",
         "per_lambda_median_hard_mean_selected_bit_width",
@@ -162,7 +170,7 @@ def validate_protocol(protocol: dict[str, object]) -> None:
     assert measurements["route_map_contract"] == {
         "validation_ids_in_order": EXPECTED_VALIDATION_IDS,
         "units_per_map": 72,
-        "unit_order": "layer 0..35 attention followed by layer 0..35 ffn",
+        "unit_order": EXPECTED_UNIT_ORDER,
         "allowed_bits": EXPECTED_BITS,
     }
 

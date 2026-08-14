@@ -1,4 +1,4 @@
-Current stage: S10-D
+Current stage: S10-E
 Status: COMPLETE
 
 ## S09-A closeout — canonical validation gate
@@ -511,7 +511,7 @@ Current stage: S10-E
 Status: COMPLETE
 Gate outcome: CONTINUE.
 
-Passing commit: `7228abae0f582d5b0225e81ac3dd1fa95a7a61ad`.
+Passing commit: `7228abac0e365ea7712d39d5bf04d23e2e4c80da`.
 The frozen protocol is `configs/s10e_frontier_confirmation.json`; focused
 protocol tests are in `tests/unit/test_s10e_frontier_confirmation.py`. The
 protocol records the merged S10-D/PR #9 starting point, exact candidate bits

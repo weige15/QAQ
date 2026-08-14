@@ -989,6 +989,10 @@ reproducibility failure. There is no scalar combined score or arbitrary
 quality-loss threshold. Success authorizes only later broader validation;
 failure is `REFINE`; incomplete evidence is `PAUSE`.
 
+Validation route maps retain the inherited S10-D layer-major serialization:
+layer 0 attention, layer 0 FFN, then layer 1 attention, layer 1 FFN, through
+layer 35. This is the canonical order for S10-E route-map comparisons.
+
 **Evidence:** The focused protocol tests validate exact fields and reject
 missing, extra, reordered, or reintroduced seeds/lambdas, adaptive extension,
 data/order/training/candidate/router/selection drift, missing pairing
