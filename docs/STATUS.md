@@ -521,7 +521,7 @@ values, router and objective invariants, exact future measurements, and
 frozen CONTINUE/REFINE/PAUSE rules. Seeds and the three-candidate confirmation
 are implementation choices, not source-paper facts.
 
-The focused S10-E test passed `27`; the S10-D/S10-C/S10-B/S07/request-state
+The focused S10-E test passed `35`; the S10-D/S10-C/S10-B/S07/request-state
 unit regression selection passed `49`; Ruff passed for the focused test; and
 `git diff --check` passed. Hash comparison against the required starting
 commit confirmed unchanged S10-D canonical config/result/runner/test files
