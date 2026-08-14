@@ -251,7 +251,9 @@ class QaqRequestState:
             raise RuntimeError(f"cannot store {unit_type} probability before its feature")
         if probabilities_by_unit[layer_index] is not None:
             raise RuntimeError(f"{unit_type} probability for layer {layer_index} is already stored")
-        probabilities_by_unit[layer_index] = probabilities.detach().clone()
+        # Keep the clone connected to the router graph so request-level
+        # auxiliary objectives can backpropagate through stored decisions.
+        probabilities_by_unit[layer_index] = probabilities.clone()
 
     def store_route(self, unit_type: str, layer_index: int, precision: int) -> None:
         if (

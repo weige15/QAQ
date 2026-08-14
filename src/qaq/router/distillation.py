@@ -12,6 +12,7 @@ import math
 from collections import defaultdict
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import asdict, dataclass, field
+from numbers import Real
 from pathlib import Path
 from typing import Any
 
@@ -467,6 +468,90 @@ def masked_kl_distillation_loss(
     ).sum(dim=-1)
     weights = mask.to(device=per_token.device, dtype=per_token.dtype)
     return per_token.mul(weights).sum() / valid * (temperature**2)
+
+
+def expected_bit_cost(
+    probabilities: torch.Tensor,
+    candidate_bits: tuple[int, ...] = S10_CANDIDATE_BITS,
+) -> torch.Tensor:
+    """Return normalized expected bit-plane cost in the explicit candidate order.
+
+    The normalized cost is ``(bit - 4) / 4``: 4-bit is zero, 6-bit is one
+    half, and 8-bit is one.  The candidate tuple is always used to construct
+    the cost vector, so vector length never assigns bit meanings.
+    """
+
+    candidate_bits = validate_candidate_bits(candidate_bits)
+    probabilities = validate_probabilities(probabilities, candidate_bits)
+    dtype = probabilities.dtype if probabilities.is_floating_point() else torch.get_default_dtype()
+    costs = torch.tensor(
+        [(bit - 4) / 4 for bit in candidate_bits],
+        device=probabilities.device,
+        dtype=dtype,
+    )
+    return (probabilities.to(dtype=dtype) * costs).sum(dim=-1)
+
+
+def mean_expected_bit_cost(
+    probabilities: torch.Tensor,
+    candidate_bits: tuple[int, ...] = S10_CANDIDATE_BITS,
+) -> torch.Tensor:
+    """Return the unweighted arithmetic mean cost over routing decisions."""
+
+    costs = expected_bit_cost(probabilities, candidate_bits)
+    return costs.mean()
+
+
+def request_state_expected_bit_cost(state: Any) -> torch.Tensor:
+    """Aggregate every stored attention and FFN probability exactly once.
+
+    The stored probability clones remain connected to the router graph.  A
+    request contributes one decision per attention and FFN layer, with equal
+    weight regardless of unit type or layer.
+    """
+
+    candidate_bits = validate_candidate_bits(state.candidate_bits)
+    layer_count = state.layer_count
+    decisions: list[torch.Tensor] = []
+    for name in ("attention_probabilities", "ffn_probabilities"):
+        values = getattr(state, name, None)
+        if not isinstance(values, list) or len(values) != layer_count:
+            raise ValueError(f"{name} must contain exactly {layer_count} decisions")
+        if any(value is None for value in values):
+            raise ValueError(f"{name} is missing one or more routing decisions")
+        decisions.extend(values)
+    if len(decisions) != 2 * layer_count:
+        raise ValueError("request state must contain one attention and one FFN decision per layer")
+    stacked = torch.stack(decisions, dim=0)
+    return mean_expected_bit_cost(stacked, candidate_bits)
+
+
+def _validate_cost_weight(cost_weight: object) -> float:
+    if isinstance(cost_weight, bool) or not isinstance(cost_weight, Real):
+        raise TypeError("cost_weight must be a finite non-negative number")
+    value = float(cost_weight)
+    if not math.isfinite(value) or value < 0:
+        raise ValueError(f"cost_weight must be a finite non-negative number; got {cost_weight}")
+    return value
+
+
+def cost_aware_distillation_loss(
+    kd_loss: torch.Tensor,
+    expected_cost: torch.Tensor,
+    cost_weight: float = 0.0,
+) -> torch.Tensor:
+    """Compose unchanged KD with an optional normalized bit-cost objective."""
+
+    if not isinstance(kd_loss, torch.Tensor) or kd_loss.ndim != 0:
+        raise ValueError("kd_loss must be a scalar tensor")
+    if not isinstance(expected_cost, torch.Tensor) or expected_cost.ndim != 0:
+        raise ValueError("expected_cost must be a scalar tensor")
+    if not torch.isfinite(kd_loss) or not torch.isfinite(expected_cost):
+        raise ValueError("kd_loss and expected_cost must be finite")
+    weight = _validate_cost_weight(cost_weight)
+    if weight == 0.0:
+        return kd_loss
+    return kd_loss + weight * expected_cost
 
 
 @dataclass(frozen=True, slots=True)
@@ -1082,10 +1167,14 @@ __all__ = [
     "audit_router_optimizer",
     "build_router_optimizer",
     "causal_target_ids",
+    "cost_aware_distillation_loss",
+    "expected_bit_cost",
     "freeze_teacher_and_packed_student",
     "hard_route",
     "load_router_checkpoint",
     "masked_kl_distillation_loss",
+    "mean_expected_bit_cost",
+    "request_state_expected_bit_cost",
     "route_records_from_request_state",
     "route_statistics",
     "save_router_checkpoint",

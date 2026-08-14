@@ -427,5 +427,39 @@ on-demand support was introduced. Historical S07/S09 results, the packed
 artifact, Any-Precision source, and historical checkpoint were not modified.
 No quality, latency, memory, transfer, or routing-quality evaluation was run.
 
-Next action: Begin S10-C: define and validate the cost-aware 4/6/8 router
-objective. Do not begin S10-C without a separate Captain instruction.
+Historical next action: Begin S10-C: define and validate the cost-aware 4/6/8
+router objective.
+
+## S10-C — Cost-Aware 4/6/8 Router Objective
+
+Current stage: S10-C
+Status: COMPLETE
+
+Gate outcome: CONTINUE.
+
+S10-C adds only reusable normalized cost-objective composition primitives.
+S07's `masked_kl_distillation_loss()` remains unchanged and remains the
+completion-only KL objective. `expected_bit_cost()` constructs explicit costs
+`[0.0, 0.5, 1.0]` for `(4,6,8)` and `[0.0, 1.0]` for historical `(4,8)`;
+`mean_expected_bit_cost()` and `request_state_expected_bit_cost()` compute the
+unweighted mean across every included decision, exactly once per attention and
+FFN layer. Three-way diagnostic width is `4 + 4*L_bit`.
+
+`cost_aware_distillation_loss()` composes `L_total = L_KD + lambda_bit*L_bit`.
+The cost weight is explicitly validated as finite, numeric, non-negative, and
+non-boolean. Zero is the backwards-compatible default and no nonzero
+production lambda was selected. Request-state probability clones remain
+attached to autograd. The objective is a normalized bit-plane-count surrogate,
+not latency, memory, transfer, energy, or kernel-runtime weighting.
+
+Focused S10-C tests passed `7`; S07 distillation, request-state, and S10-B unit
+regressions passed `34`; the real pinned packed S10-B fixture passed `1`; the
+full unit suite passed `127`; and Ruff passed for changed source and tests.
+The required preflight resolved `/nfs/home/s314511048/.venv/bin/python`,
+Python `3.12.3`, and healthy RTX 3090 visibility. No training, checkpoint
+creation, production lambda selection, artifact-backed Qwen3 execution, S08
+loader/artifact/Any-Precision change, historical-result rewrite, or unrelated
+refactor occurred. Changed paths are limited to the objective/state seam, its
+focused tests, and stage/decision/status documentation.
+
+Next action: Begin S10-D. Do not begin it in this task.
