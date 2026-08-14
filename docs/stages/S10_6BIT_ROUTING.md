@@ -321,3 +321,94 @@ pressure, complete request-state aggregation with gradients, finite combined
 gradients, and frozen-state preservation. Existing S07 and S10-B regression
 suites remain required; no artifact-backed Qwen3 execution is needed for this
 objective-only stage.
+
+## S10-D — Bit-cost coefficient calibration
+
+**Gate: CONTINUE.** S10-D calibrates observations for the S10-C coefficient; it
+does not choose a production coefficient or start full router training. The
+machine-readable protocol is `configs/s10d_lambda_calibration.json`, the
+runner is `scripts/run_s10d.py`, and the complete measurements are in
+`docs/results/s10d_lambda_calibration.json`.
+
+### Source facts and locked protocol
+
+S07 supplies the unchanged completion-only `masked_kl_distillation_loss`, the
+frozen teacher/packed-student boundary, the four-step data/training contract,
+and the fixed Wikitext rows. S10-B supplies explicit three-way ordering
+`(4,6,8)` / `[p4,p6,p8]`, 72 separate routers, hard index mapping, and resident
+three-way execution. S10-C supplies the normalized cost vector `[0,0.5,1]`
+and `L_total = L_KD + lambda_bit * L_bit`. These primitives were reused; the
+historical S07 runner and objective were not changed.
+
+The run used the identity-matched Qwen3-4B teacher revision
+`1cfa9a7208912126459214e8b04321603b3df60c`, packed artifact SHA-256
+`29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee`,
+Wikitext revision `b08601e04326c79dfdd32d625aee71d232d685c3`, and clean
+Any-Precision `a3257d02740cc5757c78673da534b0630ff3a4ea`. It used exactly four
+train examples, two validation examples, source order, sequence 64,
+prompt/completion 32/32, seed 1729, AdamW (`lr=0.001`, weight decay 0),
+batch size 1, four optimizer steps, KD temperature 2.0, and routing
+temperature 1.0. The explicit free GPU was `cuda:0` (RTX 3090).
+
+Before learned-route interpretation, static 4/6/8 was run once on the same
+validation examples. All logits were finite. Mean masked KD / mean absolute
+logit error were respectively: static 4 `0.4631383568 / 0.7434162199`,
+static 6 `0.0803938322 / 0.2947778329`, and static 8 `0.0050811910 /
+0.0910567641`.
+
+Every trial reset a fresh canonical three-way router initialized after seed
+1729, verified 72 routers and 23,630,040 scalars, and reloaded a clone of the
+same router-only state hash `15da263c1c60fccd89c306a41b4eef9da3739d45bdddcdcdca59ec4e02cfb758`.
+No historical two-way checkpoint was loaded. Each trial built a new AdamW,
+used the same examples/order and precomputed teacher targets, recorded the
+separate initial KD/bit-cost gradient norms and lambda-weighted ratios, and
+ran exactly four updates. Frozen teacher and packed-student hashes matched;
+all gradients, losses, logits, expected widths, and probabilities were finite.
+The runner's local backward seam recomputes frozen packed weights through the
+existing `execute_packed_linear` helper rather than retaining dense weights;
+this is an execution-memory measure only and does not modify production model
+or backend code.
+
+The full grid completed before extension decisions. No permitted extension was
+triggered: lambda `0.003` was `OTHER` rather than a >=95% collapse to 4 or 6;
+lambda `0.1` did not have the exact lambda-zero hard map and its soft-width
+delta was `0.4878288171` bits, not below `0.001`. Thus only
+`0.0, 0.003, 0.01, 0.03, 0.1` were performed.
+
+| lambda | soft KD | soft width | hard KD | hard width | hard 4/6/8 fractions | label |
+|---:|---:|---:|---:|---:|---|---|
+| 0.0 | 0.0498826504 | 6.8869917558 | 0.0692504579 | 7.1944444444 | 0.083333/0.236111/0.680556 | OTHER |
+| 0.003 | 0.0508279633 | 6.8676936171 | 0.0694124866 | 7.1944444444 | 0.083333/0.236111/0.680556 | OTHER |
+| 0.01 | 0.0556957237 | 6.8241818363 | 0.0681527648 | 7.1805555556 | 0.090278/0.229167/0.680556 | OTHER |
+| 0.03 | 0.0529664997 | 6.7444918938 | 0.0645516384 | 7.0277777778 | 0.090278/0.305556/0.604167 | ADAPTIVE_OBSERVED |
+| 0.1 | 0.0620286539 | 6.3991629386 | 0.0736745223 | 6.5694444444 | 0.131944/0.451389/0.416667 | OTHER |
+
+The result records mean/max logit errors, entropy, p4/p6/p8, hard fractions
+summing to one, explicit hard 6 fractions, mean p6, whether validation
+routes select 6, per-validation route maps, route variation, unique map counts,
+frozen-state audits, baseline deltas, and deterministic soft/hard Pareto
+frontiers. The observed hard frontier contains lambdas 0.03 and 0.1; the soft
+frontier contains 0.0, 0.003, 0.03, and 0.1. These are observations only, not
+a scalarized selection.
+
+### Verification and limitations
+
+The pre-sweep command passed 44 tests: focused S10-D tests plus S10-C,
+S10-B, S07 distillation, and request-state regressions. Ruff passed for the
+runner and focused tests. The execution command was:
+
+```text
+source ~/.venv/bin/activate && which python && python --version && nvidia-smi
+PYTHONPATH=src:third_party/any-precision-llm:. python scripts/run_s10d.py \
+  --config configs/s10d_lambda_calibration.json --device cuda:0 \
+  --output docs/results/s10d_lambda_calibration.json
+```
+
+This is a four-step calibration observation on six fixed examples, not full
+router training or a paper-score reproduction. It makes no latency, memory,
+transfer, energy, or kernel-runtime claim; no S08 loader was invoked, and no
+production checkpoint or lambda was created. Extra seeds, epochs, data,
+tuning, quotas, entropy terms, temperature changes, optimizer changes, and
+extensions not authorized by the protocol were not run. The next decision is
+owned by firstmate/captain: refine, confirm, or begin full training after
+reviewing the observed frontier.

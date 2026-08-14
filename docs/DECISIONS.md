@@ -893,3 +893,66 @@ Any-Precision change, or historical-result rewrite occurred.
 scale, weighting, production coefficient, or hardware objective, preserve this
 normalized baseline and record a new decision before changing the composition
 API or training path.
+
+### D042 — S10-D fixed lambda calibration protocol (2026-08-14)
+
+**Implementation choice:** Run the complete fixed grid
+`[0.0, 0.003, 0.01, 0.03, 0.1]` using the locked S07 data/training values and
+explicit three-way `(4,6,8)` routers. Before every trial, clone/reload one
+canonical seed-1729 router-only state, verify 72 routers and 23,630,040
+scalars, and construct a fresh AdamW. Permit at most the two exact adaptive
+points `0.001` and `0.3` only under the conditions recorded in the authoritative
+S10-D config. Do not select a production coefficient from the sweep.
+
+**Established facts:** S07's masked KL, teacher/packed-student freeze seam,
+data order, temperatures, and four-step budget are locked. S10-B supplies
+resident three-way routing and `[p4,p6,p8]`; S10-C supplies the unchanged
+composition `L_KD + lambda_bit*L_bit`. Static 4/6/8 references must precede
+learned-route interpretation, and Pareto frontiers are reported without a
+scalar selection.
+
+**Execution choice:** The runner uses the existing `execute_packed_linear`
+helper in a local autograd seam that recomputes frozen packed weights during
+backward. This avoids retaining dense dequantized weights for all three paths
+on the 24-GiB GPU while preserving the packed forward and router gradients;
+it is not a production-model or pinned-backend change. No historical S07
+checkpoint, S08 loading, asynchronous transfer, prefetching, latency/memory
+benchmark, or objective redesign is used.
+
+**Evidence:** On the required starting commit
+`41e598b0e00e9b72444b498c5cd39b2f335c2257`, the identity-matched teacher,
+artifact, dataset, and clean Any-Precision revision were available. Static
+4/6/8 logits were finite; all five grid trials completed on free `cuda:0`;
+all initial router hashes matched; every trial had finite gradients/losses and
+unchanged teacher/packed state; and the result records hard 6 fractions, mean
+p6, route maps, deltas, and soft/hard Pareto frontiers. No adaptive point was
+triggered. Focused S10-D plus S10-C/S10-B/S07/request-state regressions passed
+44 tests and Ruff passed.
+
+**Consequence:** The result is a calibration observation only. The measured
+soft frontier is `{0.0, 0.003, 0.03, 0.1}` and the hard frontier is `{0.03, 0.1}`
+under the recorded validation KD/width coordinates, but neither frontier
+selects a production lambda. Firstmate/captain must review the evidence and
+choose whether to refine, confirm, or begin full training.
+
+**Reversal path:** If a rerun changes the locked data, initialization,
+objective, adaptive trigger, candidate order, or execution path, preserve this
+artifact and record a new decision before comparing or extending the result.
+
+### D043 — S10-D review validation repairs (2026-08-14)
+
+**Implementation choice:** Keep the S10-D experiment unchanged while making
+the runner reject noncanonical protocol bytes, pass configured KD temperature,
+entropy base, and adaptive trigger values through every relevant path, require
+the exact pinned Hugging Face cache snapshot path, and reject any missing router
+gradient before norm calculation.
+
+**Evidence:** The canonical result remains valid because the locked config
+values and execution outputs are unchanged. The focused repair suite passed
+`11` tests, including config, snapshot-path, entropy-plumbing, collapse
+threshold, and missing-gradient regressions.
+
+**Consequence:** `--config` can only select an exact copy of the locked
+protocol, and `QAQ_MODEL_SNAPSHOT` cannot redirect the run to another local
+snapshot. No production lambda or later-stage work is authorized by this
+repair.
