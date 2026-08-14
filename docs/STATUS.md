@@ -1,4 +1,4 @@
-Current stage: S10-C
+Current stage: S10-D
 Status: COMPLETE
 
 ## S09-A closeout — canonical validation gate
@@ -463,3 +463,38 @@ refactor occurred. Changed paths are limited to the objective/state seam, its
 focused tests, and stage/decision/status documentation.
 
 Next action: Begin S10-D. Do not begin it in this task.
+
+## S10-D — Bit-Cost Coefficient Calibration
+
+Status: COMPLETE
+Gate outcome: CONTINUE.
+
+S10-D executed the complete locked lambda grid on the required starting
+commit `41e598b0e00e9b72444b498c5cd39b2f335c2257`, using the identity-matched
+Qwen3-4B teacher, packed artifact, Wikitext revision, clean Any-Precision
+`a3257d02740cc5757c78673da534b0630ff3a4ea`, and free `cuda:0`. Static 4/6/8
+references were measured first with finite logits. Every trial reset the same
+seed-1729 three-way router-only state, verified 72 routers and 23,630,040
+scalars, used a fresh AdamW, and ran exactly four updates with the locked S07
+examples, order, masks, temperatures, and optimizer values.
+
+Evidence:
+- Focused S10-D plus S10-C/S10-B/S07/request-state regressions passed `44`;
+  Ruff passed for the runner and focused tests.
+- All five grid points completed: `0.0, 0.003, 0.01, 0.03, 0.1`.
+- No adaptive point was authorized by the observed triggers.
+- Initial router hashes matched across all trials; teacher and packed base
+  hashes were unchanged; optimizer audits were router-only and fresh; all
+  losses, gradients, widths, probabilities, and logits were finite.
+- Hard routing selected 6 on validation for every trial. The hard frontier is
+  observed at `0.03` and `0.1`; the soft frontier at `0.0, 0.003, 0.03, 0.1`.
+  These are not a production selection.
+
+Canonical result: `docs/results/s10d_lambda_calibration.json`.
+Protocol/config: `configs/s10d_lambda_calibration.json`.
+Stage procedure and limitations: `docs/stages/S10_6BIT_ROUTING.md`.
+No historical result, production checkpoint/lambda, S08 loader, packed
+artifact, Any-Precision source, or S07 runner was changed.
+
+Next action: firstmate/captain reviews the observed frontier and decides
+whether to refine, confirm, or begin full training.

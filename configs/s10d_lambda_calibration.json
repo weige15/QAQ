@@ -1,0 +1,68 @@
+{
+  "format": "qaq-s10d-lambda-calibration-v1",
+  "stage": "S10-D",
+  "candidate_bits": [4, 6, 8],
+  "dataset": {
+    "repository": "Salesforce/wikitext",
+    "config": "wikitext-2-raw-v1",
+    "revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+    "train_split": "train",
+    "validation_split": "validation",
+    "train_offsets": [0, 1000, 2000, 3000],
+    "validation_offsets": [0, 1000],
+    "train_examples": 4,
+    "validation_examples": 2,
+    "sequence_length": 64,
+    "prompt_tokens": 32,
+    "completion_tokens": 32,
+    "preprocessing": "tokenize each raw row with the pinned tokenizer and add_special_tokens=false; retain the first 64 tokens; prompt is tokens [0,32), completion is tokens [32,64)",
+    "seed": 1729
+  },
+  "training": {
+    "batch_size": 1,
+    "gradient_accumulation_steps": 1,
+    "optimizer": "AdamW",
+    "learning_rate": 0.001,
+    "weight_decay": 0.0,
+    "epochs": 1,
+    "optimizer_steps": 4,
+    "scheduler": "none",
+    "distillation_temperature": 2.0,
+    "routing_temperature": 1.0,
+    "logging_interval_steps": 1
+  },
+  "lambda_grid": [0.0, 0.003, 0.01, 0.03, 0.1],
+  "adaptive_extensions": {
+    "max_points": 2,
+    "low_lambda": {
+      "trigger_lambda": 0.003,
+      "trigger_collapse_fraction": 0.95,
+      "trigger_collapses": ["COLLAPSED_TO_4", "COLLAPSED_TO_6"],
+      "point": 0.001
+    },
+    "high_lambda": {
+      "trigger_lambda": 0.1,
+      "trigger_exact_lambda_zero_hard_map": true,
+      "trigger_soft_width_delta_bits": 0.001,
+      "point": 0.3
+    }
+  },
+  "evaluation": {
+    "quality_metric": "masked completion-only KD and mean/max absolute logit error against the pinned full-precision teacher",
+    "hard_route": "deterministic argmax over [p4,p6,p8], index 0 -> 4-bit, index 1 -> 6-bit, index 2 -> 8-bit",
+    "entropy_log_base": 2.0,
+    "pareto_axes": {
+      "soft": ["validation_kd_loss", "mean_expected_bit_width"],
+      "hard": ["validation_kd_loss", "mean_hard_selected_bit_width"]
+    }
+  },
+  "model": {
+    "repository": "Qwen/Qwen3-4B",
+    "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "any_precision_revision": "a3257d02740cc5757c78673da534b0630ff3a4ea",
+    "router_count": 72,
+    "router_parameter_count": 23630040
+  },
+  "device": "cuda:0",
+  "seed": 1729
+}
