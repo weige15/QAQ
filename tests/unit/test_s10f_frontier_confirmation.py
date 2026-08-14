@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import json
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -153,8 +154,54 @@ def test_execution_config_reuses_nested_training_and_s10d_entropy_choice():
     assert execution["training"]["optimizer_steps"] == 4
 
 
-def test_starting_base_is_the_merged_s10e_commit_not_historical_config_commit():
-    assert runner._validate_starting_base() == runner.EXPECTED_IMPLEMENTATION_BASE
+def test_starting_base_requires_merged_s10e_ancestor_and_returns_current_head(monkeypatch):
+    current_head = "17bbb2ed7f1e886bfd1f2d25c159e77eae877927"
+    calls = []
+
+    def fake_run(command, **kwargs):
+        calls.append(command)
+        if command[3:5] == ["rev-parse", "HEAD"]:
+            return subprocess.CompletedProcess(command, 0, current_head + "\n", "")
+        assert command[3:6] == ["merge-base", "--is-ancestor", runner.EXPECTED_IMPLEMENTATION_BASE]
+        assert command[6] == current_head
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    monkeypatch.setattr(runner.subprocess, "run", fake_run)
+    assert runner._validate_starting_base() == current_head
+    assert calls[0][3:] == ["rev-parse", "HEAD"]
+    assert calls[1][3:6] == ["merge-base", "--is-ancestor", runner.EXPECTED_IMPLEMENTATION_BASE]
+
+
+@pytest.mark.parametrize("current_head", [
+    "7fc136eabdba302e199354ae001cd1e1cd42199f",
+    "17bbb2ed7f1e886bfd1f2d25c159e77eae877927",
+    "delivery-test-descendant",
+])
+def test_starting_base_accepts_exact_base_and_legitimate_descendants(monkeypatch, current_head):
+    def fake_run(command, **kwargs):
+        if command[3:5] == ["rev-parse", "HEAD"]:
+            return subprocess.CompletedProcess(command, 0, current_head + "\n", "")
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    monkeypatch.setattr(runner.subprocess, "run", fake_run)
+    assert runner._validate_starting_base() == current_head
+
+
+@pytest.mark.parametrize("substituted_base", [
+    "e718f27fe6b02082709d65665396640e251e602c",
+    "unrelated-non-ancestor",
+])
+def test_starting_base_rejects_wrong_or_non_ancestor_base(monkeypatch, substituted_base):
+    def fake_run(command, **kwargs):
+        if command[3:5] == ["rev-parse", "HEAD"]:
+            return subprocess.CompletedProcess(command, 0, "current-head\n", "")
+        assert command[5] == substituted_base
+        return subprocess.CompletedProcess(command, 1, "", "")
+
+    monkeypatch.setattr(runner, "EXPECTED_IMPLEMENTATION_BASE", substituted_base)
+    monkeypatch.setattr(runner.subprocess, "run", fake_run)
+    with pytest.raises(RuntimeError, match="merged S10-E implementation base is unavailable"):
+        runner._validate_starting_base()
 
 
 def test_trial_matrix_is_exact_order_count_and_pairing():
