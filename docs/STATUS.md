@@ -1,4 +1,4 @@
-Current stage: S10-A
+Current stage: S10-C
 Status: COMPLETE
 
 ## S09-A closeout — canonical validation gate
@@ -452,7 +452,7 @@ production lambda was selected. Request-state probability clones remain
 attached to autograd. The objective is a normalized bit-plane-count surrogate,
 not latency, memory, transfer, energy, or kernel-runtime weighting.
 
-Focused S10-C tests passed `7`; S07 distillation, request-state, and S10-B unit
+Focused S10-C tests passed `9`; S07 distillation, request-state, and S10-B unit
 regressions passed `34`; the real pinned packed S10-B fixture passed `1`; the
 full unit suite passed `127`; and Ruff passed for changed source and tests.
 The required preflight resolved `/nfs/home/s314511048/.venv/bin/python`,

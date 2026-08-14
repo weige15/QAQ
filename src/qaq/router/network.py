@@ -20,8 +20,7 @@ def validate_candidate_bits(candidate_bits: object) -> tuple[int, ...]:
         raise TypeError("candidate_bits must be a tuple")
     if candidate_bits not in _ALLOWED_CANDIDATE_BITS:
         raise ValueError(
-            "candidate_bits must be exactly (4, 8) or (4, 6, 8); "
-            f"got {candidate_bits!r}"
+            f"candidate_bits must be exactly (4, 8) or (4, 6, 8); got {candidate_bits!r}"
         )
     return candidate_bits
 
@@ -172,7 +171,9 @@ def trainable_parameter_audit(
 ) -> dict[str, object]:
     """Verify that only the named router parameter namespace is trainable."""
 
-    trainable = [(name, parameter) for name, parameter in model.named_parameters() if parameter.requires_grad]
+    trainable = [
+        (name, parameter) for name, parameter in model.named_parameters() if parameter.requires_grad
+    ]
     invalid = [name for name, _ in trainable if not name.startswith(router_prefix)]
     if invalid:
         raise AssertionError(f"non-router parameters are trainable: {invalid}")
@@ -180,7 +181,9 @@ def trainable_parameter_audit(
         "trainable_names": [name for name, _ in trainable],
         "trainable_parameter_count": sum(parameter.numel() for _, parameter in trainable),
         "frozen_parameter_count": sum(
-            parameter.numel() for _, parameter in model.named_parameters() if not parameter.requires_grad
+            parameter.numel()
+            for _, parameter in model.named_parameters()
+            if not parameter.requires_grad
         ),
     }
 

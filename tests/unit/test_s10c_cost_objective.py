@@ -23,7 +23,9 @@ def test_endpoint_and_mixed_costs_use_explicit_candidate_order():
     assert torch.equal(expected_bit_cost(historical, CANDIDATE_BITS), torch.tensor([0.0, 1.0]))
     mixed = torch.tensor([0.2, 0.3, 0.5])
     assert expected_bit_cost(mixed, S10_CANDIDATE_BITS).item() == pytest.approx(0.65)
-    assert expected_bit_cost(torch.full((3,), 1 / 3), S10_CANDIDATE_BITS).item() == pytest.approx(0.5)
+    assert expected_bit_cost(torch.full((3,), 1 / 3), S10_CANDIDATE_BITS).item() == pytest.approx(
+        0.5
+    )
 
 
 def test_cost_validation_is_explicit_and_bounded():
@@ -131,7 +133,9 @@ def test_request_state_aggregates_each_attention_and_ffn_unit_once_with_gradient
         state.store_feature(unit_type, layer, torch.ones(2))
         state.store_probability(unit_type, layer, torch.softmax(logits[index], dim=-1))
     aggregated = request_state_expected_bit_cost(state)
-    manual = torch.stack([expected_bit_cost(torch.softmax(value, dim=-1)) for value in logits]).mean()
+    manual = torch.stack(
+        [expected_bit_cost(torch.softmax(value, dim=-1)) for value in logits]
+    ).mean()
     assert torch.allclose(aggregated, manual)
     assert aggregated.item() == pytest.approx(manual.item())
     combined = cost_aware_distillation_loss(torch.tensor(1.0, requires_grad=True), aggregated, 0.3)

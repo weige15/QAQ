@@ -1,4 +1,4 @@
-"""Request-owned S05 features and fixed route selections."""
+"""Request-owned S05 features and learned route selections/probabilities."""
 
 from __future__ import annotations
 
@@ -116,9 +116,7 @@ class QaqRequestState:
             else self.attention_probabilities
         )
         self.ffn_probabilities = list(
-            [None] * self.layer_count
-            if self.ffn_probabilities is None
-            else self.ffn_probabilities
+            [None] * self.layer_count if self.ffn_probabilities is None else self.ffn_probabilities
         )
         _validate_route_list(
             "attention_routes", self.attention_routes, self.layer_count, self.candidate_bits
@@ -214,7 +212,9 @@ class QaqRequestState:
             probability is not None
             for probability in self.attention_probabilities + self.ffn_probabilities
         ):
-            raise RuntimeError("prefill cannot overwrite probabilities already stored in request state")
+            raise RuntimeError(
+                "prefill cannot overwrite probabilities already stored in request state"
+            )
 
     def store_feature(self, unit_type: str, layer_index: int, feature: torch.Tensor) -> None:
         if unit_type not in ("attention", "ffn"):
@@ -245,9 +245,7 @@ class QaqRequestState:
         )
         features = self.attention_features if unit_type == "attention" else self.ffn_features
         probabilities_by_unit = (
-            self.attention_probabilities
-            if unit_type == "attention"
-            else self.ffn_probabilities
+            self.attention_probabilities if unit_type == "attention" else self.ffn_probabilities
         )
         if features[layer_index] is None:
             raise RuntimeError(f"cannot store {unit_type} probability before its feature")
@@ -285,7 +283,11 @@ class QaqRequestState:
             or not isinstance(precision, int)
             or precision not in self.candidate_bits
         ):
-            allowed = "integer 4 or 8" if self.candidate_bits == (4, 8) else f"integer from {self.candidate_bits}"
+            allowed = (
+                "integer 4 or 8"
+                if self.candidate_bits == (4, 8)
+                else f"integer from {self.candidate_bits}"
+            )
             raise ValueError(
                 f"{unit_type} route for layer {layer_index} must be an {allowed}; got {precision!r}"
             )

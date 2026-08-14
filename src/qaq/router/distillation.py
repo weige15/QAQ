@@ -1,9 +1,10 @@
-"""S07-A teacher-student router distillation primitives.
+"""S07 teacher-student router distillation and cost-composition primitives.
 
-The module deliberately contains training plumbing only.  It does not select
-routes by sampling, add a width/latency objective, or own teacher/packed model
-weights.  The S06 model remains the execution owner; this module supplies the
-explicit data, loss, freeze, optimizer, checkpoint, and observation seams.
+The module does not select routes by sampling or own teacher/packed model
+weights. S07's masked KL remains unchanged; S10-C's optional normalized
+bit-plane-count term composes with it without claiming hardware cost. The S06
+model remains the execution owner; this module supplies the explicit data,
+loss, freeze, optimizer, checkpoint, objective, and observation seams.
 """
 
 from __future__ import annotations
@@ -543,9 +544,7 @@ def request_state_expected_bit_cost(
     bit_cost = mean_expected_bit_cost(stacked, candidate_bits)
     if not return_diagnostics:
         return bit_cost
-    expected_width = (
-        4 + 4 * bit_cost if candidate_bits == S10_CANDIDATE_BITS else None
-    )
+    expected_width = 4 + 4 * bit_cost if candidate_bits == S10_CANDIDATE_BITS else None
     return RequestStateCostDiagnostics(
         expected_bit_cost=bit_cost,
         expected_bit_width=expected_width,
@@ -907,7 +906,9 @@ def route_statistics(
     if distillation_loss is not None and not math.isfinite(float(distillation_loss)):
         raise ValueError("distillation_loss must be finite")
     count = len(values)
-    candidates = tuple(bit for bit in S10_CANDIDATE_BITS if any(bit in record.candidate_bits for record in values))
+    candidates = tuple(
+        bit for bit in S10_CANDIDATE_BITS if any(bit in record.candidate_bits for record in values)
+    )
     hard_counts = {bit: sum(record.hard_bit == bit for record in values) for bit in candidates}
     by_layer: dict[str, dict[str, float]] = {}
     for layer in sorted({record.layer for record in values}):
@@ -1025,7 +1026,9 @@ def save_router_checkpoint(
 
     metadata.validate()
     router_candidates = getattr(router, "candidate_bits", None)
-    if router_candidates is not None and tuple(router_candidates) != tuple(metadata.candidate_ordering):
+    if router_candidates is not None and tuple(router_candidates) != tuple(
+        metadata.candidate_ordering
+    ):
         raise ValueError("router candidate_bits do not match checkpoint metadata")
     payload: dict[str, object] = {
         "format_version": CHECKPOINT_FORMAT_VERSION,
@@ -1046,7 +1049,9 @@ def load_router_checkpoint(
 ) -> dict[str, object]:
     expected_metadata.validate()
     router_candidates = getattr(router, "candidate_bits", None)
-    if router_candidates is not None and tuple(router_candidates) != tuple(expected_metadata.candidate_ordering):
+    if router_candidates is not None and tuple(router_candidates) != tuple(
+        expected_metadata.candidate_ordering
+    ):
         raise ValueError("router candidate_bits do not match checkpoint metadata")
     payload = torch.load(Path(path), map_location="cpu", weights_only=False)
     if payload.get("format_version") != CHECKPOINT_FORMAT_VERSION:
@@ -1184,9 +1189,9 @@ __all__ = [
     "DistillationStepResult",
     "ExecutionInputs",
     "FrozenParameterSnapshot",
+    "RequestStateCostDiagnostics",
     "RouteLogCollector",
     "RouteLogRecord",
-    "RequestStateCostDiagnostics",
     "RouterCheckpointMetadata",
     "RouterDistillationTrainer",
     "RouterOptimizerAudit",
