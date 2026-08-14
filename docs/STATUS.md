@@ -504,3 +504,30 @@ Focused repair verification passed `11` tests in
 
 Next action: firstmate/captain reviews the observed frontier and decides
 whether to refine, confirm, or begin full training.
+
+## S10-E — Frontier Confirmation Protocol Freeze
+
+Current stage: S10-E
+Status: COMPLETE
+Gate outcome: CONTINUE.
+
+Passing commit: `7228abae0f582d5b0225e81ac3dd1fa95a7a61ad`.
+The frozen protocol is `configs/s10e_frontier_confirmation.json`; focused
+protocol tests are in `tests/unit/test_s10e_frontier_confirmation.py`. The
+protocol records the merged S10-D/PR #9 starting point, exact candidate bits
+`[4,6,8]`, lambdas `[0.0,0.03,0.1]`, captain-selected seeds
+`[1729,1730,1731]`, nine paired trials, inherited S10-D/S07 data and training
+values, router and objective invariants, exact future measurements, and
+frozen CONTINUE/REFINE/PAUSE rules. Seeds and the three-candidate confirmation
+are implementation choices, not source-paper facts.
+
+The focused S10-E test passed `27`; the S10-D/S10-C/S10-B/S07/request-state
+unit regression selection passed `49`; Ruff passed for the focused test; and
+`git diff --check` passed. Hash comparison against the required starting
+commit confirmed unchanged S10-D canonical config/result/runner/test files
+and unchanged established S07/S08/router/objective/loading surfaces. No
+S10-E trial, model inference, CUDA execution, router training, S10-D runner,
+full training, adaptive extension, production lambda selection, or S10-F work
+was performed. No `scripts/run_s10e.py` exists.
+
+Next action: Begin S10-F: execute the frozen three-seed frontier confirmation protocol.
