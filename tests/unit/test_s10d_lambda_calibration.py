@@ -9,7 +9,9 @@ from torch import nn
 from qaq.router.distillation import RouteLogRecord, cost_aware_distillation_loss, expected_bit_cost
 from qaq.router.network import S10_CANDIDATE_BITS, SoftPrecisionRouter
 from scripts.run_s10d import (
+    _gradient_norm,
     _load_config,
+    _validate_model_snapshot,
     classify_collapse,
     fresh_router_optimizer,
     pareto_frontiers,
@@ -99,6 +101,25 @@ def test_probability_metrics_hard_fractions_and_width_are_finite():
     assert summary["unique_hard_route_map_count"] == 2
 
 
+def test_route_summary_uses_requested_entropy_log_base():
+    records = [
+        RouteLogRecord.from_probabilities(
+            "validation-3",
+            0,
+            "attention",
+            torch.tensor([0.25, 0.25, 0.5]),
+            candidate_bits=S10_CANDIDATE_BITS,
+        )
+    ]
+    summary = summarize_route_records(
+        records,
+        validation_ids=("validation-3",),
+        logits_finite=True,
+        entropy_log_base=10.0,
+    )
+    assert summary["entropy_log_base"] == 10.0
+
+
 def test_three_way_collapse_labels_follow_locked_threshold():
     def stats(fractions, changed=0.0, distance=0.0):
         return {
@@ -114,6 +135,33 @@ def test_three_way_collapse_labels_follow_locked_threshold():
     assert classify_collapse(stats((0.0, 0.05, 0.95))) == "COLLAPSED_TO_8"
     assert classify_collapse(stats((0.4, 0.3, 0.3), changed=0.2, distance=0.1)) == "ADAPTIVE_OBSERVED"
     assert classify_collapse(stats((0.4, 0.3, 0.3))) == "PROMPT_INVARIANT"
+    assert classify_collapse(stats((0.9, 0.1, 0.0)), collapse_fraction=0.9) == "COLLAPSED_TO_4"
+
+
+def test_gradient_norm_rejects_missing_gradients():
+    with pytest.raises(FloatingPointError, match="missing"):
+        _gradient_norm((torch.ones(1), None))
+
+
+def test_locked_config_rejects_field_override(tmp_path):
+    config_path = tmp_path / "s10d.json"
+    config = _load_config()
+    config["evaluation"]["entropy_log_base"] = 10.0
+    config_path.write_text(json.dumps(config))
+    with pytest.raises(RuntimeError, match="locked protocol"):
+        _load_config(config_path)
+
+
+def test_model_snapshot_rejects_noncanonical_path(tmp_path):
+    snapshot = (
+        tmp_path
+        / "models--Qwen--Qwen3-4B"
+        / "snapshots"
+        / "1cfa9a7208912126459214e8b04321603b3df60c"
+    )
+    snapshot.mkdir(parents=True)
+    with pytest.raises(SystemExit, match="exact pinned"):
+        _validate_model_snapshot(snapshot)
 
 
 def test_pareto_frontier_is_deterministic_and_not_a_scalar_selection():

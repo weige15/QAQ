@@ -45,6 +45,7 @@ from scripts.run_s07b import (
 
 CONFIG_PATH = ROOT / "configs/s10d_lambda_calibration.json"
 MANIFEST_PATH = ROOT / "docs/quantized_model_manifest.json"
+MODEL_REVISION = "1cfa9a7208912126459214e8b04321603b3df60c"
 MODEL_SNAPSHOT = Path(
     os.environ.get(
         "QAQ_MODEL_SNAPSHOT",
@@ -52,16 +53,25 @@ MODEL_SNAPSHOT = Path(
         "snapshots/1cfa9a7208912126459214e8b04321603b3df60c",
     )
 ).expanduser()
-MODEL_REVISION = "1cfa9a7208912126459214e8b04321603b3df60c"
+EXPECTED_MODEL_SNAPSHOT = (
+    Path.home()
+    / ".cache/huggingface/hub/models--Qwen--Qwen3-4B"
+    / "snapshots"
+    / MODEL_REVISION
+)
 ANY_PRECISION_REVISION = "a3257d02740cc5757c78673da534b0630ff3a4ea"
 DATASET_REVISION = "b08601e04326c79dfdd32d625aee71d232d685c3"
 CANDIDATE_BITS = S10_CANDIDATE_BITS
 LAYER_COUNT = 36
 MIN_FREE_GPU_BYTES = 20 * 1024**3
+LOCKED_CONFIG_SHA256 = "22649ec4cdafa7a8ff669f72c159c7fbfbaa33ecea50888a953301a8225bb5c1"
 
 
 def _load_config(path: Path = CONFIG_PATH) -> dict[str, Any]:
-    config = json.loads(path.read_text())
+    config_bytes = path.read_bytes()
+    if hashlib.sha256(config_bytes).hexdigest() != LOCKED_CONFIG_SHA256:
+        raise RuntimeError("REVISE: S10-D config differs from the locked protocol")
+    config = json.loads(config_bytes)
     if tuple(config["candidate_bits"]) != CANDIDATE_BITS:
         raise RuntimeError("REVISE: S10-D candidate ordering is not (4,6,8)")
     if config["dataset"]["revision"] != DATASET_REVISION:
@@ -231,8 +241,10 @@ def install_memory_saving_packed_backward() -> None:
 
 
 def _gradient_norm(gradients: Iterable[torch.Tensor | None]) -> float:
-    values = tuple(gradient for gradient in gradients if gradient is not None)
-    if not values or any(not _finite(value) for value in values):
+    values = tuple(gradients)
+    if not values or any(value is None for value in values):
+        raise FloatingPointError("REVISE: missing or non-finite router gradient")
+    if any(not _finite(value) for value in values):
         raise FloatingPointError("REVISE: missing or non-finite router gradient")
     total = sum(value.detach().float().square().sum() for value in values)
     norm = torch.sqrt(total)
@@ -268,10 +280,14 @@ def _route_distance(maps: Iterable[tuple[int, ...]]) -> float:
 
 
 def summarize_route_records(
-    records: Iterable[Any], *, validation_ids: tuple[str, ...], logits_finite: bool
+    records: Iterable[Any],
+    *,
+    validation_ids: tuple[str, ...],
+    logits_finite: bool,
+    entropy_log_base: float = 2.0,
 ) -> dict[str, Any]:
     values = tuple(records)
-    stats = route_statistics(values)
+    stats = route_statistics(values, entropy_log_base=entropy_log_base)
     maps = {
         request_id: list(_route_map(record for record in values if record.request_id == request_id))
         for request_id in validation_ids
@@ -308,14 +324,14 @@ def static_mode_name(bits: int) -> str:
     return f"static{bits}"
 
 
-def classify_collapse(stats: dict[str, Any]) -> str:
-    """Apply the locked >=95% collapse labels, then S07 observational labels."""
+def classify_collapse(stats: dict[str, Any], *, collapse_fraction: float = 0.95) -> str:
+    """Apply the configured collapse labels, then S07 observational labels."""
 
-    if stats["hard_fraction_4"] >= 0.95:
+    if stats["hard_fraction_4"] >= collapse_fraction:
         return "COLLAPSED_TO_4"
-    if stats["hard_fraction_6"] >= 0.95:
+    if stats["hard_fraction_6"] >= collapse_fraction:
         return "COLLAPSED_TO_6"
-    if stats["hard_fraction_8"] >= 0.95:
+    if stats["hard_fraction_8"] >= collapse_fraction:
         return "COLLAPSED_TO_8"
     variation = stats["route_variation_across_prompts"]
     if variation["changed_fraction"] > 0 and stats.get("prompt_to_prompt_route_distance", 0.0) >= 0.05:
@@ -397,6 +413,7 @@ def _evaluate_static(
     examples: list[Any],
     teacher_targets: dict[str, torch.Tensor],
     device: str,
+    config: dict[str, Any],
     torch_module: Any,
 ) -> dict[str, Any]:
     result: dict[str, Any] = {}
@@ -418,7 +435,7 @@ def _evaluate_static(
                 teacher_logits,
                 logits,
                 example.completion_loss_mask.unsqueeze(0),
-                temperature=2.0,
+                temperature=float(config["training"]["distillation_temperature"]),
             )
             if not _finite(kd):
                 raise FloatingPointError(f"REVISE: non-finite {mode} masked KD")
@@ -458,6 +475,7 @@ def _evaluate_learned(
     teacher_targets: dict[str, torch.Tensor],
     device: str,
     mode: str,
+    config: dict[str, Any],
     torch_module: Any,
 ) -> dict[str, Any]:
     if mode not in ("soft", "hard"):
@@ -504,7 +522,11 @@ def _evaluate_learned(
             state.assert_complete()
         else:
             state.assert_soft_complete()
-        route_records = route_records_from_request_state(example.example_id, state)
+        route_records = route_records_from_request_state(
+            example.example_id,
+            state,
+            log_base=float(config["evaluation"]["entropy_log_base"]),
+        )
         if mode == "hard":
             actual = tuple(state.attention_routes) + tuple(state.ffn_routes)
             recorded = tuple(record.hard_bit for record in route_records)
@@ -515,7 +537,7 @@ def _evaluate_learned(
             teacher_logits,
             logits,
             example.completion_loss_mask.unsqueeze(0),
-            temperature=2.0,
+            temperature=float(config["training"]["distillation_temperature"]),
         )
         if not _finite(kd):
             raise FloatingPointError(f"REVISE: non-finite learned {mode} masked KD")
@@ -530,7 +552,12 @@ def _evaluate_learned(
                 "route_map": list(_route_map(route_records)),
             }
         )
-    summary = summarize_route_records(records, validation_ids=validation_ids, logits_finite=True)
+    summary = summarize_route_records(
+        records,
+        validation_ids=validation_ids,
+        logits_finite=True,
+        entropy_log_base=float(config["evaluation"]["entropy_log_base"]),
+    )
     summary.update(
         {
             "count": len(per_example),
@@ -539,7 +566,16 @@ def _evaluate_learned(
             / len(per_example),
             "maximum_absolute_logit_error": max(item["maximum_absolute_logit_error"] for item in per_example),
             "per_example": per_example,
-            "collapse_classification": classify_collapse(summary) if mode == "hard" else None,
+            "collapse_classification": (
+                classify_collapse(
+                    summary,
+                    collapse_fraction=float(
+                        config["adaptive_extensions"]["low_lambda"]["trigger_collapse_fraction"]
+                    ),
+                )
+                if mode == "hard"
+                else None
+            ),
         }
     )
     return summary
@@ -589,6 +625,15 @@ def _git_commit() -> str:
         capture_output=True,
         text=True,
     ).stdout.strip()
+
+
+def _validate_model_snapshot(path: Path) -> None:
+    if path.resolve(strict=False) != EXPECTED_MODEL_SNAPSHOT:
+        raise SystemExit(
+            "PAUSE: QAQ_MODEL_SNAPSHOT must be the exact pinned Hugging Face snapshot path"
+        )
+    if not path.is_dir():
+        raise SystemExit(f"PAUSE: exact pinned teacher snapshot is unavailable: {path}")
 
 
 def _environment(device: str, free_bytes: int) -> dict[str, Any]:
@@ -708,7 +753,11 @@ def _run_trial(
             if not name.startswith("routers.")
         ):
             raise RuntimeError("REVISE: frozen packed student received a gradient")
-        records = route_records_from_request_state(example.example_id, state)
+        records = route_records_from_request_state(
+            example.example_id,
+            state,
+            log_base=float(config["evaluation"]["entropy_log_base"]),
+        )
         probability_means = _probability_means(records)
         optimizer.step()
         history.append(
@@ -726,7 +775,12 @@ def _run_trial(
                 if cost_diagnostics.expected_bit_width is None
                 else float(cost_diagnostics.expected_bit_width.detach().item()),
                 "router_gradient_norm": gradient_norm,
-                "mean_entropy": float(route_statistics(records)["mean_entropy"]),
+                "mean_entropy": float(
+                    route_statistics(
+                        records,
+                        entropy_log_base=float(config["evaluation"]["entropy_log_base"]),
+                    )["mean_entropy"]
+                ),
                 "p4": probability_means["p4"],
                 "p6": probability_means["p6"],
                 "p8": probability_means["p8"],
@@ -766,8 +820,7 @@ def main() -> int:
     device = args.device or str(config["device"])
     if not os.environ.get("VIRTUAL_ENV", "").startswith(str(Path.home() / ".venv")):
         raise SystemExit("PAUSE: ~/.venv is not active")
-    if not MODEL_SNAPSHOT.is_dir():
-        raise SystemExit(f"PAUSE: exact pinned teacher snapshot is unavailable: {MODEL_SNAPSHOT}")
+    _validate_model_snapshot(MODEL_SNAPSHOT)
     if not torch.cuda.is_available():
         raise SystemExit("PAUSE: CUDA is unavailable; CPU fallback is forbidden")
     torch.cuda.set_device(torch.device(device))
@@ -847,7 +900,7 @@ def main() -> int:
     print("S10-D: measuring static 4/6/8 references", flush=True)
     static_model = load_static_model(artifact, device)
     static_references = _evaluate_static(
-        static_model, validation_examples, teacher_targets, device, torch
+        static_model, validation_examples, teacher_targets, device, config, torch
     )
     del static_model
     torch.cuda.empty_cache()
@@ -890,10 +943,10 @@ def main() -> int:
             torch,
         )
         trial["soft"] = _evaluate_learned(
-            student, validation_examples, teacher_targets, device, "soft", torch
+            student, validation_examples, teacher_targets, device, "soft", config, torch
         )
         trial["hard"] = _evaluate_learned(
-            student, validation_examples, teacher_targets, device, "hard", torch
+            student, validation_examples, teacher_targets, device, "hard", config, torch
         )
         trial["collapse_label"] = trial["hard"]["collapse_classification"]
         trial_results.append(trial)
@@ -901,29 +954,36 @@ def main() -> int:
         torch.cuda.empty_cache()
 
     extensions: list[float] = []
-    low_trial = trial_by_lambda[0.003]
-    if low_trial["collapse_label"] in ("COLLAPSED_TO_4", "COLLAPSED_TO_6"):
-        extensions.append(0.001)
-    high_trial = trial_by_lambda[0.1]
+    low_policy = config["adaptive_extensions"]["low_lambda"]
+    low_lambda = float(low_policy["trigger_lambda"])
+    low_trial = trial_by_lambda[low_lambda]
+    if low_trial["collapse_label"] in low_policy["trigger_collapses"]:
+        extensions.append(float(low_policy["point"]))
+    high_policy = config["adaptive_extensions"]["high_lambda"]
+    high_lambda = float(high_policy["trigger_lambda"])
+    high_trial = trial_by_lambda[high_lambda]
     zero_trial = trial_by_lambda[0.0]
     exact_hard_map = high_trial["hard"]["per_validation_route_maps"] == zero_trial["hard"]["per_validation_route_maps"]
     soft_width_delta = abs(
         high_trial["soft"]["mean_expected_bit_width"]
         - zero_trial["soft"]["mean_expected_bit_width"]
     )
-    if exact_hard_map and soft_width_delta < 0.001:
-        extensions.append(0.3)
-    extensions = list(dict.fromkeys(extensions))[:2]
+    if (
+        exact_hard_map == bool(high_policy["trigger_exact_lambda_zero_hard_map"])
+        and soft_width_delta < float(high_policy["trigger_soft_width_delta_bits"])
+    ):
+        extensions.append(float(high_policy["point"]))
+    extensions = list(dict.fromkeys(extensions))[: int(config["adaptive_extensions"]["max_points"])]
 
     extension_decisions = {
         "low_lambda_0.003": {
             "collapse_label": low_trial["collapse_label"],
-            "point_added": 0.001 in extensions,
+            "point_added": float(low_policy["point"]) in extensions,
         },
         "high_lambda_0.1": {
             "exact_lambda_zero_hard_map": exact_hard_map,
             "soft_width_delta_bits": soft_width_delta,
-            "point_added": 0.3 in extensions,
+            "point_added": float(high_policy["point"]) in extensions,
         },
     }
     for lambda_bit in extensions:
@@ -941,10 +1001,10 @@ def main() -> int:
             torch,
         )
         trial["soft"] = _evaluate_learned(
-            student, validation_examples, teacher_targets, device, "soft", torch
+            student, validation_examples, teacher_targets, device, "soft", config, torch
         )
         trial["hard"] = _evaluate_learned(
-            student, validation_examples, teacher_targets, device, "hard", torch
+            student, validation_examples, teacher_targets, device, "hard", config, torch
         )
         trial["collapse_label"] = trial["hard"]["collapse_classification"]
         trial_results.append(trial)

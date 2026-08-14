@@ -496,5 +496,11 @@ Stage procedure and limitations: `docs/stages/S10_6BIT_ROUTING.md`.
 No historical result, production checkpoint/lambda, S08 loader, packed
 artifact, Any-Precision source, or S07 runner was changed.
 
+Review repair: the runner now rejects any config bytes other than the locked
+protocol, consumes configured KD/entropy/adaptive values, requires the exact
+pinned Hugging Face snapshot path, and rejects missing router gradients.
+Focused repair verification passed `11` tests in
+`tests/unit/test_s10d_lambda_calibration.py`.
+
 Next action: firstmate/captain reviews the observed frontier and decides
 whether to refine, confirm, or begin full training.

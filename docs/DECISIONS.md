@@ -938,3 +938,21 @@ choose whether to refine, confirm, or begin full training.
 **Reversal path:** If a rerun changes the locked data, initialization,
 objective, adaptive trigger, candidate order, or execution path, preserve this
 artifact and record a new decision before comparing or extending the result.
+
+### D043 — S10-D review validation repairs (2026-08-14)
+
+**Implementation choice:** Keep the S10-D experiment unchanged while making
+the runner reject noncanonical protocol bytes, pass configured KD temperature,
+entropy base, and adaptive trigger values through every relevant path, require
+the exact pinned Hugging Face cache snapshot path, and reject any missing router
+gradient before norm calculation.
+
+**Evidence:** The canonical result remains valid because the locked config
+values and execution outputs are unchanged. The focused repair suite passed
+`11` tests, including config, snapshot-path, entropy-plumbing, collapse
+threshold, and missing-gradient regressions.
+
+**Consequence:** `--config` can only select an exact copy of the locked
+protocol, and `QAQ_MODEL_SNAPSHOT` cannot redirect the run to another local
+snapshot. No production lambda or later-stage work is authorized by this
+repair.
