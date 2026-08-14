@@ -511,7 +511,7 @@ Current stage: S10-E
 Status: COMPLETE
 Gate outcome: CONTINUE.
 
-Passing commit: `7228abac0e365ea7712d39d5bf04d23e2e4c80da`.
+Passing commit: `7a3548973cbe784657a41c0c6192c155909027c5`.
 The frozen protocol is `configs/s10e_frontier_confirmation.json`; focused
 protocol tests are in `tests/unit/test_s10e_frontier_confirmation.py`. The
 protocol records the merged S10-D/PR #9 starting point, exact candidate bits

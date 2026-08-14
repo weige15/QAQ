@@ -308,7 +308,9 @@ def test_protocol_rejects_missing_paired_initialization_semantics():
 
 def test_protocol_rejects_measurement_and_objective_drift():
     protocol = load_protocol()
-    protocol["future_measurements"]["per_trial_required_fields"].remove("hard_validation_fraction_6")
+    protocol["future_measurements"]["per_trial_required_fields"].remove(
+        "hard_validation_fraction_6"
+    )
     with pytest.raises(AssertionError):
         validate_protocol(protocol)
 
