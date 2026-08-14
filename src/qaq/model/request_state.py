@@ -138,6 +138,7 @@ class QaqRequestState:
                         probability,
                         self.candidate_bits,
                         context=f"{name}[{layer_index}]",
+                        require_vector=True,
                     )
         attention_dim = _validate_features(
             "attention_features", self.attention_features, self.layer_count, self.feature_dim
@@ -240,6 +241,7 @@ class QaqRequestState:
             probabilities,
             self.candidate_bits,
             context="stored routing probabilities",
+            require_vector=True,
         )
         features = self.attention_features if unit_type == "attention" else self.ffn_features
         probabilities_by_unit = (

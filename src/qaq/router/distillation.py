@@ -499,10 +499,20 @@ def mean_expected_bit_cost(
     """Return the unweighted arithmetic mean cost over routing decisions."""
 
     costs = expected_bit_cost(probabilities, candidate_bits)
+    if costs.numel() == 0:
+        raise ValueError("probabilities must contain at least one routing decision")
     return costs.mean()
 
 
-def request_state_expected_bit_cost(state: Any) -> torch.Tensor:
+@dataclass(frozen=True, slots=True)
+class RequestStateCostDiagnostics:
+    expected_bit_cost: torch.Tensor
+    expected_bit_width: torch.Tensor | None
+
+
+def request_state_expected_bit_cost(
+    state: Any, *, return_diagnostics: bool = False
+) -> torch.Tensor | RequestStateCostDiagnostics:
     """Aggregate every stored attention and FFN probability exactly once.
 
     The stored probability clones remain connected to the router graph.  A
@@ -519,11 +529,27 @@ def request_state_expected_bit_cost(state: Any) -> torch.Tensor:
             raise ValueError(f"{name} must contain exactly {layer_count} decisions")
         if any(value is None for value in values):
             raise ValueError(f"{name} is missing one or more routing decisions")
+        for value in values:
+            validate_probabilities(
+                value,
+                candidate_bits,
+                context=f"{name} entries",
+                require_vector=True,
+            )
         decisions.extend(values)
     if len(decisions) != 2 * layer_count:
         raise ValueError("request state must contain one attention and one FFN decision per layer")
     stacked = torch.stack(decisions, dim=0)
-    return mean_expected_bit_cost(stacked, candidate_bits)
+    bit_cost = mean_expected_bit_cost(stacked, candidate_bits)
+    if not return_diagnostics:
+        return bit_cost
+    expected_width = (
+        4 + 4 * bit_cost if candidate_bits == S10_CANDIDATE_BITS else None
+    )
+    return RequestStateCostDiagnostics(
+        expected_bit_cost=bit_cost,
+        expected_bit_width=expected_width,
+    )
 
 
 def _validate_cost_weight(cost_weight: object) -> float:
@@ -1160,6 +1186,7 @@ __all__ = [
     "FrozenParameterSnapshot",
     "RouteLogCollector",
     "RouteLogRecord",
+    "RequestStateCostDiagnostics",
     "RouterCheckpointMetadata",
     "RouterDistillationTrainer",
     "RouterOptimizerAudit",

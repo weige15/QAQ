@@ -58,6 +58,38 @@ def test_expected_width_relationship_and_fixed_kd_positive_lambda_ordering():
     assert losses[0] < losses[1] < losses[2]
 
 
+def test_request_state_diagnostics_expose_three_way_expected_width():
+    state = QaqRequestState(
+        "diagnostic-request", prompt_length=1, layer_count=1, candidate_bits=S10_CANDIDATE_BITS
+    )
+    for unit_type in ("attention", "ffn"):
+        state.store_feature(unit_type, 0, torch.ones(2))
+        state.store_probability(unit_type, 0, torch.tensor([0.2, 0.3, 0.5]))
+    diagnostics = request_state_expected_bit_cost(state, return_diagnostics=True)
+    assert diagnostics.expected_bit_cost.item() == pytest.approx(0.65)
+    assert diagnostics.expected_bit_width is not None
+    assert diagnostics.expected_bit_width.item() == pytest.approx(
+        4 + 4 * diagnostics.expected_bit_cost.item()
+    )
+
+
+def test_request_state_rejects_leading_dimensions_and_empty_slots():
+    state = QaqRequestState(
+        "shape-request", prompt_length=1, layer_count=1, candidate_bits=S10_CANDIDATE_BITS
+    )
+    state.store_feature("attention", 0, torch.ones(2))
+    for probabilities in (torch.full((2, 3), 1 / 3), torch.empty((0, 3))):
+        with pytest.raises(ValueError, match="shape"):
+            state.store_probability("attention", 0, probabilities)
+
+    state.store_probability("attention", 0, torch.tensor([1.0, 0.0, 0.0]))
+    state.store_feature("ffn", 0, torch.ones(2))
+    state.store_probability("ffn", 0, torch.tensor([1.0, 0.0, 0.0]))
+    state.attention_probabilities[0] = torch.empty((0, 3))
+    with pytest.raises(ValueError, match="shape"):
+        request_state_expected_bit_cost(state)
+
+
 def test_cost_weight_validation_and_lambda_zero_scalar_gradient_compatibility():
     logits = torch.tensor([0.2, -0.3, 0.7], requires_grad=True)
     probabilities = torch.softmax(logits, dim=-1)

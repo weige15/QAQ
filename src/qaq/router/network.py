@@ -31,18 +31,25 @@ def validate_probabilities(
     candidate_bits: tuple[int, ...] = CANDIDATE_BITS,
     *,
     context: str = "routing probabilities",
+    require_vector: bool = False,
 ) -> torch.Tensor:
     """Validate a probability vector against its explicit candidate order."""
 
     candidate_bits = validate_candidate_bits(candidate_bits)
-    if (
-        not isinstance(probabilities, torch.Tensor)
-        or probabilities.ndim < 1
-        or probabilities.shape[-1] != len(candidate_bits)
-    ):
+    if not isinstance(probabilities, torch.Tensor) or probabilities.ndim < 1:
         raise ValueError(
             f"{context} must have shape [..., {len(candidate_bits)}] "
             f"(final dimension for candidate_bits={candidate_bits})"
+        )
+    if probabilities.shape[-1] != len(candidate_bits):
+        raise ValueError(
+            f"{context} must have shape [..., {len(candidate_bits)}] "
+            f"(final dimension for candidate_bits={candidate_bits})"
+        )
+    if require_vector and probabilities.ndim != 1:
+        raise ValueError(
+            f"{context} must have one-dimensional shape [{len(candidate_bits)}] "
+            f"for candidate_bits={candidate_bits}"
         )
     if not torch.isfinite(probabilities).all():
         raise ValueError(f"{context} must be finite")
