@@ -390,3 +390,42 @@ routing stage was started.
 
 Next action: S07C-EVIDENCE-005 is resolved; await separate instruction before
 beginning S10-B, the next 6-bit routing stage.
+
+## S10-B — Three-Way Router Semantics
+
+Current stage: S10-B
+Status: COMPLETE
+
+Gate outcome: CONTINUE.
+
+S10-B is complete on implementation commit `f9e7c38`. Learned-router
+candidate ordering is explicit and validated as exactly `(4,8)` or `(4,6,8)`.
+The historical default remains `(4,8)` with probability order `[p4,p8]`; the
+new explicit router emits `[p4,p6,p8]`, stores matching request-owned state,
+executes real packed 4/6/8 mixtures, maps hard argmax index 1 to 6, and records
+candidate ordering in traces, route observations, and checkpoint metadata.
+
+The historical router count remains 72. Verified counts are 23,620,752 scalars
+for `(4,8)` and 23,630,040 for `(4,6,8)`, an increase of 9,288. The historical
+S07 checkpoint SHA-256 remains
+`08bf646f19759c0d7949e159bdbe4f96bbea737204b96f8760d205c8d6fd1949`; a fresh
+historical checkpoint load passed, and synthetic three-way checkpoint
+round-trip plus both mismatch directions were rejected correctly. The pinned
+Any-Precision revision remains clean at
+`a3257d02740cc5757c78673da534b0630ff3a4ea`.
+
+Verification passed: full unit suite `120 passed`; focused lifecycle and S08
+regressions `14 passed`; real pinned packed three-way fixture `1 passed`; and
+artifact-backed Qwen3 three-way forced 4/6/8 endpoints `1 passed in 421.02s`.
+Ruff passed for all changed source and S10-B tests. The required Python
+preflight resolved `/nfs/home/s314511048/.venv/bin/python`, Python `3.12.3`,
+and RTX 3090 GPUs through `nvidia-smi`.
+
+No training or retraining occurred. No cost-aware objective or penalty
+coefficient was added. S08 on-demand loading remains 4/8-only; no 6-bit
+on-demand support was introduced. Historical S07/S09 results, the packed
+artifact, Any-Precision source, and historical checkpoint were not modified.
+No quality, latency, memory, transfer, or routing-quality evaluation was run.
+
+Next action: Begin S10-C: define and validate the cost-aware 4/6/8 router
+objective. Do not begin S10-C without a separate Captain instruction.
