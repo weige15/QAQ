@@ -123,31 +123,44 @@ def validate_protocol(protocol: dict[str, object]) -> None:
         "logging_interval_steps": 1,
     }
 
-    objective = inherited["objective"]
-    assert objective["candidate_bits"] == EXPECTED_BITS
-    assert objective["normalized_bit_costs"] == [0.0, 0.5, 1.0]
-    assert objective["cost_order"] == EXPECTED_BITS
-    assert objective["normalized_bit_cost_formula"] == "c(bit) = (bit - 4) / (8 - 4)"
-    assert objective["loss_formula"] == "L_total = L_KD + lambda_bit * L_bit"
-    assert objective["kd_loss"] == "unchanged completion-only T^2 masked KL teacher-student distillation"
-    assert objective["hardware_cost_claim"] is False
+    assert inherited["objective"] == {
+        "candidate_bits": EXPECTED_BITS,
+        "normalized_bit_cost_formula": "c(bit) = (bit - 4) / (8 - 4)",
+        "normalized_bit_costs": [0.0, 0.5, 1.0],
+        "cost_order": EXPECTED_BITS,
+        "loss_formula": "L_total = L_KD + lambda_bit * L_bit",
+        "kd_loss": "unchanged completion-only T^2 masked KL teacher-student distillation",
+        "cost_reduction": "unweighted arithmetic mean across all 36 attention and 36 FFN decisions",
+        "hardware_cost_claim": False,
+    }
 
     frozen = inherited["frozen_components"]
-    assert frozen["teacher_frozen"] is True
-    assert frozen["packed_student_base_frozen"] is True
-    assert frozen["router_only_optimizer"] is True
-    assert frozen["any_precision_revision"] == "a3257d02740cc5757c78673da534b0630ff3a4ea"
-    assert frozen["packed_artifact_pytorch_model_sha256"] == (
-        "29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee"
-    )
-    assert frozen["historical_s07_checkpoint_used"] is False
+    assert frozen == {
+        "teacher_frozen": True,
+        "packed_student_base_frozen": True,
+        "router_only_optimizer": True,
+        "packed_artifact": (
+            "quantized/s03b_qwen3_4b/backend_cache/packed/"
+            "anyprec-(1cfa9a7208912126459214e8b04321603b3df60c)-w8_orig4-gc1-c4_s1_blk64"
+        ),
+        "packed_artifact_pytorch_model_sha256": (
+            "29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee"
+        ),
+        "any_precision_revision": "a3257d02740cc5757c78673da534b0630ff3a4ea",
+        "model_repository": "Qwen/Qwen3-4B",
+        "model_revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+        "historical_s07_checkpoint_used": False,
+    }
 
-    router = protocol["router_contract"]
-    assert router["router_count"] == 72
-    assert router["router_parameter_count"] == 23630040
-    assert router["candidate_bits"] == EXPECTED_BITS
-    assert router["request_owned_routing_state"] is True
-    assert router["completion_only_kd_objective_unchanged"] is True
+    assert protocol["router_contract"] == {
+        "router_count": 72,
+        "router_parameter_count": 23630040,
+        "candidate_bits": EXPECTED_BITS,
+        "soft_routing": "resident three-way packed mixture in explicit [p4,p6,p8] order",
+        "hard_routing": "deterministic argmax in explicit [p4,p6,p8] order",
+        "request_owned_routing_state": True,
+        "completion_only_kd_objective_unchanged": True,
+    }
 
     measurements = protocol["future_measurements"]
     assert measurements["per_trial_required_fields"] == EXPECTED_PER_TRIAL_FIELDS
@@ -246,6 +259,26 @@ def test_frozen_protocol_is_exact_and_does_not_execute_any_experiment():
         lambda p: p["inherited_s10d_contract"]["training"].update(optimizer_steps=5),
         lambda p: p["inherited_s10d_contract"]["training"].update(learning_rate=0.0001),
         lambda p: p["inherited_s10d_contract"]["training"].update(weight_decay=0.01),
+        lambda p: p["inherited_s10d_contract"]["objective"].update(
+            cost_reduction="weighted arithmetic mean"
+        ),
+        lambda p: p["router_contract"].update(soft_routing="resident two-way packed mixture"),
+        lambda p: p["router_contract"].update(hard_routing="random route selection"),
+        lambda p: p["inherited_s10d_contract"]["frozen_components"].update(
+            packed_artifact="changed-packed-artifact"
+        ),
+        lambda p: p["inherited_s10d_contract"]["frozen_components"].update(
+            packed_artifact_pytorch_model_sha256="changed-artifact-hash"
+        ),
+        lambda p: p["inherited_s10d_contract"]["frozen_components"].update(
+            any_precision_revision="changed-any-precision-revision"
+        ),
+        lambda p: p["inherited_s10d_contract"]["frozen_components"].update(
+            model_repository="changed-model-repository"
+        ),
+        lambda p: p["inherited_s10d_contract"]["frozen_components"].update(
+            model_revision="changed-model-revision"
+        ),
         lambda p: p["protocol"]["pairing"].update(
             one_canonical_fresh_three_way_router_initialization_per_seed=False
         ),
