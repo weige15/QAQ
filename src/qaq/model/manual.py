@@ -16,21 +16,22 @@ from typing import Any, ClassVar
 import torch
 from torch import nn
 
-from .request_state import QaqRequestState
-from ..router.features import (
-    coerce_manual_policy,
-    masked_mean_pool,
-    validate_policy_result,
-    validate_prompt_mask,
-)
-from ..router.soft_linear import mix_packed_outputs
-from .static import assert_target_invariant, load_static_model
 from ..loading.loader import (
     PackedLinearSource,
     SynchronousPackedRequest,
     execute_packed_linear,
     pinned_backend,
 )
+from ..router.features import (
+    coerce_manual_policy,
+    masked_mean_pool,
+    validate_policy_result,
+    validate_prompt_mask,
+)
+from ..router.network import CANDIDATE_BITS, validate_probabilities
+from ..router.soft_linear import mix_packed_outputs
+from .request_state import QaqRequestState
+from .static import assert_target_invariant, load_static_model
 
 LAYER_COUNT = 36
 SUPPORTED_BITS = (4, 8)
@@ -151,12 +152,13 @@ class PrecisionCall:
 
 @dataclass(frozen=True, slots=True)
 class SoftPrecisionCall:
-    """One packed projection call carrying the shared probability tensor."""
+    """One packed projection call carrying probabilities and their bit order."""
 
     layer_index: int
     unit_type: str
     module_path: str
     probabilities: torch.Tensor
+    candidate_bits: tuple[int, ...] = CANDIDATE_BITS
 
 
 @dataclass(frozen=True, slots=True)
@@ -254,13 +256,16 @@ class PrecisionTrace:
         unit_type: str,
         module_path: str,
         probabilities: torch.Tensor,
+        candidate_bits: tuple[int, ...] = CANDIDATE_BITS,
     ) -> None:
+        validate_probabilities(probabilities, candidate_bits, context="soft trace probabilities")
         self._soft_records.append(
             SoftPrecisionCall(
                 layer_index=layer_index,
                 unit_type=unit_type,
                 module_path=module_path,
                 probabilities=probabilities,
+                candidate_bits=candidate_bits,
             )
         )
 
@@ -373,12 +378,11 @@ def _select_soft_request_route(
         event="feature_computed",
     )
     probabilities = soft_router(layer_index, unit_type, feature.detach())
-    if not isinstance(probabilities, torch.Tensor) or probabilities.shape != (2,):
-        raise ValueError("soft router must return exactly two probabilities with shape [2]")
-    if not torch.isfinite(probabilities).all() or not torch.all(probabilities >= 0):
-        raise ValueError("soft router probabilities must be finite and non-negative")
-    if not torch.allclose(probabilities.sum(), probabilities.new_tensor(1), atol=1e-5, rtol=0):
-        raise ValueError("soft router probabilities must sum to one")
+    validate_probabilities(
+        probabilities,
+        request_state.candidate_bits,
+        context="soft router probabilities",
+    )
     request_state.store_probability(unit_type, layer_index, probabilities)
     trace.record_event(
         request_id=request_state.request_id,
@@ -426,7 +430,9 @@ def _select_request_route(
         if routing_policy is None:
             raise ValueError("S05 prefill requires a deterministic routing_policy")
         policy = coerce_manual_policy(routing_policy)
-        precision = validate_policy_result(policy(layer_index, unit_type, feature))
+        precision = validate_policy_result(
+            policy(layer_index, unit_type, feature), candidate_bits=request_state.candidate_bits
+        )
         request_state.store_route(unit_type, layer_index, precision)
         trace.record_route(
             request_id=request_id,
@@ -541,25 +547,28 @@ class _RoutedPackedLinear(nn.Module):
         if (precision is None) == (probabilities is None):
             raise ValueError("packed execution requires exactly one of precision or probabilities")
         if probabilities is not None:
-            if probabilities.shape != (2,):
-                raise ValueError("soft packed probabilities must have shape [2]")
-            if not torch.isfinite(probabilities).all() or not torch.all(probabilities >= 0):
-                raise ValueError("soft packed probabilities must be finite and non-negative")
-            if not torch.allclose(
-                probabilities.sum(), probabilities.new_tensor(1), atol=1e-5, rtol=0
-            ):
-                raise ValueError("soft packed probabilities must sum to one")
+            candidate_bits = (
+                request_state.candidate_bits if request_state is not None else CANDIDATE_BITS
+            )
+            validate_probabilities(
+                probabilities, candidate_bits, context="soft packed probabilities"
+            )
             trace.record_soft(
                 layer_index=self.layer_index,
                 unit_type=self.unit_type,
                 module_path=self.module_path,
                 probabilities=probabilities,
+                candidate_bits=candidate_bits,
             )
-            return mix_packed_outputs(self.packed, inputs, probabilities)
+            return mix_packed_outputs(
+                self.packed, inputs, probabilities, candidate_bits=candidate_bits
+            )
         if isinstance(precision, bool) or not isinstance(precision, int):
             raise TypeError("selected packed precision must be an integer")
-        if precision not in SUPPORTED_BITS:
-            raise ValueError(f"selected packed precision must be 4 or 8; got {precision}")
+        candidate_bits = request_state.candidate_bits if request_state is not None else CANDIDATE_BITS
+        if precision not in candidate_bits:
+            allowed = "4 or 8" if candidate_bits == (4, 8) else f"one of {candidate_bits}"
+            raise ValueError(f"selected packed precision must be {allowed}; got {precision}")
         trace.record(
             layer_index=self.layer_index,
             unit_type=self.unit_type,

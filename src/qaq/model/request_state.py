@@ -7,18 +7,26 @@ from typing import ClassVar
 
 import torch
 
-SUPPORTED_BITS = (4, 8)
+from ..router.network import CANDIDATE_BITS, validate_candidate_bits, validate_probabilities
+
+SUPPORTED_BITS = CANDIDATE_BITS
 DEFAULT_LAYER_COUNT = 36
 
 
-def _validate_route_list(name: str, values: list[int | None], layer_count: int) -> None:
+def _validate_route_list(
+    name: str,
+    values: list[int | None],
+    layer_count: int,
+    candidate_bits: tuple[int, ...],
+) -> None:
     if len(values) != layer_count:
         raise ValueError(f"{name} must contain exactly {layer_count} entries; got {len(values)}")
     for index, value in enumerate(values):
         if value is not None and (
-            isinstance(value, bool) or not isinstance(value, int) or value not in SUPPORTED_BITS
+            isinstance(value, bool) or not isinstance(value, int) or value not in candidate_bits
         ):
-            raise ValueError(f"{name}[{index}] must be None, 4, or 8; got {value!r}")
+            allowed = "None, 4, or 8" if candidate_bits == (4, 8) else f"one of {candidate_bits}"
+            raise ValueError(f"{name}[{index}] must be {allowed}; got {value!r}")
 
 
 def _validate_features(
@@ -65,6 +73,7 @@ class QaqRequestState:
     ffn_probabilities: list[torch.Tensor | None] | None = None
     feature_dim: int | None = None
     layer_count: int = DEFAULT_LAYER_COUNT
+    candidate_bits: tuple[int, ...] = CANDIDATE_BITS
     _owner: object | None = field(default=None, init=False, repr=False)
     _cleanup_callbacks: list[object] = field(default_factory=list, init=False, repr=False)
     _ended: bool = field(default=False, init=False, repr=False)
@@ -81,6 +90,7 @@ class QaqRequestState:
             raise TypeError("layer_count must be an integer")
         if self.layer_count <= 0:
             raise ValueError("layer_count must be positive")
+        self.candidate_bits = validate_candidate_bits(self.candidate_bits)
         if self.feature_dim is not None:
             if isinstance(self.feature_dim, bool) or not isinstance(self.feature_dim, int):
                 raise TypeError("feature_dim must be an integer or None")
@@ -110,8 +120,10 @@ class QaqRequestState:
             if self.ffn_probabilities is None
             else self.ffn_probabilities
         )
-        _validate_route_list("attention_routes", self.attention_routes, self.layer_count)
-        _validate_route_list("ffn_routes", self.ffn_routes, self.layer_count)
+        _validate_route_list(
+            "attention_routes", self.attention_routes, self.layer_count, self.candidate_bits
+        )
+        _validate_route_list("ffn_routes", self.ffn_routes, self.layer_count, self.candidate_bits)
         for name, probabilities in (
             ("attention_probabilities", self.attention_probabilities),
             ("ffn_probabilities", self.ffn_probabilities),
@@ -120,6 +132,13 @@ class QaqRequestState:
                 raise ValueError(
                     f"{name} must contain exactly {self.layer_count} entries; got {len(probabilities)}"
                 )
+            for layer_index, probability in enumerate(probabilities):
+                if probability is not None:
+                    validate_probabilities(
+                        probability,
+                        self.candidate_bits,
+                        context=f"{name}[{layer_index}]",
+                    )
         attention_dim = _validate_features(
             "attention_features", self.attention_features, self.layer_count, self.feature_dim
         )
@@ -176,8 +195,10 @@ class QaqRequestState:
                 f"request state feature_dim must be {feature_dim}; got {self.feature_dim}"
             )
         self.feature_dim = feature_dim
-        _validate_route_list("attention_routes", self.attention_routes, layer_count)
-        _validate_route_list("ffn_routes", self.ffn_routes, layer_count)
+        _validate_route_list(
+            "attention_routes", self.attention_routes, layer_count, self.candidate_bits
+        )
+        _validate_route_list("ffn_routes", self.ffn_routes, layer_count, self.candidate_bits)
 
     def begin_prefill(self, *, prompt_length: int) -> None:
         if prompt_length != self.prompt_length:
@@ -215,12 +236,11 @@ class QaqRequestState:
     ) -> None:
         if unit_type not in ("attention", "ffn"):
             raise ValueError(f"unsupported routing unit: {unit_type}")
-        if not isinstance(probabilities, torch.Tensor) or probabilities.shape != (2,):
-            raise ValueError("stored routing probabilities must have shape [2]")
-        if not torch.isfinite(probabilities).all() or not torch.all(probabilities >= 0):
-            raise ValueError("stored routing probabilities must be finite and non-negative")
-        if not torch.allclose(probabilities.sum(), probabilities.new_tensor(1), atol=1e-6, rtol=0):
-            raise ValueError("stored routing probabilities must sum to one")
+        validate_probabilities(
+            probabilities,
+            self.candidate_bits,
+            context="stored routing probabilities",
+        )
         features = self.attention_features if unit_type == "attention" else self.ffn_features
         probabilities_by_unit = (
             self.attention_probabilities
@@ -237,9 +257,10 @@ class QaqRequestState:
         if (
             isinstance(precision, bool)
             or not isinstance(precision, int)
-            or precision not in SUPPORTED_BITS
+            or precision not in self.candidate_bits
         ):
-            raise ValueError(f"stored route must be 4 or 8; got {precision!r}")
+            allowed = "4 or 8" if self.candidate_bits == (4, 8) else f"one of {self.candidate_bits}"
+            raise ValueError(f"stored route must be {allowed}; got {precision!r}")
         features = self.attention_features if unit_type == "attention" else self.ffn_features
         routes = self.attention_routes if unit_type == "attention" else self.ffn_routes
         if features[layer_index] is None:
@@ -258,10 +279,11 @@ class QaqRequestState:
         if (
             isinstance(precision, bool)
             or not isinstance(precision, int)
-            or precision not in SUPPORTED_BITS
+            or precision not in self.candidate_bits
         ):
+            allowed = "integer 4 or 8" if self.candidate_bits == (4, 8) else f"integer from {self.candidate_bits}"
             raise ValueError(
-                f"{unit_type} route for layer {layer_index} must be an integer 4 or 8; got {precision!r}"
+                f"{unit_type} route for layer {layer_index} must be an {allowed}; got {precision!r}"
             )
         return precision
 

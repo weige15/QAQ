@@ -144,3 +144,121 @@ state ownership, retrain or reload router checkpoints, or assess quality,
 latency, transfer, or memory claims. Router semantics remain exactly 4/8
 after S10-A. A separate later stage and decision is required for any 6-bit
 routing behavior.
+
+## S10-B — Three-Way Router Semantics
+
+**Gate: CONTINUE.** S10-B adds explicit, backwards-compatible learned-router
+candidate semantics for historical `(4, 8)` and new `(4, 6, 8)` routers. It does
+not train a router or add the cost-aware objective.
+
+### Established facts and implementation choice
+
+S06 established the historical learned-router architecture, 72 separate
+attention/FFN routers, `[p4, p8]` ordering, RMS epsilon `1e-6`, hidden width
+`128`, GELU, temperature behavior, detached features, and frozen packed base.
+S10-A established static six-bit execution through `qweight[:6] + lut6`.
+S04 manual `PrecisionPlan` remains exactly 4/8-only, and S08 synchronous
+on-demand loading remains exactly 4/8-only.
+
+The S10-B implementation choice is one authoritative
+`validate_candidate_bits()` validator accepting only `(4, 8)` and `(4, 6, 8)`.
+Candidate ordering is explicit data, carried on request state and attached to
+soft traces, route logs, and checkpoint metadata. Vector length is never used
+to infer bit meaning.
+
+### Router, state, and probability semantics
+
+`SoftPrecisionRouter` defaults to `(4, 8)` and sizes its output projection from
+the validated candidate tuple. An explicit `(4, 6, 8)` router emits exactly
+three probabilities in canonical order `[p4, p6, p8]`. Probability validation
+requires a matching final dimension, finite non-negative values, and a unit sum.
+
+`QaqRequestState` defaults to `(4, 8)` and accepts an explicit `(4, 6, 8)`
+learned state. Stored probability vectors and hard routes must belong to that
+state's ordering. A three-way resident learned hard route can therefore store
+and reuse `6`; historical state and manual policy behavior remain unchanged.
+
+The soft packed execution is the candidate-aware sum:
+
+```text
+output = p4 * packed(inputs, 4) + p6 * packed(inputs, 6) + p8 * packed(inputs, 8)
+```
+
+Only configured precisions execute, each once. Forced one-hot endpoints select
+the corresponding packed output, and probabilities remain attached to the
+mixture for gradient flow. Soft trace records include `candidate_bits`.
+
+### Counts and route observations
+
+The router count remains 72. With feature dimension `2560` and hidden width
+`128`, the historical per-router output head is `Linear(128, 2)` and the
+three-way head is `Linear(128, 3)`, adding `129` scalars per router. The
+verified full counts are:
+
+```text
+historical (4,8): 23,620,752
+three-way (4,6,8): 23,630,040
+increase: 9,288
+```
+
+Route records preserve historical `p4`/`p8` records and add explicit `p6` plus
+candidate ordering for three-way records. Statistics expose hard fractions for
+4, 6, and 8, candidate-aware layer and attention/FFN distributions, entropy,
+and `soft_average_width`. The width equations are `4*p4 + 8*p8` historically
+and `4*p4 + 6*p6 + 8*p8` for three-way records. Historical records are not
+reinterpreted as three-way records.
+
+### Hard routes and checkpoints
+
+Hard routing remains deterministic ordinary `torch.argmax`: index 0 maps to 4,
+index 1 maps to 6 in three-way mode, and index 2 maps to 8. First-maximum ties
+therefore map `[0.5,0.5,0]` to 4, `[0,0.5,0.5]` to 6, and equal three-way
+probabilities to 4; historical `[0.5,0.5]` remains 4.
+
+Checkpoint format version 1 is retained because existing metadata already
+serializes candidate ordering. Matched historical and synthetic three-way
+router states round-trip with equal probabilities and hard routes. Metadata
+mismatch and state-shape mismatch reject 4/8-to-4/6/8 and reverse loads; no
+weights are padded, copied, interpolated, or silently converted.
+
+### Verification and boundaries
+
+The exact focused commands were:
+
+```text
+source ~/.venv/bin/activate
+which python
+python --version
+nvidia-smi
+PYTHONPATH=src:. pytest -q tests/unit
+PYTHONPATH=src:. pytest -q tests/integration/test_s06_soft_routing.py tests/integration/test_s07_distillation_smoke.py tests/integration/test_s05_tiny_qwen3_execution.py tests/integration/test_s08_sync_transfer.py tests/integration/test_s08_request_lifetime.py tests/integration/test_request_state_isolation.py tests/integration/test_route_fixed_during_decode.py
+PYTHONPATH=src:third_party/any-precision-llm:. pytest -q tests/integration/test_s10b_soft_packed.py
+PYTHONPATH=src:third_party/any-precision-llm:. QAQ_MODEL_DEVICE=cuda:0 pytest -q tests/integration/test_s06_soft_packed.py -k three_way
+```
+
+Focused unit coverage passed `120 passed` across the full unit suite, including
+candidate validation, parameter counts, request state, ties, logs/statistics,
+checkpoint compatibility, historical `PrecisionPlan`, and frozen-state audits.
+The S10-B focused integration command passed `1 passed` for real pinned packed
+4/6/8 endpoint and gradient execution. The S06/S07 lifecycle and S08
+request/loader regression selection passed `14 passed`; the S06 three-way
+production seam passed as part of `4 passed` with the S10-B packed test.
+Ruff passed for all changed source and S10-B test files.
+
+The mandatory environment preflight resolved Python to
+`/nfs/home/s314511048/.venv/bin/python`, Python `3.12.3`, and NVIDIA GeForce
+RTX 3090 devices through `nvidia-smi`; the real packed fixture used `cuda:0`.
+The repository is based at S07C-R1 commit
+`0747b0aa605500c93332ab847344be52494f07e7`, with S10-A complete, the S07C
+checkpoint identity preserved, Any-Precision clean at
+`a3257d02740cc5757c78673da534b0630ff3a4ea`, and no unexpected source changes
+before implementation.
+
+No training or retraining occurred. No cost-aware objective or penalty
+coefficient was added. The S08 loader was not modified and no 6-bit on-demand
+support is claimed. The packed artifact, Any-Precision source, S07/S09 results,
+and historical S07 checkpoint were not modified. No quality, latency, memory,
+transfer, or routing-quality evaluation was performed.
+
+**Next action:** Begin S10-C: define and validate the cost-aware 4/6/8 router
+objective. This document records the next action only; S10-C was not started.

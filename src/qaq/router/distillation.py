@@ -19,8 +19,15 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
+from .network import (
+    CANDIDATE_BITS,
+    S10_CANDIDATE_BITS,
+    validate_candidate_bits,
+    validate_probabilities,
+)
+
 SUPPORTED_BITS = (4, 8)
-CANDIDATE_ORDERING = (4, 8)
+CANDIDATE_ORDERING = CANDIDATE_BITS
 CHECKPOINT_FORMAT_VERSION = 1
 CAUSAL_TARGET_IGNORE_INDEX = -100
 
@@ -607,22 +614,18 @@ def audit_router_optimizer(
     )
 
 
-def hard_route(probabilities: torch.Tensor) -> int | torch.Tensor:
-    """Deterministically map ``argmax([p4,p8])`` index 0→4 and 1→8.
+def hard_route(
+    probabilities: torch.Tensor,
+    *,
+    candidate_bits: tuple[int, ...] = CANDIDATE_ORDERING,
+) -> int | torch.Tensor:
+    """Map ordinary first-maximum argmax indices through explicit candidates."""
 
-    This intentionally uses ordinary ``torch.argmax`` tie behavior (the first
-    maximum wins), with no sampling or random state.  A single pair returns an
-    integer; batched pairs return a tensor of 4/8 integers.
-    """
-
-    if probabilities.ndim < 1 or probabilities.shape[-1] != 2:
-        raise ValueError("route probabilities must have shape [..., 2]")
-    if not torch.isfinite(probabilities).all() or torch.any(probabilities < 0):
-        raise ValueError("route probabilities must be finite and non-negative")
-    if not torch.allclose(probabilities.sum(dim=-1), probabilities.new_ones(()), atol=1e-5, rtol=0):
-        raise ValueError("route probabilities must sum to one")
+    candidate_bits = validate_candidate_bits(candidate_bits)
+    validate_probabilities(probabilities, candidate_bits, context="route probabilities")
     index = torch.argmax(probabilities, dim=-1)
-    bits = torch.where(index == 0, index.new_full(index.shape, 4), index.new_full(index.shape, 8))
+    values = torch.tensor(candidate_bits, device=index.device, dtype=torch.long)
+    bits = values[index]
     return int(bits.item()) if probabilities.ndim == 1 else bits
 
 
@@ -636,20 +639,37 @@ class RouteLogRecord:
     hard_bit: int
     entropy: float
     soft_average_width: float | None = None
+    p6: float | None = None
+    candidate_bits: tuple[int, ...] = CANDIDATE_ORDERING
 
     def __post_init__(self) -> None:
         if not isinstance(self.request_id, str) or not self.request_id.strip():
             raise ValueError("route log request_id must be non-empty")
         if self.unit_type not in ("attention", "ffn"):
             raise ValueError("route log unit_type must be attention or ffn")
-        if self.layer < 0 or self.hard_bit not in SUPPORTED_BITS:
+        candidate_bits = validate_candidate_bits(self.candidate_bits)
+        if self.layer < 0 or self.hard_bit not in candidate_bits:
             raise ValueError("route log layer and hard_bit are invalid")
-        if not all(math.isfinite(value) for value in (self.p4, self.p8, self.entropy)):
+        if candidate_bits == S10_CANDIDATE_BITS and self.p6 is None:
+            raise ValueError("three-way route logs require p6")
+        values = self.probability_values()
+        if not all(math.isfinite(value) for value in (*values, self.entropy)):
             raise ValueError("route log values must be finite")
-        if self.p4 < 0 or self.p8 < 0 or not math.isclose(self.p4 + self.p8, 1.0, abs_tol=1e-5):
+        if any(value < 0 for value in values) or not math.isclose(sum(values), 1.0, abs_tol=1e-5):
             raise ValueError("route log probabilities must be non-negative and sum to one")
+        if candidate_bits == CANDIDATE_ORDERING and self.p6 is not None:
+            raise ValueError("historical [4, 8] route logs cannot carry p6")
         if self.soft_average_width is not None and not math.isfinite(self.soft_average_width):
             raise ValueError("route log soft average width must be finite")
+
+    def probability_values(self) -> tuple[float, ...]:
+        values = {4: self.p4, 6: self.p6, 8: self.p8}
+        return tuple(float(values[bit]) for bit in self.candidate_bits)
+
+    def to_dict(self) -> dict[str, object]:
+        payload = asdict(self)
+        payload["candidate_bits"] = list(self.candidate_bits)
+        return payload
 
     @classmethod
     def from_probabilities(
@@ -661,24 +681,28 @@ class RouteLogRecord:
         *,
         log_base: float = 2.0,
         include_soft_average_width: bool = True,
+        candidate_bits: tuple[int, ...] = CANDIDATE_ORDERING,
     ) -> RouteLogRecord:
-        if probabilities.shape != (2,):
-            raise ValueError("route log probabilities must have shape [2]")
+        candidate_bits = validate_candidate_bits(candidate_bits)
+        validate_probabilities(probabilities, candidate_bits, context="route log probabilities")
         log_base = _require_finite_positive(log_base, "entropy log base")
-        bits = hard_route(probabilities)
+        bits = hard_route(probabilities, candidate_bits=candidate_bits)
         values = probabilities.detach().float().tolist()
+        by_bit = dict(zip(candidate_bits, values, strict=True))
         entropy = -sum(value * math.log(value, log_base) for value in values if value > 0)
         return cls(
             request_id=request_id,
             layer=int(layer),
             unit_type=unit_type,
-            p4=float(values[0]),
-            p8=float(values[1]),
+            p4=float(by_bit[4]),
+            p8=float(by_bit[8]),
+            p6=None if 6 not in by_bit else float(by_bit[6]),
             hard_bit=int(bits),
             entropy=float(entropy),
-            soft_average_width=(4.0 * float(values[0]) + 8.0 * float(values[1]))
+            soft_average_width=(sum(bit * by_bit[bit] for bit in candidate_bits))
             if include_soft_average_width
             else None,
+            candidate_bits=candidate_bits,
         )
 
 
@@ -733,7 +757,12 @@ def route_records_from_request_state(
             raise ValueError(f"missing attention probability for layer {layer}")
         records.append(
             RouteLogRecord.from_probabilities(
-                request_id, layer, "attention", probabilities, log_base=log_base
+                request_id,
+                layer,
+                "attention",
+                probabilities,
+                log_base=log_base,
+                candidate_bits=state.candidate_bits,
             )
         )
     for layer, probabilities in enumerate(state.ffn_probabilities):
@@ -741,7 +770,12 @@ def route_records_from_request_state(
             raise ValueError(f"missing FFN probability for layer {layer}")
         records.append(
             RouteLogRecord.from_probabilities(
-                request_id, layer, "ffn", probabilities, log_base=log_base
+                request_id,
+                layer,
+                "ffn",
+                probabilities,
+                log_base=log_base,
+                candidate_bits=state.candidate_bits,
             )
         )
     return tuple(records)
@@ -762,13 +796,14 @@ def route_statistics(
     if distillation_loss is not None and not math.isfinite(float(distillation_loss)):
         raise ValueError("distillation_loss must be finite")
     count = len(values)
-    hard4 = sum(record.hard_bit == 4 for record in values)
+    candidates = tuple(bit for bit in S10_CANDIDATE_BITS if any(bit in record.candidate_bits for record in values))
+    hard_counts = {bit: sum(record.hard_bit == bit for record in values) for bit in candidates}
     by_layer: dict[str, dict[str, float]] = {}
     for layer in sorted({record.layer for record in values}):
         subset = [record for record in values if record.layer == layer]
         by_layer[str(layer)] = {
             str(bit): sum(record.hard_bit == bit for record in subset) / len(subset)
-            for bit in SUPPORTED_BITS
+            for bit in candidates
         }
     by_unit: dict[str, dict[str, float]] = {}
     for unit in ("attention", "ffn"):
@@ -776,7 +811,7 @@ def route_statistics(
         if subset:
             by_unit[unit] = {
                 str(bit): sum(record.hard_bit == bit for record in subset) / len(subset)
-                for bit in SUPPORTED_BITS
+                for bit in candidates
             }
     grouped: dict[str, dict[tuple[int, str], int]] = defaultdict(dict)
     for record in values:
@@ -792,7 +827,7 @@ def route_statistics(
         "mean_entropy": sum(
             -sum(
                 probability * math.log(probability, log_base)
-                for probability in (record.p4, record.p8)
+                for probability in record.probability_values()
                 if probability > 0
             )
             for record in values
@@ -808,8 +843,9 @@ def route_statistics(
             if any(record.soft_average_width is not None for record in values)
             else None
         ),
-        "hard_fraction_4": hard4 / count,
-        "hard_fraction_8": (count - hard4) / count,
+        "hard_fraction_4": hard_counts.get(4, 0) / count,
+        "hard_fraction_6": hard_counts.get(6, 0) / count,
+        "hard_fraction_8": hard_counts.get(8, 0) / count,
         "precision_distribution_by_layer": by_layer,
         "attention_vs_ffn_distribution": by_unit,
         "route_variation_across_prompts": {
@@ -829,7 +865,7 @@ class RouterCheckpointMetadata:
     quantized_checkpoint_hash: str
     any_precision_revision: str
     router_architecture: Mapping[str, object]
-    candidate_ordering: tuple[int, int] = CANDIDATE_ORDERING
+    candidate_ordering: tuple[int, ...] = CANDIDATE_ORDERING
     training_step: int = 0
     training_step_metadata: Mapping[str, object] = field(default_factory=dict)
 
@@ -850,8 +886,7 @@ class RouterCheckpointMetadata:
         ):
             if not isinstance(getattr(self, name), str) or not getattr(self, name).strip():
                 raise ValueError(f"checkpoint metadata {name} must be non-empty")
-        if tuple(self.candidate_ordering) != CANDIDATE_ORDERING:
-            raise ValueError("checkpoint candidate ordering must be exactly [4, 8]")
+        validate_candidate_bits(tuple(self.candidate_ordering))
         if (
             isinstance(self.training_step, bool)
             or not isinstance(self.training_step, int)
@@ -878,6 +913,9 @@ def save_router_checkpoint(
     """Save router state and metadata only; never teacher or packed weights."""
 
     metadata.validate()
+    router_candidates = getattr(router, "candidate_bits", None)
+    if router_candidates is not None and tuple(router_candidates) != tuple(metadata.candidate_ordering):
+        raise ValueError("router candidate_bits do not match checkpoint metadata")
     payload: dict[str, object] = {
         "format_version": CHECKPOINT_FORMAT_VERSION,
         "metadata": metadata.to_dict(),
@@ -896,6 +934,9 @@ def load_router_checkpoint(
     optimizer: torch.optim.Optimizer | None = None,
 ) -> dict[str, object]:
     expected_metadata.validate()
+    router_candidates = getattr(router, "candidate_bits", None)
+    if router_candidates is not None and tuple(router_candidates) != tuple(expected_metadata.candidate_ordering):
+        raise ValueError("router candidate_bits do not match checkpoint metadata")
     payload = torch.load(Path(path), map_location="cpu", weights_only=False)
     if payload.get("format_version") != CHECKPOINT_FORMAT_VERSION:
         raise ValueError("unsupported router checkpoint format")

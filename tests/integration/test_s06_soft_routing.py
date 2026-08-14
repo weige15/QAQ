@@ -3,7 +3,6 @@ from __future__ import annotations
 import torch
 from torch import nn
 
-from qaq.model.request_state import QaqRequestState
 from qaq.model.manual import (
     ATTENTION_PROJECTIONS,
     FFN_PROJECTIONS,
@@ -11,6 +10,8 @@ from qaq.model.manual import (
     PrecisionTrace,
     _RoutedPackedLinear,
 )
+from qaq.model.request_state import QaqRequestState
+from qaq.router.network import S10_CANDIDATE_BITS
 from qaq.router.soft_model import SoftRoutedQwen3ForCausalLM
 
 
@@ -23,7 +24,9 @@ class _DistinctPrecisionLinear(nn.Module):
         return self.linear(inputs) * (1.0 if precision == 4 else 1.25)
 
 
-def _soft_tiny_model() -> SoftRoutedQwen3ForCausalLM:
+def _soft_tiny_model(
+    candidate_bits: tuple[int, ...] = (4, 8),
+) -> SoftRoutedQwen3ForCausalLM:
     from transformers import Qwen3Config, Qwen3ForCausalLM
 
     torch.manual_seed(1729)
@@ -61,7 +64,9 @@ def _soft_tiny_model() -> SoftRoutedQwen3ForCausalLM:
                         module_path=path,
                     ),
                 )
-    return SoftRoutedQwen3ForCausalLM(ManualRoutedQwen3ForCausalLM(static).eval())
+    return SoftRoutedQwen3ForCausalLM(
+        ManualRoutedQwen3ForCausalLM(static).eval(), candidate_bits=candidate_bits
+    )
 
 
 def test_one_soft_probability_pair_is_shared_within_attention_and_ffn():
@@ -96,6 +101,24 @@ def test_one_soft_probability_pair_is_shared_within_attention_and_ffn():
         assert len({id(record.probabilities) for record in ffn}) == 1
         assert torch.equal(attention[0].probabilities, state.attention_probabilities[layer_index])
         assert torch.equal(ffn[0].probabilities, state.ffn_probabilities[layer_index])
+
+
+def test_three_way_soft_router_propagates_explicit_ordering():
+    model = _soft_tiny_model(S10_CANDIDATE_BITS)
+    state = QaqRequestState(
+        "s10b-soft", prompt_length=3, candidate_bits=S10_CANDIDATE_BITS
+    )
+    trace = PrecisionTrace()
+    model(
+        input_ids=torch.tensor([[1, 2, 3]]),
+        attention_mask=torch.ones(1, 3, dtype=torch.long),
+        use_cache=False,
+        request_state=state,
+        trace=trace,
+    )
+    assert all(record.candidate_bits == S10_CANDIDATE_BITS for record in trace.soft_records)
+    assert all(probability.shape == (3,) for probability in state.attention_probabilities)
+    assert all(probability.shape == (3,) for probability in state.ffn_probabilities)
 
 
 def test_only_router_parameters_receive_gradients_and_change_on_one_step():

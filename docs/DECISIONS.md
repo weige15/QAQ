@@ -813,3 +813,43 @@ Three-Way Router Semantics.**
 execution path, or checkpoint format changes, preserve this S07C evidence and
 reopen the gate with a new keyed actual-execution comparison before carrying
 the result forward.
+
+### D040 — S10-B explicit learned-router candidate ordering (2026-08-14)
+
+**Implementation choice:** Centralize learned-router candidate validation in
+`qaq.router.network.validate_candidate_bits` and permit exactly `(4, 8)` and
+`(4, 6, 8)`. Carry the selected `candidate_bits` on each `QaqRequestState`,
+size router heads and probability vectors from that tuple, and record the tuple
+on soft traces, route logs, and checkpoint metadata. Keep the default
+historical tuple `(4, 8)`.
+
+**Source/project-established facts:** S06 defines the existing 4/8 router
+architecture and canonical index order; S10-A establishes the packed static
+6-bit path as `qweight[:6] + lut6`; S04 `PrecisionPlan` and S08 synchronous
+loading remain 4/8-only.
+
+**Evidence:** Focused candidate, state, hard-route, trace, logging, statistics,
+checkpoint, and freeze tests passed. A real pinned Any-Precision CUDA fixture
+executed all three configured packed calls exactly once, including precision 6,
+and passed forced endpoints, finite differentiable mixing, and gradient checks.
+Historical unit, S06/S07 lifecycle, and S08 loader regressions passed.
+
+**Alternatives rejected:** Inferring `(4, 6, 8)` from vector length was rejected
+because it makes stored probabilities ambiguous. Duplicating the router
+architecture was rejected because only the output width changes. Changing
+`PrecisionPlan`, extending the S08 loader, adding a cost penalty, or training a
+new router was rejected as outside S10-B.
+
+**Checkpoint format:** Keep format version 1. Existing metadata already stores
+candidate ordering, so the serialized schema remains unambiguous for both
+2-output and 3-output router states; metadata and PyTorch shape checks reject
+cross-ordering loads without padding or conversion.
+
+**Consequence:** New callers can construct an explicit three-way learned router
+with canonical `[p4, p6, p8]` probabilities and resident hard route 6, while
+historical callers and the S07 checkpoint remain 4/8-compatible. No S08
+6-bit on-demand claim is made.
+
+**Reversal path:** If a future candidate set, checkpoint schema, or packed
+loading boundary changes, add a new stage decision with fresh compatibility and
+artifact-backed evidence rather than widening this validator implicitly.

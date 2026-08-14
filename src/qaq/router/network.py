@@ -6,9 +6,53 @@ import torch
 from torch import nn
 
 CANDIDATE_BITS = (4, 8)
+S10_CANDIDATE_BITS = (4, 6, 8)
+_ALLOWED_CANDIDATE_BITS = (CANDIDATE_BITS, S10_CANDIDATE_BITS)
 ROUTER_HIDDEN_WIDTH = 128
 ROUTER_TEMPERATURE = 1.0
 NORMALIZATION_EPSILON = 1e-6
+
+
+def validate_candidate_bits(candidate_bits: object) -> tuple[int, ...]:
+    """Validate the only learned-router orderings supported by QAQ."""
+
+    if not isinstance(candidate_bits, tuple):
+        raise TypeError("candidate_bits must be a tuple")
+    if candidate_bits not in _ALLOWED_CANDIDATE_BITS:
+        raise ValueError(
+            "candidate_bits must be exactly (4, 8) or (4, 6, 8); "
+            f"got {candidate_bits!r}"
+        )
+    return candidate_bits
+
+
+def validate_probabilities(
+    probabilities: torch.Tensor,
+    candidate_bits: tuple[int, ...] = CANDIDATE_BITS,
+    *,
+    context: str = "routing probabilities",
+) -> torch.Tensor:
+    """Validate a probability vector against its explicit candidate order."""
+
+    candidate_bits = validate_candidate_bits(candidate_bits)
+    if (
+        not isinstance(probabilities, torch.Tensor)
+        or probabilities.ndim < 1
+        or probabilities.shape[-1] != len(candidate_bits)
+    ):
+        raise ValueError(
+            f"{context} must have shape [..., {len(candidate_bits)}] "
+            f"(final dimension for candidate_bits={candidate_bits})"
+        )
+    if not torch.isfinite(probabilities).all():
+        raise ValueError(f"{context} must be finite")
+    if not torch.all(probabilities >= 0):
+        raise ValueError(f"{context} must be non-negative")
+    if not torch.allclose(
+        probabilities.sum(dim=-1), torch.ones_like(probabilities[..., 0]), atol=1e-5, rtol=0
+    ):
+        raise ValueError(f"{context} must sum to one")
+    return probabilities
 
 
 class FeatureRMSNorm(nn.Module):
@@ -33,11 +77,20 @@ class FeatureRMSNorm(nn.Module):
         return normalized
 
 
-def probabilities_from_logits(logits: torch.Tensor, *, temperature: float) -> torch.Tensor:
-    """Convert exactly two logits into finite probabilities in 4/8-bit order."""
+def probabilities_from_logits(
+    logits: torch.Tensor,
+    *,
+    temperature: float,
+    candidate_bits: tuple[int, ...] = CANDIDATE_BITS,
+) -> torch.Tensor:
+    """Convert candidate-aware logits into probabilities in canonical bit order."""
 
-    if logits.shape[-1] != len(CANDIDATE_BITS):
-        raise ValueError(f"router logits must have exactly two outputs; got {logits.shape[-1]}")
+    candidate_bits = validate_candidate_bits(candidate_bits)
+    if logits.shape[-1] != len(candidate_bits):
+        raise ValueError(
+            f"router logits must have {len(candidate_bits)} outputs for "
+            f"candidate_bits={candidate_bits}; got {logits.shape[-1]}"
+        )
     if not torch.isfinite(logits).all():
         raise ValueError("router logits must be finite")
     if not isinstance(temperature, (float, int)) or isinstance(temperature, bool):
@@ -63,6 +116,7 @@ class SoftPrecisionRouter(nn.Module):
         *,
         hidden_width: int = ROUTER_HIDDEN_WIDTH,
         temperature: float = ROUTER_TEMPERATURE,
+        candidate_bits: tuple[int, ...] = CANDIDATE_BITS,
     ) -> None:
         super().__init__()
         if isinstance(feature_dim, bool) or not isinstance(feature_dim, int) or feature_dim <= 0:
@@ -71,11 +125,12 @@ class SoftPrecisionRouter(nn.Module):
             raise ValueError(f"router hidden width must be a positive integer; got {hidden_width}")
         self.feature_dim = feature_dim
         self.hidden_width = hidden_width
+        self.candidate_bits = validate_candidate_bits(candidate_bits)
         self.temperature = self._validate_temperature(temperature)
         self.normalization = FeatureRMSNorm()
         self.input_projection = nn.Linear(feature_dim, hidden_width)
         self.activation = nn.GELU()
-        self.output_projection = nn.Linear(hidden_width, len(CANDIDATE_BITS))
+        self.output_projection = nn.Linear(hidden_width, len(self.candidate_bits))
 
     @staticmethod
     def _validate_temperature(value: float) -> float:
@@ -96,7 +151,9 @@ class SoftPrecisionRouter(nn.Module):
         return self.output_projection(self.activation(self.input_projection(values)))
 
     def forward(self, feature: torch.Tensor) -> torch.Tensor:
-        return probabilities_from_logits(self.logits(feature), temperature=self.temperature)
+        return probabilities_from_logits(
+            self.logits(feature), temperature=self.temperature, candidate_bits=self.candidate_bits
+        )
 
 
 def router_parameter_count(router: nn.Module) -> int:
@@ -123,9 +180,12 @@ def trainable_parameter_audit(
 
 __all__ = [
     "CANDIDATE_BITS",
+    "S10_CANDIDATE_BITS",
     "FeatureRMSNorm",
     "SoftPrecisionRouter",
     "probabilities_from_logits",
     "router_parameter_count",
     "trainable_parameter_audit",
+    "validate_candidate_bits",
+    "validate_probabilities",
 ]

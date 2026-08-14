@@ -8,7 +8,9 @@ from typing import Any
 
 import torch
 
-SUPPORTED_BITS = (4, 8)
+from .network import CANDIDATE_BITS, validate_candidate_bits
+
+SUPPORTED_BITS = CANDIDATE_BITS
 
 
 def validate_prompt_mask(
@@ -109,9 +111,13 @@ def coerce_manual_policy(policy: Any) -> RoutePolicy:
     return policy
 
 
-def validate_policy_result(precision: object) -> int:
+def validate_policy_result(
+    precision: object, *, candidate_bits: tuple[int, ...] = CANDIDATE_BITS
+) -> int:
+    candidate_bits = validate_candidate_bits(candidate_bits)
     if isinstance(precision, bool) or not isinstance(precision, int):
-        raise TypeError("deterministic S05 policy must return integer precision 4 or 8")
-    if precision not in SUPPORTED_BITS:
-        raise ValueError(f"deterministic S05 policy must return 4 or 8; got {precision}")
+        raise TypeError(f"routing policy must return an integer from {candidate_bits}")
+    if precision not in candidate_bits:
+        allowed = "4 or 8" if candidate_bits == (4, 8) else f"one of {candidate_bits}"
+        raise ValueError(f"routing policy must return {allowed}; got {precision}")
     return precision

@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import torch
 
-from qaq.model.request_state import QaqRequestState
-from qaq.router.soft_linear import SoftPackedLinear
-from qaq.quantization.backend import build_case, packed_output
-from qaq.model.static import run_static_smoke
 from qaq.model.manual import PrecisionTrace
+from qaq.model.request_state import QaqRequestState
+from qaq.model.static import run_static_smoke
+from qaq.quantization.backend import build_case, packed_output
+from qaq.router.network import S10_CANDIDATE_BITS
+from qaq.router.soft_linear import SoftPackedLinear
 
 
 def test_real_packed_soft_endpoints_match_pinned_4_and_8_bit_paths():
@@ -46,6 +47,36 @@ def test_real_qwen3_soft_endpoints_match_s04_and_s03(manual_case, static_case):
         assert torch_module.isfinite(soft_logits).all()
         assert torch_module.allclose(soft_logits.float(), static_logits.float(), atol=1e-3, rtol=1e-3)
         assert len(trace.soft_records) == 252
+
+
+def test_real_qwen3_three_way_soft_endpoints_match_static(manual_case, static_case):
+    manual_model, inputs, torch_module = manual_case
+    static_model, static_inputs, _ = static_case
+    for index, bits in enumerate(S10_CANDIDATE_BITS):
+        state = QaqRequestState(
+            f"s10b-qwen3-endpoint-{bits}",
+            prompt_length=int(inputs["attention_mask"].sum()),
+            candidate_bits=S10_CANDIDATE_BITS,
+        )
+
+        def fixed_router(layer_index, unit_type, feature, selected=index):
+            del layer_index, unit_type
+            probabilities = torch.zeros(3, device=feature.device, dtype=feature.dtype)
+            probabilities[selected] = 1
+            return probabilities
+
+        with torch_module.inference_mode():
+            soft_logits = manual_model(
+                input_ids=inputs["input_ids"],
+                attention_mask=inputs["attention_mask"],
+                use_cache=False,
+                request_state=state,
+                phase="prefill",
+                soft_router=fixed_router,
+            ).logits
+        static_logits = run_static_smoke(static_model, static_inputs, bits, torch_module)["logits"]
+        assert torch_module.isfinite(soft_logits).all()
+        assert torch_module.allclose(soft_logits.float(), static_logits.float(), atol=1e-3, rtol=1e-3)
 
 
 def test_real_packed_soft_mixture_propagates_gradient_to_probabilities():

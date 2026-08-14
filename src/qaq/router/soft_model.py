@@ -8,15 +8,17 @@ from typing import Any
 import torch
 from torch import nn
 
+from ..model.manual import LAYER_COUNT, PrecisionTrace, load_manual_model
 from ..model.request_state import QaqRequestState
 from .network import (
+    CANDIDATE_BITS,
     ROUTER_HIDDEN_WIDTH,
     ROUTER_TEMPERATURE,
     SoftPrecisionRouter,
     router_parameter_count,
     trainable_parameter_audit,
+    validate_candidate_bits,
 )
-from ..model.manual import LAYER_COUNT, PrecisionTrace, load_manual_model
 
 
 class SoftRoutedQwen3ForCausalLM(nn.Module):
@@ -28,9 +30,11 @@ class SoftRoutedQwen3ForCausalLM(nn.Module):
         *,
         hidden_width: int = ROUTER_HIDDEN_WIDTH,
         temperature: float = ROUTER_TEMPERATURE,
+        candidate_bits: tuple[int, ...] = CANDIDATE_BITS,
     ) -> None:
         super().__init__()
         self.base = manual_model
+        self.candidate_bits = validate_candidate_bits(candidate_bits)
         self.feature_dim = int(self.base.model.embed_tokens.embedding_dim)
         self.routers = nn.ModuleDict(
             {
@@ -38,6 +42,7 @@ class SoftRoutedQwen3ForCausalLM(nn.Module):
                     self.feature_dim,
                     hidden_width=hidden_width,
                     temperature=temperature,
+                    candidate_bits=self.candidate_bits,
                 )
                 for unit_type in ("attention", "ffn")
                 for layer_index in range(LAYER_COUNT)
@@ -83,6 +88,11 @@ class SoftRoutedQwen3ForCausalLM(nn.Module):
     ) -> Any:
         if not isinstance(request_state, QaqRequestState):
             raise TypeError("S06 soft execution requires a QaqRequestState")
+        if request_state.candidate_bits != self.candidate_bits:
+            raise ValueError(
+                "request state candidate_bits do not match the soft router: "
+                f"{request_state.candidate_bits} != {self.candidate_bits}"
+            )
         if phase != "prefill":
             raise ValueError("S06 soft execution supports phase='prefill' only")
         if trace is None:
@@ -105,6 +115,7 @@ def load_soft_model(
     *,
     hidden_width: int = ROUTER_HIDDEN_WIDTH,
     temperature: float = ROUTER_TEMPERATURE,
+    candidate_bits: tuple[int, ...] = CANDIDATE_BITS,
 ) -> SoftRoutedQwen3ForCausalLM:
     """Load the verified S03 artifact and add only S06 router parameters."""
 
@@ -112,6 +123,7 @@ def load_soft_model(
         load_manual_model(artifact, device),
         hidden_width=hidden_width,
         temperature=temperature,
+        candidate_bits=candidate_bits,
     )
 
 
