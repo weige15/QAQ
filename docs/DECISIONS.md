@@ -1126,3 +1126,88 @@ started.
 **Reversal path:** If any implementation or runtime audit identity changes,
 reopen S10-F and invalidate attempt 2 rather than interpreting the result as a
 valid confirmation.
+
+### D049 — S10-G broader-validation protocol freeze (2026-08-15)
+
+**Source/project-established facts:** S10-A through S10-F are complete. S10-F
+attempt 1 remains preserved at
+`docs/results/s10f_frontier_confirmation.json` with SHA-256
+`d68f041e0a3dc32c465e8b8068ca3ab230d39253757e30f3019ca7e681b14233` and its
+REVISE classification. S10-F attempt 2 remains at
+`docs/results/s10f_frontier_confirmation_rerun.json` with SHA-256
+`b3bcc0e45d45852ac5060209c4789453ed452462f528f7bffd4cb80fb1ef58cb` and its
+CONTINUE classification. Attempt 2 selected no production lambda and
+authorized only a separately scoped broader-validation decision; no broader
+validation has run. The pinned Qwen3/tokenizer, Wikitext revision,
+Any-Precision revision, packed artifact, 72-router contract, explicit
+`[p4,p6,p8]` order, normalized costs `[0.0,0.5,1.0]`, completion-only KD,
+frozen teacher/packed base, router-only optimizer, and S10-F route-map and
+paired-control semantics are established by the preceding stage artifacts.
+
+**Implementation choice — broader deterministic data:** Freeze exactly 24
+training examples and 12 validation examples, six times the S10-F counts, from
+`Salesforce/wikitext` `wikitext-2-raw-v1` at revision
+`b08601e04326c79dfdd32d625aee71d232d685c3`. Use the pinned tokenizer revision
+`1cfa9a7208912126459214e8b04321603b3df60c`, sequence length 64, prompt
+`[0,32)`, completion `[32,64)`, and the inherited first-qualifying-row
+selection rule. The exact ascending train offsets `[0,1000,...,23000]` and
+validation offsets `[0,250,...,2750]`, selected row indices, IDs, and ordering
+are in `configs/s10g_broader_validation.json`. The sixfold counts and 1000/250
+offset spacing are choices: they materially broaden coverage while keeping a
+bounded, deterministic, source-ordered protocol and avoiding random sampling.
+No row may be substituted after results.
+
+**Implementation choice — training budget:** Use exactly one pass over the 24
+listed training examples and exactly 24 optimizer updates, batch size 1,
+gradient accumulation 1, and no scheduler. Preserve S10-F's AdamW learning
+rate `0.001`, weight decay `0.0`, KD temperature `2.0`, routing temperature
+`1.0`, epoch count `1`, and logging interval `1`. Explicitly record AdamW's
+preserved defaults `betas=[0.9,0.999]`, `eps=1e-8`, and `amsgrad=false`.
+The 24-example/24-update values are choices required to pair the sixfold data
+scope with one pass; the other optimizer values are carried forward rather
+than tuned.
+
+**Implementation choice — paired matrix and audits:** Retain exactly the
+S10-F seeds `[1729,1730,1731]` and lambdas `[0.0,0.03,0.1]` in that order,
+with no added seeds. For each seed, create one fresh canonical three-way
+router initialization and clone it identically before each lambda; construct a
+fresh AdamW per lambda, include only `routers.` parameters, and freeze both
+teacher and packed base. Record exact training counts, finite/freeze/optimizer
+audits, soft and hard KD/logit/width/probability/entropy metrics, all twelve
+72-entry validation route maps in layer-major order, route variation,
+reproducibility, and cross-seed paired comparisons. Retaining three seeds,
+three lambdas, 72 units, and one immediate repeat is a compatibility choice
+from S10-F, not a new source-paper fact.
+
+**Implementation choice — future gate:** Use only two lower-is-better axes,
+hard validation KD and hard selected width. A lambda is per-seed
+non-dominated when no configured lambda is no-worse on both axes with one
+strict improvement. CONTINUE requires all nine trials/audits and inherited
+regressions, no invalid collapse, `0.03` frontier membership in at least 2 of
+3 seeds, median paired hard KD delta `<=0.0`, median paired hard-width delta
+`<0.0`, and zero reproducibility failures. A complete structurally valid
+matrix failing a two-axis condition is REFINE; invalid/drifted evidence or
+prohibited work is REVISE; incomplete evidence is PAUSE. The threshold 2/3,
+zero KD delta, strict negative width delta, and zero failures are frozen
+implementation gates carried forward from S10-F; no scalar score, arbitrary
+quality-loss threshold, or production-lambda selection is allowed.
+
+**Boundary:** This decision freezes only the protocol and configuration tests.
+It creates no `scripts/run_s10g.py`, result JSON, or execution path and
+performs no training, evaluation, or hardware/resource measurement. Adaptive
+lambda search, post-result seed/example replacement, warm starts, S07
+conversion, teacher/base training, non-router optimizer membership, candidate
+or normalized-cost changes, S08 changes, six-bit on-demand loading,
+production-lambda selection, and S10-H execution are prohibited.
+
+**Evidence and consequence:** The configuration-only S10-G test passed `40`;
+the S10-D/S10-E/S10-F predecessor selection passed `121`; Ruff and
+`git diff --check` passed. The S10-G protocol-freeze outcome is CONTINUE, not
+an experiment result. A separately authorized future action is required before
+any broader validation execution.
+
+**Reversal path:** If data identity/order, tokenizer, training budget,
+optimizer membership, freeze audit, route-map schema, reproducibility contract,
+gate threshold, or prohibition changes, mark S10-G REVISE, preserve this
+configuration and all S10-F artifacts, and record a replacement decision
+before any execution.

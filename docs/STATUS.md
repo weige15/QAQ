@@ -1,5 +1,5 @@
-Current stage: S10-F
-Status: PAUSE / RERUN_REQUIRED
+Current stage: S10-G
+Status: CONTINUE
 
 ## S09-A closeout — canonical validation gate
 
@@ -614,3 +614,39 @@ median delta `-0.004020056687295437`, paired hard selected-width median delta
 `65`, inherited regressions passed `46`, Ruff passed, and `git diff --check`
 passed. The S10-F gate outcome is **CONTINUE**; the next action is a
 separately scoped broader-validation decision, not execution here.
+
+## S10-G — Broader-validation protocol definition and freeze
+
+Status: CONTINUE (protocol freeze only; no S10-G experiment result exists).
+
+The authoritative machine-readable protocol is
+`configs/s10g_broader_validation.json`; focused tests are in
+`tests/unit/test_s10g_broader_validation_protocol.py`. S10-A through S10-F are
+established complete. S10-F attempt 1 remains preserved and attempt 2 is
+present and classified CONTINUE; no production lambda was selected. Attempt 2
+authorized only this separately scoped broader-validation decision, and no
+broader validation has run.
+
+The protocol freezes pinned Wikitext revision/splits and tokenizer revision,
+24 ordered train examples and 12 ordered validation examples with exact
+offsets, selected row IDs, sequence length 64, prompt `[0,32)`, completion
+`[32,64)`, one pass/24 optimizer updates, and all inherited S10-F AdamW,
+temperature, objective, candidate, seed, pairing, freeze, and router-only
+semantics. Lambdas are exactly `[0.0,0.03,0.1]` in order; every lambda gets a
+fresh AdamW and every seed gets a cloned fresh router initialization.
+
+Future measurements require exact soft/hard KD, logit, width, probability,
+entropy, finite/freeze/optimizer audits, training/update counts,
+reproducibility fields, cross-seed paired comparisons, and twelve ordered
+72-entry hard route maps. The future gate uses only lower-is-better hard KD and
+selected width, with exact frontier, paired-median, audit, and reproducibility
+thresholds. It distinguishes CONTINUE, REFINE, REVISE, and PAUSE without a
+scalar score or production-lambda selection.
+
+S10-G itself created no runner, result JSON, or execution path and performed no
+training, evaluation, GPU evaluation, or hardware/resource measurement. The
+focused S10-G test passed `40`; S10-D/S10-E/S10-F predecessor regressions
+passed `121`; Ruff and `git diff --check` passed.
+
+Next action: obtain a separately authorized decision before any broader
+validation execution; do not select a production lambda.

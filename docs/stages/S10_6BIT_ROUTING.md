@@ -597,3 +597,74 @@ delta `-0.16666666666666696`, and zero reproducibility failures. Focused tests
 passed `65`, inherited regressions passed `46`, Ruff passed, and
 `git diff --check` passed. S10-F gate outcome: **CONTINUE**. No later stage,
 production lambda, or broader validation was started.
+
+## S10-G — Broader-validation protocol definition and freeze
+
+**Gate: CONTINUE (protocol freeze only; no S10-G experiment result exists).**
+
+The machine-readable protocol is `configs/s10g_broader_validation.json` and
+its focused, configuration-only tests are
+`tests/unit/test_s10g_broader_validation_protocol.py`. S10-A through S10-F
+are established complete, S10-F attempt 2 is present with its original
+attempt-1 artifact preserved, attempt 2 is classified CONTINUE, no production
+lambda was selected, and no broader validation has run. S10-F authorized only
+this separately scoped broader-validation decision.
+
+### Source/project-established facts
+
+The protocol inherits the pinned Qwen3-4B and tokenizer revision, Wikitext
+revision, clean Any-Precision revision, packed artifact identity, 72
+attention/FFN routers, explicit `[p4,p6,p8]` ordering, normalized cost vector
+`[0.0,0.5,1.0]`, completion-only KD objective, frozen teacher/packed base, and
+router-only optimization from the preceding stages. It also preserves the
+S10-F candidate/lambda/seed matrix, paired initialization semantics, fresh
+AdamW requirement, layer-major 72-unit route-map order, and two-axis hard
+KD/selected-width gate. These facts and the preserved attempt hashes are
+recorded in the protocol rather than inferred from a future run.
+
+### Implementation choices and frozen contract
+
+The broader data choice is exactly 24 train examples and 12 validation
+examples selected by the pinned tokenizer and deterministic ascending offsets:
+train offsets `0,1000,...,23000`, validation offsets
+`0,250,...,2750`. The exact selected row indices, IDs, split/revision, source
+order, sequence length, and prompt/completion boundaries are frozen in the
+config. This is six times each S10-F count while retaining the same
+first-qualifying-row rule. The future run is exactly one pass over 24 examples
+and 24 AdamW updates, batch size 1, with S10-F's learning rate, weight decay,
+temperatures, scheduler, and other optimizer settings preserved. The only
+additional optimizer values are the explicit PyTorch AdamW defaults
+`betas=[0.9,0.999]`, `eps=1e-8`, and `amsgrad=false`.
+
+The exact nine ordered trials remain seeds `[1729,1730,1731]` and lambdas
+`[0.0,0.03,0.1]`. Each seed has one fresh canonical three-way router state,
+cloned identically for each lambda, and each lambda gets a fresh AdamW with
+router-only membership. The teacher and packed base remain frozen. Each trial
+records finite/freeze/optimizer audits, training count and update count, soft
+and hard KD/logit/width/probability/entropy metrics, fractions, all twelve
+validation route maps (each exactly 72 entries in layer-major order), route
+variation, cross-seed paired deltas, and one immediate same-state hard
+reproducibility repeat.
+
+The future gate has exactly two lower-is-better axes: hard validation KD and
+hard selected width. CONTINUE requires all nine valid trials and audits, no
+invalid collapse, at least two per-seed frontier memberships for `0.03`,
+paired median hard KD delta `<=0.0`, paired median hard-width delta `<0.0`,
+passing inherited regressions, and zero reproducibility failures. REFINE is a
+complete structurally valid matrix that fails one or more two-axis result
+conditions; REVISE is invalid or drifted evidence/prohibited work; PAUSE is
+missing or incomplete evidence. No scalar combined score or production-lambda
+selection is permitted.
+
+S10-G itself created no runner, result JSON, or execution path, and performed
+no training, model evaluation, CUDA evaluation, or hardware/resource
+measurement. Adaptive lambda search, post-result replacement, warm starts,
+S07 conversion, teacher/base training, non-router optimizer membership,
+candidate or cost changes, S08 changes, six-bit on-demand loading, and S10-H
+execution are explicitly prohibited.
+
+Verification after the freeze passed 40 focused S10-G tests, the S10-D/S10-E/
+S10-F predecessor regression selection passed 121 tests, Ruff passed for the
+changed Python test, and `git diff --check` passed. The next action is a
+separately authorized future execution decision; this stage claims no broader
+validation result and selects no production lambda.
