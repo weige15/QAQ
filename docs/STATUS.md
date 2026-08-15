@@ -627,23 +627,9 @@ present and classified CONTINUE; no production lambda was selected. Attempt 2
 authorized only this separately scoped broader-validation decision, and no
 broader validation has run.
 
-The protocol freezes pinned Wikitext revision/splits and tokenizer revision,
-24 ordered train examples and 12 ordered validation examples with exact
-offsets, selected row IDs, sequence length 64, prompt `[0,32)`, completion
-`[32,64)`, one pass/24 optimizer updates, and all inherited S10-F AdamW,
-temperature, objective, candidate, seed, pairing, freeze, and router-only
-semantics. Lambdas are exactly `[0.0,0.03,0.1]` in order; every lambda gets a
-fresh AdamW and every seed gets a cloned fresh router initialization.
-
-Future measurements require exact soft/hard KD, logit, width, probability,
-base-2 entropy, explicit collapse and structured optimizer audits, training/
-update counts, run-level inherited-regression and prohibited-work evidence,
-reproducibility fields, cross-seed paired comparisons, and twelve ordered
-72-entry hard route maps. The future gate uses only lower-is-better hard KD and
-selected width, with deterministic precedence for missing evidence, failed
-integrity evidence, and valid two-axis threshold failures. It distinguishes
-CONTINUE, REFINE, REVISE, and PAUSE without a scalar score or production-lambda
-selection.
+The detailed frozen data, training, audit, route-map, reproducibility, gate,
+and prohibition contract is owned by the machine-readable config and the
+current stage document; D049 records the implementation assumptions.
 
 S10-G itself created no runner, result JSON, or execution path and performed no
 training, evaluation, GPU evaluation, or hardware/resource measurement. The

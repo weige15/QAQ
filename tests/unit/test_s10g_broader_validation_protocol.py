@@ -446,7 +446,9 @@ def test_frozen_protocol_is_machine_readable_and_has_no_execution_artifacts():
     validate_frozen_protocol(load_protocol())
     assert not (CONFIG_PATH.parents[1] / "scripts/run_s10g.py").exists()
     assert not (CONFIG_PATH.parents[1] / "docs/results/s10g_broader_validation.json").exists()
-    assert not (CONFIG_PATH.parents[1] / "docs/results/s10g_broader_validation_result.json").exists()
+    assert not (
+        CONFIG_PATH.parents[1] / "docs/results/s10g_broader_validation_result.json"
+    ).exists()
 
 
 def test_route_map_schema_requires_all_twelve_ids_and_72_entries():
@@ -477,15 +479,9 @@ def test_route_map_schema_requires_all_twelve_ids_and_72_entries():
         lambda p: p["protocol"].update(seeds=[1729, 1730]),
         lambda p: p["protocol"].update(seeds=[1729, 1730, 1731, 1732]),
         lambda p: p["protocol"]["dataset"].update(revision="changed"),
-        lambda p: p["source_project_established_facts"]["s10f_attempt_1"].update(
-            path="changed"
-        ),
-        lambda p: p["source_project_established_facts"]["s10f_attempt_1"].update(
-            sha256="changed"
-        ),
-        lambda p: p["source_project_established_facts"]["pinned_model"].update(
-            revision="changed"
-        ),
+        lambda p: p["source_project_established_facts"]["s10f_attempt_1"].update(path="changed"),
+        lambda p: p["source_project_established_facts"]["s10f_attempt_1"].update(sha256="changed"),
+        lambda p: p["source_project_established_facts"]["pinned_model"].update(revision="changed"),
         lambda p: p["source_project_established_facts"]["pinned_backend"].update(
             any_precision_revision="changed"
         ),
@@ -534,9 +530,7 @@ def test_route_map_schema_requires_all_twelve_ids_and_72_entries():
         lambda p: p["future_two_axis_gate"]["required_conditions"].update(
             **{"lambda_0.03_frontier_seed_count_minimum": 1}
         ),
-        lambda p: p["future_two_axis_gate"]["required_conditions"].update(
-            no_prohibited_work=False
-        ),
+        lambda p: p["future_two_axis_gate"]["required_conditions"].update(no_prohibited_work=False),
         lambda p: p["future_two_axis_gate"]["outcome_precedence"].reverse(),
         lambda p: p["future_two_axis_gate"].update(scalar_combined_score_allowed=True),
         lambda p: p["future_two_axis_gate"].update(production_lambda_selection=True),
