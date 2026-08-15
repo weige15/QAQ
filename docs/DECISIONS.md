@@ -1208,7 +1208,7 @@ conversion, teacher/base training, non-router optimizer membership, candidate
 or normalized-cost changes, S08 changes, six-bit on-demand loading,
 production-lambda selection, and S10-H execution are prohibited.
 
-**Evidence and consequence:** The configuration-only S10-G test passed `40`;
+**Evidence and consequence:** The configuration-only S10-G test passed `53`;
 the S10-D/S10-E/S10-F predecessor selection passed `121`; Ruff and
 `git diff --check` passed. The S10-G protocol-freeze outcome is CONTINUE, not
 an experiment result. A separately authorized future action is required before

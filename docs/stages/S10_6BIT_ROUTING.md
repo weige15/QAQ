@@ -667,7 +667,7 @@ S07 conversion, teacher/base training, non-router optimizer membership,
 candidate or cost changes, S08 changes, six-bit on-demand loading, and S10-H
 execution are explicitly prohibited.
 
-Verification after the freeze passed 40 focused S10-G tests, the S10-D/S10-E/
+Verification after the freeze passed 53 focused S10-G tests, the S10-D/S10-E/
 S10-F predecessor regression selection passed 121 tests, Ruff passed for the
 changed Python test, and `git diff --check` passed. The next action is a
 separately authorized future execution decision; this stage claims no broader
