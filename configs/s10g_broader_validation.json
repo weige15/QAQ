@@ -35,6 +35,7 @@
     },
     "pinned_backend": {
       "any_precision_revision": "a3257d02740cc5757c78673da534b0630ff3a4ea",
+      "packed_artifact": "quantized/s03b_qwen3_4b/backend_cache/packed/anyprec-(1cfa9a7208912126459214e8b04321603b3df60c)-w8_orig4-gc1-c4_s1_blk64",
       "packed_artifact_pytorch_model_sha256": "29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee"
     },
     "router_contract": {
@@ -220,8 +221,8 @@
         "finite_gradient_audit",
         "teacher_frozen_audit",
         "packed_student_base_unchanged_audit",
-        "router_only_optimizer_audit",
-        "fresh_adamw_audit",
+        "collapse_audit",
+        "optimizer_audit",
         "soft_validation_kd",
         "soft_validation_mean_absolute_logit_error",
         "soft_validation_maximum_absolute_logit_error",
@@ -243,6 +244,10 @@
         "reproducibility_audit",
         "prohibited_measurement_audit"
       ],
+      "run_level_required_fields": [
+        "inherited_regressions_audit",
+        "prohibited_work_audit"
+      ],
       "cross_seed_aggregate_required_fields": [
         "per_lambda_median_hard_validation_kd",
         "per_lambda_median_hard_mean_selected_bit_width",
@@ -252,6 +257,74 @@
         "paired_control_hard_width_delta_median_lambda_0.03_minus_lambda_0.0",
         "reproducibility_failure_count"
       ],
+      "entropy_log_base": 2.0,
+      "optimizer_audit_contract": {
+        "required": true,
+        "required_fields": [
+          "actual_optimizer_parameter_count",
+          "actual_optimizer_parameter_names",
+          "actual_optimizer_parameter_names_sha256",
+          "duplicate_optimizer_parameter_count",
+          "expected_router_parameter_count",
+          "expected_router_parameter_names",
+          "expected_router_parameter_names_sha256",
+          "fresh_adamw_audit",
+          "missing_router_parameter_count",
+          "optimizer_construction_serial",
+          "optimizer_state_entry_count_before_first_step",
+          "optimizer_state_entry_count_before_training_begins",
+          "router_only_optimizer_audit",
+          "runtime_identity_based_membership_result",
+          "unexpected_optimizer_parameter_count"
+        ],
+        "expected_router_name_prefix": "routers.",
+        "expected_router_parameter_count": 288,
+        "identity_based_membership_required": true,
+        "fresh_state_before_first_step_required": true
+      },
+      "inherited_regressions_audit_contract": {
+        "required": true,
+        "required_fields": ["status", "test_selection", "passed"],
+        "status": "passed",
+        "test_selection": "S10-D/S10-E/S10-F predecessor regression selection",
+        "must_be_true": true
+      },
+      "prohibited_work_audit_contract": {
+        "required": true,
+        "required_fields": [
+          "forbidden_actions_observed",
+          "forbidden_measurements_observed",
+          "passed"
+        ],
+        "must_be_true": true,
+        "forbidden_actions": [
+          "adaptive_lambda_search",
+          "adaptive_extension_allowed",
+          "post_result_seed_replacement",
+          "post_result_example_replacement",
+          "warm_start",
+          "s07_conversion",
+          "historical_s07_two_way_checkpoint_loading",
+          "training_teacher",
+          "training_packed_base",
+          "non_router_optimizer_membership",
+          "candidate_bits_change",
+          "normalized_cost_change",
+          "s08_loader_changes",
+          "six_bit_on_demand_loading",
+          "production_lambda_selection",
+          "s10h_execution",
+          "s10g_execution"
+        ],
+        "forbidden_measurements": [
+          "latency",
+          "memory",
+          "transfer",
+          "throughput",
+          "energy",
+          "hardware_cost"
+        ]
+      },
       "soft_metrics": [
         "validation_kd",
         "mean_absolute_logit_error",
@@ -301,16 +374,47 @@
     "arbitrary_quality_loss_threshold_allowed": false,
     "frontier_definition": "A lambda is on a per-seed hard frontier when no other configured lambda is no-worse on both hard validation KD and hard selected width, with at least one strict improvement.",
     "required_conditions": {
+      "all_required_evidence_complete": true,
       "all_nine_trials_complete": true,
       "all_required_audits_pass": true,
       "inherited_regressions_pass": true,
       "no_invalid_or_degenerate_collapse": true,
+      "no_prohibited_work": true,
       "lambda_0.03_frontier_seed_count_minimum": 2,
       "paired_hard_kd_delta_median_maximum": 0.0,
       "paired_hard_kd_delta_rule": "median(candidate hard KD - control hard KD) <= 0.0",
       "paired_hard_width_delta_median_strictly_less_than": 0.0,
       "paired_hard_width_delta_rule": "median(candidate hard selected width - control hard selected width) < 0.0",
       "reproducibility_failure_count_maximum": 0
+    },
+    "outcome_precedence": ["PAUSE", "REVISE", "REFINE", "CONTINUE"],
+    "outcome_rules": {
+      "PAUSE": {
+        "when": "Any required trial, prerequisite, or evidence field is missing or incomplete; evaluate this before other outcomes.",
+        "failed_conditions": ["all_required_evidence_complete", "all_nine_trials_complete"]
+      },
+      "REVISE": {
+        "when": "Evidence is complete but an inherited regression, required audit, collapse, reproducibility, or prohibited-work integrity condition fails; evaluate this after PAUSE and before REFINE.",
+        "failed_conditions": [
+          "all_required_audits_pass",
+          "inherited_regressions_pass",
+          "no_invalid_or_degenerate_collapse",
+          "no_prohibited_work",
+          "reproducibility_failure_count_maximum"
+        ]
+      },
+      "REFINE": {
+        "when": "PAUSE and REVISE conditions pass, but one or more two-axis frontier or paired-control thresholds fail.",
+        "failed_conditions": [
+          "lambda_0.03_frontier_seed_count_minimum",
+          "paired_hard_kd_delta_median_maximum",
+          "paired_hard_width_delta_median_strictly_less_than"
+        ]
+      },
+      "CONTINUE": {
+        "when": "Every required condition passes.",
+        "failed_conditions": []
+      }
     },
     "outcomes": {
       "CONTINUE": "All required conditions pass; authorize only the next separately scoped stage and do not select a production lambda.",

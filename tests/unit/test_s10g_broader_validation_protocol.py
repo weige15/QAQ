@@ -60,8 +60,8 @@ EXPECTED_PER_TRIAL_FIELDS = {
     "finite_gradient_audit",
     "teacher_frozen_audit",
     "packed_student_base_unchanged_audit",
-    "router_only_optimizer_audit",
-    "fresh_adamw_audit",
+    "collapse_audit",
+    "optimizer_audit",
     "soft_validation_kd",
     "soft_validation_mean_absolute_logit_error",
     "soft_validation_maximum_absolute_logit_error",
@@ -92,6 +92,27 @@ EXPECTED_CROSS_SEED_FIELDS = {
     "paired_control_hard_width_delta_median_lambda_0.03_minus_lambda_0.0",
     "reproducibility_failure_count",
 }
+EXPECTED_RUN_LEVEL_FIELDS = {
+    "inherited_regressions_audit",
+    "prohibited_work_audit",
+}
+EXPECTED_OPTIMIZER_AUDIT_FIELDS = {
+    "actual_optimizer_parameter_count",
+    "actual_optimizer_parameter_names",
+    "actual_optimizer_parameter_names_sha256",
+    "duplicate_optimizer_parameter_count",
+    "expected_router_parameter_count",
+    "expected_router_parameter_names",
+    "expected_router_parameter_names_sha256",
+    "fresh_adamw_audit",
+    "missing_router_parameter_count",
+    "optimizer_construction_serial",
+    "optimizer_state_entry_count_before_first_step",
+    "optimizer_state_entry_count_before_training_begins",
+    "router_only_optimizer_audit",
+    "runtime_identity_based_membership_result",
+    "unexpected_optimizer_parameter_count",
+}
 EXPECTED_FORBIDDEN_MEASUREMENTS = [
     "latency",
     "memory",
@@ -99,6 +120,25 @@ EXPECTED_FORBIDDEN_MEASUREMENTS = [
     "throughput",
     "energy",
     "hardware_cost",
+]
+EXPECTED_FORBIDDEN_ACTIONS = [
+    "adaptive_lambda_search",
+    "adaptive_extension_allowed",
+    "post_result_seed_replacement",
+    "post_result_example_replacement",
+    "warm_start",
+    "s07_conversion",
+    "historical_s07_two_way_checkpoint_loading",
+    "training_teacher",
+    "training_packed_base",
+    "non_router_optimizer_membership",
+    "candidate_bits_change",
+    "normalized_cost_change",
+    "s08_loader_changes",
+    "six_bit_on_demand_loading",
+    "production_lambda_selection",
+    "s10h_execution",
+    "s10g_execution",
 ]
 
 
@@ -127,8 +167,12 @@ def validate_frozen_protocol(protocol: dict[str, object]) -> None:
 
     facts = protocol["source_project_established_facts"]
     assert facts["completed_stages"] == ["S10-A", "S10-B", "S10-C", "S10-D", "S10-E", "S10-F"]
-    assert facts["s10f_attempt_1"]["classification"] == "REVISE"
-    assert facts["s10f_attempt_1"]["preserved"] is True
+    assert facts["s10f_attempt_1"] == {
+        "path": "docs/results/s10f_frontier_confirmation.json",
+        "sha256": "d68f041e0a3dc32c465e8b8068ca3ab230d39253757e30f3019ca7e681b14233",
+        "classification": "REVISE",
+        "preserved": True,
+    }
     assert facts["s10f_attempt_2"]["path"] == "docs/results/s10f_frontier_confirmation_rerun.json"
     assert facts["s10f_attempt_2"]["sha256"] == (
         "b3bcc0e45d45852ac5060209c4789453ed452462f528f7bffd4cb80fb1ef58cb"
@@ -139,6 +183,16 @@ def validate_frozen_protocol(protocol: dict[str, object]) -> None:
     )
     assert facts["s10f_attempt_2"]["production_lambda_selected"] is False
     assert facts["no_broader_validation_has_run"] is True
+    assert facts["pinned_model"] == {
+        "repository": "Qwen/Qwen3-4B",
+        "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+        "tokenizer_revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    }
+    assert facts["pinned_backend"] == {
+        "any_precision_revision": "a3257d02740cc5757c78673da534b0630ff3a4ea",
+        "packed_artifact": "quantized/s03b_qwen3_4b/backend_cache/packed/anyprec-(1cfa9a7208912126459214e8b04321603b3df60c)-w8_orig4-gc1-c4_s1_blk64",
+        "packed_artifact_pytorch_model_sha256": "29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee",
+    }
 
     protocol_body = protocol["protocol"]
     assert protocol_body["required_ancestor_commit"] == "7fc136eabdba302e199354ae001cd1e1cd42199f"
@@ -171,6 +225,14 @@ def validate_frozen_protocol(protocol: dict[str, object]) -> None:
     assert dataset["completion_tokens"] == 32
     assert dataset["prompt_boundary"] == [0, 32]
     assert dataset["completion_boundary"] == [32, 64]
+    assert dataset["preprocessing"] == (
+        "tokenize each raw row with the pinned tokenizer and add_special_tokens=false; "
+        "retain the first 64 tokens; prompt is tokens [0,32), completion is tokens [32,64)"
+    )
+    assert dataset["selection_rule"] == (
+        "For each source offset, scan forward inclusively, skip blank or short rows, "
+        "and select the first row with at least 64 tokens."
+    )
     assert dataset["train_offsets"] == EXPECTED_TRAIN_OFFSETS
     assert dataset["train_source_rows"] == EXPECTED_TRAIN_ROWS
     assert dataset["train_example_ids"] == EXPECTED_TRAIN_IDS
@@ -237,7 +299,35 @@ def validate_frozen_protocol(protocol: dict[str, object]) -> None:
     measurements = protocol_body["future_measurements"]
     assert set(measurements["per_trial_required_fields"]) == EXPECTED_PER_TRIAL_FIELDS
     assert len(measurements["per_trial_required_fields"]) == len(EXPECTED_PER_TRIAL_FIELDS)
+    assert set(measurements["run_level_required_fields"]) == EXPECTED_RUN_LEVEL_FIELDS
     assert set(measurements["cross_seed_aggregate_required_fields"]) == EXPECTED_CROSS_SEED_FIELDS
+    assert measurements["entropy_log_base"] == 2.0
+    assert measurements["optimizer_audit_contract"] == {
+        "required": True,
+        "required_fields": sorted(EXPECTED_OPTIMIZER_AUDIT_FIELDS),
+        "expected_router_name_prefix": "routers.",
+        "expected_router_parameter_count": 288,
+        "identity_based_membership_required": True,
+        "fresh_state_before_first_step_required": True,
+    }
+    assert measurements["inherited_regressions_audit_contract"] == {
+        "required": True,
+        "required_fields": ["status", "test_selection", "passed"],
+        "status": "passed",
+        "test_selection": "S10-D/S10-E/S10-F predecessor regression selection",
+        "must_be_true": True,
+    }
+    assert measurements["prohibited_work_audit_contract"] == {
+        "required": True,
+        "required_fields": [
+            "forbidden_actions_observed",
+            "forbidden_measurements_observed",
+            "passed",
+        ],
+        "must_be_true": True,
+        "forbidden_actions": EXPECTED_FORBIDDEN_ACTIONS,
+        "forbidden_measurements": EXPECTED_FORBIDDEN_MEASUREMENTS,
+    }
     assert measurements["route_map_contract"] == {
         "validation_ids_in_order": EXPECTED_VALIDATION_IDS,
         "validation_map_count": 12,
@@ -270,16 +360,47 @@ def validate_frozen_protocol(protocol: dict[str, object]) -> None:
     assert gate["scalar_combined_score_allowed"] is False
     assert gate["arbitrary_quality_loss_threshold_allowed"] is False
     assert gate["required_conditions"] == {
+        "all_required_evidence_complete": True,
         "all_nine_trials_complete": True,
         "all_required_audits_pass": True,
         "inherited_regressions_pass": True,
         "no_invalid_or_degenerate_collapse": True,
+        "no_prohibited_work": True,
         "lambda_0.03_frontier_seed_count_minimum": 2,
         "paired_hard_kd_delta_median_maximum": 0.0,
         "paired_hard_kd_delta_rule": "median(candidate hard KD - control hard KD) <= 0.0",
         "paired_hard_width_delta_median_strictly_less_than": 0.0,
         "paired_hard_width_delta_rule": "median(candidate hard selected width - control hard selected width) < 0.0",
         "reproducibility_failure_count_maximum": 0,
+    }
+    assert gate["outcome_precedence"] == ["PAUSE", "REVISE", "REFINE", "CONTINUE"]
+    assert gate["outcome_rules"] == {
+        "PAUSE": {
+            "when": "Any required trial, prerequisite, or evidence field is missing or incomplete; evaluate this before other outcomes.",
+            "failed_conditions": ["all_required_evidence_complete", "all_nine_trials_complete"],
+        },
+        "REVISE": {
+            "when": "Evidence is complete but an inherited regression, required audit, collapse, reproducibility, or prohibited-work integrity condition fails; evaluate this after PAUSE and before REFINE.",
+            "failed_conditions": [
+                "all_required_audits_pass",
+                "inherited_regressions_pass",
+                "no_invalid_or_degenerate_collapse",
+                "no_prohibited_work",
+                "reproducibility_failure_count_maximum",
+            ],
+        },
+        "REFINE": {
+            "when": "PAUSE and REVISE conditions pass, but one or more two-axis frontier or paired-control thresholds fail.",
+            "failed_conditions": [
+                "lambda_0.03_frontier_seed_count_minimum",
+                "paired_hard_kd_delta_median_maximum",
+                "paired_hard_width_delta_median_strictly_less_than",
+            ],
+        },
+        "CONTINUE": {
+            "when": "Every required condition passes.",
+            "failed_conditions": [],
+        },
     }
     assert set(gate["outcomes"]) == {"CONTINUE", "REFINE", "REVISE", "PAUSE"}
     assert gate["production_lambda_selection"] is False
@@ -356,6 +477,23 @@ def test_route_map_schema_requires_all_twelve_ids_and_72_entries():
         lambda p: p["protocol"].update(seeds=[1729, 1730]),
         lambda p: p["protocol"].update(seeds=[1729, 1730, 1731, 1732]),
         lambda p: p["protocol"]["dataset"].update(revision="changed"),
+        lambda p: p["source_project_established_facts"]["s10f_attempt_1"].update(
+            path="changed"
+        ),
+        lambda p: p["source_project_established_facts"]["s10f_attempt_1"].update(
+            sha256="changed"
+        ),
+        lambda p: p["source_project_established_facts"]["pinned_model"].update(
+            revision="changed"
+        ),
+        lambda p: p["source_project_established_facts"]["pinned_backend"].update(
+            any_precision_revision="changed"
+        ),
+        lambda p: p["source_project_established_facts"]["pinned_backend"].update(
+            packed_artifact_pytorch_model_sha256="changed"
+        ),
+        lambda p: p["protocol"]["dataset"].update(preprocessing="changed"),
+        lambda p: p["protocol"]["dataset"].update(selection_rule="changed"),
         lambda p: p["protocol"]["dataset"].update(train_offsets=[0, 2000, 1000]),
         lambda p: p["protocol"]["dataset"].update(train_example_ids=EXPECTED_TRAIN_IDS[:4]),
         lambda p: p["protocol"]["dataset"].update(train_examples=4),
@@ -377,8 +515,18 @@ def test_route_map_schema_requires_all_twelve_ids_and_72_entries():
         lambda p: p["protocol"]["future_measurements"]["per_trial_required_fields"].remove(
             "teacher_frozen_audit"
         ),
+        lambda p: p["protocol"]["future_measurements"]["per_trial_required_fields"].remove(
+            "collapse_audit"
+        ),
+        lambda p: p["protocol"]["future_measurements"]["per_trial_required_fields"].remove(
+            "optimizer_audit"
+        ),
         lambda p: p["protocol"]["future_measurements"]["per_trial_required_fields"].append(
             "latency"
+        ),
+        lambda p: p["protocol"]["future_measurements"].update(entropy_log_base=10.0),
+        lambda p: p["protocol"]["future_measurements"]["run_level_required_fields"].remove(
+            "inherited_regressions_audit"
         ),
         lambda p: p["protocol"]["future_measurements"]["prohibited_measurement_audit"][
             "forbidden_measurements"
@@ -386,6 +534,10 @@ def test_route_map_schema_requires_all_twelve_ids_and_72_entries():
         lambda p: p["future_two_axis_gate"]["required_conditions"].update(
             **{"lambda_0.03_frontier_seed_count_minimum": 1}
         ),
+        lambda p: p["future_two_axis_gate"]["required_conditions"].update(
+            no_prohibited_work=False
+        ),
+        lambda p: p["future_two_axis_gate"]["outcome_precedence"].reverse(),
         lambda p: p["future_two_axis_gate"].update(scalar_combined_score_allowed=True),
         lambda p: p["future_two_axis_gate"].update(production_lambda_selection=True),
         lambda p: p["prohibitions"].update(adaptive_lambda_search=True),
@@ -424,6 +576,14 @@ def test_future_gate_has_four_distinct_non_scalar_outcomes():
     ]
     assert gate["scalar_combined_score_allowed"] is False
     assert gate["production_lambda_selection"] is False
+    assert gate["outcome_precedence"] == ["PAUSE", "REVISE", "REFINE", "CONTINUE"]
+    assert gate["outcome_rules"]["REVISE"]["failed_conditions"] == [
+        "all_required_audits_pass",
+        "inherited_regressions_pass",
+        "no_invalid_or_degenerate_collapse",
+        "no_prohibited_work",
+        "reproducibility_failure_count_maximum",
+    ]
 
 
 def test_s10g_freeze_does_not_claim_a_broader_result_or_select_lambda():

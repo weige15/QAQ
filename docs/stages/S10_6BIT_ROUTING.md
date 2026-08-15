@@ -644,7 +644,10 @@ records finite/freeze/optimizer audits, training count and update count, soft
 and hard KD/logit/width/probability/entropy metrics, fractions, all twelve
 validation route maps (each exactly 72 entries in layer-major order), route
 variation, cross-seed paired deltas, and one immediate same-state hard
-reproducibility repeat.
+reproducibility repeat. The schema freezes base-2 entropy, an explicit
+collapse audit, structured optimizer proof rather than optimizer booleans,
+run-level inherited-regression evidence, and run-level prohibited-work
+evidence.
 
 The future gate has exactly two lower-is-better axes: hard validation KD and
 hard selected width. CONTINUE requires all nine valid trials and audits, no
@@ -652,9 +655,10 @@ invalid collapse, at least two per-seed frontier memberships for `0.03`,
 paired median hard KD delta `<=0.0`, paired median hard-width delta `<0.0`,
 passing inherited regressions, and zero reproducibility failures. REFINE is a
 complete structurally valid matrix that fails one or more two-axis result
-conditions; REVISE is invalid or drifted evidence/prohibited work; PAUSE is
-missing or incomplete evidence. No scalar combined score or production-lambda
-selection is permitted.
+conditions; with PAUSE evaluated first, REVISE covers complete evidence with
+failed audits, inherited regressions, invalid collapse, reproducibility, or
+prohibited work; CONTINUE requires every condition. No scalar combined score
+or production-lambda selection is permitted.
 
 S10-G itself created no runner, result JSON, or execution path, and performed
 no training, model evaluation, CUDA evaluation, or hardware/resource

@@ -636,12 +636,14 @@ semantics. Lambdas are exactly `[0.0,0.03,0.1]` in order; every lambda gets a
 fresh AdamW and every seed gets a cloned fresh router initialization.
 
 Future measurements require exact soft/hard KD, logit, width, probability,
-entropy, finite/freeze/optimizer audits, training/update counts,
+base-2 entropy, explicit collapse and structured optimizer audits, training/
+update counts, run-level inherited-regression and prohibited-work evidence,
 reproducibility fields, cross-seed paired comparisons, and twelve ordered
 72-entry hard route maps. The future gate uses only lower-is-better hard KD and
-selected width, with exact frontier, paired-median, audit, and reproducibility
-thresholds. It distinguishes CONTINUE, REFINE, REVISE, and PAUSE without a
-scalar score or production-lambda selection.
+selected width, with deterministic precedence for missing evidence, failed
+integrity evidence, and valid two-axis threshold failures. It distinguishes
+CONTINUE, REFINE, REVISE, and PAUSE without a scalar score or production-lambda
+selection.
 
 S10-G itself created no runner, result JSON, or execution path and performed no
 training, evaluation, GPU evaluation, or hardware/resource measurement. The

@@ -1177,7 +1177,10 @@ audits, soft and hard KD/logit/width/probability/entropy metrics, all twelve
 72-entry validation route maps in layer-major order, route variation,
 reproducibility, and cross-seed paired comparisons. Retaining three seeds,
 three lambdas, 72 units, and one immediate repeat is a compatibility choice
-from S10-F, not a new source-paper fact.
+from S10-F, not a new source-paper fact. The future result schema also requires
+an explicit collapse audit, a structured optimizer audit with identity-based
+membership and fresh-state evidence, a run-level inherited-regression audit,
+and a run-level prohibited-work audit; booleans alone are not sufficient proof.
 
 **Implementation choice — future gate:** Use only two lower-is-better axes,
 hard validation KD and hard selected width. A lambda is per-seed
@@ -1189,8 +1192,13 @@ regressions, no invalid collapse, `0.03` frontier membership in at least 2 of
 matrix failing a two-axis condition is REFINE; invalid/drifted evidence or
 prohibited work is REVISE; incomplete evidence is PAUSE. The threshold 2/3,
 zero KD delta, strict negative width delta, and zero failures are frozen
-implementation gates carried forward from S10-F; no scalar score, arbitrary
-quality-loss threshold, or production-lambda selection is allowed.
+implementation gates carried forward from S10-F. Outcome precedence is PAUSE
+for missing or incomplete evidence, REVISE for complete but failed integrity,
+inherited-regression, collapse, reproducibility, or prohibited-work evidence,
+REFINE for valid complete evidence that misses a two-axis threshold, and
+CONTINUE only when every required condition passes. No scalar score, arbitrary
+quality-loss threshold, or production-lambda selection is allowed. Soft mean
+entropy uses the inherited base-2 logarithm.
 
 **Boundary:** This decision freezes only the protocol and configuration tests.
 It creates no `scripts/run_s10g.py`, result JSON, or execution path and
