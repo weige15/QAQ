@@ -1127,6 +1127,53 @@ started.
 reopen S10-F and invalidate attempt 2 rather than interpreting the result as a
 valid confirmation.
 
+### D050 — S10-H1 protocol-locked broader-validation runner (2026-08-15)
+
+**Choice:** Implement `scripts/run_s10h.py` as a standard-library-only,
+fail-closed S10-H1 validator and non-executing plan. It consumes the exact
+byte-frozen `configs/s10g_broader_validation.json` (SHA-256
+`fcb66902174558e5d3f9198f34a8430b685568fd4e21e1632b40f6870aa4aec7`), requires
+merged S10-G ancestry, verifies the recorded S10-F artifact hashes, manifest
+identity, pinned model/dataset/backend identities, and refuses to overwrite
+`docs/results/s10h_broader_validation.json`. The default and `--plan` paths
+load no model or dataset, import no ML runtime, evaluate no CUDA behavior,
+train nothing, and write no result.
+
+**Implementation choice:** Keep H1 independent of the S10-D/F execution
+helpers so their four-step/two-example historical semantics cannot be
+silently reused for H2's 24-example/24-update contract. The future result
+validator instead checks the exact nine ordered seed/lambda pairs, paired
+initialization, fresh AdamW and identity-based `routers.` membership, frozen
+teacher/base proofs, exact data manifests and training contract, twelve
+72-entry ordered 4/6/8 route maps, reproducibility/run/prohibition audits,
+computed aggregates, and PAUSE > REVISE > REFINE > CONTINUE precedence. A
+deterministic synthetic structural fixture is included only for validator
+tests. `--execute` is an explicit opt-in but returns PAUSE because the H2 real
+executor is not part of this stage.
+
+**Additional identity assumption:** The committed quantized-model manifest
+SHA-256 is pinned at `1e2b3515072e22d71ac35a35a3002e3a1dcd5ce44887c554b1408f735c928530`
+for pre-execution identity checking. This checks metadata and paths without
+loading model weights or hashing/instantiating the packed model in plan mode.
+
+**Evidence:** Focused H1 tests cover config/ancestry/identity drift,
+historical-artifact preservation, exact trial/data/training/route-map and
+audit contracts, prohibition and gate precedence, no-overwrite behavior, and
+a subprocess plan/execute CLI boundary. No Qwen3 model, packed model, real
+Wikitext rows, CUDA execution, training, broader-validation result, or
+production lambda was used or created.
+
+**Consequence:** H1 is CONTINUE only for the runner/pre-execution seam. H2
+remains a separately staged action and must not be inferred from the synthetic
+fixture or plan output. The explicit future command printed by the plan is
+not executable against real models until H2 is separately implemented and
+authorized.
+
+**Reversal path:** If the frozen config, predecessor artifact identities,
+result schema, gate precedence, or prohibition boundary changes, preserve the
+H1 runner and tests, mark the protocol REVISE, and record a new decision before
+changing the validator or adding H2 execution.
+
 ### D049 — S10-G broader-validation protocol freeze (2026-08-15)
 
 **Source/project-established facts:** S10-A through S10-F are complete. S10-F

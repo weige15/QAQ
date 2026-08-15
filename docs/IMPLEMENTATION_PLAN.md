@@ -29,6 +29,8 @@ Unresolved questions remain unresolved until a stage produces evidence.
 15. S10-E — Freeze frontier confirmation.
 16. S10-F — Execute frozen frontier confirmation.
 17. S10-G — Define and freeze broader validation.
+18. S10-H1 — Implement and validate the fail-closed broader-validation runner and non-executing plan.
+19. S10-H2 — Separately authorize and execute the frozen broader-validation protocol.
 
 No stage may begin automatically. A stage stops at its decision gate and updates `docs/STATUS.md` before handoff.
 

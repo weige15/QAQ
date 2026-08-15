@@ -672,3 +672,45 @@ S10-F predecessor regression selection passed 121 tests, Ruff passed for the
 changed Python test, and `git diff --check` passed. The next action is a
 separately authorized future execution decision; this stage claims no broader
 validation result and selects no production lambda.
+
+## S10-H1 — Protocol-locked broader-validation runner and pre-execution validation
+
+**Gate: CONTINUE for H1 implementation only.** H1 adds
+`scripts/run_s10h.py` and `tests/unit/test_s10h_broader_validation.py`. It does
+not execute S10-H2, train routers, load Qwen3 or packed weights, consume real
+broader-validation rows, create `docs/results/s10h_broader_validation.json`,
+select a lambda, or measure latency, memory, transfer, throughput, energy, or
+hardware cost.
+
+The runner reads the exact frozen S10-G config bytes (SHA-256
+`fcb66902174558e5d3f9198f34a8430b685568fd4e21e1632b40f6870aa4aec7`), checks
+that `7fc136eabdba302e199354ae001cd1e1cd42199f` is an ancestor, preserves both
+S10-F attempt hashes, and checks the pinned model/tokenizer, Wikitext,
+Any-Precision, packed-artifact, and manifest identities without importing a
+model runtime. Its future-result validator is independent of the S10-D/F
+four-step execution helpers: it requires the exact nine ordered pairs
+(seeds `1729/1730/1731`, lambdas `0.0/0.03/0.1`), exact 24/12 ordered data
+manifests, 24 examples and updates, batch/accumulation `1/1`, one epoch,
+AdamW values, paired canonical initialization, fresh identity-audited
+router-only optimizers, teacher/base freeze proofs, twelve ordered 72-unit
+route maps restricted to 4/6/8, repeat evidence, run-level regressions and
+prohibition audits, and recomputed cross-seed aggregates. Gate classification
+uses the frozen PAUSE > REVISE > REFINE > CONTINUE precedence.
+
+The default invocation and explicit `--plan` validate and print protocol
+identity, ancestry, frozen revisions/artifact identity, data/trial counts,
+training contract, future output path, prohibitions, thresholds, and the
+explicit future `--execute` command. Plan mode loads no model or dataset,
+trains nothing, evaluates no CUDA behavior, writes no result, and cannot alter
+frozen artifacts. `--execute` is an explicit H2 opt-in but returns PAUSE in H1
+because the real executor is intentionally not present. A canonical result
+path is never overwritten. A deterministic synthetic structural fixture is
+used only by focused validator tests and is not experiment evidence.
+
+Focused H1 verification passed `13` tests; the combined S10-D/S10-E/S10-F/
+S10-G predecessor selection plus H1 passed `147` tests, and the full unit suite
+passed `276` tests with one existing duplicate-optimizer warning. Ruff and
+`git diff --check` passed. No model, real data, CUDA behavior, training, result
+JSON, or production lambda was used. The next action is a separately
+authorized S10-H2 implementation/execution stage; do not infer an H2 result
+from the plan or synthetic fixture.
