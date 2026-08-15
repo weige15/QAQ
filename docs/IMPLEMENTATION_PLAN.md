@@ -23,6 +23,12 @@ Unresolved questions remain unresolved until a stage produces evidence.
 9. S08 — Add synchronous on-demand loading of selected packed planes.
 10. S09 — Compare modes and freeze the reproducible baseline.
 11. S10-A — Enable static 6-bit execution.
+12. S10-B — Define three-way router semantics.
+13. S10-C — Add the cost-aware 4/6/8 router objective.
+14. S10-D — Calibrate the bit-cost coefficient.
+15. S10-E — Freeze frontier confirmation.
+16. S10-F — Execute frozen frontier confirmation.
+17. S10-G — Define and freeze broader validation.
 
 No stage may begin automatically. A stage stops at its decision gate and updates `docs/STATUS.md` before handoff.
 

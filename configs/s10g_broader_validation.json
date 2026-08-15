@@ -1,0 +1,460 @@
+{
+  "format": "qaq-s10g-broader-validation-v1",
+  "stage": "S10-G",
+  "protocol_freeze": {
+    "classification": "CONTINUE",
+    "protocol_only": true,
+    "execution_allowed": false,
+    "result_claimed": false,
+    "runner_path": null,
+    "result_path": null,
+    "next_action": "A separately authorized future execution may consume this frozen protocol; S10-G itself performs no training or evaluation."
+  },
+  "source_project_established_facts": {
+    "completed_stages": ["S10-A", "S10-B", "S10-C", "S10-D", "S10-E", "S10-F"],
+    "s10f_attempt_1": {
+      "path": "docs/results/s10f_frontier_confirmation.json",
+      "sha256": "d68f041e0a3dc32c465e8b8068ca3ab230d39253757e30f3019ca7e681b14233",
+      "classification": "REVISE",
+      "preserved": true
+    },
+    "s10f_attempt_2": {
+      "path": "docs/results/s10f_frontier_confirmation_rerun.json",
+      "sha256": "b3bcc0e45d45852ac5060209c4789453ed452462f528f7bffd4cb80fb1ef58cb",
+      "classification": "CONTINUE",
+      "present": true,
+      "all_nine_trials_present": true,
+      "authorized_scope": "only a separately scoped broader-validation decision",
+      "production_lambda_selected": false
+    },
+    "no_broader_validation_has_run": true,
+    "pinned_model": {
+      "repository": "Qwen/Qwen3-4B",
+      "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+      "tokenizer_revision": "1cfa9a7208912126459214e8b04321603b3df60c"
+    },
+    "pinned_backend": {
+      "any_precision_revision": "a3257d02740cc5757c78673da534b0630ff3a4ea",
+      "packed_artifact": "quantized/s03b_qwen3_4b/backend_cache/packed/anyprec-(1cfa9a7208912126459214e8b04321603b3df60c)-w8_orig4-gc1-c4_s1_blk64",
+      "packed_artifact_pytorch_model_sha256": "29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee"
+    },
+    "router_contract": {
+      "router_count": 72,
+      "router_parameter_count": 23630040,
+      "candidate_bits": [4, 6, 8],
+      "candidate_order": "[p4,p6,p8]",
+      "route_map_units": 72
+    },
+    "objective_contract": {
+      "kd_loss": "unchanged completion-only T^2 masked KL teacher-student distillation",
+      "loss_formula": "L_total = L_KD + lambda_bit * L_bit",
+      "normalized_bit_cost_formula": "c(bit) = (bit - 4) / (8 - 4)",
+      "normalized_bit_costs": [0.0, 0.5, 1.0],
+      "cost_reduction": "unweighted arithmetic mean across all 36 attention and 36 FFN decisions",
+      "hardware_cost_claim": false
+    },
+    "freeze_contract": {
+      "teacher_frozen": true,
+      "packed_student_base_frozen": true,
+      "router_only_optimizer": true,
+      "synchronous_s08_loader_invoked": false,
+      "six_bit_on_demand_loading_supported": false
+    }
+  },
+  "implementation_choices": {
+    "broader_data_scope": {
+      "rationale": "Use six times the S10-F train and validation example counts while retaining deterministic source-offset selection, so the future check is materially broader without changing the pinned corpus or tokenizer.",
+      "train_example_count": 24,
+      "validation_example_count": 12,
+      "train_count_multiplier_vs_s10f": 6,
+      "validation_count_multiplier_vs_s10f": 6
+    },
+    "data_selection": {
+      "rationale": "Use ascending, evenly spaced fixed offsets and the inherited first-qualifying-row rule; no random sampling or post-result replacement is permitted.",
+      "selection_rule": "For each listed offset in order, scan from that row inclusive, skip blank rows and rows with fewer than 64 tokenizer tokens, and select the first qualifying row exactly once.",
+      "offset_spacing_train": 1000,
+      "offset_spacing_validation": 250,
+      "ordering": "listed offset order; selected example IDs and row indices must remain in the listed order"
+    },
+    "training_scope": {
+      "rationale": "Train exactly one deterministic pass over the 24 listed examples: the sixfold data increase is paired with 24 optimizer updates, while every S10-F optimizer, temperature, batch, and scheduler hyperparameter is preserved.",
+      "examples_seen": 24,
+      "epochs": 1,
+      "optimizer_steps": 24,
+      "one_pass_no_resampling": true
+    },
+    "seed_scope": {
+      "rationale": "Retain the S10-F captain-selected three-seed paired matrix; no additional seed is introduced because the frozen minimum is already met.",
+      "seeds": [1729, 1730, 1731],
+      "additional_seeds": []
+    },
+    "candidate_scope": {
+      "rationale": "Retain the S10-F three-way candidate contract and its explicit probability order without adding or reordering a candidate.",
+      "candidate_bits": [4, 6, 8],
+      "probability_order": ["p4", "p6", "p8"]
+    },
+    "lambda_scope": {
+      "rationale": "Retain the exact S10-F paired lambda matrix in its execution order; protocol definition does not select a production value.",
+      "lambdas": [0.0, 0.03, 0.1],
+      "order": [0.0, 0.03, 0.1],
+      "paired_control_lambda": 0.0,
+      "confirmation_lambda": 0.03
+    },
+    "route_map_scope": {
+      "rationale": "Retain the established S10-F serializer and expand only the validation-ID map count; every map remains a complete 72-unit layer-major record.",
+      "unit_order": "layer-major: layer 0 attention, layer 0 ffn, then layer 1 attention, layer 1 ffn, through layer 35",
+      "units_per_map": 72
+    },
+    "reproducibility_scope": {
+      "rationale": "Retain the S10-F immediate same-state hard-validation repeat because it tests deterministic route maps and hard metrics without adding a training trial.",
+      "repeat_count": 1,
+      "method": "one immediate same-state hard validation repeat at the unchanged trained router state"
+    }
+  },
+  "protocol": {
+    "required_ancestor_commit": "7fc136eabdba302e199354ae001cd1e1cd42199f",
+    "candidate_bits": [4, 6, 8],
+    "lambdas": [0.0, 0.03, 0.1],
+    "seeds": [1729, 1730, 1731],
+    "trial_count": 9,
+    "pairing": {
+      "one_canonical_fresh_three_way_router_initialization_per_seed": true,
+      "clone_canonical_initialization_identically_across_lambdas": true,
+      "fresh_router_initialization_per_seed": true,
+      "fresh_adamw_per_lambda": true,
+      "same_lambda_order_per_seed": true,
+      "warm_start_allowed": false,
+      "historical_s07_two_way_checkpoint_loading_allowed": false,
+      "historical_s07_two_way_checkpoint_sha256": "08bf646f19759c0d7949e159bdbe4f96bbea737204b96f8760d205c8d6fd1949"
+    },
+    "dataset": {
+      "repository": "Salesforce/wikitext",
+      "config": "wikitext-2-raw-v1",
+      "revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+      "train_split": "train",
+      "validation_split": "validation",
+      "tokenizer_revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+      "sequence_length": 64,
+      "prompt_tokens": 32,
+      "completion_tokens": 32,
+      "prompt_boundary": [0, 32],
+      "completion_boundary": [32, 64],
+      "preprocessing": "tokenize each raw row with the pinned tokenizer and add_special_tokens=false; retain the first 64 tokens; prompt is tokens [0,32), completion is tokens [32,64)",
+      "selection_rule": "For each source offset, scan forward inclusively, skip blank or short rows, and select the first row with at least 64 tokens.",
+      "train_offsets": [0, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000, 19000, 20000, 21000, 22000, 23000],
+      "train_source_rows": [3, 1003, 2002, 3037, 4005, 5002, 6001, 7001, 8000, 9068, 10001, 11003, 12003, 13000, 14000, 15000, 16002, 17002, 18000, 19001, 20006, 21000, 22000, 23000],
+      "train_example_ids": ["train-3", "train-1003", "train-2002", "train-3037", "train-4005", "train-5002", "train-6001", "train-7001", "train-8000", "train-9068", "train-10001", "train-11003", "train-12003", "train-13000", "train-14000", "train-15000", "train-16002", "train-17002", "train-18000", "train-19001", "train-20006", "train-21000", "train-22000", "train-23000"],
+      "validation_offsets": [0, 250, 500, 750, 1000, 1250, 1500, 1750, 2000, 2250, 2500, 2750],
+      "validation_source_rows": [3, 270, 500, 761, 1000, 1252, 1500, 1759, 2000, 2250, 2500, 2755],
+      "validation_example_ids": ["validation-3", "validation-270", "validation-500", "validation-761", "validation-1000", "validation-1252", "validation-1500", "validation-1759", "validation-2000", "validation-2250", "validation-2500", "validation-2755"],
+      "train_examples": 24,
+      "validation_examples": 12,
+      "source_order": {
+        "train_offsets": [0, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000, 19000, 20000, 21000, 22000, 23000],
+        "train_source_rows": [3, 1003, 2002, 3037, 4005, 5002, 6001, 7001, 8000, 9068, 10001, 11003, 12003, 13000, 14000, 15000, 16002, 17002, 18000, 19001, 20006, 21000, 22000, 23000],
+        "train_example_ids": ["train-3", "train-1003", "train-2002", "train-3037", "train-4005", "train-5002", "train-6001", "train-7001", "train-8000", "train-9068", "train-10001", "train-11003", "train-12003", "train-13000", "train-14000", "train-15000", "train-16002", "train-17002", "train-18000", "train-19001", "train-20006", "train-21000", "train-22000", "train-23000"],
+        "validation_offsets": [0, 250, 500, 750, 1000, 1250, 1500, 1750, 2000, 2250, 2500, 2750],
+        "validation_source_rows": [3, 270, 500, 761, 1000, 1252, 1500, 1759, 2000, 2250, 2500, 2755],
+        "validation_example_ids": ["validation-3", "validation-270", "validation-500", "validation-761", "validation-1000", "validation-1252", "validation-1500", "validation-1759", "validation-2000", "validation-2250", "validation-2500", "validation-2755"]
+      }
+    },
+    "training": {
+      "examples_seen": 24,
+      "batch_size": 1,
+      "gradient_accumulation_steps": 1,
+      "optimizer": "AdamW",
+      "learning_rate": 0.001,
+      "weight_decay": 0.0,
+      "betas": [0.9, 0.999],
+      "eps": 1e-08,
+      "amsgrad": false,
+      "epochs": 1,
+      "optimizer_steps": 24,
+      "scheduler": "none",
+      "distillation_temperature": 2.0,
+      "routing_temperature": 1.0,
+      "logging_interval_steps": 1,
+      "one_pass_no_resampling": true
+    },
+    "objective": {
+      "candidate_bits": [4, 6, 8],
+      "normalized_bit_cost_formula": "c(bit) = (bit - 4) / (8 - 4)",
+      "normalized_bit_costs": [0.0, 0.5, 1.0],
+      "cost_order": [4, 6, 8],
+      "loss_formula": "L_total = L_KD + lambda_bit * L_bit",
+      "kd_loss": "unchanged completion-only T^2 masked KL teacher-student distillation",
+      "cost_reduction": "unweighted arithmetic mean across all 36 attention and 36 FFN decisions",
+      "hardware_cost_claim": false
+    },
+    "frozen_components": {
+      "teacher_frozen": true,
+      "packed_student_base_frozen": true,
+      "router_only_optimizer": true,
+      "model_repository": "Qwen/Qwen3-4B",
+      "model_revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+      "tokenizer_revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+      "any_precision_revision": "a3257d02740cc5757c78673da534b0630ff3a4ea",
+      "packed_artifact_pytorch_model_sha256": "29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee",
+      "historical_s07_checkpoint_used": false
+    },
+    "router_contract": {
+      "router_count": 72,
+      "router_parameter_count": 23630040,
+      "candidate_bits": [4, 6, 8],
+      "soft_routing": "resident three-way packed mixture in explicit [p4,p6,p8] order",
+      "hard_routing": "deterministic argmax in explicit [p4,p6,p8] order",
+      "request_owned_routing_state": true,
+      "completion_only_kd_objective_unchanged": true
+    },
+    "future_measurements": {
+      "per_trial_required_fields": [
+        "seed",
+        "lambda_bit",
+        "initial_router_state_sha256",
+        "final_router_state_sha256",
+        "initial_kd_gradient_norm",
+        "initial_bit_cost_gradient_norm",
+        "lambda_weighted_gradient_ratio",
+        "training_examples_seen",
+        "optimizer_steps_completed",
+        "finite_loss_audit",
+        "finite_gradient_audit",
+        "teacher_frozen_audit",
+        "packed_student_base_unchanged_audit",
+        "collapse_audit",
+        "optimizer_audit",
+        "soft_validation_kd",
+        "soft_validation_mean_absolute_logit_error",
+        "soft_validation_maximum_absolute_logit_error",
+        "soft_validation_mean_expected_bit_width",
+        "soft_validation_mean_p4",
+        "soft_validation_mean_p6",
+        "soft_validation_mean_p8",
+        "soft_validation_mean_entropy",
+        "hard_validation_kd",
+        "hard_validation_mean_absolute_logit_error",
+        "hard_validation_maximum_absolute_logit_error",
+        "hard_validation_mean_selected_bit_width",
+        "hard_validation_fraction_4",
+        "hard_validation_fraction_6",
+        "hard_validation_fraction_8",
+        "hard_validation_route_maps",
+        "route_variation",
+        "distinct_hard_route_map_count",
+        "reproducibility_audit",
+        "prohibited_measurement_audit"
+      ],
+      "run_level_required_fields": [
+        "inherited_regressions_audit",
+        "prohibited_work_audit"
+      ],
+      "cross_seed_aggregate_required_fields": [
+        "per_lambda_median_hard_validation_kd",
+        "per_lambda_median_hard_mean_selected_bit_width",
+        "per_seed_hard_frontier_membership_for_lambda_0.03",
+        "lambda_0.03_frontier_seed_count",
+        "paired_control_hard_kd_delta_median_lambda_0.03_minus_lambda_0.0",
+        "paired_control_hard_width_delta_median_lambda_0.03_minus_lambda_0.0",
+        "reproducibility_failure_count"
+      ],
+      "entropy_log_base": 2.0,
+      "optimizer_audit_contract": {
+        "required": true,
+        "required_fields": [
+          "actual_optimizer_parameter_count",
+          "actual_optimizer_parameter_names",
+          "actual_optimizer_parameter_names_sha256",
+          "duplicate_optimizer_parameter_count",
+          "expected_router_parameter_count",
+          "expected_router_parameter_names",
+          "expected_router_parameter_names_sha256",
+          "fresh_adamw_audit",
+          "missing_router_parameter_count",
+          "optimizer_construction_serial",
+          "optimizer_state_entry_count_before_first_step",
+          "optimizer_state_entry_count_before_training_begins",
+          "router_only_optimizer_audit",
+          "runtime_identity_based_membership_result",
+          "unexpected_optimizer_parameter_count"
+        ],
+        "expected_router_name_prefix": "routers.",
+        "expected_router_parameter_count": 288,
+        "identity_based_membership_required": true,
+        "fresh_state_before_first_step_required": true
+      },
+      "inherited_regressions_audit_contract": {
+        "required": true,
+        "required_fields": ["status", "test_selection", "passed"],
+        "status": "passed",
+        "test_selection": "S10-D/S10-E/S10-F predecessor regression selection",
+        "must_be_true": true
+      },
+      "prohibited_work_audit_contract": {
+        "required": true,
+        "required_fields": [
+          "forbidden_actions_observed",
+          "forbidden_measurements_observed",
+          "passed"
+        ],
+        "must_be_true": true,
+        "forbidden_actions": [
+          "adaptive_lambda_search",
+          "adaptive_extension_allowed",
+          "post_result_seed_replacement",
+          "post_result_example_replacement",
+          "warm_start",
+          "s07_conversion",
+          "historical_s07_two_way_checkpoint_loading",
+          "training_teacher",
+          "training_packed_base",
+          "non_router_optimizer_membership",
+          "candidate_bits_change",
+          "normalized_cost_change",
+          "s08_loader_changes",
+          "six_bit_on_demand_loading",
+          "production_lambda_selection",
+          "s10h_execution",
+          "s10g_execution"
+        ],
+        "forbidden_measurements": [
+          "latency",
+          "memory",
+          "transfer",
+          "throughput",
+          "energy",
+          "hardware_cost"
+        ]
+      },
+      "soft_metrics": [
+        "validation_kd",
+        "mean_absolute_logit_error",
+        "maximum_absolute_logit_error",
+        "mean_expected_bit_width",
+        "mean_p4",
+        "mean_p6",
+        "mean_p8",
+        "mean_entropy"
+      ],
+      "hard_metrics": [
+        "validation_kd",
+        "mean_absolute_logit_error",
+        "maximum_absolute_logit_error",
+        "mean_selected_bit_width",
+        "fraction_4",
+        "fraction_6",
+        "fraction_8",
+        "route_maps",
+        "route_variation",
+        "distinct_hard_route_map_count"
+      ],
+      "route_map_contract": {
+        "validation_ids_in_order": ["validation-3", "validation-270", "validation-500", "validation-761", "validation-1000", "validation-1252", "validation-1500", "validation-1759", "validation-2000", "validation-2250", "validation-2500", "validation-2755"],
+        "validation_map_count": 12,
+        "units_per_map": 72,
+        "unit_order": "layer-major: layer 0 attention, layer 0 ffn, then layer 1 attention, layer 1 ffn, through layer 35",
+        "allowed_bits": [4, 6, 8],
+        "map_shape": "object keyed by validation_ids_in_order; each value is an ordered list of exactly 72 integer bits"
+      },
+      "reproducibility_contract": {
+        "repeat_count": 1,
+        "method": "one immediate same-state hard validation repeat at the unchanged trained router state",
+        "required_fields": ["route_maps_identical", "hard_metrics_identical", "finite_outputs_both_passed", "passed"]
+      },
+      "prohibited_measurement_audit": {
+        "required": true,
+        "must_be_true": true,
+        "forbidden_measurements": ["latency", "memory", "transfer", "throughput", "energy", "hardware_cost"]
+      }
+    }
+  },
+  "future_two_axis_gate": {
+    "axes": ["hard_validation_kd", "hard_validation_mean_selected_bit_width"],
+    "direction": "lower_is_better",
+    "scalar_combined_score_allowed": false,
+    "arbitrary_quality_loss_threshold_allowed": false,
+    "frontier_definition": "A lambda is on a per-seed hard frontier when no other configured lambda is no-worse on both hard validation KD and hard selected width, with at least one strict improvement.",
+    "required_conditions": {
+      "all_required_evidence_complete": true,
+      "all_nine_trials_complete": true,
+      "all_required_audits_pass": true,
+      "inherited_regressions_pass": true,
+      "no_invalid_or_degenerate_collapse": true,
+      "no_prohibited_work": true,
+      "lambda_0.03_frontier_seed_count_minimum": 2,
+      "paired_hard_kd_delta_median_maximum": 0.0,
+      "paired_hard_kd_delta_rule": "median(candidate hard KD - control hard KD) <= 0.0",
+      "paired_hard_width_delta_median_strictly_less_than": 0.0,
+      "paired_hard_width_delta_rule": "median(candidate hard selected width - control hard selected width) < 0.0",
+      "reproducibility_failure_count_maximum": 0
+    },
+    "outcome_precedence": ["PAUSE", "REVISE", "REFINE", "CONTINUE"],
+    "outcome_rules": {
+      "PAUSE": {
+        "when": "Any required trial, prerequisite, or evidence field is missing or incomplete; evaluate this before other outcomes.",
+        "failed_conditions": ["all_required_evidence_complete", "all_nine_trials_complete"]
+      },
+      "REVISE": {
+        "when": "Evidence is complete but an inherited regression, required audit, collapse, reproducibility, or prohibited-work integrity condition fails; evaluate this after PAUSE and before REFINE.",
+        "failed_conditions": [
+          "all_required_audits_pass",
+          "inherited_regressions_pass",
+          "no_invalid_or_degenerate_collapse",
+          "no_prohibited_work",
+          "reproducibility_failure_count_maximum"
+        ]
+      },
+      "REFINE": {
+        "when": "PAUSE and REVISE conditions pass, but one or more two-axis frontier or paired-control thresholds fail.",
+        "failed_conditions": [
+          "lambda_0.03_frontier_seed_count_minimum",
+          "paired_hard_kd_delta_median_maximum",
+          "paired_hard_width_delta_median_strictly_less_than"
+        ]
+      },
+      "CONTINUE": {
+        "when": "Every required condition passes.",
+        "failed_conditions": []
+      }
+    },
+    "outcomes": {
+      "CONTINUE": "All required conditions pass; authorize only the next separately scoped stage and do not select a production lambda.",
+      "REFINE": "The complete matrix and structural audits are valid, but one or more two-axis frontier or paired-control conditions fail; no scalar score may override this result.",
+      "REVISE": "Protocol, identity, ordering, optimizer-membership, freeze, route-map, reproducibility, or prohibited-work evidence is invalid or drifted; invalidate affected evidence and revise before interpretation.",
+      "PAUSE": "Required trials, prerequisites, inherited regressions, or evidence fields are missing or incomplete; do not infer a gate outcome."
+    },
+    "production_lambda_selection": false
+  },
+  "prohibitions": {
+    "adaptive_lambda_search": false,
+    "adaptive_extension_allowed": false,
+    "post_result_seed_replacement": false,
+    "post_result_example_replacement": false,
+    "warm_start": false,
+    "s07_conversion": false,
+    "historical_s07_two_way_checkpoint_loading": false,
+    "training_teacher": false,
+    "training_packed_base": false,
+    "non_router_optimizer_membership": false,
+    "candidate_bits_change": false,
+    "normalized_cost_change": false,
+    "s08_loader_changes": false,
+    "six_bit_on_demand_loading": false,
+    "production_lambda_selection": false,
+    "s10h_execution": false,
+    "s10g_execution": false,
+    "latency_measurement": false,
+    "memory_measurement": false,
+    "transfer_measurement": false,
+    "throughput_measurement": false,
+    "energy_measurement": false,
+    "hardware_cost_measurement": false,
+    "scalar_combined_score": false
+  },
+  "execution_artifacts": {
+    "runner_created": false,
+    "result_json_created": false,
+    "execution_path_created": false,
+    "allowed_runner_path": null,
+    "allowed_result_path": null
+  }
+}
