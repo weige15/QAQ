@@ -113,6 +113,14 @@ def test_incomplete_trial_evidence_does_not_dereference_or_aggregate():
     assert report["classification"] == "PAUSE"
 
 
+def test_non_object_result_and_unhashable_collapse_classification_fail_closed():
+    assert runner.validate_result([])["classification"] == "PAUSE"
+
+    malformed = _fixture()
+    malformed["trials"][0]["collapse_audit"]["classification"] = []
+    assert runner.validate_result(malformed)["classification"] == "REVISE"
+
+
 def test_training_candidate_route_map_and_optimizer_drift_is_rejected():
     candidate = _fixture()
     candidate["trials"][0]["candidate_bits"] = [4, 8, 6]

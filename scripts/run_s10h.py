@@ -544,7 +544,8 @@ def _validate_trial(trial: dict[str, Any]) -> tuple[bool, bool, str | None]:
     collapse = trial["collapse_audit"]
     if not isinstance(collapse, dict):
         return False, False, "collapse audit is incomplete"
-    if collapse.get("classification") not in {"PROMPT_INVARIANT", "ADAPTIVE_OBSERVED", "OTHER"}:
+    classification = collapse.get("classification")
+    if not isinstance(classification, str) or classification not in {"PROMPT_INVARIANT", "ADAPTIVE_OBSERVED", "OTHER"}:
         return True, False, "invalid collapse classification"
     invalid_or_degenerate = collapse.get("invalid_or_degenerate")
     passed = collapse.get("passed")
@@ -594,6 +595,8 @@ def _validate_trial(trial: dict[str, Any]) -> tuple[bool, bool, str | None]:
 def validate_result(result: dict[str, Any]) -> dict[str, Any]:
     """Validate a future H2 result; synthetic fixtures are the only H1 caller."""
 
+    if not isinstance(result, dict):
+        return {"classification": "PAUSE", "errors": ["result is not an object"]}
     try:
         _reject_forbidden_result_fields(result)
     except ProtocolError as exc:
