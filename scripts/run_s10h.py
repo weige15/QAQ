@@ -520,15 +520,22 @@ def _validate_optimizer_audit(audit: Any) -> bool:
 
 
 def _validate_trial(trial: dict[str, Any]) -> tuple[bool, bool, str | None]:
+    if not isinstance(trial, dict):
+        return False, False, "trial evidence is not an object"
     missing = REQUIRED_PER_TRIAL_FIELDS - trial.keys()
     if missing:
         return False, False, f"trial is missing fields: {sorted(missing)}"
-    if tuple(trial.get("candidate_bits", CANDIDATE_BITS)) != CANDIDATE_BITS:
+    candidate_bits = trial.get("candidate_bits", CANDIDATE_BITS)
+    if not isinstance(candidate_bits, (list, tuple)):
+        return False, False, "trial candidate ordering is incomplete"
+    if tuple(candidate_bits) != CANDIDATE_BITS:
         return True, False, "trial candidate ordering changed"
     if trial["training_examples_seen"] != 24 or trial["optimizer_steps_completed"] != 24:
         return True, False, "training example/update count drifted"
     if not isinstance(trial.get("training_history"), list) or len(trial["training_history"]) != 24:
         return False, False, "training history is missing or incomplete"
+    if any(not isinstance(item, dict) for item in trial["training_history"]):
+        return False, False, "training history is malformed"
     if [item.get("step") for item in trial["training_history"]] != list(range(1, 25)):
         return True, False, "training update order drifted"
     for key in ("finite_loss_audit", "finite_gradient_audit", "teacher_frozen_audit", "packed_student_base_unchanged_audit"):
@@ -702,20 +709,26 @@ def validate_result(result: dict[str, Any]) -> dict[str, Any]:
     elif trial_status == "revise":
         revise_errors.append(f"trial matrix is not the exact ordered pairs {TRIAL_PAIRS!r}")
     trials = result.get("trials") if isinstance(result.get("trials"), list) else []
+    trials_valid = False
     if trial_status == "ok":
+        trials_valid = True
         initial_by_seed: dict[int, set[str]] = {seed: set() for seed in SEEDS}
         serials: list[int] = []
         for trial in trials:
             complete, valid, error = _validate_trial(trial)
             if not complete:
                 pause_errors.append(error or "trial evidence is incomplete")
+                trials_valid = False
+                continue
             elif not valid:
                 revise_errors.append(error or "trial evidence failed")
+                trials_valid = False
+                continue
             initial_by_seed[int(trial["seed"])].add(str(trial["initial_router_state_sha256"]))
             serials.append(int(trial["optimizer_audit"]["optimizer_construction_serial"]) if isinstance(trial.get("optimizer_audit"), dict) and isinstance(trial["optimizer_audit"].get("optimizer_construction_serial"), int) else -1)
-        if any(len(values) != 1 for values in initial_by_seed.values()) or len({next(iter(values)) for values in initial_by_seed.values()}) != 3:
+        if trials_valid and (any(len(values) != 1 for values in initial_by_seed.values()) or len({next(iter(values)) for values in initial_by_seed.values()}) != 3):
             revise_errors.append("paired canonical router initialization drifted")
-        if len(serials) != len(set(serials)) or any(serial <= 0 for serial in serials):
+        if trials_valid and (len(serials) != len(set(serials)) or any(serial <= 0 for serial in serials)):
             revise_errors.append("fresh optimizer construction serials are not unique")
     run_audits = result.get("run_audits") if isinstance(result, dict) else None
     if not isinstance(run_audits, dict):
@@ -734,7 +747,7 @@ def validate_result(result: dict[str, Any]) -> dict[str, Any]:
     aggregates = result.get("aggregates") if isinstance(result, dict) else None
     if not isinstance(aggregates, dict):
         pause_errors.append("cross-seed aggregates are missing")
-    elif trial_status == "ok":
+    elif trial_status == "ok" and trials_valid:
         expected_aggregates = _aggregate_trials(trials)
         for key in REQUIRED_AGGREGATE_FIELDS:
             if key not in aggregates:

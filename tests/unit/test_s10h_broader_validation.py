@@ -101,6 +101,18 @@ def test_missing_and_extra_trial_pairs_follow_fail_closed_precedence():
     assert runner.validate_result(reordered)["classification"] == "REVISE"
 
 
+def test_incomplete_trial_evidence_does_not_dereference_or_aggregate():
+    missing_hash = _fixture()
+    missing_hash["trials"][0].pop("initial_router_state_sha256")
+    report = runner.validate_result(missing_hash)
+    assert report["classification"] == "PAUSE"
+
+    malformed_history = _fixture()
+    malformed_history["trials"][0]["training_history"][0] = None
+    report = runner.validate_result(malformed_history)
+    assert report["classification"] == "PAUSE"
+
+
 def test_training_candidate_route_map_and_optimizer_drift_is_rejected():
     candidate = _fixture()
     candidate["trials"][0]["candidate_bits"] = [4, 8, 6]
