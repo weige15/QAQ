@@ -642,27 +642,32 @@ validation execution; do not select a production lambda.
 ## S10-H1 — Protocol-locked broader-validation runner
 
 Current stage: S10-H1
-Status: CONTINUE (H1 implementation only; no H2 execution).
+Status: CONTINUE (H1 implementation and review repair only; no H2 execution).
 
 H1 adds `scripts/run_s10h.py` and focused structural tests. The runner consumes
 byte-exact S10-G config SHA-256
 `fcb66902174558e5d3f9198f34a8430b685568fd4e21e1632b40f6870aa4aec7`, checks
 required S10-G ancestry and preserved S10-F artifact identities, and validates
 future H2 evidence without importing or invoking the model/data/CUDA execution
-stack. It fails closed on protocol, identity, data/order, training, trial,
-optimizer, freeze, route-map, reproducibility, audit, prohibition, and
-aggregate drift, with PAUSE > REVISE > REFINE > CONTINUE precedence.
+stack. The review repair additionally hashes the actual packed
+`pytorch_model.bin`, requires packed path/manifest identity in future results,
+recomputes router optimizer membership from the canonical actual names, rejects
+invalid collapse and incomplete reproducibility sub-audits, and requires the
+frozen dataset source identity fields. It remains fail closed on protocol,
+identity, data/order, training, trial, optimizer, freeze, route-map,
+reproducibility, audit, prohibition, and aggregate drift, with PAUSE > REVISE >
+REFINE > CONTINUE precedence.
 
 The default/`--plan` CLI prints a deterministic non-executing plan and the
 future explicit `--execute` command. It writes no result and refuses canonical
 result overwrite; `--execute` remains a deliberate PAUSE in H1 because the
 real H2 executor is not implemented. A deterministic synthetic structural
-fixture is test-only. Focused H1 tests passed `13`; the combined
-S10-D/S10-E/S10-F/S10-G predecessor selection plus H1 passed `147`, and the
-full unit suite passed `276` with one existing duplicate-optimizer warning.
-Ruff and `git diff --check` passed. No model, real data, training, CUDA
-behavior, broader-validation result, resource measurement, or production
-lambda was used.
+fixture is test-only. Focused H1 regressions passed `28`; the combined H1/S10-G
+protocol selection passed `81`; the full unit suite passed `291` with one
+existing duplicate-optimizer warning. Ruff, `git diff --check`, and the
+non-executing plan smoke passed. No model, real data, training, CUDA behavior,
+broader-validation result, resource measurement, or production lambda was used.
 
-Next action: separately authorize and stage S10-H2; do not execute it or select
-a production lambda from H1.
+Known: the validator and frozen provenance checks are repaired and validated;
+no H2 result exists. Next action: separately authorize and stage S10-H2; do not
+execute it or select a production lambda from H1.

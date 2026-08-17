@@ -37,6 +37,7 @@ MODEL_REVISION = "1cfa9a7208912126459214e8b04321603b3df60c"
 DATASET_REVISION = "b08601e04326c79dfdd32d625aee71d232d685c3"
 ANY_PRECISION_REVISION = "a3257d02740cc5757c78673da534b0630ff3a4ea"
 ARTIFACT_SHA256 = "29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee"
+PACKED_ARTIFACT = "quantized/s03b_qwen3_4b/backend_cache/packed/anyprec-(1cfa9a7208912126459214e8b04321603b3df60c)-w8_orig4-gc1-c4_s1_blk64"
 HISTORICAL_S07_CHECKPOINT_SHA256 = "08bf646f19759c0d7949e159bdbe4f96bbea737204b96f8760d205c8d6fd1949"
 HISTORICAL_ATTEMPT_1_SHA256 = "d68f041e0a3dc32c465e8b8068ca3ab230d39253757e30f3019ca7e681b14233"
 HISTORICAL_ATTEMPT_2_SHA256 = "b3bcc0e45d45852ac5060209c4789453ed452462f528f7bffd4cb80fb1ef58cb"
@@ -162,6 +163,23 @@ def _sha256_names(names: list[str]) -> str:
     return hashlib.sha256("\n".join(names).encode()).hexdigest()
 
 
+EXPECTED_ROUTER_PARAMETER_NAMES = tuple(
+    f"routers.{unit}_{layer}.{projection}.{parameter}"
+    for unit in ("attention", "ffn")
+    for layer in sorted(range(36), key=str)
+    for projection in ("input_projection", "output_projection")
+    for parameter in ("bias", "weight")
+)
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def _finite_number(value: Any) -> bool:
     return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(float(value))
 
@@ -173,16 +191,34 @@ def _require(condition: bool, outcome: str, message: str) -> None:
 
 def _canonical_config() -> dict[str, Any]:
     try:
-        return json.loads(CONFIG_PATH.read_bytes())
-    except (OSError, json.JSONDecodeError) as exc:
+        raw = CONFIG_PATH.read_bytes()
+    except OSError as exc:
         raise ProtocolError("PAUSE", f"frozen S10-G config is unavailable: {exc}") from exc
+    if _sha256_bytes(raw) != LOCKED_CONFIG_SHA256:
+        raise ProtocolError("REVISE", "default S10-G config differs byte-for-byte from the frozen protocol")
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise ProtocolError("REVISE", f"frozen S10-G config is not valid JSON: {exc}") from exc
+
+
+def _same_json_order(left: Any, right: Any) -> bool:
+    if isinstance(left, dict) and isinstance(right, dict):
+        return list(left) == list(right) and all(
+            _same_json_order(left[key], right[key]) for key in left
+        )
+    if isinstance(left, list) and isinstance(right, list):
+        return len(left) == len(right) and all(
+            _same_json_order(item, other) for item, other in zip(left, right, strict=True)
+        )
+    return left == right
 
 
 def _validate_protocol(config: dict[str, Any]) -> None:
     """Reject every in-memory mutation of the frozen S10-G protocol."""
 
     canonical = _canonical_config()
-    if config != canonical:
+    if not _same_json_order(config, canonical):
         raise ProtocolError("REVISE", "S10-G protocol fields differ from the frozen config")
     _require(config.get("format") == "qaq-s10g-broader-validation-v1", "REVISE", "protocol format drifted")
     _require(config.get("stage") == "S10-G", "REVISE", "protocol stage drifted")
@@ -200,7 +236,8 @@ def _validate_protocol(config: dict[str, Any]) -> None:
     _require(config["future_two_axis_gate"]["outcome_precedence"] == ["PAUSE", "REVISE", "REFINE", "CONTINUE"], "REVISE", "gate precedence drifted")
 
 
-def _load_frozen_config(path: Path = CONFIG_PATH) -> dict[str, Any]:
+def _load_frozen_config(path: Path | None = None) -> dict[str, Any]:
+    path = CONFIG_PATH if path is None else path
     try:
         raw = path.read_bytes()
     except OSError as exc:
@@ -275,8 +312,11 @@ def _validate_frozen_identity(config: dict[str, Any]) -> dict[str, Any]:
     _require(manifest["artifact"]["local_path"] == artifact, "REVISE", "manifest artifact path drifted")
     _require(manifest["artifact"]["checkpoint_hashes"]["pytorch_model.bin"] == ARTIFACT_SHA256, "REVISE", "manifest artifact hash drifted")
     artifact_path = ROOT / artifact
-    if not artifact_path.is_dir() or not (artifact_path / "pytorch_model.bin").is_file():
+    artifact_file = artifact_path / "pytorch_model.bin"
+    if not artifact_path.is_dir() or not artifact_file.is_file():
         raise ProtocolError("PAUSE", f"identity-matched packed artifact is unavailable: {artifact_path}")
+    if _sha256_file(artifact_file) != ARTIFACT_SHA256:
+        raise ProtocolError("REVISE", "packed artifact bytes differ from the frozen identity")
     if not MODEL_SNAPSHOT.is_dir():
         raise ProtocolError("PAUSE", f"pinned model snapshot is unavailable: {MODEL_SNAPSHOT}")
     # Use a separate command because _git is intentionally rooted at this worktree.
@@ -294,7 +334,7 @@ def _validate_frozen_identity(config: dict[str, Any]) -> dict[str, Any]:
         "any_precision_revision": ANY_PRECISION_REVISION,
         "packed_artifact": artifact,
         "packed_artifact_pytorch_model_sha256": ARTIFACT_SHA256,
-        "artifact_path_present": (ROOT / artifact).is_dir(),
+        "artifact_path_present": artifact_path.is_dir(),
         "manifest_sha256": LOCKED_MANIFEST_SHA256,
         "historical_s07_checkpoint_used": False,
         "historical_s07_checkpoint_sha256": HISTORICAL_S07_CHECKPOINT_SHA256,
@@ -309,14 +349,15 @@ def _validate_historical_facts(config: dict[str, Any]) -> dict[str, str]:
 def _validate_pre_execution(*, config_path: Path = CONFIG_PATH, result_path: Path = RESULT_PATH) -> dict[str, Any]:
     config = _load_frozen_config(config_path)
     head = _validate_ancestry()
-    historical = _validate_historical_facts(config)
+    identities = _validate_frozen_identity(config)
+    historical = _validate_historical_artifacts()
     if result_path.exists():
         raise CanonicalResultExists(result_path)
     return {
         "config": config,
         "head": head,
         "historical_hashes": historical,
-        "identities": _validate_frozen_identity(config),
+        "identities": identities,
     }
 
 
@@ -448,19 +489,27 @@ def _validate_optimizer_audit(audit: Any) -> bool:
         return False
     expected = audit["expected_router_parameter_names"]
     actual = audit["actual_optimizer_parameter_names"]
-    if not isinstance(expected, list) or not isinstance(actual, list) or len(expected) != 288 or actual != expected:
+    canonical = list(EXPECTED_ROUTER_PARAMETER_NAMES)
+    if not isinstance(expected, list) or not isinstance(actual, list):
         return False
-    if any(not isinstance(name, str) or not name.startswith("routers.") for name in expected):
+    if actual != canonical or expected != canonical:
         return False
+    if any(not isinstance(name, str) or not name.startswith("routers.") for name in actual):
+        return False
+    actual_set = set(actual)
+    duplicate_count = len(actual) - len(actual_set)
+    missing_count = len(set(canonical) - actual_set)
+    unexpected_count = len(actual_set - set(canonical))
     return (
-        audit["expected_router_parameter_count"] == 288
-        and audit["actual_optimizer_parameter_count"] == 288
-        and audit["expected_router_parameter_names_sha256"] == _sha256_names(expected)
+        audit["expected_router_parameter_count"] == len(canonical)
+        and audit["actual_optimizer_parameter_count"] == len(actual)
+        and audit["expected_router_parameter_names_sha256"] == _sha256_names(canonical)
         and audit["actual_optimizer_parameter_names_sha256"] == _sha256_names(actual)
-        and audit["duplicate_optimizer_parameter_count"] == 0
-        and audit["missing_router_parameter_count"] == 0
-        and audit["unexpected_optimizer_parameter_count"] == 0
+        and audit["duplicate_optimizer_parameter_count"] == duplicate_count == 0
+        and audit["missing_router_parameter_count"] == missing_count == 0
+        and audit["unexpected_optimizer_parameter_count"] == unexpected_count == 0
         and isinstance(audit["optimizer_construction_serial"], int)
+        and not isinstance(audit["optimizer_construction_serial"], bool)
         and audit["optimizer_construction_serial"] > 0
         and audit["optimizer_state_entry_count_before_first_step"] == 0
         and audit["optimizer_state_entry_count_before_training_begins"] == 0
@@ -485,10 +534,17 @@ def _validate_trial(trial: dict[str, Any]) -> tuple[bool, bool, str | None]:
     for key in ("finite_loss_audit", "finite_gradient_audit", "teacher_frozen_audit", "packed_student_base_unchanged_audit"):
         if trial[key] is not True:
             return True, False, f"{key} failed"
-    if not isinstance(trial["collapse_audit"], dict) or trial["collapse_audit"].get("passed") is not True:
-        return True, False, "collapse audit failed"
-    if trial["collapse_audit"].get("classification") not in {"PROMPT_INVARIANT", "ADAPTIVE_OBSERVED", "OTHER"}:
+    collapse = trial["collapse_audit"]
+    if not isinstance(collapse, dict):
+        return False, False, "collapse audit is incomplete"
+    if collapse.get("classification") not in {"PROMPT_INVARIANT", "ADAPTIVE_OBSERVED", "OTHER"}:
         return True, False, "invalid collapse classification"
+    invalid_or_degenerate = collapse.get("invalid_or_degenerate")
+    passed = collapse.get("passed")
+    if not isinstance(invalid_or_degenerate, bool) or not isinstance(passed, bool):
+        return False, False, "collapse audit is incomplete"
+    if invalid_or_degenerate or passed is not (not invalid_or_degenerate):
+        return True, False, "collapse audit failed"
     if not _validate_optimizer_audit(trial["optimizer_audit"]):
         return True, False, "optimizer audit failed"
     prohibited = trial["prohibited_measurement_audit"]
@@ -498,9 +554,13 @@ def _validate_trial(trial: dict[str, Any]) -> tuple[bool, bool, str | None]:
     if not isinstance(reproducibility, dict):
         return False, False, "reproducibility audit is incomplete"
     for key in ("route_maps_identical", "hard_metrics_identical", "finite_outputs_both_passed", "passed"):
-        if key not in reproducibility:
+        if key not in reproducibility or not isinstance(reproducibility[key], bool):
             return False, False, "reproducibility audit is incomplete"
-    if reproducibility.get("repeat_count") != 1 or reproducibility.get("passed") is not True:
+    subaudits_passed = all(
+        reproducibility[key]
+        for key in ("route_maps_identical", "hard_metrics_identical", "finite_outputs_both_passed")
+    )
+    if reproducibility.get("repeat_count") != 1 or not subaudits_passed or reproducibility.get("passed") is not True:
         return True, False, "reproducibility audit failed"
     maps = trial["hard_validation_route_maps"]
     if not isinstance(maps, dict):
@@ -567,6 +627,8 @@ def validate_result(result: dict[str, Any]) -> dict[str, Any]:
         "tokenizer_revision": MODEL_REVISION,
         "dataset_revision": DATASET_REVISION,
         "any_precision_revision": ANY_PRECISION_REVISION,
+        "packed_artifact": PACKED_ARTIFACT,
+        "manifest_sha256": LOCKED_MANIFEST_SHA256,
         "packed_artifact_pytorch_model_sha256": ARTIFACT_SHA256,
         "historical_s07_checkpoint_used": False,
         "historical_s07_checkpoint_sha256": HISTORICAL_S07_CHECKPOINT_SHA256,
@@ -577,6 +639,19 @@ def validate_result(result: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(dataset, dict):
         pause_errors.append("dataset evidence is missing")
     else:
+        expected_dataset_identity = {
+            "repository": "Salesforce/wikitext",
+            "config": "wikitext-2-raw-v1",
+            "train_split": "train",
+            "validation_split": "validation",
+            "tokenizer_revision": MODEL_REVISION,
+            "revision": DATASET_REVISION,
+        }
+        for name, expected in expected_dataset_identity.items():
+            if name not in dataset:
+                pause_errors.append(f"dataset source identity is missing: {name}")
+            elif dataset[name] != expected:
+                revise_errors.append(f"dataset source identity drifted: {name}")
         for name, expected in (("train_example_count", 24), ("validation_example_count", 12)):
             if name not in dataset:
                 pause_errors.append(f"dataset field is missing: {name}")
@@ -756,7 +831,7 @@ def _plan(context: dict[str, Any]) -> dict[str, Any]:
 def synthetic_structural_fixture() -> dict[str, Any]:
     """Return a deterministic H2-shaped fixture without importing ML code."""
 
-    names = [f"routers.{index:03d}" for index in range(288)]
+    names = list(EXPECTED_ROUTER_PARAMETER_NAMES)
     train_manifest = [{"example_id": id_, "source_row": row, "source_offset": offset} for id_, row, offset in zip(TRAIN_IDS, TRAIN_ROWS, TRAIN_OFFSETS, strict=True)]
     validation_manifest = [{"example_id": id_, "source_row": row, "source_offset": offset} for id_, row, offset in zip(VALIDATION_IDS, VALIDATION_ROWS, VALIDATION_OFFSETS, strict=True)]
     trials: list[dict[str, Any]] = []
@@ -837,8 +912,8 @@ def synthetic_structural_fixture() -> dict[str, Any]:
         "ancestry": {"required_ancestor": REQUIRED_ANCESTOR, "ancestor_ok": True, "commit": "synthetic"},
         "router_contract": {"router_count": 72, "router_parameter_count": 23630040, "candidate_bits": list(CANDIDATE_BITS), "candidate_order": "[p4,p6,p8]"},
         "route_map_contract": {"validation_ids_in_order": list(VALIDATION_IDS), "units_per_map": 72, "unit_order": UNIT_ORDER, "allowed_bits": list(CANDIDATE_BITS)},
-        "identities": {"model_repository": "Qwen/Qwen3-4B", "model_revision": MODEL_REVISION, "tokenizer_revision": MODEL_REVISION, "dataset_revision": DATASET_REVISION, "any_precision_revision": ANY_PRECISION_REVISION, "packed_artifact_pytorch_model_sha256": ARTIFACT_SHA256, "historical_s07_checkpoint_used": False, "historical_s07_checkpoint_sha256": HISTORICAL_S07_CHECKPOINT_SHA256},
-        "dataset": {"train_example_count": 24, "validation_example_count": 12, "train_manifest": train_manifest, "validation_manifest": validation_manifest},
+        "identities": {"model_repository": "Qwen/Qwen3-4B", "model_revision": MODEL_REVISION, "tokenizer_revision": MODEL_REVISION, "dataset_revision": DATASET_REVISION, "any_precision_revision": ANY_PRECISION_REVISION, "packed_artifact": PACKED_ARTIFACT, "manifest_sha256": LOCKED_MANIFEST_SHA256, "packed_artifact_pytorch_model_sha256": ARTIFACT_SHA256, "historical_s07_checkpoint_used": False, "historical_s07_checkpoint_sha256": HISTORICAL_S07_CHECKPOINT_SHA256},
+        "dataset": {"repository": "Salesforce/wikitext", "config": "wikitext-2-raw-v1", "train_split": "train", "validation_split": "validation", "tokenizer_revision": MODEL_REVISION, "revision": DATASET_REVISION, "train_example_count": 24, "validation_example_count": 12, "train_manifest": train_manifest, "validation_manifest": validation_manifest},
         "training_contract": {"examples_seen": 24, "batch_size": 1, "gradient_accumulation_steps": 1, "optimizer": "AdamW", "learning_rate": 0.001, "weight_decay": 0.0, "betas": [0.9, 0.999], "eps": 1e-08, "amsgrad": False, "epochs": 1, "optimizer_steps": 24, "scheduler": "none", "distillation_temperature": 2.0, "routing_temperature": 1.0, "logging_interval_steps": 1, "one_pass_no_resampling": True},
         "trials": trials,
         "run_audits": {"inherited_regressions_audit": {"status": "passed", "test_selection": "S10-D/S10-E/S10-F predecessor regression selection", "passed": True}, "prohibited_work_audit": {"forbidden_actions_observed": [], "forbidden_measurements_observed": [], "passed": True}},

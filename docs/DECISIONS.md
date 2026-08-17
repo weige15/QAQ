@@ -1174,6 +1174,39 @@ result schema, gate precedence, or prohibition boundary changes, preserve the
 H1 runner and tests, mark the protocol REVISE, and record a new decision before
 changing the validator or adding H2 execution.
 
+### D051 — S10-H1 fail-closed identity and audit repair (2026-08-17)
+
+**Choice:** Repair only the six captain-authorized H1 validator findings. The
+frozen S10-G configuration must pass its exact SHA-256 byte check for both the
+default path and every `--config` path before JSON field validation; direct
+protocol validation also preserves parsed key order. Pre-execution identity
+validation hashes the actual packed `pytorch_model.bin` bytes and retains the
+packed path plus manifest digest in the future-result identity contract.
+
+**Choice:** Treat the frozen three-way router parameter-name inventory as the
+expected 288-name sequence and recompute duplicate, missing, extra, and
+non-router membership from actual names rather than trusting reported counts or
+name hashes. Collapse validation now requires `invalid_or_degenerate == false`
+and a consistent passing claim. Reproducibility requires all three frozen
+sub-audits and the overall result to be true. Future dataset evidence must carry
+and match the frozen repository, config, train/validation splits, tokenizer
+revision, and dataset revision.
+
+**Evidence:** Focused S10-H1 regression tests pass 28; the combined S10-H1 and
+S10-G protocol selection passes 81; Ruff and `git diff --check` pass. The plan
+path hashes the real packed artifact, loads no model or dataset, performs no
+training/CUDA evaluation, and writes no result. H2 execution remains absent and
+no production lambda is selected.
+
+**Unknown:** No broader-validation result exists, so these checks validate only
+future evidence structure and frozen provenance; they do not establish H2
+quality or runtime outcomes.
+
+**Reversal path:** If the S10-G schema intentionally changes or H2 records a
+different real router-name inventory, stop at H1, update the frozen protocol
+and this decision, and invalidate affected evidence rather than weakening the
+fail-closed checks.
+
 ### D049 — S10-G broader-validation protocol freeze (2026-08-15)
 
 **Source/project-established facts:** S10-A through S10-F are complete. S10-F

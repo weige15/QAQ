@@ -29,7 +29,7 @@ def test_frozen_protocol_and_pre_execution_identity_are_fail_closed():
     )
 
 
-def test_frozen_config_rejects_sha_and_in_memory_mutation(tmp_path):
+def test_frozen_config_rejects_sha_and_in_memory_mutation(tmp_path, monkeypatch):
     payload = json.loads(runner.CONFIG_PATH.read_text())
     payload["protocol"]["seeds"] = [1729, 1730, 1732]
     path = tmp_path / "mutated.json"
@@ -37,10 +37,35 @@ def test_frozen_config_rejects_sha_and_in_memory_mutation(tmp_path):
     with pytest.raises(runner.ProtocolError, match="byte-for-byte"):
         runner._load_frozen_config(path)
 
+    whitespace = tmp_path / "whitespace.json"
+    whitespace.write_bytes(runner.CONFIG_PATH.read_bytes() + b"\n")
+    with pytest.raises(runner.ProtocolError, match="byte-for-byte"):
+        runner._load_frozen_config(whitespace)
+
+    reordered = tmp_path / "reordered.json"
+    reordered.write_text(json.dumps(json.loads(runner.CONFIG_PATH.read_text()), indent=2, sort_keys=True) + "\n")
+    with pytest.raises(runner.ProtocolError, match="byte-for-byte"):
+        runner._load_frozen_config(reordered)
+
+    monkeypatch.setattr(runner, "CONFIG_PATH", whitespace)
+    with pytest.raises(runner.ProtocolError, match="byte-for-byte"):
+        runner._load_frozen_config()
+
+    monkeypatch.undo()
     config = runner._load_frozen_config()
     config["protocol"]["candidate_bits"] = [4, 8, 6]
     with pytest.raises(runner.ProtocolError, match="fields differ"):
         runner._validate_protocol(config)
+
+    reordered_config = dict(reversed(runner._load_frozen_config().items()))
+    with pytest.raises(runner.ProtocolError, match="fields differ"):
+        runner._validate_protocol(reordered_config)
+
+
+def test_packed_artifact_bytes_are_verified_against_the_frozen_digest(monkeypatch):
+    monkeypatch.setattr(runner, "_sha256_file", lambda path: "tampered")
+    with pytest.raises(runner.ProtocolError, match="artifact bytes"):
+        runner._validate_frozen_identity(runner._load_frozen_config())
 
 
 def test_historical_s10f_mutation_is_rejected_without_rewrite(tmp_path, monkeypatch):
@@ -94,6 +119,44 @@ def test_training_candidate_route_map_and_optimizer_drift_is_rejected():
     assert runner.validate_result(freeze)["classification"] == "REVISE"
 
 
+@pytest.mark.parametrize("tamper", ["duplicate", "missing_extra", "non_router"])
+def test_optimizer_membership_is_recomputed_from_canonical_actual_names(tamper):
+    candidate = _fixture()
+    audit = candidate["trials"][0]["optimizer_audit"]
+    names = list(audit["actual_optimizer_parameter_names"])
+    if tamper == "duplicate":
+        names[1] = names[0]
+    elif tamper == "missing_extra":
+        names[1] = "routers.injected.parameter"
+    else:
+        names[1] = "student.base.weight"
+    digest = runner._sha256_names(names)
+    audit.update(
+        actual_optimizer_parameter_names=names,
+        actual_optimizer_parameter_names_sha256=digest,
+        expected_router_parameter_names=names,
+        expected_router_parameter_names_sha256=digest,
+        duplicate_optimizer_parameter_count=0,
+        missing_router_parameter_count=0,
+        unexpected_optimizer_parameter_count=0,
+    )
+    assert runner.validate_result(candidate)["classification"] == "REVISE"
+
+
+def test_packed_artifact_path_and_manifest_identity_are_required_in_future_result():
+    candidate = _fixture()
+    candidate["identities"].pop("packed_artifact")
+    assert runner.validate_result(candidate)["classification"] == "REVISE"
+
+    candidate = _fixture()
+    candidate["identities"]["packed_artifact"] = "other-artifact"
+    assert runner.validate_result(candidate)["classification"] == "REVISE"
+
+    candidate = _fixture()
+    candidate["identities"]["manifest_sha256"] = "wrong-manifest"
+    assert runner.validate_result(candidate)["classification"] == "REVISE"
+
+
 def test_prohibited_work_and_reproducibility_are_revise_before_refine():
     prohibited = _fixture()
     prohibited["run_audits"]["prohibited_work_audit"]["forbidden_actions_observed"] = ["warm_start"]
@@ -104,6 +167,26 @@ def test_prohibited_work_and_reproducibility_are_revise_before_refine():
     repeat["aggregates"] = runner._aggregate_trials(repeat["trials"])
     repeat["gate"]["classification"] = "REVISE"
     assert runner.validate_result(repeat)["classification"] == "REVISE"
+
+
+@pytest.mark.parametrize("field", ["route_maps_identical", "hard_metrics_identical", "finite_outputs_both_passed"])
+def test_reproducibility_subaudits_must_all_pass(field):
+    candidate = _fixture()
+    candidate["trials"][0]["reproducibility_audit"][field] = False
+    assert runner.validate_result(candidate)["classification"] == "REVISE"
+
+    candidate["trials"][0]["reproducibility_audit"]["passed"] = False
+    assert runner.validate_result(candidate)["classification"] == "REVISE"
+
+
+def test_collapse_audit_rejects_invalid_or_inconsistent_claims():
+    invalid = _fixture()
+    invalid["trials"][0]["collapse_audit"]["invalid_or_degenerate"] = True
+    assert runner.validate_result(invalid)["classification"] == "REVISE"
+
+    inconsistent = _fixture()
+    inconsistent["trials"][0]["collapse_audit"]["passed"] = False
+    assert runner.validate_result(inconsistent)["classification"] == "REVISE"
 
 
 def test_complete_valid_matrix_that_misses_threshold_is_refine():
@@ -128,6 +211,20 @@ def test_forbidden_measurement_fields_and_route_order_fail_closed():
         key: route_maps[key] for key in reversed(runner.VALIDATION_IDS)
     }
     assert runner.validate_result(maps)["classification"] == "REVISE"
+
+
+@pytest.mark.parametrize(
+    "field",
+    ["repository", "config", "train_split", "validation_split", "tokenizer_revision", "revision"],
+)
+def test_dataset_source_identity_is_required_and_matches_frozen_protocol(field):
+    missing = _fixture()
+    missing["dataset"].pop(field)
+    assert runner.validate_result(missing)["classification"] == "PAUSE"
+
+    mismatched = _fixture()
+    mismatched["dataset"][field] = "tampered"
+    assert runner.validate_result(mismatched)["classification"] == "REVISE"
 
 
 def test_canonical_result_refuses_overwrite(tmp_path):
