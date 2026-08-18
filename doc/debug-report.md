@@ -157,3 +157,46 @@ Actual verification result: the submodule is clean at
 S10-A integration passed `3 passed in 221.42s`; and the static 4/8-bit
 preservation suite passed `10 passed in 640.26s`. Direct imports of
 `any_precision` and `any_precision_ext` also passed.
+
+## S10-H1 Follow-up
+
+### Symptom
+
+The focused S10-H1 test module failed because pre-execution validation could
+not find the ignored packed artifact in this fresh worktree.
+
+### Reproduction
+
+```bash
+source ~/.venv/bin/activate
+which python
+python --version
+PYTHONPATH=src:. pytest -q tests/unit/test_s10h_broader_validation.py
+```
+
+The first run failed 5 tests with:
+
+```text
+PAUSE: identity-matched packed artifact is unavailable: .../quantized/.../pytorch_model.bin
+```
+
+After artifact provisioning, validation reached the empty pinned checkout and
+failed closed with:
+
+```text
+PAUSE: pinned Any-Precision checkout is unavailable
+```
+
+### Root Cause and Fix
+
+The fresh worktree omitted both the ignored S03-B artifact and the pinned
+Any-Precision submodule contents. The validator correctly failed closed. The
+new `scripts/provision_s03_artifact.py` hashes the source checkpoint before
+creating a worktree-local link, verifies the backend revision, and is covered
+by a regression test that rejects unverified bytes.
+
+### Verification
+
+```text
+31 passed in 64.56s
+```

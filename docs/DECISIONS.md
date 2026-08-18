@@ -1127,6 +1127,106 @@ started.
 reopen S10-F and invalidate attempt 2 rather than interpreting the result as a
 valid confirmation.
 
+### D050 — S10-H1 protocol-locked broader-validation runner (2026-08-15)
+
+**Choice:** Implement `scripts/run_s10h.py` as a standard-library-only,
+fail-closed S10-H1 validator and non-executing plan. It consumes the exact
+byte-frozen `configs/s10g_broader_validation.json` (SHA-256
+`fcb66902174558e5d3f9198f34a8430b685568fd4e21e1632b40f6870aa4aec7`), requires
+merged S10-G ancestry, verifies the recorded S10-F artifact hashes, manifest
+identity, pinned model/dataset/backend identities, and refuses to overwrite
+`docs/results/s10h_broader_validation.json`. The default and `--plan` paths
+load no model or dataset, import no ML runtime, evaluate no CUDA behavior,
+train nothing, and write no result.
+
+**Implementation choice:** Keep H1 independent of the S10-D/F execution
+helpers so their four-step/two-example historical semantics cannot be
+silently reused for H2's 24-example/24-update contract. The future result
+validator instead checks the exact nine ordered seed/lambda pairs, paired
+initialization, fresh AdamW and identity-based `routers.` membership, frozen
+teacher/base proofs, exact data manifests and training contract, twelve
+72-entry ordered 4/6/8 route maps, reproducibility/run/prohibition audits,
+computed aggregates, and PAUSE > REVISE > REFINE > CONTINUE precedence. A
+deterministic synthetic structural fixture is included only for validator
+tests. `--execute` is an explicit opt-in but returns PAUSE because the H2 real
+executor is not part of this stage.
+
+**Additional identity assumption:** The committed quantized-model manifest
+SHA-256 is pinned at `1e2b3515072e22d71ac35a35a3002e3a1dcd5ce44887c554b1408f735c928530`
+for pre-execution identity checking. The initial metadata/path-only limitation
+is superseded by D051; that decision owns the current packed-byte and
+future-result identity requirements.
+
+**Evidence:** Focused H1 tests cover config/ancestry/identity drift,
+historical-artifact preservation, exact trial/data/training/route-map and
+audit contracts, prohibition and gate precedence, no-overwrite behavior, and
+a subprocess plan/execute CLI boundary. No Qwen3 model, packed model, real
+Wikitext rows, CUDA execution, training, broader-validation result, or
+production lambda was used or created.
+
+**Consequence:** H1 is CONTINUE only for the runner/pre-execution seam. H2
+remains a separately staged action and must not be inferred from the synthetic
+fixture or plan output. The explicit future command printed by the plan is
+not executable against real models until H2 is separately implemented and
+authorized.
+
+**Reversal path:** If the frozen config, predecessor artifact identities,
+result schema, gate precedence, or prohibition boundary changes, preserve the
+H1 runner and tests, mark the protocol REVISE, and record a new decision before
+changing the validator or adding H2 execution.
+
+### D051 — S10-H1 fail-closed identity and audit repair (2026-08-17)
+
+**Choice:** Repair only the six captain-authorized H1 validator findings. The
+frozen S10-G configuration must pass its exact SHA-256 byte check for both the
+default path and every `--config` path before JSON field validation; direct
+protocol validation also preserves parsed key order. Pre-execution identity
+validation hashes the actual packed `pytorch_model.bin` bytes and retains the
+packed path plus manifest digest in the future-result identity contract.
+
+**Choice:** Treat the frozen three-way router parameter-name inventory as the
+expected 288-name sequence and recompute duplicate, missing, extra, and
+non-router membership from actual names rather than trusting reported counts or
+name hashes. Collapse validation now requires `invalid_or_degenerate == false`
+and a consistent passing claim. Reproducibility requires all three frozen
+sub-audits and the overall result to be true. Future dataset evidence must carry
+and match the frozen repository, config, train/validation splits, tokenizer
+revision, and dataset revision.
+
+**Evidence at the repair commit:** Focused S10-H1 regression tests pass 28; the
+combined S10-H1 and S10-G protocol selection passes 81; Ruff and
+`git diff --check` pass. The plan path hashes the real packed artifact, loads no
+model or dataset, performs no training/CUDA evaluation, and writes no result.
+H2 execution remains absent and no production lambda is selected.
+
+**Unknown:** No broader-validation result exists, so these checks validate only
+future evidence structure and frozen provenance; they do not establish H2
+quality or runtime outcomes.
+
+**Reversal path:** If the S10-G schema intentionally changes or H2 records a
+different real router-name inventory, stop at H1, update the frozen protocol
+and this decision, and invalidate affected evidence rather than weakening the
+fail-closed checks.
+
+### D052 — Fresh-worktree provisioning for the frozen S03-B artifact (2026-08-18)
+
+**Choice:** Keep the multi-gigabyte S03-B packed artifact ignored and provision
+it into each validation worktree with `scripts/provision_s03_artifact.py` from
+explicitly supplied existing artifact and pinned Any-Precision directories.
+The setup command creates worktree-local directory links only after hashing
+the source `pytorch_model.bin` to the frozen `ARTIFACT_SHA256` and checking the
+backend revision; S10-H1 retains its own post-provision identity checks.
+
+**Alternatives rejected:** A small fixture, synthetic checkpoint, skipped
+test, or metadata-only check would not satisfy the frozen artifact identity.
+Copying the artifact into every worktree would duplicate roughly 5.5 GB and
+would not improve the identity guarantee.
+
+**Consequence:** A fresh worktree must run the setup command with both
+identity-matched sources before artifact-backed S10-H1 tests or plan
+validation. An absent or tampered source fails closed; no source fallback is
+inferred.
+
 ### D049 — S10-G broader-validation protocol freeze (2026-08-15)
 
 **Source/project-established facts:** S10-A through S10-F are complete. S10-F
