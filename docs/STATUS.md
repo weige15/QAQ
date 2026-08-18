@@ -1,4 +1,4 @@
-Current stage: S10-G
+Current stage: S10-H1
 Status: CONTINUE
 
 ## S09-A closeout — canonical validation gate
@@ -662,11 +662,18 @@ The default/`--plan` CLI prints a deterministic non-executing plan and the
 future explicit `--execute` command. It writes no result and refuses canonical
 result overwrite; `--execute` remains a deliberate PAUSE in H1 because the
 real H2 executor is not implemented. A deterministic synthetic structural
-fixture is test-only. Focused H1 regressions passed `28`; the combined H1/S10-G
+fixture is test-only. Focused H1 regressions passed `31`; the combined H1/S10-G
 protocol selection passed `81`; the full unit suite passed `291` with one
 existing duplicate-optimizer warning. Ruff, `git diff --check`, and the
 non-executing plan smoke passed. No model, real data, training, CUDA behavior,
 broader-validation result, resource measurement, or production lambda was used.
+
+Fresh worktrees provision the ignored packed artifact through
+`scripts/provision_s03_artifact.py --source <identity-matched-artifact>
+--any-precision-source <pinned-checkout>`. The command verifies the source
+`pytorch_model.bin` SHA-256 and backend revision before creating worktree links;
+S10-H1 then verifies the actual bytes and backend revision again during
+pre-execution validation.
 
 Known: the validator and frozen provenance checks are repaired and validated;
 no H2 result exists. Next action: separately authorize and stage S10-H2; do not

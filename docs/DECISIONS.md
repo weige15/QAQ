@@ -1207,6 +1207,25 @@ different real router-name inventory, stop at H1, update the frozen protocol
 and this decision, and invalidate affected evidence rather than weakening the
 fail-closed checks.
 
+### D052 — Fresh-worktree provisioning for the frozen S03-B artifact (2026-08-18)
+
+**Choice:** Keep the multi-gigabyte S03-B packed artifact ignored and provision
+it into each validation worktree with `scripts/provision_s03_artifact.py` from
+explicitly supplied existing artifact and pinned Any-Precision directories.
+The setup command creates worktree-local directory links only after hashing
+the source `pytorch_model.bin` to the frozen `ARTIFACT_SHA256` and checking the
+backend revision; S10-H1 retains its own post-provision identity checks.
+
+**Alternatives rejected:** A small fixture, synthetic checkpoint, skipped
+test, or metadata-only check would not satisfy the frozen artifact identity.
+Copying the artifact into every worktree would duplicate roughly 5.5 GB and
+would not improve the identity guarantee.
+
+**Consequence:** A fresh worktree must run the setup command with both
+identity-matched sources before artifact-backed S10-H1 tests or plan
+validation. An absent or tampered source fails closed; no source fallback is
+inferred.
+
 ### D049 — S10-G broader-validation protocol freeze (2026-08-15)
 
 **Source/project-established facts:** S10-A through S10-F are complete. S10-F

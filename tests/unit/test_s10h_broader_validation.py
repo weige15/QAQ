@@ -10,12 +10,21 @@ from pathlib import Path
 import pytest
 
 from scripts import run_s10h as runner
+from scripts import provision_s03_artifact
 
 ROOT = Path(__file__).parents[2]
 
 
 def _fixture() -> dict[str, object]:
     return runner.synthetic_structural_fixture()
+
+
+def test_artifact_provisioning_rejects_unverified_source(tmp_path):
+    source = tmp_path / "source-artifact"
+    source.mkdir()
+    (source / "pytorch_model.bin").write_bytes(b"not-the-frozen-artifact")
+    with pytest.raises(provision_s03_artifact.ArtifactProvisionError, match="SHA-256"):
+        provision_s03_artifact.provision_artifact(source, tmp_path / "destination-artifact")
 
 
 def test_frozen_protocol_and_pre_execution_identity_are_fail_closed():
