@@ -688,6 +688,11 @@ passed. The canonical H2 path was refused and
 canonical experiment, production lambda selection, or resource measurement was
 performed.
 
+The review repair normalizes user output paths through `expanduser()` before
+canonical-result checks and verifies every selected `QAQ_S03_ARTIFACT` file
+against the locked manifest before loading tokenizer or model objects. Focused
+regression evidence for these repairs is recorded by the review executor.
+
 Next action: stop at the H2-A decision gate and separately authorize H2-B before
 any canonical execution. Do not infer broader-validation quality from the
 injected smoke or the H2-A implementation.

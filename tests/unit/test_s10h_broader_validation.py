@@ -315,6 +315,20 @@ def test_cli_execute_refuses_canonical_path_before_lazy_dispatch(monkeypatch):
     assert called is False
 
 
+def test_cli_execute_refuses_tilde_canonical_path_before_lazy_dispatch(monkeypatch):
+    called = False
+
+    def fail_dispatch(**_kwargs):
+        nonlocal called
+        called = True
+        raise AssertionError("canonical H2 output must not dispatch")
+
+    tilde_path = Path("~") / runner.RESULT_PATH.relative_to(Path.home())
+    monkeypatch.setattr(runner, "_dispatch_execute", fail_dispatch)
+    assert runner.main(["--execute", "--device", "cuda:0", "--output", str(tilde_path)]) == 2
+    assert called is False
+
+
 def test_historical_hash_constants_match_preserved_artifacts():
     assert (
         hashlib.sha256(runner.HISTORICAL_ATTEMPT_1_PATH.read_bytes()).hexdigest()

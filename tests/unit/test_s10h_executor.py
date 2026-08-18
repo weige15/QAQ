@@ -21,6 +21,7 @@ from qaq.router.network import S10_CANDIDATE_BITS, SoftPrecisionRouter
 from qaq.router.s10h_executor import (
     ExecutionOutcome,
     ExecutorError,
+    _validate_selected_artifact,
     execute_with_runtime,
     write_validated_result,
 )
@@ -402,3 +403,30 @@ def test_runtime_audit_failure_does_not_leave_output(tmp_path):
     assert outcome.classification == "REVISE"
     assert not output.exists()
     assert not list(tmp_path.glob(".failed.json.*.tmp"))
+
+
+def test_selected_artifact_identity_is_verified_before_loading(tmp_path):
+    artifact = tmp_path / "artifact"
+    artifact.mkdir()
+    checkpoint = artifact / "pytorch_model.bin"
+    checkpoint.write_bytes(b"frozen checkpoint")
+    config = artifact / "config.json"
+    config.write_bytes(b"frozen config")
+    manifest = {
+        "artifact": {
+            "artifact_file_list": [
+                {
+                    "path": "pytorch_model.bin",
+                    "sha256": hashlib.sha256(checkpoint.read_bytes()).hexdigest(),
+                },
+                {
+                    "path": "config.json",
+                    "sha256": hashlib.sha256(config.read_bytes()).hexdigest(),
+                },
+            ]
+        }
+    }
+    _validate_selected_artifact(artifact, manifest)
+    checkpoint.write_bytes(b"tampered checkpoint")
+    with pytest.raises(ExecutorError, match="identity changed"):
+        _validate_selected_artifact(artifact, manifest)

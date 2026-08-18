@@ -1341,6 +1341,13 @@ bytes, then atomically promote with a same-filesystem no-overwrite link. Clean
 up the temporary path on every failure/interruption. H2-A refuses the canonical
 H2 destination so no canonical result handling is invoked in this stage.
 
+**Implementation choice — artifact override validation:** Normalize the
+destination before every canonical-result comparison. If `QAQ_S03_ARTIFACT`
+is supplied, resolve it and verify every file in the locked artifact manifest,
+including the packed checkpoint bytes, before tokenizer or model loading. The
+result retains the frozen logical artifact identity only after the selected
+directory has passed those byte checks.
+
 **Implementation choice — test-runtime boundary:** Use a deterministic tiny
 runtime only in focused tests. It calls the unchanged completion-only KL,
 request-state normalized cost, and composed loss primitives while the shared

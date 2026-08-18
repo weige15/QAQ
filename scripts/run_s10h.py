@@ -207,6 +207,14 @@ def _sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _normalize_path(path: Path) -> Path:
+    return path.expanduser().resolve()
+
+
+def _is_canonical_result_path(path: Path) -> bool:
+    return _normalize_path(path) == _normalize_path(RESULT_PATH)
+
+
 def _finite_number(value: Any) -> bool:
     return (
         isinstance(value, (int, float))
@@ -470,6 +478,7 @@ def _validate_historical_facts(config: dict[str, Any]) -> dict[str, str]:
 def _validate_pre_execution(
     *, config_path: Path = CONFIG_PATH, result_path: Path = RESULT_PATH
 ) -> dict[str, Any]:
+    result_path = _normalize_path(result_path)
     config = _load_frozen_config(config_path)
     head = _validate_ancestry()
     identities = _validate_frozen_identity(config)
@@ -1277,7 +1286,7 @@ def _dispatch_execute(
 
     if not device:
         raise ProtocolError("PAUSE", "--execute requires an explicit CUDA device")
-    if output.resolve() == RESULT_PATH.resolve():
+    if _is_canonical_result_path(output):
         raise ProtocolError(
             "PAUSE",
             "canonical H2 output is disabled during S10-H2-A; use a temporary test destination",
@@ -1326,7 +1335,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.execute and not args.device:
             raise ProtocolError("PAUSE", "--execute requires an explicit CUDA device")
-        if args.execute and args.output.resolve() == RESULT_PATH.resolve():
+        if args.execute and _is_canonical_result_path(args.output):
             raise ProtocolError(
                 "PAUSE",
                 "canonical H2 output is disabled during S10-H2-A; use a temporary test destination",

@@ -545,13 +545,47 @@ def _build_result(prepared: _PreparedRuntime, preflight: Mapping[str, Any] | Non
 
 
 def _validate_destination(destination: Path) -> Path:
-    destination = destination.expanduser()
+    destination = protocol._normalize_path(destination)
     parent = destination.parent
     if not parent.exists() or not parent.is_dir():
         raise ExecutorError("PAUSE", f"destination parent is unavailable: {parent}")
     if os.path.lexists(destination):
         raise protocol.CanonicalResultExists(destination)
     return destination
+
+
+def _validate_selected_artifact(artifact: Path, manifest: Mapping[str, Any]) -> None:
+    if not artifact.is_dir():
+        raise ExecutorError("PAUSE", f"identity-matched packed artifact is unavailable: {artifact}")
+    artifact_record = manifest.get("artifact")
+    records = (
+        artifact_record.get("artifact_file_list")
+        if isinstance(artifact_record, Mapping)
+        else None
+    )
+    if not isinstance(records, list) or not records:
+        raise ExecutorError("REVISE", "packed artifact manifest file list is invalid")
+    seen: set[str] = set()
+    for record in records:
+        if not isinstance(record, dict):
+            raise ExecutorError("REVISE", "packed artifact manifest file record is invalid")
+        relative_name = record.get("path")
+        expected_hash = record.get("sha256")
+        if (
+            not isinstance(relative_name, str)
+            or not relative_name
+            or Path(relative_name).is_absolute()
+            or ".." in Path(relative_name).parts
+            or relative_name in seen
+            or not isinstance(expected_hash, str)
+        ):
+            raise ExecutorError("REVISE", "packed artifact manifest file identity is invalid")
+        seen.add(relative_name)
+        file_path = artifact / relative_name
+        if not file_path.is_file():
+            raise ExecutorError("PAUSE", f"packed artifact file is unavailable: {file_path}")
+        if protocol._sha256_file(file_path) != expected_hash:
+            raise ExecutorError("REVISE", f"packed artifact file identity changed: {file_path}")
 
 
 def write_validated_result(result: dict[str, Any], destination: Path) -> None:
@@ -609,7 +643,7 @@ def execute_with_runtime(
 
     if not device or not isinstance(device, str):
         return ExecutionOutcome("PAUSE", ("--execute requires an explicit CUDA device",), None, {"classification": "PAUSE"}, None, False)
-    if output.resolve() == protocol.RESULT_PATH.resolve():
+    if protocol._is_canonical_result_path(output):
         return ExecutionOutcome(
             "PAUSE",
             ("canonical H2 output is disabled during S10-H2-A; use a temporary test destination",),
@@ -716,6 +750,13 @@ class QwenRuntime:
         self.router_runtime_audit: dict[str, Any] = {}
 
     def prepare(self, config: Mapping[str, Any], device: str) -> None:
+        manifest = json.loads((protocol.ROOT / "docs/quantized_model_manifest.json").read_text())
+        logical_artifact = protocol.ROOT / manifest["artifact"]["local_path"]
+        self.artifact = protocol._normalize_path(
+            Path(os.environ.get("QAQ_S03_ARTIFACT", str(logical_artifact)))
+        )
+        _validate_selected_artifact(self.artifact, manifest)
+
         import datasets
         import torch
         from transformers import AutoTokenizer
@@ -724,11 +765,6 @@ class QwenRuntime:
         from qaq.evaluation.quality import load_full_precision_model
         from scripts.run_s07b import _device_example, _precompute_teacher_logits, _select_examples
 
-        manifest = json.loads((protocol.ROOT / "docs/quantized_model_manifest.json").read_text())
-        logical_artifact = protocol.ROOT / manifest["artifact"]["local_path"]
-        self.artifact = Path(os.environ.get("QAQ_S03_ARTIFACT", str(logical_artifact))).expanduser()
-        if not self.artifact.is_dir():
-            raise ExecutorError("PAUSE", f"identity-matched packed artifact is unavailable: {self.artifact}")
         snapshot = protocol.MODEL_SNAPSHOT
         tokenizer = AutoTokenizer.from_pretrained(str(snapshot), revision=protocol.MODEL_REVISION, local_files_only=True)
         data = config["protocol"]["dataset"]
