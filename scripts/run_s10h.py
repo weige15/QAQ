@@ -1321,7 +1321,9 @@ def main(argv: list[str] | None = None) -> int:
         "--plan", action="store_true", help="validate and print the non-executing plan"
     )
     mode.add_argument(
-        "--execute", action="store_true", help="explicit H2 opt-in; unavailable in S10-H1"
+        "--execute",
+        action="store_true",
+        help="run the S10-H2-A executor; requires an explicit --device and temporary output",
     )
     parser.add_argument("--config", type=Path, default=CONFIG_PATH)
     parser.add_argument("--output", type=Path, default=RESULT_PATH)
