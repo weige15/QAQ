@@ -687,7 +687,9 @@ The runner reads the exact frozen S10-G config bytes (SHA-256
 that `7fc136eabdba302e199354ae001cd1e1cd42199f` is an ancestor, preserves both
 S10-F attempt hashes, and checks the pinned model/tokenizer, Wikitext,
 Any-Precision, packed-artifact, and manifest identities without importing a
-model runtime. Its future-result validator is independent of the S10-D/F
+model runtime; pre-execution identity checking hashes the actual packed
+`pytorch_model.bin` bytes. Its future-result validator also requires the
+packed-artifact path and manifest digest, and is independent of the S10-D/F
 four-step execution helpers: it requires the exact nine ordered pairs
 (seeds `1729/1730/1731`, lambdas `0.0/0.03/0.1`), exact 24/12 ordered data
 manifests, 24 examples and updates, batch/accumulation `1/1`, one epoch,
@@ -707,10 +709,10 @@ because the real executor is intentionally not present. A canonical result
 path is never overwritten. A deterministic synthetic structural fixture is
 used only by focused validator tests and is not experiment evidence.
 
-Focused H1 verification passed `13` tests; the combined S10-D/S10-E/S10-F/
-S10-G predecessor selection plus H1 passed `147` tests, and the full unit suite
-passed `276` tests with one existing duplicate-optimizer warning. Ruff and
-`git diff --check` passed. No model, real data, CUDA behavior, training, result
-JSON, or production lambda was used. The next action is a separately
-authorized S10-H2 implementation/execution stage; do not infer an H2 result
-from the plan or synthetic fixture.
+Focused H1 verification passed `31` tests; the combined H1/S10-G protocol
+selection passed `81`, and the full unit suite passed `291` tests with one
+existing duplicate-optimizer warning. Ruff and `git diff --check` passed. No
+model, real data, CUDA behavior, training, result JSON, or production lambda
+was used. The next action is a separately authorized S10-H2
+implementation/execution stage; do not infer an H2 result from the plan or
+synthetic fixture.

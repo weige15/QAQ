@@ -9,8 +9,8 @@ from pathlib import Path
 
 import pytest
 
-from scripts import run_s10h as runner
 from scripts import provision_s03_artifact
+from scripts import run_s10h as runner
 
 ROOT = Path(__file__).parents[2]
 
@@ -30,7 +30,9 @@ def test_artifact_provisioning_rejects_unverified_source(tmp_path):
 def test_frozen_protocol_and_pre_execution_identity_are_fail_closed():
     config = runner._load_frozen_config()
     runner._validate_protocol(config)
-    context = runner._validate_pre_execution(result_path=ROOT / "tmp-s10h-result-that-does-not-exist")
+    context = runner._validate_pre_execution(
+        result_path=ROOT / "tmp-s10h-result-that-does-not-exist"
+    )
     assert context["head"]
     assert context["identities"]["model_revision"] == runner.MODEL_REVISION
     assert context["historical_hashes"]["docs/results/s10f_frontier_confirmation.json"] == (
@@ -52,7 +54,9 @@ def test_frozen_config_rejects_sha_and_in_memory_mutation(tmp_path, monkeypatch)
         runner._load_frozen_config(whitespace)
 
     reordered = tmp_path / "reordered.json"
-    reordered.write_text(json.dumps(json.loads(runner.CONFIG_PATH.read_text()), indent=2, sort_keys=True) + "\n")
+    reordered.write_text(
+        json.dumps(json.loads(runner.CONFIG_PATH.read_text()), indent=2, sort_keys=True) + "\n"
+    )
     with pytest.raises(runner.ProtocolError, match="byte-for-byte"):
         runner._load_frozen_config(reordered)
 
@@ -198,7 +202,9 @@ def test_prohibited_work_and_reproducibility_are_revise_before_refine():
     assert runner.validate_result(repeat)["classification"] == "REVISE"
 
 
-@pytest.mark.parametrize("field", ["route_maps_identical", "hard_metrics_identical", "finite_outputs_both_passed"])
+@pytest.mark.parametrize(
+    "field", ["route_maps_identical", "hard_metrics_identical", "finite_outputs_both_passed"]
+)
 def test_reproducibility_subaudits_must_all_pass(field):
     candidate = _fixture()
     candidate["trials"][0]["reproducibility_audit"][field] = False
@@ -297,5 +303,11 @@ def test_cli_execute_requires_h2_and_never_writes_result(tmp_path):
 
 
 def test_historical_hash_constants_match_preserved_artifacts():
-    assert hashlib.sha256(runner.HISTORICAL_ATTEMPT_1_PATH.read_bytes()).hexdigest() == runner.HISTORICAL_ATTEMPT_1_SHA256
-    assert hashlib.sha256(runner.HISTORICAL_ATTEMPT_2_PATH.read_bytes()).hexdigest() == runner.HISTORICAL_ATTEMPT_2_SHA256
+    assert (
+        hashlib.sha256(runner.HISTORICAL_ATTEMPT_1_PATH.read_bytes()).hexdigest()
+        == runner.HISTORICAL_ATTEMPT_1_SHA256
+    )
+    assert (
+        hashlib.sha256(runner.HISTORICAL_ATTEMPT_2_PATH.read_bytes()).hexdigest()
+        == runner.HISTORICAL_ATTEMPT_2_SHA256
+    )

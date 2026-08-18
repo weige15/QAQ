@@ -1153,8 +1153,9 @@ executor is not part of this stage.
 
 **Additional identity assumption:** The committed quantized-model manifest
 SHA-256 is pinned at `1e2b3515072e22d71ac35a35a3002e3a1dcd5ce44887c554b1408f735c928530`
-for pre-execution identity checking. This checks metadata and paths without
-loading model weights or hashing/instantiating the packed model in plan mode.
+for pre-execution identity checking. The initial metadata/path-only limitation
+is superseded by D051; that decision owns the current packed-byte and
+future-result identity requirements.
 
 **Evidence:** Focused H1 tests cover config/ancestry/identity drift,
 historical-artifact preservation, exact trial/data/training/route-map and
@@ -1192,11 +1193,11 @@ sub-audits and the overall result to be true. Future dataset evidence must carry
 and match the frozen repository, config, train/validation splits, tokenizer
 revision, and dataset revision.
 
-**Evidence:** Focused S10-H1 regression tests pass 28; the combined S10-H1 and
-S10-G protocol selection passes 81; Ruff and `git diff --check` pass. The plan
-path hashes the real packed artifact, loads no model or dataset, performs no
-training/CUDA evaluation, and writes no result. H2 execution remains absent and
-no production lambda is selected.
+**Evidence at the repair commit:** Focused S10-H1 regression tests pass 28; the
+combined S10-H1 and S10-G protocol selection passes 81; Ruff and
+`git diff --check` pass. The plan path hashes the real packed artifact, loads no
+model or dataset, performs no training/CUDA evaluation, and writes no result.
+H2 execution remains absent and no production lambda is selected.
 
 **Unknown:** No broader-validation result exists, so these checks validate only
 future evidence structure and frozen provenance; they do not establish H2

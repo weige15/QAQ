@@ -21,7 +21,6 @@ sys.path.insert(0, str(ROOT))
 
 from scripts import run_s10h as runner
 
-
 DESTINATION = ROOT / runner.PACKED_ARTIFACT
 SOURCE_ENV = "QAQ_S03_ARTIFACT_SOURCE"
 ANY_PRECISION_DESTINATION = ROOT / "third_party/any-precision-llm"
@@ -87,7 +86,9 @@ def provision_artifact(source: Path, destination: Path = DESTINATION) -> dict[st
     }
 
 
-def provision_any_precision(source: Path, destination: Path = ANY_PRECISION_DESTINATION) -> dict[str, str]:
+def provision_any_precision(
+    source: Path, destination: Path = ANY_PRECISION_DESTINATION
+) -> dict[str, str]:
     """Link a clean checkout of the pinned backend into the worktree."""
 
     source = source.expanduser().resolve()
@@ -111,7 +112,9 @@ def provision_any_precision(source: Path, destination: Path = ANY_PRECISION_DEST
     destination = destination.expanduser()
     if destination.exists() and not destination.is_symlink():
         if any(destination.iterdir()):
-            raise ArtifactProvisionError(f"non-empty Any-Precision destination will not be overwritten: {destination}")
+            raise ArtifactProvisionError(
+                f"non-empty Any-Precision destination will not be overwritten: {destination}"
+            )
         destination.rmdir()
     if not destination.exists() and not destination.is_symlink():
         destination.symlink_to(source, target_is_directory=True)
@@ -123,8 +126,14 @@ def provision_any_precision(source: Path, destination: Path = ANY_PRECISION_DEST
         check=False,
     )
     if actual.returncode != 0 or actual.stdout.strip() != runner.ANY_PRECISION_REVISION:
-        raise ArtifactProvisionError("provisioned Any-Precision checkout is not at the frozen revision")
-    return {"source": str(source), "destination": str(destination), "revision": actual.stdout.strip()}
+        raise ArtifactProvisionError(
+            "provisioned Any-Precision checkout is not at the frozen revision"
+        )
+    return {
+        "source": str(source),
+        "destination": str(destination),
+        "revision": actual.stdout.strip(),
+    }
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -138,7 +147,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--any-precision-source",
         type=Path,
-        default=Path(os.environ[ANY_PRECISION_SOURCE_ENV]) if os.environ.get(ANY_PRECISION_SOURCE_ENV) else None,
+        default=Path(os.environ[ANY_PRECISION_SOURCE_ENV])
+        if os.environ.get(ANY_PRECISION_SOURCE_ENV)
+        else None,
         help=f"clean pinned Any-Precision checkout (defaults to ${ANY_PRECISION_SOURCE_ENV})",
     )
     args = parser.parse_args(argv)
