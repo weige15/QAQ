@@ -57,8 +57,7 @@ class _TinyRuntime:
     def __init__(self):
         self.train_examples = [self._example(f"train-{index}") for index in range(24)]
         self.validation_examples = [
-            self._example(request_id, validation=True)
-            for request_id in protocol.VALIDATION_IDS
+            self._example(request_id, validation=True) for request_id in protocol.VALIDATION_IDS
         ]
         self.teacher = nn.Parameter(torch.tensor([0.25]), requires_grad=False)
         self.router_runtime_audit = {
@@ -138,7 +137,11 @@ class _TinyRuntime:
         }
 
     def prohibited_work_audit(self):
-        return {"forbidden_actions_observed": [], "forbidden_measurements_observed": [], "passed": True}
+        return {
+            "forbidden_actions_observed": [],
+            "forbidden_measurements_observed": [],
+            "passed": True,
+        }
 
     def build_seed_model(self, seed, device):
         del device
@@ -146,8 +149,7 @@ class _TinyRuntime:
 
     def router_state(self, model):
         return {
-            name: value.detach().cpu().clone()
-            for name, value in model.routers.state_dict().items()
+            name: value.detach().cpu().clone() for name, value in model.routers.state_dict().items()
         }
 
     def restore_router_state(self, model, state):
@@ -157,7 +159,9 @@ class _TinyRuntime:
 
     @staticmethod
     def _hash_tensor(value):
-        return hashlib.sha256(value.detach().cpu().contiguous().view(torch.uint8).numpy().tobytes()).hexdigest()
+        return hashlib.sha256(
+            value.detach().cpu().contiguous().view(torch.uint8).numpy().tobytes()
+        ).hexdigest()
 
     def frozen_snapshot(self, model):
         return {
@@ -224,7 +228,9 @@ class _TinyRuntime:
         finite = all(torch.isfinite(value).all() for value in (kd, bit_cost, total)) and all(
             gradient is not None and torch.isfinite(gradient).all() for gradient in gradients
         )
-        nonzero = any(torch.count_nonzero(gradient).item() for gradient in gradients if gradient is not None)
+        nonzero = any(
+            torch.count_nonzero(gradient).item() for gradient in gradients if gradient is not None
+        )
         return {
             "finite_loss": bool(finite),
             "finite_kd_loss": bool(torch.isfinite(kd).item()),
@@ -234,7 +240,9 @@ class _TinyRuntime:
             "finite_gradient": bool(finite),
             "router_gradients_present": all(gradient is not None for gradient in gradients),
             "router_gradients_nonzero": bool(nonzero),
-            "router_gradient_norm": float(torch.sqrt(sum(gradient.square().sum() for gradient in gradients)).item()),
+            "router_gradient_norm": float(
+                torch.sqrt(sum(gradient.square().sum() for gradient in gradients)).item()
+            ),
             "initial_kd_gradient_norm": kd_norm,
             "initial_bit_cost_gradient_norm": cost_norm,
             "lambda_weighted_gradient_ratio": lambda_bit * cost_norm / kd_norm,
@@ -261,7 +269,12 @@ class _TinyRuntime:
                             int(torch.tensor(protocol.CANDIDATE_BITS)[torch.argmax(probability)]),
                         )
             student_values = torch.stack(
-                (mean_probability[0], mean_probability[1], mean_probability[2], mean_probability.sum())
+                (
+                    mean_probability[0],
+                    mean_probability[1],
+                    mean_probability[2],
+                    mean_probability.sum(),
+                )
             )
             logits = student_values.view(1, 1, 4).expand(1, 4, 4)
             teacher_logits = torch.zeros_like(logits)
@@ -295,7 +308,8 @@ class _TinyRuntime:
         )
         result = {
             "validation_kd": sum(item["kd"] for item in per_example) / len(per_example),
-            "mean_absolute_logit_error": sum(item["mean_error"] for item in per_example) / len(per_example),
+            "mean_absolute_logit_error": sum(item["mean_error"] for item in per_example)
+            / len(per_example),
             "maximum_absolute_logit_error": max(item["max_error"] for item in per_example),
             "finite_outputs": True,
             "route_variation": {
@@ -310,7 +324,11 @@ class _TinyRuntime:
             "hard_validation_fraction_4": fractions["4"],
             "hard_validation_fraction_6": fractions["6"],
             "hard_validation_fraction_8": fractions["8"],
-            "collapse_audit": {"classification": "OTHER", "invalid_or_degenerate": False, "passed": True},
+            "collapse_audit": {
+                "classification": "OTHER",
+                "invalid_or_degenerate": False,
+                "passed": True,
+            },
         }
         if mode == "soft":
             result.update(
@@ -348,9 +366,9 @@ def test_injected_runtime_executes_all_nine_trials_and_writes_only_temp(tmp_path
     assert outcome.written is True
     assert output.is_file()
     assert len(outcome.result["trials"]) == 9
-    assert [
-        (trial["seed"], trial["lambda_bit"]) for trial in outcome.result["trials"]
-    ] == list(protocol.TRIAL_PAIRS)
+    assert [(trial["seed"], trial["lambda_bit"]) for trial in outcome.result["trials"]] == list(
+        protocol.TRIAL_PAIRS
+    )
     assert all(len(trial["training_history"]) == 24 for trial in outcome.result["trials"])
     assert runtime.loss_calls == {"kd": 216, "cost": 216}
     assert outcome.validation["errors"] == []

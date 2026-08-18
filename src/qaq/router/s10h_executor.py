@@ -151,21 +151,23 @@ def _require_finite_metrics(values: Mapping[str, Any], names: Sequence[str]) -> 
             raise ExecutorError("REVISE", f"non-finite or missing runtime metric: {name}")
 
 
-def _optimizer_audit(model: Any, optimizer: Any, *, before_training: int, before_first: int) -> dict[str, Any]:
+def _optimizer_audit(
+    model: Any, optimizer: Any, *, before_training: int, before_first: int
+) -> dict[str, Any]:
     """Audit optimizer membership from actual parameter identities and names."""
 
     expected_names = list(protocol.EXPECTED_ROUTER_PARAMETER_NAMES)
     named_by_id = {id(parameter): name for name, parameter in model.named_parameters()}
     expected_ids = {
-        id(parameter)
-        for name, parameter in model.named_parameters()
-        if name.startswith("routers.")
+        id(parameter) for name, parameter in model.named_parameters() if name.startswith("routers.")
     }
     actual_parameters = [
         parameter for group in optimizer.param_groups for parameter in group["params"]
     ]
     actual_ids = [id(parameter) for parameter in actual_parameters]
-    actual_names = sorted(named_by_id[parameter_id] for parameter_id in actual_ids if parameter_id in named_by_id)
+    actual_names = sorted(
+        named_by_id[parameter_id] for parameter_id in actual_ids if parameter_id in named_by_id
+    )
     duplicate_count = len(actual_ids) - len(set(actual_ids))
     missing_count = len(expected_ids - set(actual_ids))
     unexpected_ids = set(actual_ids) - expected_ids
@@ -234,12 +236,16 @@ def _validate_route_maps(hard: Mapping[str, Any]) -> dict[str, Any]:
     maps = hard.get("hard_validation_route_maps")
     if not isinstance(maps, dict) or list(maps) != list(protocol.VALIDATION_IDS):
         raise ExecutorError("REVISE", "validation route-map IDs/order changed")
-    if any(not protocol._validate_route_map(maps[request_id]) for request_id in protocol.VALIDATION_IDS):
+    if any(
+        not protocol._validate_route_map(maps[request_id]) for request_id in protocol.VALIDATION_IDS
+    ):
         raise ExecutorError("REVISE", "validation route map is malformed")
     width, fractions, unique = protocol._route_stats(maps)
     if not _finite_scalar(hard.get("hard_validation_mean_selected_bit_width")):
         raise ExecutorError("REVISE", "hard selected width is non-finite")
-    if not math.isclose(float(hard["hard_validation_mean_selected_bit_width"]), width, rel_tol=1e-12, abs_tol=1e-12):
+    if not math.isclose(
+        float(hard["hard_validation_mean_selected_bit_width"]), width, rel_tol=1e-12, abs_tol=1e-12
+    ):
         raise ExecutorError("REVISE", "hard width does not match ordered route maps")
     if hard.get("distinct_hard_route_map_count") != unique:
         raise ExecutorError("REVISE", "distinct hard route-map count does not match maps")
@@ -252,7 +258,11 @@ def _validate_route_maps(hard: Mapping[str, Any]) -> dict[str, Any]:
         ):
             raise ExecutorError("REVISE", "hard route fractions do not match ordered maps")
     variation = hard.get("route_variation")
-    if not isinstance(variation, dict) or variation.get("unit_count") != 72 or variation.get("prompt_count") != 12:
+    if (
+        not isinstance(variation, dict)
+        or variation.get("unit_count") != 72
+        or variation.get("prompt_count") != 12
+    ):
         raise ExecutorError("REVISE", "route variation coverage is incomplete")
     return {request_id: list(maps[request_id]) for request_id in protocol.VALIDATION_IDS}
 
@@ -322,12 +332,19 @@ def _trial(
             raise ExecutorError("PAUSE", "runtime training evidence is missing")
         if raw.get("finite_loss") is not True or raw.get("finite_gradient") is not True:
             raise ExecutorError("REVISE", "non-finite loss or gradient evidence")
-        if raw.get("router_gradients_present") is not True or raw.get("router_gradients_nonzero") is not True:
+        if (
+            raw.get("router_gradients_present") is not True
+            or raw.get("router_gradients_nonzero") is not True
+        ):
             raise ExecutorError("REVISE", "router gradient evidence is missing or zero")
         gradients = [parameter.grad for parameter in router_parameters]
         if any(gradient is None for gradient in gradients):
             raise ExecutorError("REVISE", "a router parameter has no gradient")
-        if any(not bool(torch.isfinite(gradient).all().item()) for gradient in gradients if gradient is not None):
+        if any(
+            not bool(torch.isfinite(gradient).all().item())
+            for gradient in gradients
+            if gradient is not None
+        ):
             raise ExecutorError("REVISE", "a router gradient is non-finite")
         if step == 1:
             initial_diagnostic = {
@@ -372,7 +389,8 @@ def _trial(
     hard = _validate_mode(prepared.runtime.validate(model, "hard", prepared.device), hard=True)
     repeat = _validate_mode(prepared.runtime.validate(model, "hard", prepared.device), hard=True)
     repeat_audit = {
-        "route_maps_identical": hard["hard_validation_route_maps"] == repeat["hard_validation_route_maps"],
+        "route_maps_identical": hard["hard_validation_route_maps"]
+        == repeat["hard_validation_route_maps"],
         "hard_metrics_identical": all(
             hard.get(name) == repeat.get(name)
             for name in (
@@ -383,7 +401,8 @@ def _trial(
                 "hard_validation_fraction_8",
             )
         ),
-        "finite_outputs_both_passed": hard.get("finite_outputs") is True and repeat.get("finite_outputs") is True,
+        "finite_outputs_both_passed": hard.get("finite_outputs") is True
+        and repeat.get("finite_outputs") is True,
         "passed": False,
         "repeat_count": 1,
     }
@@ -406,8 +425,17 @@ def _trial(
         "training_examples_seen": 24,
         "optimizer_steps_completed": 24,
         "training_history": history,
-        "finite_loss_audit": all(item["finite_kd_loss"] and item["finite_bit_cost"] and item["finite_weighted_cost"] and item["finite_total_loss"] for item in history),
-        "finite_gradient_audit": all(item["finite_gradient"] and _finite_scalar(item["router_gradient_norm"]) for item in history),
+        "finite_loss_audit": all(
+            item["finite_kd_loss"]
+            and item["finite_bit_cost"]
+            and item["finite_weighted_cost"]
+            and item["finite_total_loss"]
+            for item in history
+        ),
+        "finite_gradient_audit": all(
+            item["finite_gradient"] and _finite_scalar(item["router_gradient_norm"])
+            for item in history
+        ),
         "teacher_frozen_audit": True,
         "packed_student_base_unchanged_audit": True,
         "freeze_runtime_audit": frozen_audit,
@@ -440,7 +468,9 @@ def _trial(
     return trial
 
 
-def _build_result(prepared: _PreparedRuntime, preflight: Mapping[str, Any] | None, trials: list[dict[str, Any]]) -> dict[str, Any]:
+def _build_result(
+    prepared: _PreparedRuntime, preflight: Mapping[str, Any] | None, trials: list[dict[str, Any]]
+) -> dict[str, Any]:
     config = prepared.config
     dataset = prepared.runtime.dataset_evidence(config)
     identity = dict(prepared.runtime.identity_evidence())
@@ -466,25 +496,36 @@ def _build_result(prepared: _PreparedRuntime, preflight: Mapping[str, Any] | Non
     aggregates = protocol._aggregate_trials(trials)
     inherited_audit = prepared.runtime.inherited_regressions_audit()
     prohibited_audit = prepared.runtime.prohibited_work_audit()
-    complete = len(trials) == 9 and tuple(
-        (int(trial.get("seed")), float(trial.get("lambda_bit"))) for trial in trials
-    ) == protocol.TRIAL_PAIRS
-    audits_pass = complete and all(
-        trial.get(key) is True
-        for trial in trials
-        for key in (
-            "finite_loss_audit",
-            "finite_gradient_audit",
-            "teacher_frozen_audit",
-            "packed_student_base_unchanged_audit",
+    complete = (
+        len(trials) == 9
+        and tuple((int(trial.get("seed")), float(trial.get("lambda_bit"))) for trial in trials)
+        == protocol.TRIAL_PAIRS
+    )
+    audits_pass = (
+        complete
+        and all(
+            trial.get(key) is True
+            for trial in trials
+            for key in (
+                "finite_loss_audit",
+                "finite_gradient_audit",
+                "teacher_frozen_audit",
+                "packed_student_base_unchanged_audit",
+            )
         )
-    ) and all(trial.get("collapse_audit", {}).get("passed") is True for trial in trials)
+        and all(trial.get("collapse_audit", {}).get("passed") is True for trial in trials)
+    )
     reproducibility_pass = complete and all(
         trial.get("reproducibility_audit", {}).get("passed") is True for trial in trials
     )
     if not complete:
         initial_classification = "PAUSE"
-    elif not audits_pass or not reproducibility_pass or inherited_audit.get("passed") is not True or prohibited_audit.get("passed") is not True:
+    elif (
+        not audits_pass
+        or not reproducibility_pass
+        or inherited_audit.get("passed") is not True
+        or prohibited_audit.get("passed") is not True
+    ):
         initial_classification = "REVISE"
     elif (
         aggregates["lambda_0.03_frontier_seed_count"] >= 2
@@ -559,9 +600,7 @@ def _validate_selected_artifact(artifact: Path, manifest: Mapping[str, Any]) -> 
         raise ExecutorError("PAUSE", f"identity-matched packed artifact is unavailable: {artifact}")
     artifact_record = manifest.get("artifact")
     records = (
-        artifact_record.get("artifact_file_list")
-        if isinstance(artifact_record, Mapping)
-        else None
+        artifact_record.get("artifact_file_list") if isinstance(artifact_record, Mapping) else None
     )
     if not isinstance(records, list) or not records:
         raise ExecutorError("REVISE", "packed artifact manifest file list is invalid")
@@ -594,7 +633,9 @@ def write_validated_result(result: dict[str, Any], destination: Path) -> None:
     destination = _validate_destination(destination)
     report = protocol.validate_result(result)
     if report["classification"] not in {"CONTINUE", "REFINE"} or report["errors"]:
-        raise ExecutorError(report["classification"], "unmodified validator rejected result before write")
+        raise ExecutorError(
+            report["classification"], "unmodified validator rejected result before write"
+        )
     temporary: Path | None = None
     try:
         descriptor, name = tempfile.mkstemp(
@@ -608,10 +649,9 @@ def write_validated_result(result: dict[str, Any], destination: Path) -> None:
             os.fsync(stream.fileno())
         reloaded = json.loads(temporary.read_text(encoding="utf-8"))
         reloaded_report = protocol.validate_result(reloaded)
-        if (
-            reloaded_report.get("classification") != report.get("classification")
-            or reloaded_report.get("errors") != report.get("errors")
-        ):
+        if reloaded_report.get("classification") != report.get(
+            "classification"
+        ) or reloaded_report.get("errors") != report.get("errors"):
             raise ExecutorError("REVISE", "serialized result changed validator evidence")
         os.link(temporary, destination)
         temporary.unlink()
@@ -642,7 +682,14 @@ def execute_with_runtime(
     """Run the common H2 scheduler against an injected runtime."""
 
     if not device or not isinstance(device, str):
-        return ExecutionOutcome("PAUSE", ("--execute requires an explicit CUDA device",), None, {"classification": "PAUSE"}, None, False)
+        return ExecutionOutcome(
+            "PAUSE",
+            ("--execute requires an explicit CUDA device",),
+            None,
+            {"classification": "PAUSE"},
+            None,
+            False,
+        )
     if protocol._is_canonical_result_path(output):
         return ExecutionOutcome(
             "PAUSE",
@@ -677,7 +724,10 @@ def execute_with_runtime(
             contract = _router_contract(model)
             if contract["router_count"] != 72 or contract["router_tensor_count"] != 288:
                 raise ExecutorError("REVISE", "runtime router count or tensor count drifted")
-            if getattr(runtime, "enforce_frozen_router_scalar_count", False) and contract["router_scalar_count"] != 23630040:
+            if (
+                getattr(runtime, "enforce_frozen_router_scalar_count", False)
+                and contract["router_scalar_count"] != 23630040
+            ):
                 raise ExecutorError("REVISE", "runtime router scalar count is not 23,630,040")
             canonical = runtime.router_state(model)
             canonical_hash = _state_hash(canonical)
@@ -699,10 +749,24 @@ def execute_with_runtime(
             report["classification"], tuple(report["errors"]), result, report, str(output), True
         )
     except protocol.ProtocolError as exc:
-        return ExecutionOutcome(exc.outcome, (str(exc),), None, {"classification": exc.outcome, "errors": [str(exc)]}, None, False)
+        return ExecutionOutcome(
+            exc.outcome,
+            (str(exc),),
+            None,
+            {"classification": exc.outcome, "errors": [str(exc)]},
+            None,
+            False,
+        )
     except (ExecutorError, FloatingPointError, ValueError, RuntimeError, OSError) as exc:
         outcome = exc.outcome if isinstance(exc, ExecutorError) else "REVISE"
-        return ExecutionOutcome(outcome, (str(exc),), None, {"classification": outcome, "errors": [str(exc)]}, None, False)
+        return ExecutionOutcome(
+            outcome,
+            (str(exc),),
+            None,
+            {"classification": outcome, "errors": [str(exc)]},
+            None,
+            False,
+        )
     finally:
         if model is not None:
             try:
@@ -766,22 +830,56 @@ class QwenRuntime:
         from scripts.run_s07b import _device_example, _precompute_teacher_logits, _select_examples
 
         snapshot = protocol.MODEL_SNAPSHOT
-        tokenizer = AutoTokenizer.from_pretrained(str(snapshot), revision=protocol.MODEL_REVISION, local_files_only=True)
+        tokenizer = AutoTokenizer.from_pretrained(
+            str(snapshot), revision=protocol.MODEL_REVISION, local_files_only=True
+        )
         data = config["protocol"]["dataset"]
         selection_config = {"dataset": data}
-        train_dataset = datasets.load_dataset(data["repository"], data["config"], split=data["train_split"], revision=protocol.DATASET_REVISION, trust_remote_code=False)
-        validation_dataset = datasets.load_dataset(data["repository"], data["config"], split=data["validation_split"], revision=protocol.DATASET_REVISION, trust_remote_code=False)
-        train_cpu, self.train_manifest = _select_examples(train_dataset, tokenizer, data["train_offsets"], split="train", config=selection_config, torch=torch)
-        validation_cpu, self.validation_manifest = _select_examples(validation_dataset, tokenizer, data["validation_offsets"], split="validation", config=selection_config, torch=torch)
-        if [item["example_id"] for item in train_cpu] != data["train_example_ids"] or [item["example_id"] for item in validation_cpu] != data["validation_example_ids"]:
-            raise ExecutorError("REVISE", "runtime dataset manifest order differs from frozen protocol")
+        train_dataset = datasets.load_dataset(
+            data["repository"],
+            data["config"],
+            split=data["train_split"],
+            revision=protocol.DATASET_REVISION,
+            trust_remote_code=False,
+        )
+        validation_dataset = datasets.load_dataset(
+            data["repository"],
+            data["config"],
+            split=data["validation_split"],
+            revision=protocol.DATASET_REVISION,
+            trust_remote_code=False,
+        )
+        train_cpu, self.train_manifest = _select_examples(
+            train_dataset,
+            tokenizer,
+            data["train_offsets"],
+            split="train",
+            config=selection_config,
+            torch=torch,
+        )
+        validation_cpu, self.validation_manifest = _select_examples(
+            validation_dataset,
+            tokenizer,
+            data["validation_offsets"],
+            split="validation",
+            config=selection_config,
+            torch=torch,
+        )
+        if [item["example_id"] for item in train_cpu] != data["train_example_ids"] or [
+            item["example_id"] for item in validation_cpu
+        ] != data["validation_example_ids"]:
+            raise ExecutorError(
+                "REVISE", "runtime dataset manifest order differs from frozen protocol"
+            )
         self.train_examples = [_device_example(item, device, torch) for item in train_cpu]
         self.validation_examples = [_device_example(item, device, torch) for item in validation_cpu]
         self.teacher = load_full_precision_model(snapshot, device)
         for parameter in self.teacher.parameters():
             parameter.requires_grad_(False)
             parameter.grad = None
-        self.teacher_targets = _precompute_teacher_logits(self.teacher, self.train_examples + self.validation_examples, torch)
+        self.teacher_targets = _precompute_teacher_logits(
+            self.teacher, self.train_examples + self.validation_examples, torch
+        )
         self.teacher.cpu()
         torch.cuda.empty_cache()
         self._identities = dict(self.preflight["identities"])
@@ -832,7 +930,11 @@ class QwenRuntime:
         }
 
     def prohibited_work_audit(self) -> dict[str, Any]:
-        return {"forbidden_actions_observed": [], "forbidden_measurements_observed": [], "passed": True}
+        return {
+            "forbidden_actions_observed": [],
+            "forbidden_measurements_observed": [],
+            "passed": True,
+        }
 
     def build_seed_model(self, seed: int, device: str) -> Any:
         import random
@@ -878,7 +980,9 @@ class QwenRuntime:
         return {
             "teacher_hash": self._module_hash(self.teacher),
             "base_hash": self._module_hash(model.base),
-            "teacher_requires_grad_false": all(not p.requires_grad for p in self.teacher.parameters()),
+            "teacher_requires_grad_false": all(
+                not p.requires_grad for p in self.teacher.parameters()
+            ),
             "base_requires_grad_false": all(not p.requires_grad for p in model.base.parameters()),
             "teacher_gradients_absent": all(p.grad is None for p in self.teacher.parameters()),
             "base_gradients_absent": all(p.grad is None for p in model.base.parameters()),
@@ -895,7 +999,9 @@ class QwenRuntime:
         )
         return {"passed": passed, "before": before, "after": after}
 
-    def train_step(self, model: Any, example: Any, optimizer: Any, lambda_bit: float, step: int, device: str) -> dict[str, Any]:
+    def train_step(
+        self, model: Any, example: Any, optimizer: Any, lambda_bit: float, step: int, device: str
+    ) -> dict[str, Any]:
         import torch
 
         from qaq.model.request_state import QaqRequestState
@@ -909,10 +1015,22 @@ class QwenRuntime:
 
         batch = DistillationBatch.from_examples([example])
         optimizer.zero_grad(set_to_none=True)
-        state = QaqRequestState(example.example_id, int(example.prompt_mask().sum()), layer_count=36, candidate_bits=protocol.CANDIDATE_BITS)
-        student_logits = model(**_model_kwargs(example), request_state=state, phase="prefill", prompt_attention_mask=batch.prompt_attention_mask).logits
+        state = QaqRequestState(
+            example.example_id,
+            int(example.prompt_mask().sum()),
+            layer_count=36,
+            candidate_bits=protocol.CANDIDATE_BITS,
+        )
+        student_logits = model(
+            **_model_kwargs(example),
+            request_state=state,
+            phase="prefill",
+            prompt_attention_mask=batch.prompt_attention_mask,
+        ).logits
         teacher_logits = self.teacher_targets[example.example_id].to(device)
-        kd = masked_kl_distillation_loss(teacher_logits, student_logits, batch.completion_loss_mask, temperature=2.0)
+        kd = masked_kl_distillation_loss(
+            teacher_logits, student_logits, batch.completion_loss_mask, temperature=2.0
+        )
         bit_cost = request_state_expected_bit_cost(state)
         total = cost_aware_distillation_loss(kd, bit_cost, lambda_bit)
         if not bool(torch.isfinite(total).item()):
@@ -920,18 +1038,42 @@ class QwenRuntime:
         router_parameters = [parameter for _, parameter in _router_items(model)]
         initial_kd = initial_cost = None
         if step == 1:
-            kd_grad = torch.autograd.grad(kd, router_parameters, retain_graph=True, allow_unused=False)
-            cost_grad = torch.autograd.grad(bit_cost, router_parameters, retain_graph=True, allow_unused=False)
-            initial_kd = float(torch.sqrt(sum(value.detach().float().square().sum() for value in kd_grad)).item())
-            initial_cost = float(torch.sqrt(sum(value.detach().float().square().sum() for value in cost_grad)).item())
+            kd_grad = torch.autograd.grad(
+                kd, router_parameters, retain_graph=True, allow_unused=False
+            )
+            cost_grad = torch.autograd.grad(
+                bit_cost, router_parameters, retain_graph=True, allow_unused=False
+            )
+            initial_kd = float(
+                torch.sqrt(sum(value.detach().float().square().sum() for value in kd_grad)).item()
+            )
+            initial_cost = float(
+                torch.sqrt(sum(value.detach().float().square().sum() for value in cost_grad)).item()
+            )
         total.backward()
         gradients = [parameter.grad for parameter in router_parameters]
         present = all(gradient is not None for gradient in gradients)
-        finite = present and all(bool(torch.isfinite(gradient).all().item()) for gradient in gradients if gradient is not None)
-        nonzero = present and any(bool(torch.count_nonzero(gradient).item()) for gradient in gradients if gradient is not None)
+        finite = present and all(
+            bool(torch.isfinite(gradient).all().item())
+            for gradient in gradients
+            if gradient is not None
+        )
+        nonzero = present and any(
+            bool(torch.count_nonzero(gradient).item())
+            for gradient in gradients
+            if gradient is not None
+        )
         if not (finite and nonzero):
             raise ExecutorError("REVISE", "missing or non-finite router gradient")
-        norm = float(torch.sqrt(sum(value.detach().float().square().sum() for value in gradients if value is not None)).item())
+        norm = float(
+            torch.sqrt(
+                sum(
+                    value.detach().float().square().sum()
+                    for value in gradients
+                    if value is not None
+                )
+            ).item()
+        )
         optimizer.step()
         return {
             "finite_loss": bool(torch.isfinite(total).item()),
@@ -945,7 +1087,9 @@ class QwenRuntime:
             "router_gradient_norm": norm,
             "initial_kd_gradient_norm": initial_kd if initial_kd is not None else 1.0,
             "initial_bit_cost_gradient_norm": initial_cost if initial_cost is not None else 1.0,
-            "lambda_weighted_gradient_ratio": 0.0 if initial_kd in (None, 0.0) else lambda_bit * float(initial_cost) / float(initial_kd),
+            "lambda_weighted_gradient_ratio": 0.0
+            if initial_kd in (None, 0.0)
+            else lambda_bit * float(initial_cost) / float(initial_kd),
             "kd_loss": float(kd.detach().item()),
             "expected_bit_cost": float(bit_cost.detach().item()),
             "weighted_cost": lambda_bit * float(bit_cost.detach().item()),
@@ -968,32 +1112,76 @@ class QwenRuntime:
         maps: dict[str, list[int]] = {}
         model.eval()
         for example in self.validation_examples:
-            state = QaqRequestState(example.example_id, int(example.prompt_mask().sum()), layer_count=36, candidate_bits=protocol.CANDIDATE_BITS)
+            state = QaqRequestState(
+                example.example_id,
+                int(example.prompt_mask().sum()),
+                layer_count=36,
+                candidate_bits=protocol.CANDIDATE_BITS,
+            )
             if mode == "soft":
                 with torch.inference_mode():
-                    output = model(**_model_kwargs(example), request_state=state, phase="prefill", prompt_attention_mask=example.prompt_mask().unsqueeze(0))
+                    output = model(
+                        **_model_kwargs(example),
+                        request_state=state,
+                        phase="prefill",
+                        prompt_attention_mask=example.prompt_mask().unsqueeze(0),
+                    )
             else:
+
                 def policy(layer: int, unit_type: str, feature: Any) -> int:
-                    return int(hard_route(model.route(layer, unit_type, feature), candidate_bits=protocol.CANDIDATE_BITS))
+                    return int(
+                        hard_route(
+                            model.route(layer, unit_type, feature),
+                            candidate_bits=protocol.CANDIDATE_BITS,
+                        )
+                    )
+
                 with torch.inference_mode():
-                    output = model.base(**_model_kwargs(example), request_state=state, phase="prefill", prompt_attention_mask=example.prompt_mask().unsqueeze(0), routing_policy=policy)
-                for unit_type, features in (("attention", state.attention_features), ("ffn", state.ffn_features)):
+                    output = model.base(
+                        **_model_kwargs(example),
+                        request_state=state,
+                        phase="prefill",
+                        prompt_attention_mask=example.prompt_mask().unsqueeze(0),
+                        routing_policy=policy,
+                    )
+                for unit_type, features in (
+                    ("attention", state.attention_features),
+                    ("ffn", state.ffn_features),
+                ):
                     for layer, feature in enumerate(features):
-                        state.store_probability(unit_type, layer, model.route(layer, unit_type, feature))
+                        state.store_probability(
+                            unit_type, layer, model.route(layer, unit_type, feature)
+                        )
             logits = output.logits.detach()
             finite = bool(torch.isfinite(logits).all().item())
             teacher_logits = self.teacher_targets[example.example_id].to(device)
-            kd = masked_kl_distillation_loss(teacher_logits, logits, example.completion_loss_mask.unsqueeze(0), temperature=2.0)
-            route_records = route_records_from_request_state(example.example_id, state, log_base=2.0)
+            kd = masked_kl_distillation_loss(
+                teacher_logits, logits, example.completion_loss_mask.unsqueeze(0), temperature=2.0
+            )
+            route_records = route_records_from_request_state(
+                example.example_id, state, log_base=2.0
+            )
             if mode == "hard":
                 actual_routes = tuple(state.attention_routes) + tuple(state.ffn_routes)
                 recorded_routes = tuple(record.hard_bit for record in route_records)
                 if actual_routes != recorded_routes:
-                    raise ExecutorError("REVISE", "hard route records disagree with request-local state")
+                    raise ExecutorError(
+                        "REVISE", "hard route records disagree with request-local state"
+                    )
             route = sorted(route_records, key=lambda item: (item.layer, item.unit_type))
             maps[example.example_id] = [record.hard_bit for record in route]
             records.extend(route_records)
-            per_example.append({"kd": float(kd.item()), "mean_error": float((logits.float() - teacher_logits.float()).abs().mean().item()), "max_error": float((logits.float() - teacher_logits.float()).abs().max().item())})
+            per_example.append(
+                {
+                    "kd": float(kd.item()),
+                    "mean_error": float(
+                        (logits.float() - teacher_logits.float()).abs().mean().item()
+                    ),
+                    "max_error": float(
+                        (logits.float() - teacher_logits.float()).abs().max().item()
+                    ),
+                }
+            )
             if not finite:
                 raise ExecutorError("REVISE", "non-finite validation logits")
         values = records
@@ -1006,12 +1194,18 @@ class QwenRuntime:
         variation = {
             "prompt_count": 12,
             "unit_count": 72,
-            "changed_unit_count": sum(len({maps[request_id][index] for request_id in maps}) > 1 for index in range(72)),
-            "changed_fraction": sum(len({maps[request_id][index] for request_id in maps}) > 1 for index in range(72)) / 72,
+            "changed_unit_count": sum(
+                len({maps[request_id][index] for request_id in maps}) > 1 for index in range(72)
+            ),
+            "changed_fraction": sum(
+                len({maps[request_id][index] for request_id in maps}) > 1 for index in range(72)
+            )
+            / 72,
         }
         result = {
             "validation_kd": sum(item["kd"] for item in per_example) / len(per_example),
-            "mean_absolute_logit_error": sum(item["mean_error"] for item in per_example) / len(per_example),
+            "mean_absolute_logit_error": sum(item["mean_error"] for item in per_example)
+            / len(per_example),
             "maximum_absolute_logit_error": max(item["max_error"] for item in per_example),
             "finite_outputs": True,
             "route_variation": variation,
@@ -1021,10 +1215,22 @@ class QwenRuntime:
             "hard_validation_fraction_4": fractions["4"],
             "hard_validation_fraction_6": fractions["6"],
             "hard_validation_fraction_8": fractions["8"],
-            "collapse_audit": {"classification": "OTHER", "invalid_or_degenerate": False, "passed": True},
+            "collapse_audit": {
+                "classification": "OTHER",
+                "invalid_or_degenerate": False,
+                "passed": True,
+            },
         }
         if mode == "soft":
-            result.update({"mean_expected_bit_width": 4.0 * p4 + 6.0 * p6 + 8.0 * p8, "mean_p4": p4, "mean_p6": p6, "mean_p8": p8, "mean_entropy": mean_entropy})
+            result.update(
+                {
+                    "mean_expected_bit_width": 4.0 * p4 + 6.0 * p6 + 8.0 * p8,
+                    "mean_p4": p4,
+                    "mean_p6": p6,
+                    "mean_p8": p8,
+                    "mean_entropy": mean_entropy,
+                }
+            )
         return result
 
     def close_model(self, model: Any) -> None:

@@ -1280,9 +1280,7 @@ def synthetic_structural_fixture() -> dict[str, Any]:
     return result
 
 
-def _dispatch_execute(
-    *, context: dict[str, Any], device: str | None, output: Path
-) -> int:
+def _dispatch_execute(*, context: dict[str, Any], device: str | None, output: Path) -> int:
     """Lazy H2 dispatch; importing the executor is the only heavy boundary."""
 
     if not device:
