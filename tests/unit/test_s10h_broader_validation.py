@@ -288,7 +288,7 @@ def test_cli_plan_is_deterministic_nonexecuting_and_subprocess_safe(tmp_path):
     assert not output.exists()
 
 
-def test_cli_execute_requires_h2_and_never_writes_result(tmp_path):
+def test_cli_execute_requires_explicit_device_and_never_writes_result(tmp_path):
     output = tmp_path / "canonical.json"
     process = subprocess.run(
         [sys.executable, str(ROOT / "scripts/run_s10h.py"), "--execute", "--output", str(output)],
@@ -298,8 +298,35 @@ def test_cli_execute_requires_h2_and_never_writes_result(tmp_path):
         check=False,
     )
     assert process.returncode != 0
-    assert "S10-H2 executor is intentionally unavailable" in process.stderr
+    assert "explicit CUDA device" in process.stderr
     assert not output.exists()
+
+
+def test_cli_execute_refuses_canonical_path_before_lazy_dispatch(monkeypatch):
+    called = False
+
+    def fail_dispatch(**_kwargs):
+        nonlocal called
+        called = True
+        raise AssertionError("canonical H2 output must not dispatch")
+
+    monkeypatch.setattr(runner, "_dispatch_execute", fail_dispatch)
+    assert runner.main(["--execute", "--device", "cuda:0"]) == 2
+    assert called is False
+
+
+def test_cli_execute_refuses_tilde_canonical_path_before_lazy_dispatch(monkeypatch):
+    called = False
+
+    def fail_dispatch(**_kwargs):
+        nonlocal called
+        called = True
+        raise AssertionError("canonical H2 output must not dispatch")
+
+    tilde_path = Path("~") / runner.RESULT_PATH.relative_to(Path.home())
+    monkeypatch.setattr(runner, "_dispatch_execute", fail_dispatch)
+    assert runner.main(["--execute", "--device", "cuda:0", "--output", str(tilde_path)]) == 2
+    assert called is False
 
 
 def test_historical_hash_constants_match_preserved_artifacts():

@@ -673,9 +673,9 @@ changed Python test, and `git diff --check` passed. The next action is a
 separately authorized future execution decision; this stage claims no broader
 validation result and selects no production lambda.
 
-## S10-H1 — Protocol-locked broader-validation runner and pre-execution validation
+## S10-H1 — Protocol-locked broader-validation runner and pre-execution validation (historical)
 
-**Gate: CONTINUE for H1 implementation only.** H1 adds
+**Historical gate: CONTINUE for H1 implementation only.** H1 added
 `scripts/run_s10h.py` and `tests/unit/test_s10h_broader_validation.py`. It does
 not execute S10-H2, train routers, load Qwen3 or packed weights, consume real
 broader-validation rows, create `docs/results/s10h_broader_validation.json`,
@@ -713,6 +713,51 @@ Focused H1 verification passed `31` tests; the combined H1/S10-G protocol
 selection passed `81`, and the full unit suite passed `291` tests with one
 existing duplicate-optimizer warning. Ruff and `git diff --check` passed. No
 model, real data, CUDA behavior, training, result JSON, or production lambda
-was used. The next action is a separately authorized S10-H2
-implementation/execution stage; do not infer an H2 result from the plan or
-synthetic fixture.
+was used. At that historical gate, the next action was a separately authorized
+S10-H2 implementation/execution stage. H2-A is recorded below; do not infer an
+H2 result from the plan or synthetic fixture.
+
+## S10-H2-A — Real executor seam (implementation only)
+
+**Gate: COMPLETE for implementation only; no H2 experiment was run.** H2-A replaces the
+H1 `--execute` PAUSE seam with a lazy call to
+`qaq.router.s10h_executor.execute_production`. `scripts/run_s10h.py` remains
+standard-library-only on its default and `--plan` paths: those paths do not
+import torch, Transformers, datasets, CUDA, Qwen, packed execution, or result
+writers. `--execute` requires an explicit `--device`; there is no automatic
+GPU selection. The production Qwen/data loader is behind the replaceable
+`S10HRuntime` boundary, and the focused tests inject a deterministic tiny
+runtime rather than claiming Qwen quality or running a reduced Qwen trial.
+
+The shared scheduler owns the frozen nine ordered trials
+`(seed, lambda_bit)`, one fresh 72-router three-way initialization per seed,
+paired cloned lambda starts, fresh AdamW identity audits, exactly 24 examples
+and 24 updates, completion-only KL at `T=2.0`, routing at `T=1.0`, normalized
+costs `[0.0, 0.5, 1.0]`, request-local hard routes, ordered twelve 72-entry
+maps, and one immediate same-state hard repeat. It records actual router and
+optimizer tensor/name/scalar evidence, construction serials and state counts,
+finite/nonzero gradients, teacher/base requires-grad and hash evidence,
+per-trial hashes, update order, and ordered data manifests. The unmodified H1
+`validate_result()` is run before any output operation; CONTINUE and REFINE
+may be promoted, while PAUSE and REVISE return without writing.
+
+Output promotion validates the destination parent and refuses existing paths,
+creates a temporary file on that parent filesystem, flushes and closes it,
+re-validates the serialized bytes, then uses an atomic same-filesystem
+no-overwrite link. All temporary files are removed on failure or interruption.
+The canonical H2 path is deliberately refused during H2-A, so this stage did
+not invoke production output handling and
+`docs/results/s10h_broader_validation.json` remains absent.
+
+The deterministic smoke covers all nine trials through the injected runtime,
+216 calls to the unchanged KL/cost primitives, 24 updates per trial, paired
+and distinct initialization, optimizer membership/freshness, frozen state,
+finite gradients, route/cost/order audits, validator propagation, output
+cleanup, and overwrite refusal. It writes only to a temporary test directory;
+it is not a Qwen/H2 result. Commands used for this stage are the mandated
+`~/.venv`/`nvidia-smi` preflight, focused S10-H tests, the S10-G/S10-F/S10-E/
+S10-D regression selection, `PYTHONPATH=src:. pytest -q tests/unit`, the
+non-executing `python scripts/run_s10h.py --plan` smoke, Ruff on changed Python
+files, and `git diff --check`. No canonical H2 experiment, real-Qwen trial,
+production lambda selection, resource measurement, or H2 result was run or
+created.

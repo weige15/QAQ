@@ -1,5 +1,5 @@
-Current stage: S10-H1
-Status: CONTINUE
+Current stage: S10-H2-A
+Status: COMPLETE (implementation only; no H2 experiment)
 
 ## S09-A closeout — canonical validation gate
 
@@ -639,42 +639,33 @@ passed `121`; Ruff and `git diff --check` passed.
 Next action: obtain a separately authorized decision before any broader
 validation execution; do not select a production lambda.
 
-## S10-H1 — Protocol-locked broader-validation runner
+## S10-H1 — Protocol-locked broader-validation runner (historical)
 
-Current stage: S10-H1
-Status: CONTINUE (H1 implementation and review repair only; no H2 execution).
+Historical gate: CONTINUE for the H1 implementation and review repair. H1
+added the fail-closed validator and non-executing plan in `scripts/run_s10h.py`,
+including frozen S10-G/provenance checks, future-result validation, and
+canonical-result overwrite refusal. Its detailed contract, provisioning
+procedure, and recorded evidence remain in
+[`docs/stages/S10_6BIT_ROUTING.md`](stages/S10_6BIT_ROUTING.md) and decisions
+D050–D052. H1 performed no model, real-data, CUDA, training, result, resource,
+or production-lambda work.
 
-H1 adds `scripts/run_s10h.py` and focused structural tests. The runner consumes
-byte-exact S10-G config SHA-256
-`fcb66902174558e5d3f9198f34a8430b685568fd4e21e1632b40f6870aa4aec7`, checks
-required S10-G ancestry and preserved S10-F artifact identities, and validates
-future H2 evidence without importing or invoking the model/data/CUDA execution
-stack. The review repair additionally hashes the actual packed
-`pytorch_model.bin`, requires packed path/manifest identity in future results,
-recomputes router optimizer membership from the canonical actual names, rejects
-invalid collapse and incomplete reproducibility sub-audits, and requires the
-frozen dataset source identity fields. It remains fail closed on protocol,
-identity, data/order, training, trial, optimizer, freeze, route-map,
-reproducibility, audit, prohibition, and aggregate drift, with PAUSE > REVISE >
-REFINE > CONTINUE precedence.
+## S10-H2-A — Real executor seam
 
-The default/`--plan` CLI prints a deterministic non-executing plan and the
-future explicit `--execute` command. It writes no result and refuses canonical
-result overwrite; `--execute` remains a deliberate PAUSE in H1 because the
-real H2 executor is not implemented. A deterministic synthetic structural
-fixture is test-only. Focused H1 regressions passed `31`; the combined H1/S10-G
-protocol selection passed `81`; the full unit suite passed `291` with one
-existing duplicate-optimizer warning. Ruff, `git diff --check`, and the
-non-executing plan smoke passed. No model, real data, training, CUDA behavior,
-broader-validation result, resource measurement, or production lambda was used.
+Status: COMPLETE (implementation only; no H2 experiment).
 
-Fresh worktrees provision the ignored packed artifact through
-`scripts/provision_s03_artifact.py --source <identity-matched-artifact>
---any-precision-source <pinned-checkout>`. The command verifies the source
-`pytorch_model.bin` SHA-256 and backend revision before creating worktree links;
-S10-H1 then verifies the actual bytes and backend revision again during
-pre-execution validation.
+H2-A adds the lazy `qaq.router.s10h_executor` runtime boundary and shared
+nine-trial/24-update scheduler. `--execute` requires an explicit device and a
+temporary noncanonical destination; the canonical H2 result path is refused.
+The injected deterministic runtime exercised the unchanged validator and
+output-safety path without making a Qwen or quality claim. Focused S10-H tests
+passed 36, the S10-G/S10-F/S10-E/S10-D regression selection passed 134, the
+full unit suite passed 299 with one existing optimizer warning, Ruff passed on
+changed Python files, and `git diff --check` passed.
 
-Known: the validator and frozen provenance checks are repaired and validated;
-no H2 result exists. Next action: separately authorize and stage S10-H2; do not
-execute it or select a production lambda from H1.
+The canonical H2 path was refused and
+`docs/results/s10h_broader_validation.json` remains absent. No real-Qwen trial,
+canonical experiment, production-lambda selection, or resource measurement was
+performed. The next action is to stop at the H2-A decision gate and separately
+authorize H2-B; do not infer broader-validation quality from the injected smoke
+or the H2-A implementation.

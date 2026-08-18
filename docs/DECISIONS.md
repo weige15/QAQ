@@ -1319,3 +1319,43 @@ optimizer membership, freeze audit, route-map schema, reproducibility contract,
 gate threshold, or prohibition changes, mark S10-G REVISE, preserve this
 configuration and all S10-F artifacts, and record a replacement decision
 before any execution.
+
+### D053 — S10-H2-A executor boundary and output safety (2026-08-18)
+
+**Implementation choice — module placement:** Keep `scripts/run_s10h.py` as a
+standard-library-only plan/validator and place the real scheduler, trial
+executor, audits, and atomic writer in `qaq.router.s10h_executor`. Import that
+module only inside the explicit execute dispatch so plan/default behavior stays
+side-effect free and H1 validation semantics remain the single result gate.
+
+**Implementation choice — device interface:** Require `--execute --device
+<cuda-device>` and pass that exact device to the external runtime. Do not infer,
+select, or fall back to a GPU. The production runtime checks the actual Qwen,
+packed, teacher, router, and dataset objects; test-only runtimes are injected
+through the same scheduler interface.
+
+**Implementation choice — temporary output:** Validate the destination parent
+before runtime work, refuse an existing destination, serialize to a temporary
+file on that parent filesystem, flush/close and revalidate the serialized
+bytes, then atomically promote with a same-filesystem no-overwrite link. Clean
+up the temporary path on every failure/interruption. H2-A refuses the canonical
+H2 destination so no canonical result handling is invoked in this stage.
+
+**Implementation choice — artifact override validation:** Normalize the
+destination before every canonical-result comparison. If `QAQ_S03_ARTIFACT`
+is supplied, resolve it and verify every file in the locked artifact manifest,
+including the packed checkpoint bytes, before tokenizer or model loading. The
+result retains the frozen logical artifact identity only after the selected
+directory has passed those byte checks.
+
+**Implementation choice — test-runtime boundary:** Use a deterministic tiny
+runtime only in focused tests. It calls the unchanged completion-only KL,
+request-state normalized cost, and composed loss primitives while the shared
+scheduler performs all nine trials, 24 updates, route-map checks, optimizer and
+freeze audits, aggregate recomputation, validator classification, and output
+safety. Its temporary result is structural smoke evidence only and makes no
+Qwen quality or broader-validation claim.
+
+**Consequence:** H2-A implements an auditable real execution seam without
+starting H2-B, changing frozen S10-G/S10-F semantics, selecting a lambda,
+measuring resources, or creating `docs/results/s10h_broader_validation.json`.
