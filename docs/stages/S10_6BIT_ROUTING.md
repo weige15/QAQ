@@ -673,9 +673,9 @@ changed Python test, and `git diff --check` passed. The next action is a
 separately authorized future execution decision; this stage claims no broader
 validation result and selects no production lambda.
 
-## S10-H1 — Protocol-locked broader-validation runner and pre-execution validation
+## S10-H1 — Protocol-locked broader-validation runner and pre-execution validation (historical)
 
-**Gate: CONTINUE for H1 implementation only.** H1 adds
+**Historical gate: CONTINUE for H1 implementation only.** H1 added
 `scripts/run_s10h.py` and `tests/unit/test_s10h_broader_validation.py`. It does
 not execute S10-H2, train routers, load Qwen3 or packed weights, consume real
 broader-validation rows, create `docs/results/s10h_broader_validation.json`,
@@ -713,9 +713,9 @@ Focused H1 verification passed `31` tests; the combined H1/S10-G protocol
 selection passed `81`, and the full unit suite passed `291` tests with one
 existing duplicate-optimizer warning. Ruff and `git diff --check` passed. No
 model, real data, CUDA behavior, training, result JSON, or production lambda
-was used. The next action is a separately authorized S10-H2
-implementation/execution stage; do not infer an H2 result from the plan or
-synthetic fixture.
+was used. At that historical gate, the next action was a separately authorized
+S10-H2 implementation/execution stage. H2-A is recorded below; do not infer an
+H2 result from the plan or synthetic fixture.
 
 ## S10-H2-A — Real executor seam (implementation only)
 

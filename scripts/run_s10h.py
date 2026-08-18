@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Validate and plan the protocol-locked S10-H broader-validation run.
 
-S10-H1 deliberately contains no model, dataset, CUDA, training, or result
-executor.  The validator is useful before H2: it checks the frozen protocol,
-predecessor identities, and the shape of a future result.  A deterministic
-synthetic fixture is provided for testing that structural validator only.
+The default and ``--plan`` paths retain the S10-H1 standard-library-only
+boundary: they load no model, dataset, CUDA, training, or result executor.
+The explicit H2-A dispatch lazily imports the real executor after validating
+the frozen protocol, predecessor identities, and future-result shape. A
+deterministic synthetic fixture is provided for testing that validator only.
 """
 
 from __future__ import annotations
