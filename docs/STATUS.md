@@ -1,5 +1,5 @@
-Current stage: S10-H1
-Status: CONTINUE
+Current stage: S10-H2-A
+Status: COMPLETE (implementation only; no H2 experiment)
 
 ## S09-A closeout — canonical validation gate
 
@@ -676,5 +676,18 @@ S10-H1 then verifies the actual bytes and backend revision again during
 pre-execution validation.
 
 Known: the validator and frozen provenance checks are repaired and validated;
-no H2 result exists. Next action: separately authorize and stage S10-H2; do not
-execute it or select a production lambda from H1.
+no H2 result exists. H2-A now supplies the lazy real-executor seam, explicit
+device requirement, shared nine-trial/24-update scheduler, runtime audits, and
+fail-closed temporary output path. The injected deterministic runtime smoke
+passed through the unmodified validator without making a Qwen or quality
+claim. Focused S10-H tests passed 36, the S10-G/S10-F/S10-E/S10-D regression
+selection passed 134, the full unit suite passed 299 with one existing
+optimizer warning, Ruff passed on changed Python files, and `git diff --check`
+passed. The canonical H2 path was refused and
+`docs/results/s10h_broader_validation.json` remains absent; no real-Qwen trial,
+canonical experiment, production lambda selection, or resource measurement was
+performed.
+
+Next action: stop at the H2-A decision gate and separately authorize H2-B before
+any canonical execution. Do not infer broader-validation quality from the
+injected smoke or the H2-A implementation.

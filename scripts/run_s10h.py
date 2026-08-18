@@ -1074,7 +1074,7 @@ def _plan(context: dict[str, Any]) -> dict[str, Any]:
         "prohibited_measurements": list(FORBIDDEN_MEASUREMENTS),
         "thresholds": config["future_two_axis_gate"]["required_conditions"],
         "gate_precedence": ["PAUSE", "REVISE", "REFINE", "CONTINUE"],
-        "explicit_execute_command": "source ~/.venv/bin/activate && which python && python --version && nvidia-smi && PYTHONPATH=src:third_party/any-precision-llm:. python scripts/run_s10h.py --execute --config configs/s10g_broader_validation.json --output docs/results/s10h_broader_validation.json",
+        "explicit_execute_command": "source ~/.venv/bin/activate && which python && python --version && nvidia-smi && PYTHONPATH=src:third_party/any-precision-llm:. python scripts/run_s10h.py --execute --device cuda:0 --config configs/s10g_broader_validation.json --output <temporary-destination-on-target-filesystem>",
         "execution_allowed_in_h1": False,
         "plan_loads_model": False,
         "plan_trains": False,
@@ -1270,6 +1270,42 @@ def synthetic_structural_fixture() -> dict[str, Any]:
     return result
 
 
+def _dispatch_execute(
+    *, context: dict[str, Any], device: str | None, output: Path
+) -> int:
+    """Lazy H2 dispatch; importing the executor is the only heavy boundary."""
+
+    if not device:
+        raise ProtocolError("PAUSE", "--execute requires an explicit CUDA device")
+    if output.resolve() == RESULT_PATH.resolve():
+        raise ProtocolError(
+            "PAUSE",
+            "canonical H2 output is disabled during S10-H2-A; use a temporary test destination",
+        )
+    if str(ROOT / "src") not in sys.path:
+        sys.path.insert(0, str(ROOT / "src"))
+    from qaq.router.s10h_executor import execute_production
+
+    outcome = execute_production(
+        config=context["config"],
+        device=device,
+        output=output,
+        preflight=context,
+    )
+    print(
+        json.dumps(
+            {
+                "classification": outcome.classification,
+                "errors": list(outcome.errors),
+                "output_path": outcome.output_path,
+                "written": outcome.written,
+            },
+            sort_keys=True,
+        )
+    )
+    return 0 if outcome.classification in {"CONTINUE", "REFINE"} and outcome.written else 2
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     mode = parser.add_mutually_exclusive_group()
@@ -1281,17 +1317,26 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--config", type=Path, default=CONFIG_PATH)
     parser.add_argument("--output", type=Path, default=RESULT_PATH)
+    parser.add_argument(
+        "--device",
+        default=None,
+        help="explicit CUDA device required by --execute; plan mode does not select a device",
+    )
     args = parser.parse_args(argv)
     try:
+        if args.execute and not args.device:
+            raise ProtocolError("PAUSE", "--execute requires an explicit CUDA device")
+        if args.execute and args.output.resolve() == RESULT_PATH.resolve():
+            raise ProtocolError(
+                "PAUSE",
+                "canonical H2 output is disabled during S10-H2-A; use a temporary test destination",
+            )
         context = _validate_pre_execution(
             config_path=args.config,
             result_path=args.output if args.execute else Path("/dev/null/noncanonical-result"),
         )
         if args.execute:
-            raise ProtocolError(
-                "PAUSE",
-                "S10-H2 executor is intentionally unavailable; H1 performed validation only",
-            )
+            return _dispatch_execute(context=context, device=args.device, output=args.output)
         print(json.dumps(_plan(context), indent=2, sort_keys=True))
         return 0
     except ProtocolError as exc:
