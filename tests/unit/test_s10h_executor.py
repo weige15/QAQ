@@ -445,9 +445,7 @@ def _selected_examples(split):
         _SelectionTokenizer(),
         [0, 1],
         split=split,
-        config={
-            "dataset": {"sequence_length": 4, "prompt_tokens": 2, "completion_tokens": 2}
-        },
+        config={"dataset": {"sequence_length": 4, "prompt_tokens": 2, "completion_tokens": 2}},
         torch=torch,
     )[0]
 
@@ -457,9 +455,7 @@ def test_selected_examples_accept_exact_train_and_validation_order_without_subsc
     validation = _selected_examples("validation")
     assert all(isinstance(example, DistillationExample) for example in train + validation)
     _validate_example_order(train, ["train-0", "train-1"], split="train")
-    _validate_example_order(
-        validation, ["validation-0", "validation-1"], split="validation"
-    )
+    _validate_example_order(validation, ["validation-0", "validation-1"], split="validation")
 
 
 @pytest.mark.parametrize("split", ["train", "validation"])

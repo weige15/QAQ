@@ -762,63 +762,23 @@ files, and `git diff --check`. No canonical H2 experiment, real-Qwen trial,
 production lambda selection, resource measurement, or H2 result was run or
 created.
 
-## S10-H2-B attempt 1 — REVISE before training
-
-Attempt 1 used implementation commit
-`87786fe6e549fdc279ab545be86c00745a144649`. Production
-`QwenRuntime.prepare()` completed selection through the established S07 helper,
-then failed before device conversion because it subscribed to each selected
-example as `item["example_id"]`. `_select_examples()` has always returned
-`DistillationExample` objects in its first list and dictionary records only in
-its separate manifest list. The resulting traceback was
-`TypeError: 'DistillationExample' object is not subscriptable` at the order
-check. The preserved `/tmp/qaq-s10h2b-execution.log` has SHA-256
-`a0e4e9ab696884e20e96db4e792b196428fc514658f44d82f056bde4d756c283`.
-
-The initiating trigger was production ID-order validation after actual
-selection. The masking condition was H2-A's injected runtime, which bypassed
-that production selection consumer. The TypeError was the visible symptom. A
-mapping first return from `_select_examples()` or mapping support on
-`DistillationExample` would falsify the diagnosis; deterministic fake-tokenizer
-CPU selection instead proved attribute access succeeds and subscription fails.
-Attempt 1 completed no trial, result, model load, CUDA model execution, or
-training update. It provides no router or lambda-quality conclusion, and no
-measured evidence was discarded through Git. Its prior named Herdr lab was
-intentionally torn down after failure.
-
 ## S10-H2-BR1 — production example-ID contract repair
 
-**Status: COMPLETE — repair only.** The smallest repair is at the production
-consumption boundary. It reads ordered IDs only from `example.example_id`,
-requires every ID to be a non-empty string, rejects missing, empty, non-string,
-and dictionary-substitute IDs with `ExecutorError("REVISE", ...)`, and compares
-the resulting list directly with the unchanged frozen arrays. It neither
-infers IDs from manifests nor reorders or mutates selected examples. The real
-`DistillationExample` objects then pass to the established `_device_example()`
-converter.
+**Gate: COMPLETE — repair only.** The attempt-1 failure and all BR1 evidence
+are recorded in [`docs/EXPERIMENTS.md`](../EXPERIMENTS.md). This stage owns the
+repaired production contract: `_select_examples()` supplies
+`DistillationExample` objects, while its separate manifest remains metadata.
+The order-validation boundary reads each selected ID only through
+`example.example_id`, requires a non-empty string, and compares the resulting
+list directly with the unchanged frozen train and validation arrays. Missing,
+empty, non-string, reordered, and dictionary-substitute values fail with
+structured `ExecutorError("REVISE", ...)`.
 
-The first focused regression reproduced the exact TypeError before the source
-change. Deterministic tests then passed exact train/validation order, rejected
-both reordered sequences, exercised every malformed-ID category, proved no
-example subscription, retained object type through device conversion, and
-kept network, real teacher/packed loads, CUDA, and training outside the seam.
-The `QwenRuntime.prepare()` seam test kept the actual `_select_examples()` and
-production order-validation/call order while replacing external work with
-deterministic doubles; it reached teacher-logit and packed-backward setup after
-object-preserving device conversion and cleaned its state.
-
-Validation passed: focused selection/order/prepare `8 passed, 5 deselected`;
-complete S10-H executor plus validator `46 passed`; S07 distillation plus
-executor `21 passed`; S10-G/F/E/D predecessors `134 passed`; and full unit
-suite `309 passed`. The predecessor and full-unit commands retained the one
-existing duplicate-optimizer warning. The non-executing S10-H plan, focused
-Ruff check, and `git diff --check` passed. No execute command, real preparation
-smoke, model/CUDA/training experiment, result promotion, or lambda
-interpretation occurred.
-
-The frozen protocol, predecessor results, manifest, validator/plan script,
-distillation and router surfaces, request state, packed bytes, and pinned
-Any-Precision checkout remain byte-identical; both S10-H result paths remain
-absent. No new implementation choice was needed. S10-H quality remains unknown.
-The next action is separate authorization for S10-H2-B2 from the repaired,
-reviewed, merged commit; this repair stops at its own gate.
+The boundary does not infer IDs from manifests, reorder or mutate selections,
+subscribe to examples, or pass non-`DistillationExample` selections to
+`_device_example()`. Valid selected objects retain their identity and type
+through device conversion. This repair changes no frozen protocol, model,
+training, loader, validator, result, or submodule behavior; the evidence
+record owns the exact preservation and non-execution claims. S10-H2-B2 remains
+outside this gate and requires separate authorization from the repaired,
+reviewed, merged commit.

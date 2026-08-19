@@ -465,6 +465,10 @@ optimization or additional research mechanism.
 
 ## S10-H2-B attempt 1 and S10-H2-BR1 repair evidence
 
+The production contract and stage gate are owned by
+[`docs/stages/S10_6BIT_ROUTING.md`](stages/S10_6BIT_ROUTING.md). This section
+owns the attempt and repair evidence.
+
 Attempt 1 began from `87786fe6e549fdc279ab545be86c00745a144649` and returned
 **REVISE before training**. The actual S07 selection helper returned a
 `DistillationExample`, but production `QwenRuntime.prepare()` attempted
@@ -511,7 +515,12 @@ git diff --check
 
 The plan and static checks passed without execution. This BR1 task ran no
 `--execute` command or real preparation smoke and created neither S10-H result
-path. All frozen inputs, predecessor results, model manifest, unaffected
-implementation surfaces, packed artifact bytes, and pinned Any-Precision state
-were preserved. S10-H quality remains unknown. The next experiment action is
-separate S10-H2-B2 authorization from the repaired, reviewed, merged commit.
+path. The frozen S10-G config, both historical S10-F results
+(`docs/results/s10f_frontier_confirmation.json` and
+`docs/results/s10f_frontier_confirmation_rerun.json`),
+`docs/quantized_model_manifest.json`, `scripts/run_s10h.py`, the distillation,
+router-network, soft-model, and request-state sources, the packed artifact
+bytes, and the clean pinned Any-Precision checkout were preserved byte-for-byte.
+S10-H quality remains unknown. No new implementation choice was introduced,
+so `docs/DECISIONS.md` is unchanged. The next experiment action is separate
+S10-H2-B2 authorization from the repaired, reviewed, merged commit.

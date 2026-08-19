@@ -896,9 +896,7 @@ class QwenRuntime:
             torch=torch,
         )
         _validate_example_order(train_cpu, data["train_example_ids"], split="train")
-        _validate_example_order(
-            validation_cpu, data["validation_example_ids"], split="validation"
-        )
+        _validate_example_order(validation_cpu, data["validation_example_ids"], split="validation")
         self.train_examples = [_device_example(item, device, torch) for item in train_cpu]
         self.validation_examples = [_device_example(item, device, torch) for item in validation_cpu]
         self.teacher = load_full_precision_model(snapshot, device)
