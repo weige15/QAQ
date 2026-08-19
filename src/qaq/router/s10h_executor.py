@@ -22,6 +22,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Protocol
 
+from qaq.router.distillation import DistillationExample
 from scripts import run_s10h as protocol
 
 _OPTIMIZER_SERIALS = itertools.count(1)
@@ -157,6 +158,10 @@ def _ordered_example_ids(examples: Sequence[Any], *, split: str) -> list[str]:
         if isinstance(example, Mapping):
             raise ExecutorError(
                 "REVISE", f"runtime {split} example {index} is a dictionary substitute"
+            )
+        if not isinstance(example, DistillationExample):
+            raise ExecutorError(
+                "REVISE", f"runtime {split} example {index} is not a DistillationExample"
             )
         if not hasattr(example, "example_id"):
             raise ExecutorError("REVISE", f"runtime {split} example {index} has no example_id")

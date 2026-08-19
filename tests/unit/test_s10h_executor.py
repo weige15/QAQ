@@ -477,9 +477,10 @@ def test_selected_examples_reject_reordered_frozen_ids(split):
 @pytest.mark.parametrize(
     ("example", "message"),
     [
-        (object(), "no example_id"),
-        (type("EmptyId", (), {"example_id": ""})(), "invalid example_id"),
-        (type("NonStringId", (), {"example_id": 7})(), "invalid example_id"),
+        (object(), "not a DistillationExample"),
+        (type("AttributeBearing", (), {"example_id": "train-0"})(), "not a DistillationExample"),
+        (type("EmptyId", (), {"example_id": ""})(), "not a DistillationExample"),
+        (type("NonStringId", (), {"example_id": 7})(), "not a DistillationExample"),
         ({"example_id": "train-0"}, "dictionary substitute"),
     ],
 )
