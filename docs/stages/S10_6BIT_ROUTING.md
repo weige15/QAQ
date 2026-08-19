@@ -761,3 +761,24 @@ non-executing `python scripts/run_s10h.py --plan` smoke, Ruff on changed Python
 files, and `git diff --check`. No canonical H2 experiment, real-Qwen trial,
 production lambda selection, resource measurement, or H2 result was run or
 created.
+
+## S10-H2-BR1 — production example-ID contract repair
+
+**Gate: COMPLETE — repair only.** The attempt-1 failure and all BR1 evidence
+are recorded in [`docs/EXPERIMENTS.md`](../EXPERIMENTS.md). This stage owns the
+repaired production contract: `_select_examples()` supplies
+`DistillationExample` objects, while its separate manifest remains metadata.
+The order-validation boundary reads each selected ID only through
+`example.example_id`, requires a non-empty string, and compares the resulting
+list directly with the unchanged frozen train and validation arrays. Missing,
+empty, non-string, reordered, and dictionary-substitute values fail with
+structured `ExecutorError("REVISE", ...)`.
+
+The boundary does not infer IDs from manifests, reorder or mutate selections,
+subscribe to examples, or pass non-`DistillationExample` selections to
+`_device_example()`. Valid selected objects retain their identity and type
+through device conversion. This repair changes no frozen protocol, model,
+training, loader, validator, result, or submodule behavior; the evidence
+record owns the exact preservation and non-execution claims. S10-H2-B2 remains
+outside this gate and requires separate authorization from the repaired,
+reviewed, merged commit.

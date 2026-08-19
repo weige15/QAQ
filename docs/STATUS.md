@@ -1,5 +1,5 @@
-Current stage: S10-H2-A
-Status: COMPLETE (implementation only; no H2 experiment)
+Current stage: S10-H2-BR1
+Status: COMPLETE — repair only
 
 ## S09-A closeout — canonical validation gate
 
@@ -669,3 +669,15 @@ canonical experiment, production-lambda selection, or resource measurement was
 performed. The next action is to stop at the H2-A decision gate and separately
 authorize H2-B; do not infer broader-validation quality from the injected smoke
 or the H2-A implementation.
+
+## S10-H2-B attempt 1 and S10-H2-BR1 production contract repair
+
+The current stage is recorded at the top of this file. The complete attempt and
+repair evidence is owned by
+[`docs/EXPERIMENTS.md`](EXPERIMENTS.md); the production contract and gate
+boundary are owned by
+[`docs/stages/S10_6BIT_ROUTING.md`](stages/S10_6BIT_ROUTING.md).
+
+S10-H quality remains unknown. The next action is separate authorization for
+S10-H2-B2 from the repaired, reviewed, merged commit; do not begin it from this
+repair task.
