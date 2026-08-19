@@ -462,3 +462,56 @@ test, config, frozen input, pinned dependency, or result JSON was changed.
 S09 status is **COMPLETE**. No later stage is defined; the next action is to
 stop and define an explicit post-baseline stage and decision before any
 optimization or additional research mechanism.
+
+## S10-H2-B attempt 1 and S10-H2-BR1 repair evidence
+
+Attempt 1 began from `87786fe6e549fdc279ab545be86c00745a144649` and returned
+**REVISE before training**. The actual S07 selection helper returned a
+`DistillationExample`, but production `QwenRuntime.prepare()` attempted
+`example["example_id"]` at the frozen order check. The preserved traceback was
+`TypeError: 'DistillationExample' object is not subscriptable`; the failed-run
+log SHA-256 is
+`a0e4e9ab696884e20e96db4e792b196428fc514658f44d82f056bde4d756c283`.
+The injected H2-A runtime had masked this production-only consumer. No trial,
+result, teacher or packed-model load, CUDA model execution, optimizer update,
+or router training completed, and no router/lambda conclusion or Git discard
+followed. The prior named Herdr lab was intentionally torn down.
+
+BR1 reproduced the defect without model work using actual `_select_examples()`,
+a one-row in-memory dataset, deterministic fake tokenizer, and CPU tensors:
+the selected object type was `DistillationExample`, `.example_id` returned
+`train-0`, and dictionary subscription raised the same TypeError. The first
+regression failed for that exact reason. The repair now consumes IDs only via
+the attribute, validates non-empty strings, and fails missing, empty,
+non-string, dictionary-substitute, or reordered values with structured REVISE.
+
+Executed repair-only checks, each after the mandatory environment/GPU
+preflight:
+
+```text
+PYTHONPATH=src:. pytest -q tests/unit/test_s10h_executor.py -k 'example or prepare or selection or order'
+8 passed, 5 deselected
+
+PYTHONPATH=src:. pytest -q tests/unit/test_s10h_executor.py tests/unit/test_s10h_broader_validation.py
+46 passed
+
+PYTHONPATH=src:. pytest -q tests/unit/test_s07_distillation.py tests/unit/test_s10h_executor.py
+21 passed
+
+PYTHONPATH=src:. pytest -q tests/unit/test_s10g_broader_validation_protocol.py tests/unit/test_s10f_frontier_confirmation.py tests/unit/test_s10e_frontier_confirmation.py tests/unit/test_s10d_lambda_calibration.py
+134 passed, 1 existing warning
+
+PYTHONPATH=src:. pytest -q tests/unit
+309 passed, 1 existing warning
+
+python scripts/run_s10h.py --plan --config configs/s10g_broader_validation.json
+ruff check src/qaq/router/s10h_executor.py tests/unit/test_s10h_executor.py
+git diff --check
+```
+
+The plan and static checks passed without execution. This BR1 task ran no
+`--execute` command or real preparation smoke and created neither S10-H result
+path. All frozen inputs, predecessor results, model manifest, unaffected
+implementation surfaces, packed artifact bytes, and pinned Any-Precision state
+were preserved. S10-H quality remains unknown. The next experiment action is
+separate S10-H2-B2 authorization from the repaired, reviewed, merged commit.

@@ -151,6 +151,31 @@ def _require_finite_metrics(values: Mapping[str, Any], names: Sequence[str]) -> 
             raise ExecutorError("REVISE", f"non-finite or missing runtime metric: {name}")
 
 
+def _ordered_example_ids(examples: Sequence[Any], *, split: str) -> list[str]:
+    ids: list[str] = []
+    for index, example in enumerate(examples):
+        if isinstance(example, Mapping):
+            raise ExecutorError(
+                "REVISE", f"runtime {split} example {index} is a dictionary substitute"
+            )
+        if not hasattr(example, "example_id"):
+            raise ExecutorError("REVISE", f"runtime {split} example {index} has no example_id")
+        example_id = example.example_id
+        if not isinstance(example_id, str) or not example_id.strip():
+            raise ExecutorError(
+                "REVISE", f"runtime {split} example {index} has an invalid example_id"
+            )
+        ids.append(example_id)
+    return ids
+
+
+def _validate_example_order(
+    examples: Sequence[Any], expected_ids: Sequence[str], *, split: str
+) -> None:
+    if _ordered_example_ids(examples, split=split) != list(expected_ids):
+        raise ExecutorError("REVISE", f"runtime {split} example order differs from frozen protocol")
+
+
 def _optimizer_audit(
     model: Any, optimizer: Any, *, before_training: int, before_first: int
 ) -> dict[str, Any]:
@@ -865,12 +890,10 @@ class QwenRuntime:
             config=selection_config,
             torch=torch,
         )
-        if [item["example_id"] for item in train_cpu] != data["train_example_ids"] or [
-            item["example_id"] for item in validation_cpu
-        ] != data["validation_example_ids"]:
-            raise ExecutorError(
-                "REVISE", "runtime dataset manifest order differs from frozen protocol"
-            )
+        _validate_example_order(train_cpu, data["train_example_ids"], split="train")
+        _validate_example_order(
+            validation_cpu, data["validation_example_ids"], split="validation"
+        )
         self.train_examples = [_device_example(item, device, torch) for item in train_cpu]
         self.validation_examples = [_device_example(item, device, torch) for item in validation_cpu]
         self.teacher = load_full_precision_model(snapshot, device)

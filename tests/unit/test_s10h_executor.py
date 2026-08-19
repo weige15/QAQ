@@ -9,6 +9,7 @@ import torch
 from torch import nn
 
 from qaq.model.request_state import QaqRequestState
+from qaq.router import s10h_executor as executor
 from qaq.router.distillation import (
     DistillationBatch,
     DistillationExample,
@@ -21,10 +22,14 @@ from qaq.router.network import S10_CANDIDATE_BITS, SoftPrecisionRouter
 from qaq.router.s10h_executor import (
     ExecutionOutcome,
     ExecutorError,
+    QwenRuntime,
+    _ordered_example_ids,
+    _validate_example_order,
     _validate_selected_artifact,
     execute_with_runtime,
     write_validated_result,
 )
+from scripts import run_s07b
 from scripts import run_s10h as protocol
 
 ROOT = Path(__file__).parents[2]
@@ -421,6 +426,173 @@ def test_runtime_audit_failure_does_not_leave_output(tmp_path):
     assert outcome.classification == "REVISE"
     assert not output.exists()
     assert not list(tmp_path.glob(".failed.json.*.tmp"))
+
+
+class _SelectionTokenizer:
+    def __call__(self, text, *, add_special_tokens):
+        assert text
+        assert add_special_tokens is False
+        return {"input_ids": [11, 12, 13, 14]}
+
+    def decode(self, token_ids, *, skip_special_tokens):
+        assert skip_special_tokens is False
+        return " ".join(map(str, token_ids))
+
+
+def _selected_examples(split):
+    return run_s07b._select_examples(
+        [{"text": "first row"}, {"text": "second row"}],
+        _SelectionTokenizer(),
+        [0, 1],
+        split=split,
+        config={
+            "dataset": {"sequence_length": 4, "prompt_tokens": 2, "completion_tokens": 2}
+        },
+        torch=torch,
+    )[0]
+
+
+def test_selected_examples_accept_exact_train_and_validation_order_without_subscription():
+    train = _selected_examples("train")
+    validation = _selected_examples("validation")
+    assert all(isinstance(example, DistillationExample) for example in train + validation)
+    _validate_example_order(train, ["train-0", "train-1"], split="train")
+    _validate_example_order(
+        validation, ["validation-0", "validation-1"], split="validation"
+    )
+
+
+@pytest.mark.parametrize("split", ["train", "validation"])
+def test_selected_examples_reject_reordered_frozen_ids(split):
+    examples = _selected_examples(split)
+    with pytest.raises(ExecutorError, match="order") as error:
+        _validate_example_order(
+            list(reversed(examples)),
+            [f"{split}-0", f"{split}-1"],
+            split=split,
+        )
+    assert error.value.outcome == "REVISE"
+
+
+@pytest.mark.parametrize(
+    ("example", "message"),
+    [
+        (object(), "no example_id"),
+        (type("EmptyId", (), {"example_id": ""})(), "invalid example_id"),
+        (type("NonStringId", (), {"example_id": 7})(), "invalid example_id"),
+        ({"example_id": "train-0"}, "dictionary substitute"),
+    ],
+)
+def test_ordered_example_ids_reject_invalid_attribute_contract(example, message):
+    with pytest.raises(ExecutorError, match=message) as error:
+        _ordered_example_ids([example], split="train")
+    assert error.value.outcome == "REVISE"
+
+
+def test_qwen_prepare_retains_real_selection_order_and_distillation_objects(monkeypatch):
+    from qaq.evaluation import quality
+    from scripts import run_s10d
+
+    events = []
+    converted = []
+
+    class FakeTeacher(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.weight = nn.Parameter(torch.tensor([1.0]))
+
+        def cpu(self):
+            events.append("teacher.cpu")
+            return self
+
+    def load_dataset(_repository, _config, *, split, **_kwargs):
+        events.append(f"dataset:{split}")
+        return [{"text": f"one qualifying {split} row"}]
+
+    def device_example(example, device, torch_module):
+        assert isinstance(example, DistillationExample)
+        assert device == "cpu"
+        assert torch_module is torch
+        converted.append(example)
+        events.append(f"device:{example.example_id}")
+        return example
+
+    def load_teacher(_snapshot, device):
+        assert device == "cpu"
+        events.append("teacher:double")
+        return FakeTeacher()
+
+    def precompute(teacher, examples, torch_module):
+        assert isinstance(teacher, FakeTeacher)
+        assert torch_module is torch
+        assert [example.example_id for example in examples] == ["train-0", "validation-0"]
+        events.append("teacher_logits:double")
+        return {example.example_id: torch.zeros(1) for example in examples}
+
+    data = {
+        "repository": "fake/wikitext",
+        "config": "fake-config",
+        "train_split": "train",
+        "validation_split": "validation",
+        "sequence_length": 4,
+        "prompt_tokens": 2,
+        "completion_tokens": 2,
+        "train_offsets": [0],
+        "validation_offsets": [0],
+        "train_example_ids": ["train-0"],
+        "validation_example_ids": ["validation-0"],
+    }
+    config = {"protocol": {"dataset": data}}
+    monkeypatch.setattr(
+        executor,
+        "_validate_selected_artifact",
+        lambda *_args: events.append("artifact:double"),
+    )
+    monkeypatch.setattr("datasets.load_dataset", load_dataset)
+    monkeypatch.setattr(
+        "transformers.AutoTokenizer.from_pretrained",
+        lambda *_args, **_kwargs: events.append("tokenizer:double") or _SelectionTokenizer(),
+    )
+    monkeypatch.setattr(run_s07b, "_device_example", device_example)
+    monkeypatch.setattr(run_s07b, "_precompute_teacher_logits", precompute)
+    monkeypatch.setattr(quality, "load_full_precision_model", load_teacher)
+    monkeypatch.setattr(
+        run_s10d,
+        "install_memory_saving_packed_backward",
+        lambda: events.append("packed_backward:double"),
+    )
+    monkeypatch.setattr(torch.cuda, "empty_cache", lambda: events.append("cuda_cache:double"))
+
+    runtime = QwenRuntime(config, preflight={"identities": {}})
+    try:
+        runtime.prepare(config, "cpu")
+        assert [example.example_id for example in converted] == ["train-0", "validation-0"]
+        assert runtime.train_examples == [converted[0]]
+        assert runtime.validation_examples == [converted[1]]
+        assert all(isinstance(example, DistillationExample) for example in converted)
+        assert all(not parameter.requires_grad for parameter in runtime.teacher.parameters())
+        assert events == [
+            "artifact:double",
+            "tokenizer:double",
+            "dataset:train",
+            "dataset:validation",
+            "device:train-0",
+            "device:validation-0",
+            "teacher:double",
+            "teacher_logits:double",
+            "teacher.cpu",
+            "cuda_cache:double",
+            "packed_backward:double",
+        ]
+    finally:
+        runtime.teacher = None
+        runtime.teacher_targets.clear()
+        runtime.train_examples.clear()
+        runtime.validation_examples.clear()
+    assert runtime.teacher is None
+    assert runtime.teacher_targets == {}
+    assert runtime.train_examples == []
+    assert runtime.validation_examples == []
 
 
 def test_selected_artifact_identity_is_verified_before_loading(tmp_path):

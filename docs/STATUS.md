@@ -1,5 +1,5 @@
-Current stage: S10-H2-A
-Status: COMPLETE (implementation only; no H2 experiment)
+Current stage: S10-H2-BR1
+Status: COMPLETE — repair only
 
 ## S09-A closeout — canonical validation gate
 
@@ -669,3 +669,67 @@ canonical experiment, production-lambda selection, or resource measurement was
 performed. The next action is to stop at the H2-A decision gate and separately
 authorize H2-B; do not infer broader-validation quality from the injected smoke
 or the H2-A implementation.
+
+## S10-H2-B attempt 1 and S10-H2-BR1 production contract repair
+
+Current stage: S10-H2-BR1
+Status: COMPLETE — repair only
+
+S10-H2-B attempt 1 started from commit
+`87786fe6e549fdc279ab545be86c00745a144649` and is classified **REVISE before
+training**. `QwenRuntime.prepare()` called the proven S07 `_select_examples()`
+helper, then treated its first return value as dictionaries during the frozen
+ID-order check. That return value is an ordered list of `DistillationExample`
+objects; the separate second return value is the dictionary manifest. The
+visible symptom was `TypeError: 'DistillationExample' object is not
+subscriptable` at the production order-validation boundary. The failed-run log
+was preserved at `/tmp/qaq-s10h2b-execution.log` with SHA-256
+`a0e4e9ab696884e20e96db4e792b196428fc514658f44d82f056bde4d756c283`.
+The initiating trigger was entering production order validation after real
+selection; the masking condition was the injected H2-A runtime, whose
+`prepare()` did not exercise S07 selection; the traceback was the visible
+symptom. A mapping-shaped `_select_examples()` return or a mapping-capable
+`DistillationExample` would have falsified this diagnosis, but the deterministic
+CPU reproduction established the opposite contract.
+
+Attempt 1 completed no trial, wrote neither S10-H result path, and reached no
+teacher or packed-model load, CUDA model execution, optimizer step, or router
+training. It supports no lambda-quality, router, or broader-validation
+conclusion. No result or measured trial was discarded through Git. The prior
+worker's named Herdr lab was intentionally torn down after the failed attempt;
+that teardown is not missing experiment evidence.
+
+BR1 changes only the production consumption boundary. Ordered selected IDs are
+read through `example.example_id`, validated as non-empty strings, and compared
+without reordering against the unchanged frozen train and validation arrays.
+Missing, empty, non-string, reordered, and dictionary-substitute IDs fail with
+structured `ExecutorError("REVISE", ...)`. Real `DistillationExample` objects
+continue unchanged into `_device_example()`.
+
+Repair evidence:
+
+- Deterministic pre-edit reproduction: actual `_select_examples()` returned
+  `DistillationExample`; `.example_id` was `train-0`; dictionary subscription
+  raised the observed `TypeError`; model-load and training-step counters stayed
+  zero. The first regression failed at that exact production line, then passed
+  after the repair.
+- Focused selection/order/prepare filter: `8 passed, 5 deselected`.
+- Complete S10-H executor and validator selection: `46 passed`.
+- S07 distillation plus S10-H executor selection: `21 passed`.
+- S10-G/F/E/D predecessor selection: `134 passed` with the existing duplicate-
+  optimizer warning.
+- Full unit suite: `309 passed` with the same existing warning.
+- The non-executing S10-H plan, focused Ruff command, and `git diff --check`
+  passed. No `--execute` command or real preparation smoke was run.
+
+The frozen S10-G config, both historical S10-F results, quantized manifest,
+S10-H plan/validator script, distillation, router network, soft model, request
+state, packed artifact bytes, and clean pinned Any-Precision checkout were
+preserved byte-for-byte. Both S10-H result paths remain absent. No new
+implementation choice was introduced, so `docs/DECISIONS.md` is unchanged.
+
+Known: the S07 producer and device converter use the dataclass attribute
+contract, and the repaired production order gate now enforces it. Unknown:
+S10-H quality and every broader-validation router/lambda outcome remain
+unmeasured. Next action: separately authorize S10-H2-B2 only from the repaired,
+reviewed, merged commit; do not execute it from this repair task.
