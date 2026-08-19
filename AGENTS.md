@@ -56,3 +56,16 @@ Keep this file for knowledge useful to almost every future agent session in this
 Do not repeat what the codebase already shows; point to the authoritative file or command instead.
 Prefer rewriting or pruning existing entries over appending new ones.
 When updating this file, preserve this bar for all agents and keep entries concise.
+
+## Worktree artifact provisioning
+
+Before artifact-backed validation, provision the ignored S03 artifact with
+`scripts/provision_s03_artifact.py`.
+
+`QAQ_S03_ARTIFACT_SOURCE` must name the exact external directory containing
+the frozen `pytorch_model.bin`. The script is authorized to create only the
+ignored worktree-local symlink under `quantized/`; it must never copy, alter,
+regenerate, or commit the packed artifact.
+
+Stop on a missing source, hash mismatch, non-empty conflicting destination,
+or incorrect pinned backend revision.
