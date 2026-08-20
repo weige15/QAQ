@@ -47,7 +47,7 @@ Unspecified details must not be silently filled in.
 
 ### D006 — Route reuse
 
-**Choice:** During prefill, route each attention or FFN unit using its incoming prompt hidden states; store the selected route and reuse it during decoding.
+**Choice:** During `same_unit` prefill, route each attention or FFN unit using its incoming prompt hidden states; store the selected route and reuse it during decoding. The explicit `lookahead_attention_one_unit` exception is owned by D055.
 **Status:** Baseline scope.
 **Source basis:** Implementation choice; exact route timing and reuse are not established by this scaffold.
 
@@ -244,19 +244,22 @@ with mean/max error evidence.
 **Implementation choice:** Use the model hidden size as the feature dimension
 (2560 for the pinned Qwen3-4B model), accumulate masked prompt means in
 float32, and store detached cloned one-dimensional tensors of shape
-`[hidden_size]`. The attention feature is taken after the layer input RMS norm
-and before any attention projection. The FFN feature is taken after the real
+`[hidden_size]`. For the `same_unit` baseline, the attention feature is taken
+after the layer input RMS norm and before any attention projection. The
+`same_unit` FFN feature is taken after the real
 attention residual and post-attention RMS norm, before the first FFN
 projection. The valid-token count is the denominator; all-padding prompts are
 rejected.
 
 **Implementation choice:** Require an explicit `phase` of `prefill` or
 `decode`, and require an explicit batch-size-one 0/1 prompt mask for prefill.
-Prefill invokes only an S04 `PrecisionPlan` adapter or a callback with
-`(layer_index, unit_type, feature) -> 4|8`; decode ignores policy input and
-reuses the stored route. `request_id` is metadata rather than a global lookup
-key: duplicate IDs are allowed only across independent state objects, while a
-concrete state object binds to one model owner and cannot be reused by another.
+Same-unit prefill invokes only an S04 `PrecisionPlan` adapter or a callback
+with `(layer_index, unit_type, feature) -> 4|8`; decode ignores policy input
+and reuses the stored route. The S11-A lookahead timing and target-owned
+decision contract are defined by D055. `request_id` is metadata rather than a
+global lookup key: duplicate IDs are allowed only across independent state
+objects, while a concrete state object binds to one model owner and cannot be
+reused by another.
 
 **Source basis:** These are implementation choices for S05 details left
 unspecified by the reviewed sources. They do not assert a learned-router

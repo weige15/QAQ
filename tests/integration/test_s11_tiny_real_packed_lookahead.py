@@ -123,9 +123,7 @@ def test_tiny_real_packed_lookahead_execution_order_ownership_and_determinism():
     assert all(module.__class__.__name__ == "AnyPrecisionLinear" for module in packed_modules)
 
     first_logits, state, trace, calls = _execute(model, "s11-real-packed")
-    second_logits, second_state, second_trace, second_calls = _execute(
-        model, "s11-real-packed"
-    )
+    second_logits, second_state, second_trace, second_calls = _execute(model, "s11-real-packed")
 
     assert torch.isfinite(first_logits).all()
     assert torch.equal(first_logits, second_logits)
@@ -165,9 +163,7 @@ def test_tiny_real_packed_lookahead_execution_order_ownership_and_determinism():
         assert [event.event for event in events] == expected_chain
         assert all(event.target_unit_type == "attention" for event in events)
         assert all(event.source_point == POST_ATTENTION_PRE_FFN for event in events)
-        assert all(
-            event.routing_timing == LOOKAHEAD_ATTENTION_ONE_UNIT for event in events
-        )
+        assert all(event.routing_timing == LOOKAHEAD_ATTENTION_ONE_UNIT for event in events)
 
         route_available = trace.events.index(events[3])
         source_ffn = next(

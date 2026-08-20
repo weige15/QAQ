@@ -122,9 +122,7 @@ def test_explicit_same_unit_hard_mode_matches_default_s05_numerics_and_trace():
     prompt = torch.tensor([[1, 2, 3]])
     mask = torch.ones_like(prompt)
     default_state = QaqRequestState("same-hard", prompt_length=3)
-    explicit_state = QaqRequestState(
-        "same-hard", prompt_length=3, routing_timing=SAME_UNIT
-    )
+    explicit_state = QaqRequestState("same-hard", prompt_length=3, routing_timing=SAME_UNIT)
     default_trace = PrecisionTrace()
     explicit_trace = PrecisionTrace()
     with torch.inference_mode():
@@ -242,8 +240,7 @@ def test_missing_early_attention_route_fails_before_target_packed_execution():
             trace=trace,
         )
     assert not any(
-        record.layer_index == 1 and record.unit_type == "attention"
-        for record in trace.records
+        record.layer_index == 1 and record.unit_type == "attention" for record in trace.records
     )
     assert not any(
         event.layer_index == 1

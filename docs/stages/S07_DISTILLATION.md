@@ -42,7 +42,9 @@ before completion tokens start and require the completion mask to be the causal
 shift of that range. When a completion range is supplied without a prompt
 range, the explicit prompt mask must still select only preceding tokens. The
 S06 execution receives the full model attention mask and the separate
-prompt-only mask, preserving the S05 feature timing.
+prompt-only mask, preserving the S05 `same_unit` feature timing used by this
+distillation baseline. The S11-A lookahead timing is separately owned by
+[`S11_LOOKAHEAD_ROUTING.md`](S11_LOOKAHEAD_ROUTING.md).
 
 ### Freeze and optimizer evidence
 

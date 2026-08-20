@@ -110,9 +110,7 @@ def test_one_soft_probability_pair_is_shared_within_attention_and_ffn():
 
 def test_three_way_soft_router_propagates_explicit_ordering():
     model = _soft_tiny_model(S10_CANDIDATE_BITS)
-    state = QaqRequestState(
-        "s10b-soft", prompt_length=3, candidate_bits=S10_CANDIDATE_BITS
-    )
+    state = QaqRequestState("s10b-soft", prompt_length=3, candidate_bits=S10_CANDIDATE_BITS)
     trace = PrecisionTrace()
     model(
         input_ids=torch.tensor([[1, 2, 3]]),
@@ -150,10 +148,18 @@ def test_only_router_parameters_receive_gradients_and_change_on_one_step():
     assert audit["trainable_parameter_count"] == model.router_parameter_count
     assert audit["frozen_parameter_count"] > 0
     assert all(name.startswith("routers.") for name in audit["trainable_names"])
-    router_grads = [parameter.grad for name, parameter in model.named_parameters() if name.startswith("routers.")]
+    router_grads = [
+        parameter.grad
+        for name, parameter in model.named_parameters()
+        if name.startswith("routers.")
+    ]
     assert all(gradient is not None and torch.isfinite(gradient).all() for gradient in router_grads)
     assert any(torch.count_nonzero(gradient).item() > 0 for gradient in router_grads)
-    assert all(parameter.grad is None for name, parameter in model.named_parameters() if not name.startswith("routers."))
+    assert all(
+        parameter.grad is None
+        for name, parameter in model.named_parameters()
+        if not name.startswith("routers.")
+    )
 
     optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
     optimizer.step()
@@ -177,9 +183,7 @@ def test_explicit_same_unit_soft_mode_matches_the_default_numerics_and_trace():
         "use_cache": False,
     }
     default_state = QaqRequestState("same-soft", prompt_length=3)
-    explicit_state = QaqRequestState(
-        "same-soft", prompt_length=3, routing_timing=SAME_UNIT
-    )
+    explicit_state = QaqRequestState("same-soft", prompt_length=3, routing_timing=SAME_UNIT)
     default_trace = PrecisionTrace()
     explicit_trace = PrecisionTrace()
     default = model(request_state=default_state, trace=default_trace, **kwargs)
@@ -240,21 +244,16 @@ def test_soft_lookahead_updates_only_the_target_router_and_keeps_packed_base_fro
     model.zero_grad(set_to_none=True)
     target_router = model.routers["attention_1"]
     target_before = {
-        name: parameter.detach().clone()
-        for name, parameter in target_router.named_parameters()
+        name: parameter.detach().clone() for name, parameter in target_router.named_parameters()
     }
     target_probability = state.attention_probabilities[1]
     target_probability[0].backward()
     target_gradients = [parameter.grad for parameter in target_router.parameters()]
     assert all(
-        gradient is not None and torch.isfinite(gradient).all()
-        for gradient in target_gradients
+        gradient is not None and torch.isfinite(gradient).all() for gradient in target_gradients
     )
     assert any(torch.count_nonzero(gradient).item() for gradient in target_gradients)
-    assert all(
-        parameter.grad is None
-        for parameter in model.routers["attention_0"].parameters()
-    )
+    assert all(parameter.grad is None for parameter in model.routers["attention_0"].parameters())
     assert all(
         parameter.grad is None
         for name, parameter in model.named_parameters()

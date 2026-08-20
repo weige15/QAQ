@@ -1,4 +1,4 @@
-"""Request-owned S05 features and learned route selections/probabilities."""
+"""Request-owned prompt features, routing decisions, and provenance."""
 
 from __future__ import annotations
 
@@ -350,10 +350,11 @@ class QaqRequestState:
                 "prefill cannot overwrite probabilities already stored in request state"
             )
         if any(
-            provenance is not None
-            for provenance in self.attention_provenance + self.ffn_provenance
+            provenance is not None for provenance in self.attention_provenance + self.ffn_provenance
         ):
-            raise RuntimeError("prefill cannot overwrite provenance already stored in request state")
+            raise RuntimeError(
+                "prefill cannot overwrite provenance already stored in request state"
+            )
         if any(self._attention_route_consumed) or any(self._attention_probability_consumed):
             raise RuntimeError("prefill cannot reuse consumed early attention decisions")
 
@@ -462,7 +463,9 @@ class QaqRequestState:
             )
         return precision
 
-    def _consume_early_attention(self, target_layer: int, *, probability: bool) -> torch.Tensor | int:
+    def _consume_early_attention(
+        self, target_layer: int, *, probability: bool
+    ) -> torch.Tensor | int:
         self._validate_layer_index(target_layer)
         if self.routing_timing != LOOKAHEAD_ATTENTION_ONE_UNIT or target_layer == 0:
             raise RuntimeError("early attention consumption requires a lookahead target layer")
@@ -473,9 +476,7 @@ class QaqRequestState:
             )
         self._validate_provenance("attention", target_layer, provenance)
         consumed = (
-            self._attention_probability_consumed
-            if probability
-            else self._attention_route_consumed
+            self._attention_probability_consumed if probability else self._attention_route_consumed
         )
         if consumed[target_layer]:
             raise RuntimeError(
@@ -511,9 +512,7 @@ class QaqRequestState:
             if provenance is None:
                 raise RuntimeError("request state is missing lookahead attention provenance")
             self._validate_provenance("attention", target_layer, provenance)
-        consumed = (
-            self._attention_probability_consumed if soft else self._attention_route_consumed
-        )
+        consumed = self._attention_probability_consumed if soft else self._attention_route_consumed
         if any(not consumed[layer] for layer in range(1, self.layer_count)):
             raise RuntimeError("request state has an unconsumed lookahead attention decision")
 

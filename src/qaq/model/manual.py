@@ -327,9 +327,7 @@ class PrecisionTrace:
                 precision=precision,
                 source_layer=None if provenance is None else provenance.source_layer,
                 target_layer=None if provenance is None else provenance.target_layer,
-                target_unit_type=(
-                    None if provenance is None else provenance.target_unit_type
-                ),
+                target_unit_type=(None if provenance is None else provenance.target_unit_type),
                 source_point=None if provenance is None else provenance.source_point,
                 routing_timing=None if provenance is None else provenance.routing_timing,
             )
@@ -436,9 +434,7 @@ def _predict_soft_lookahead_attention_route(
     if target_layer >= request_state.layer_count:
         raise ValueError("lookahead attention cannot predict beyond the final layer")
     feature = masked_mean_pool(incoming_hidden, prompt_attention_mask)
-    request_state.store_feature(
-        "attention", target_layer, feature, provenance=provenance
-    )
+    request_state.store_feature("attention", target_layer, feature, provenance=provenance)
     trace.record_event(
         request_id=request_state.request_id,
         layer_index=target_layer,
@@ -481,9 +477,7 @@ def _predict_lookahead_attention_route(
     if target_layer >= request_state.layer_count:
         raise ValueError("lookahead attention cannot predict beyond the final layer")
     feature = masked_mean_pool(incoming_hidden, prompt_attention_mask)
-    request_state.store_feature(
-        "attention", target_layer, feature, provenance=provenance
-    )
+    request_state.store_feature("attention", target_layer, feature, provenance=provenance)
     trace.record_event(
         request_id=request_state.request_id,
         layer_index=target_layer,
@@ -690,7 +684,9 @@ class _RoutedPackedLinear(nn.Module):
             )
         if isinstance(precision, bool) or not isinstance(precision, int):
             raise TypeError("selected packed precision must be an integer")
-        candidate_bits = request_state.candidate_bits if request_state is not None else CANDIDATE_BITS
+        candidate_bits = (
+            request_state.candidate_bits if request_state is not None else CANDIDATE_BITS
+        )
         if precision not in candidate_bits:
             allowed = "4 or 8" if candidate_bits == (4, 8) else f"one of {candidate_bits}"
             raise ValueError(f"selected packed precision must be {allowed}; got {precision}")
@@ -908,8 +904,8 @@ class _ManualDecoderLayer(nn.Module):
                 if phase != "prefill" or prompt_attention_mask is None:
                     raise ValueError("S06 soft routing supports prefill only")
                 if lookahead_prefill and self.layer_index > 0:
-                    attention_probabilities = (
-                        request_state.consume_early_attention_probability(self.layer_index)
+                    attention_probabilities = request_state.consume_early_attention_probability(
+                        self.layer_index
                     )
                     target_provenance = request_state.attention_provenance[self.layer_index]
                     trace.record_event(
@@ -1236,9 +1232,7 @@ class ManualRoutedQwen3ForCausalLM(nn.Module):
     def get_output_embeddings(self) -> nn.Module:
         return self.lm_head
 
-    def create_on_demand_request(
-        self, request_state: QaqRequestState
-    ) -> SynchronousPackedRequest:
+    def create_on_demand_request(self, request_state: QaqRequestState) -> SynchronousPackedRequest:
         """Create a fresh request-local context for this on-demand model."""
 
         sources = {

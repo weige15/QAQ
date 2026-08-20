@@ -33,8 +33,7 @@ def test_routing_timing_default_and_explicit_mode_validation():
     assert QaqRequestState("default", 1).routing_timing == SAME_UNIT
     assert QaqRequestState("explicit", 1, routing_timing=SAME_UNIT).routing_timing == SAME_UNIT
     assert (
-        QaqRequestState("lookahead", 1, routing_timing=LOOKAHEAD_ATTENTION_ONE_UNIT)
-        .routing_timing
+        QaqRequestState("lookahead", 1, routing_timing=LOOKAHEAD_ATTENTION_ONE_UNIT).routing_timing
         == LOOKAHEAD_ATTENTION_ONE_UNIT
     )
     with pytest.raises(ValueError, match="routing_timing"):
@@ -77,9 +76,7 @@ def test_lookahead_prediction_is_target_owned_and_uses_target_router_identity():
 
 
 def test_layer_zero_fallback_duplicate_missing_and_final_layer_guards():
-    state = QaqRequestState(
-        "guards", 2, layer_count=2, routing_timing=LOOKAHEAD_ATTENTION_ONE_UNIT
-    )
+    state = QaqRequestState("guards", 2, layer_count=2, routing_timing=LOOKAHEAD_ATTENTION_ONE_UNIT)
     state.validate_for_model(layer_count=2, feature_dim=2)
     calls = []
 
