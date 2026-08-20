@@ -1,5 +1,36 @@
-Current stage: S10-H2-BR1
-Status: COMPLETE — repair only
+Current stage: S10-H2-B2
+Status: COMPLETE — REFINE
+
+## S10-H2-B2 repaired canonical broader-validation retry
+
+Operational attempt 2 consumed the one authorized repaired B2 retry exactly
+once from `b1aca71bcc584f0e3559e5fe7caf142c2f750db3`. The command exited `0` and
+the final closeout independently validated the complete nine-trial evidence as
+`REFINE` with no errors. Canonical result:
+`docs/results/s10h_broader_validation.json`, SHA-256
+`7d9e0aff3b686570be0d1d57b5513ee921d60bd5470f275b0cd7cbb4fd63db20`.
+
+All nine ordered seed/lambda trials completed 24 updates, exact router-only
+fresh-AdamW and teacher/base-freeze audits, twelve 72-unit route maps, finite
+nonzero gradients, unchanged-state reproducibility, inherited regressions, and
+prohibited-work checks. A separate full audit passed 3,306 checks with zero
+errors. Lambda `0.03` was on all three per-seed hard frontiers and reduced the
+paired median hard width by `-0.4907407407407405`, with zero reproducibility
+failures, but its paired median hard-KL delta was
+`0.014972516723598044`, failing the frozen `<= 0.0` condition. This is a valid
+**REFINE**, not REVISE or PAUSE, and it selects no production lambda.
+
+The two pre-execution PAUSE branches, the failed pre-workspace Herdr lab, the
+post-execution expected-candidate clean-status PAUSE, and the first closeout
+pane's wrong commit-path assertion PAUSE remain preserved. None reran the
+experiment. The final captain-authorized closeout ran no test, plan, model,
+training, evaluation, profiler, monitor, or execution command; it validated,
+audited, promoted by same-directory no-overwrite hard link, documented, and
+closed the existing evidence only.
+
+Next action: define a later, separately frozen refinement protocol. Do not
+select a production lambda, run refinement, train a production router, or begin
+later loss work from this closeout.
 
 ## S09-A closeout — canonical validation gate
 

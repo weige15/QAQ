@@ -782,3 +782,150 @@ training, loader, validator, result, or submodule behavior; the evidence
 record owns the exact preservation and non-execution claims. S10-H2-B2 remains
 outside this gate and requires separate authorization from the repaired,
 reviewed, merged commit.
+
+## S10-H2-B2 — Repaired canonical broader-validation retry
+
+**Gate: COMPLETE — REFINE.** Operational attempt 2 consumed the one authorized
+repaired B2 retry from exact commit
+`b1aca71bcc584f0e3559e5fe7caf142c2f750db3`. The nine-trial result is complete,
+independently valid, and canonical, but it misses the frozen paired hard-KL
+condition. This outcome selects and recommends no production lambda.
+
+### Authorization, execution, and preserved PAUSE history
+
+Attempt 1 remains **REVISE before training** at `87786fe6...`; BR1 repaired its
+`DistillationExample.example_id` consumer contract and PR #15 merged that
+repair at `b1aca71...`. The pre-execution PAUSE branches remain unchanged:
+`fm/qaq-s10h2b2-20260819T151818Z` at `97b461aed06feb189821b0eb8cd956ba64b1a3ab`
+and `fm/qaq-s10h2b2-reauthorized-20260819` at
+`c13ef4f3c8ce3e0727848733ecfee432ffa51ad8`. They ran no trial and consumed no
+retry. A later Herdr service-loss lab established no workspace and ran no
+repository command.
+
+The one real retry started at `2026-08-19T17:45:47Z` in named Herdr session
+`fm-lab-qaq-s10h2b2-2026-1101046-3135`, workspace `w1`, tab `w1:t1`, pane
+`w1:p1`. It exited `0` and wrote the noncanonical candidate. The execution
+shell then exited because an over-strict clean-status assertion rejected that
+expected untracked candidate; this was a post-execution orchestration PAUSE,
+not a candidate or validator defect. The first authorized closeout pane,
+control directory `/tmp/qaq-s10h2b2-closeout.keCf2i`, independently validated
+`REFINE` with no errors, then exited because an extra assertion searched the
+wrong commit locations instead of `ancestry.commit`. It did not promote or
+modify project files.
+
+The captain authorized one additional closeout-only pane. It used new control
+directory `/tmp/qaq-s10h2b2-closeout.7vNem5`, named session
+`fm-lab-qaq-s10h2b2-clos-1146146-961`, workspace `w1`, tab `w1:t1`, pane
+`w1:p1`, and active bash PID `1146397`. The pane was visible, inspectable, and
+bound to this isolated worktree. It ran no test, plan, model load, evaluation,
+training, profiler, monitoring loop, or `--execute` command. All earlier
+reports and the execution log were preserved.
+
+### Environment, identities, and pre-execution evidence
+
+Both the consumed execution and final closeout used
+`/nfs/home/s314511048/.venv/bin/python`, Python `3.12.3`. Execution selected
+only `cuda:0`, directly mapped to physical GPU 0 because
+`CUDA_VISIBLE_DEVICES` was unset: NVIDIA GeForce RTX 3090,
+UUID `GPU-384b6377-8f0c-e3d2-8b3a-b3408b54fd53`. Immediately before execution
+all eight GPUs reported 24,576 MiB total, 24,124 MiB free, 0% utilization, and
+no compute process. The PyTorch mapping check reported 25,017,974,784 free of
+25,296,044,032 bytes on logical device 0.
+
+Frozen identities matched: config
+`fcb66902174558e5d3f9198f34a8430b685568fd4e21e1632b40f6870aa4aec7`, manifest
+`1e2b3515072e22d71ac35a35a3002e3a1dcd5ce44887c554b1408f735c928530`, packed
+model `29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee`,
+model/tokenizer `1cfa9a7208912126459214e8b04321603b3df60c`, Wikitext
+`b08601e04326c79dfdd32d625aee71d232d685c3`, Any-Precision
+`a3257d02740cc5757c78673da534b0630ff3a4ea`, and historical S10-F artifacts
+`d68f041e0a3dc32c465e8b8068ca3ab230d39253757e30f3019ca7e681b14233` and
+`b3bcc0e45d45852ac5060209c4789453ed452462f528f7bffd4cb80fb1ef58cb`.
+The logical packed artifact already existed and was verified in place; it was
+not copied, regenerated, requantized, reprovisioned, or overridden through
+`QAQ_S03_ARTIFACT`. The pinned backend remained clean.
+
+The authoritative pre-execution evidence at `b1aca71...` was: focused repaired
+selection `9 passed, 5 deselected`; combined executor/validator `47 passed`;
+S07 distillation plus executor `22 passed`; four predecessor protocols
+`134 passed` with only the established duplicate-optimizer warning; full unit
+suite `310 passed` with that same warning; Ruff and `git diff --check` passed;
+and the non-executing plan reported the exact identities, 24/12 manifests,
+nine-trial order, absent results, and no load/train/evaluate/write behavior.
+
+### Independent audit and canonical promotion
+
+The execution log is `/tmp/qaq-s10h2b2-execution.log`, SHA-256
+`1f3da7860eb44dd7f710762d2be41357deb8af8fd2ecb6c4a37e12c006e04f55`; its
+exit-code file contains `0`. The candidate SHA-256 was
+`7d9e0aff3b686570be0d1d57b5513ee921d60bd5470f275b0cd7cbb4fd63db20`.
+The unmodified `scripts.run_s10h.validate_result` was invoked independently,
+read the execution commit only from `payload.get("ancestry", {}).get("commit")`,
+found exact `b1aca71...`, exact ordered pairs, classification `REFINE`, and no
+errors.
+
+A complete independent audit passed 3,306 checks with zero errors. It verified
+the format, stage, all frozen identities, `(4,6,8)` order, 72 routers,
+23,630,040 router scalars, 288 canonical `routers.` parameter tensors, exact
+24/12 manifests, exact nine ordered trials, 24 history entries and optimizer
+updates per trial, finite/nonzero router gradients, finite losses, teacher/base
+freeze hashes and gradient absence, paired initializations, unique fresh AdamW
+serials `1..9`, empty initial optimizer state, zero missing/unexpected/duplicate
+optimizer members, twelve ordered valid 72-entry route maps per trial,
+soft/hard metrics, route aggregates, unchanged-state reproducibility, inherited
+regressions, prohibited-work evidence, exact aggregate recomputation, and no
+forbidden measurement field. Initial router hashes were identical across
+lambdas within each seed and distinct across seeds:
+`7b5b5bd2...` (1729), `cca1b7cf...` (1730), and `c96ce0f8...` (1731).
+
+After that audit, the candidate and canonical paths were confirmed to share a
+parent. The closeout revalidated the candidate, called only
+`os.link(candidate, canonical)` with no overwrite or fallback, verified exact
+bytes and SHA-256, and unlinked the candidate. It did not use `cp`, rename
+overwrite, or a cross-filesystem fallback. A separate post-promotion validator
+again returned `REFINE` with no errors and exact `ancestry.commit`. Canonical
+result: `docs/results/s10h_broader_validation.json`, SHA-256
+`7d9e0aff3b686570be0d1d57b5513ee921d60bd5470f275b0cd7cbb4fd63db20`.
+
+### Aggregate observations
+
+- Median hard validation KL by lambda: `0.0 = 0.01439695991575718`,
+  `0.03 = 0.028918379141638677`, `0.1 = 0.07732601106787722`.
+- Median hard selected width by lambda: `0.0 = 7.643518518518518`,
+  `0.03 = 7.1342592592592595`, `0.1 = 6.150462962962963`.
+- Lambda `0.03` hard-frontier membership: seed 1729 `true`, seed 1730 `true`,
+  seed 1731 `true`; count `3/3`.
+- Paired median hard-KL delta (`0.03 - 0.0`):
+  `0.014972516723598044`.
+- Paired median hard-width delta (`0.03 - 0.0`):
+  `-0.4907407407407405`.
+- Reproducibility failures: `0`.
+
+The positive paired hard-KL delta fails the frozen `<= 0.0` condition. The
+frontier count, strict width reduction, and reproducibility conditions pass.
+With complete valid evidence and no integrity failure, the prescribed outcome
+is therefore **REFINE**, not REVISE or PAUSE.
+
+### Per-trial observations
+
+| seed | lambda | hard KL | hard fractions 4 / 6 / 8 | soft expected width | hard selected width | collapse | changed units / fraction | distinct maps |
+|---:|---:|---:|---|---:|---:|---|---|---:|
+| 1729 | 0.0 | 0.012808105093427002 | 0.0 / 0.16435185185185186 / 0.8356481481481481 | 7.610388476508249 | 7.671296296296297 | OTHER | 7 / 0.09722222222222222 | 10 |
+| 1729 | 0.03 | 0.028918379141638677 | 0.018518518518518517 / 0.4375 / 0.5439814814814815 | 7.067989198371542 | 7.050925925925926 | OTHER | 15 / 0.20833333333333334 | 12 |
+| 1729 | 0.1 | 0.07732601106787722 | 0.10069444444444445 / 0.7743055555555556 / 0.125 | 6.089355673305036 | 6.048611111111111 | OTHER | 12 / 0.16666666666666666 | 12 |
+| 1730 | 0.0 | 0.015681098991384108 | 0.0 / 0.1875 / 0.8125 | 7.55385224689104 | 7.625 | OTHER | 5 / 0.06944444444444445 | 6 |
+| 1730 | 0.03 | 0.030653615714982152 | 0.01273148148148148 / 0.4074074074074074 / 0.5798611111111112 | 7.117284387127496 | 7.1342592592592595 | OTHER | 12 / 0.16666666666666666 | 11 |
+| 1730 | 0.1 | 0.07818099204450846 | 0.09490740740740741 / 0.7175925925925926 / 0.1875 | 6.174413268594149 | 6.185185185185185 | OTHER | 13 / 0.18055555555555555 | 11 |
+| 1731 | 0.0 | 0.01439695991575718 | 0.0 / 0.17824074074074073 / 0.8217592592592593 | 7.5755595256877255 | 7.643518518518518 | OTHER | 9 / 0.125 | 9 |
+| 1731 | 0.03 | 0.017601857039456565 | 0.0023148148148148147 / 0.3761574074074074 / 0.6215277777777778 | 7.122825561146156 | 7.238425925925926 | OTHER | 13 / 0.18055555555555555 | 12 |
+| 1731 | 0.1 | 0.05551074305549264 | 0.07523148148148148 / 0.7743055555555556 / 0.15046296296296297 | 6.139337889684935 | 6.150462962962963 | OTHER | 13 / 0.18055555555555555 | 12 |
+
+### Boundary and next action
+
+No latency, memory, transfer, throughput, energy, or hardware-cost measurement
+was recorded. No adaptive search, warm start, data/seed replacement, S07
+conversion, teacher/base training, non-router optimizer membership, S08
+change, six-bit on-demand loading, production-lambda selection, or later-stage
+work occurred. The next action is a later, separately frozen refinement
+protocol. Do not choose a production lambda or begin refinement execution from
+this closeout.

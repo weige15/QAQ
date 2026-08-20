@@ -524,3 +524,121 @@ bytes, and the clean pinned Any-Precision checkout were preserved byte-for-byte.
 S10-H quality remains unknown. No new implementation choice was introduced,
 so `docs/DECISIONS.md` is unchanged. The next experiment action is separate
 S10-H2-B2 authorization from the repaired, reviewed, merged commit.
+
+## S10-H2-B2 repaired canonical broader-validation retry (2026-08-19)
+
+This is operational attempt 2 and the one consumed repaired B2 retry. Attempt 1
+at `87786fe6e549fdc279ab545be86c00745a144649` remains **REVISE before
+training**; the BR1 evidence above remains unchanged. The execution commit is
+`b1aca71bcc584f0e3559e5fe7caf142c2f750db3`, PR #15's merged repair.
+
+### Reconciled preflight
+
+The focused collection selected exactly these nine nodes and deselected five:
+
+```text
+tests/unit/test_s10h_executor.py::test_selected_examples_accept_exact_train_and_validation_order_without_subscription
+tests/unit/test_s10h_executor.py::test_selected_examples_reject_reordered_frozen_ids[train]
+tests/unit/test_s10h_executor.py::test_selected_examples_reject_reordered_frozen_ids[validation]
+tests/unit/test_s10h_executor.py::test_ordered_example_ids_reject_invalid_attribute_contract[example0-not a DistillationExample]
+tests/unit/test_s10h_executor.py::test_ordered_example_ids_reject_invalid_attribute_contract[example1-not a DistillationExample]
+tests/unit/test_s10h_executor.py::test_ordered_example_ids_reject_invalid_attribute_contract[example2-not a DistillationExample]
+tests/unit/test_s10h_executor.py::test_ordered_example_ids_reject_invalid_attribute_contract[example3-not a DistillationExample]
+tests/unit/test_s10h_executor.py::test_ordered_example_ids_reject_invalid_attribute_contract[example4-dictionary substitute]
+tests/unit/test_s10h_executor.py::test_qwen_prepare_retains_real_selection_order_and_distillation_objects
+```
+
+The captain-reconciled outcomes at exact `b1aca71...` were `9 passed, 5
+deselected`; combined S10-H executor/validator `47 passed`; S07 distillation
+plus executor `22 passed`; predecessor protocols `134 passed` with only the
+established duplicate-optimizer warning; and full unit suite `310 passed` with
+that same warning. Ruff on the four runner/executor/test files and
+`git diff --check` passed. The plan command exited `0` and loaded, trained,
+evaluated, and wrote nothing. These commands ran before the one-time execution
+boundary; the final closeout reran none of them.
+
+The config, manifest, packed artifact, model/tokenizer, dataset, backend, and
+historical hashes were respectively
+`fcb66902174558e5d3f9198f34a8430b685568fd4e21e1632b40f6870aa4aec7`,
+`1e2b3515072e22d71ac35a35a3002e3a1dcd5ce44887c554b1408f735c928530`,
+`29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee`,
+`1cfa9a7208912126459214e8b04321603b3df60c`,
+`b08601e04326c79dfdd32d625aee71d232d685c3`,
+`a3257d02740cc5757c78673da534b0630ff3a4ea`,
+`d68f041e0a3dc32c465e8b8068ca3ab230d39253757e30f3019ca7e681b14233`, and
+`b3bcc0e45d45852ac5060209c4789453ed452462f528f7bffd4cb80fb1ef58cb`.
+The existing logical artifact was verified rather than reprovisioned; no
+artifact override was set.
+
+### Consumed execution
+
+The execution started `2026-08-19T17:45:47Z` in Herdr session
+`fm-lab-qaq-s10h2b2-2026-1101046-3135`, workspace `w1`, tab `w1:t1`, pane
+`w1:p1`. Python was `/nfs/home/s314511048/.venv/bin/python` 3.12.3. The selected
+GPU was `cuda:0`, physical index 0, NVIDIA GeForce RTX 3090,
+UUID `GPU-384b6377-8f0c-e3d2-8b3a-b3408b54fd53`; mapping was direct with
+`CUDA_VISIBLE_DEVICES` unset. No compute process was present. The exact command
+was run once:
+
+```text
+set -o pipefail
+PYTHONPATH=src:third_party/any-precision-llm:. \
+python scripts/run_s10h.py \
+  --execute \
+  --device "${QAQ_S10H_DEVICE}" \
+  --config configs/s10g_broader_validation.json \
+  --output "${QAQ_S10H_CANDIDATE}" \
+  2>&1 | tee "${QAQ_S10H_LOG}"
+execution_status=$?
+printf '%s\n' "${execution_status}" > /tmp/qaq-s10h2b2-execution.exitcode
+```
+
+It exited `0` and the runner reported `REFINE`, no errors, and `written=true`.
+Log `/tmp/qaq-s10h2b2-execution.log` hashes to
+`1f3da7860eb44dd7f710762d2be41357deb8af8fd2ecb6c4a37e12c006e04f55`.
+The candidate hashed to
+`7d9e0aff3b686570be0d1d57b5513ee921d60bd5470f275b0cd7cbb4fd63db20`.
+No smoke, retry, resume, alternate device, monitoring loop, profiler, or
+modified trial/data/training setting was used.
+
+### Result and closeout
+
+The exact trial order was `(1729,0.0)`, `(1729,0.03)`, `(1729,0.1)`,
+`(1730,0.0)`, `(1730,0.03)`, `(1730,0.1)`, `(1731,0.0)`, `(1731,0.03)`,
+`(1731,0.1)`. Every trial completed 24 examples and optimizer updates, retained
+24 ordered history records, passed finite-gradient/loss, optimizer, teacher/base
+freeze, twelve-map, reproducibility, collapse, inherited-regression, and
+prohibited-work audits. The complete per-trial measurements and aggregate
+interpretation are recorded in the S10 stage document and canonical JSON.
+
+The execution shell's expected-candidate clean-status PAUSE and the first
+closeout pane's wrong commit-path assertion PAUSE are preserved as
+orchestration incidents; neither reran or invalidated the experiment. The
+captain-authorized final closeout used control directory
+`/tmp/qaq-s10h2b2-closeout.7vNem5` and session
+`fm-lab-qaq-s10h2b2-clos-1146146-961`. It read only
+`payload.get("ancestry", {}).get("commit")`, independently obtained `REFINE`
+with no errors, passed a 3,306-check/zero-error full audit, then promoted with a
+same-directory no-overwrite `os.link`, verified byte identity, and unlinked the
+candidate. Independent canonical validation again returned `REFINE` with no
+errors. Canonical result:
+`docs/results/s10h_broader_validation.json`, SHA-256
+`7d9e0aff3b686570be0d1d57b5513ee921d60bd5470f275b0cd7cbb4fd63db20`.
+
+Aggregate observations are median hard KL
+`{0.0: 0.01439695991575718, 0.03: 0.028918379141638677, 0.1: 0.07732601106787722}`;
+median hard width
+`{0.0: 7.643518518518518, 0.03: 7.1342592592592595, 0.1: 6.150462962962963}`;
+`0.03` frontier membership `{1729: true, 1730: true, 1731: true}` (`3/3`);
+paired median hard-KL delta `0.014972516723598044`; paired median hard-width
+delta `-0.4907407407407405`; and zero reproducibility failures. The positive
+paired hard-KL delta fails the frozen threshold, so the valid complete gate is
+**REFINE**. No production lambda is selected or recommended.
+
+Earlier PAUSE reports remain preserved at
+`/tmp/qaq-s10h2b2-completion-report.md`,
+`/tmp/qaq-s10h2b2-reauthorized-completion-report.md`,
+`/tmp/qaq-s10h2b2-authorized-completion-report.md`,
+`/tmp/qaq-s10h2b2-authorized-lab-retry-completion-report.md`, and
+`/tmp/qaq-s10h2b2-closeout-completion-report.md`. The final additional-closeout
+report is `/tmp/qaq-s10h2b2-final-closeout-completion-report.md`.

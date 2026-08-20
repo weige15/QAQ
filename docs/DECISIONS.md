@@ -1359,3 +1359,36 @@ Qwen quality or broader-validation claim.
 **Consequence:** H2-A implements an auditable real execution seam without
 starting H2-B, changing frozen S10-G/S10-F semantics, selecting a lambda,
 measuring resources, or creating `docs/results/s10h_broader_validation.json`.
+
+### D054 — S10-H2-B2 canonical evidence promotion and REFINE gate (2026-08-19)
+
+**Implementation choice:** Keep the S10-H2-A canonical-output guard unchanged.
+The one authorized B2 retry writes only a same-directory noncanonical candidate;
+a closeout may create the canonical result only after the unmodified validator
+and a complete independent audit both accept `CONTINUE` or `REFINE`. Promotion
+uses atomic no-overwrite `os.link(candidate, canonical)`, verifies byte and
+SHA-256 identity, then unlinks the candidate. There is no copy, move-overwrite,
+or cross-filesystem fallback.
+
+**Evidence:** Exactly one repaired B2 retry ran from
+`b1aca71bcc584f0e3559e5fe7caf142c2f750db3`, exited `0`, and produced candidate
+SHA-256 `7d9e0aff3b686570be0d1d57b5513ee921d60bd5470f275b0cd7cbb4fd63db20`.
+The execution commit was read only from `ancestry.commit`. Independent
+candidate and post-promotion canonical validation both returned `REFINE` with
+no errors and exact trial order. The complete 3,306-check audit had zero
+errors; canonical bytes retain the same SHA-256. Earlier pre-execution,
+post-execution, and first-closeout PAUSE episodes remain preserved and did not
+consume another retry or change the candidate.
+
+**Gate consequence:** The evidence is complete and valid, but the paired median
+hard-KL delta for `0.03 - 0.0` is `0.014972516723598044`, above the frozen
+`<= 0.0` condition. The width delta is
+`-0.4907407407407405`, frontier membership is `3/3`, and reproducibility
+failures are zero. S10-H2-B2 is therefore **COMPLETE — REFINE**. This is not a
+production-lambda decision; no lambda is selected or recommended. The only
+next action is a later, separately frozen refinement protocol.
+
+**Reversal path:** If canonical bytes, the exact execution ancestry, any frozen
+identity, or any audit evidence is later disproven, preserve this result and
+return S10-H to REVISE rather than rewriting the JSON or rerunning the consumed
+retry. A future refinement requires a new protocol decision and authorization.
