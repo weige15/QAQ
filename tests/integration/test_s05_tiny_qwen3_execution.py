@@ -4,7 +4,6 @@ import pytest
 import torch
 from torch import nn
 
-from qaq.model.request_state import QaqRequestState
 from qaq.model.manual import (
     ATTENTION_PROJECTIONS,
     FFN_PROJECTIONS,
@@ -12,6 +11,11 @@ from qaq.model.manual import (
     PrecisionPlan,
     PrecisionTrace,
     _RoutedPackedLinear,
+)
+from qaq.model.request_state import (
+    LOOKAHEAD_ATTENTION_ONE_UNIT,
+    SAME_UNIT,
+    QaqRequestState,
 )
 
 
@@ -109,6 +113,143 @@ def test_real_qwen3_wrapper_prefill_and_decode_reuse_request_routes():
     assert all(
         torch.equal(before, after)
         for before, after in zip(saved, state.attention_features + state.ffn_features)
+    )
+
+
+def test_explicit_same_unit_hard_mode_matches_default_s05_numerics_and_trace():
+    torch.manual_seed(1729)
+    model = _tiny_model()
+    prompt = torch.tensor([[1, 2, 3]])
+    mask = torch.ones_like(prompt)
+    default_state = QaqRequestState("same-hard", prompt_length=3)
+    explicit_state = QaqRequestState(
+        "same-hard", prompt_length=3, routing_timing=SAME_UNIT
+    )
+    default_trace = PrecisionTrace()
+    explicit_trace = PrecisionTrace()
+    with torch.inference_mode():
+        default = model(
+            input_ids=prompt,
+            attention_mask=mask,
+            use_cache=False,
+            precision_plan=PrecisionPlan.uniform(4),
+            request_state=default_state,
+            phase="prefill",
+            trace=default_trace,
+        )
+        explicit = model(
+            input_ids=prompt,
+            attention_mask=mask,
+            use_cache=False,
+            precision_plan=PrecisionPlan.uniform(4),
+            request_state=explicit_state,
+            phase="prefill",
+            trace=explicit_trace,
+        )
+    assert torch.equal(default.logits, explicit.logits)
+    assert default_trace.events == explicit_trace.events
+    assert default_trace.route_records == explicit_trace.route_records
+    assert default_state.attention_routes == explicit_state.attention_routes
+    assert default_state.ffn_routes == explicit_state.ffn_routes
+
+
+def test_lookahead_hard_decode_reuses_prefill_routes_without_features_or_policy_calls():
+    torch.manual_seed(1729)
+    model = _tiny_model()
+    state = QaqRequestState(
+        "lookahead-decode",
+        prompt_length=3,
+        routing_timing=LOOKAHEAD_ATTENTION_ONE_UNIT,
+    )
+    calls = []
+
+    def policy(layer, unit_type, feature):
+        del feature
+        calls.append((layer, unit_type))
+        return 4 if (layer + (unit_type == "ffn")) % 2 == 0 else 8
+
+    with torch.inference_mode():
+        model(
+            input_ids=torch.tensor([[1, 2, 3]]),
+            attention_mask=torch.ones(1, 3, dtype=torch.long),
+            use_cache=False,
+            request_state=state,
+            phase="prefill",
+            routing_policy=policy,
+        )
+    routes = state.attention_routes[:] + state.ffn_routes[:]
+    features = [value.clone() for value in state.attention_features + state.ffn_features]
+    provenance = state.attention_provenance[:]
+    prefill_calls = calls[:]
+
+    def fail_policy(*args):
+        raise AssertionError("decode must not invoke a policy")
+
+    decode_trace = PrecisionTrace()
+    with torch.inference_mode():
+        model(
+            input_ids=torch.tensor([[42]]),
+            attention_mask=torch.ones(1, 1, dtype=torch.long),
+            use_cache=False,
+            request_state=state,
+            phase="decode",
+            routing_policy=fail_policy,
+            trace=decode_trace,
+        )
+    assert len(prefill_calls) == 72
+    assert calls == prefill_calls
+    assert routes == state.attention_routes[:] + state.ffn_routes[:]
+    assert provenance == state.attention_provenance
+    assert all(
+        torch.equal(before, after)
+        for before, after in zip(
+            features,
+            state.attention_features + state.ffn_features,
+            strict=True,
+        )
+    )
+    assert len(decode_trace.route_records) == 72
+    assert all(
+        not record.feature_computed and not record.policy_invoked
+        for record in decode_trace.route_records
+    )
+
+
+def test_missing_early_attention_route_fails_before_target_packed_execution():
+    torch.manual_seed(1729)
+    model = _tiny_model()
+    state = QaqRequestState(
+        "missing-lookahead",
+        prompt_length=3,
+        routing_timing=LOOKAHEAD_ATTENTION_ONE_UNIT,
+    )
+    trace = PrecisionTrace()
+
+    def policy(layer, unit_type, feature):
+        del feature
+        if layer == 0 and unit_type == "ffn":
+            state.attention_routes[1] = None
+        return 4
+
+    with pytest.raises(RuntimeError, match="missing its early route"):
+        model(
+            input_ids=torch.tensor([[1, 2, 3]]),
+            attention_mask=torch.ones(1, 3, dtype=torch.long),
+            use_cache=False,
+            request_state=state,
+            phase="prefill",
+            routing_policy=policy,
+            trace=trace,
+        )
+    assert not any(
+        record.layer_index == 1 and record.unit_type == "attention"
+        for record in trace.records
+    )
+    assert not any(
+        event.layer_index == 1
+        and event.unit_type == "attention"
+        and event.event in ("target_attention_execution", "unit_execute")
+        for event in trace.events
     )
 
 

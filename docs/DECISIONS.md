@@ -1392,3 +1392,60 @@ next action is a later, separately frozen refinement protocol.
 identity, or any audit evidence is later disproven, preserve this result and
 return S10-H to REVISE rather than rewriting the JSON or rerunning the consumed
 retry. A future refinement requires a new protocol decision and authorization.
+
+### D055 — S11-A explicit one-unit-lookahead attention timing (2026-08-20)
+
+**Implementation choice:** Add an explicit request-owned `routing_timing` with
+exact values `same_unit` and `lookahead_attention_one_unit`; preserve
+`same_unit` as the default. The first lookahead variant applies only to
+attention. For each source layer `s=0..34`, use the representation after source
+attention execution, residual addition, and post-attention normalization but
+before source FFN, with `source_point=post_attention_pre_ffn`, to invoke target
+attention router `s+1`. Store the detached feature and hard route or attached
+soft probability under target layer `s+1`. Layer-0 attention remains
+same-layer, every FFN remains same-layer post-attention, and layer 35 predicts
+no target.
+
+**Ownership and execution:** Route/probability ownership is
+`(target_layer, target_unit_type)` while feature provenance is
+`(source_layer, source_point)`. Provenance records carry `source_layer`,
+`target_layer`, `target_unit_type`, `source_point`, and `routing_timing`.
+Target attention requires and consumes the early decision once before packed
+execution and never recomputes or overwrites it. Soft probabilities retain
+the target-router autograd graph while source features remain detached. Decode
+computes no decision and reuses the stored hard routes. Request end releases
+features, routes, probabilities, provenance, and registered loader state.
+
+**Established behavior preserved:** The model remains 36 layers with separate
+attention/FFN target-specific routers, explicit `(4,8)` or `(4,6,8)` candidate
+ordering, deterministic first-maximum argmax, prompt-only masked means, frozen
+packed state, and fixed prefill-route decode reuse. Router loss, masked KL,
+normalized cost, candidates, packed kernels, Any-Precision, loader semantics,
+and historical S10 evidence are unchanged.
+
+**Alternatives rejected for S11-A:** Boundary attention scheduling (A) offers
+nearer historical information but little lead time; full-layer lookahead (B)
+offers more lead time with older information and quality risk; early FFN
+prediction (C) removes same-layer attention information and changes another
+semantic. None is implemented or claimed superior. Asynchronous transfer,
+prefetch, caching, scheduling, and overlap are excluded; the implemented mode
+has only one source-FFN execution window of semantic lead time.
+
+**Evidence and unknowns:** Deterministic lightweight tests prove target-router
+identity, source-to-target provenance/order, layer-0/final-layer behavior,
+complete 72-decision ownership, duplicate/missing failures, hard/soft/decode
+semantics, request isolation/cleanup, finite target-router gradients and an
+optimizer update, source-router gradient isolation, frozen packed/base state,
+and a repeated tiny 36-layer real pinned packed execution. No full Qwen model,
+quality pilot, training/evaluation experiment, or hardware/resource
+measurement ran. Quality parity or superiority, useful overlap, and any
+latency/transfer benefit remain unknown.
+
+**Consequence:** S11-A closes semantics only. The next action is a separately
+scoped paired quality pilot comparing `same_unit` with
+`lookahead_attention_one_unit`; it does not begin automatically.
+
+**Reversal path:** If the paired pilot or a later ownership audit disproves the
+feature timing, target identity, one-time consumption, or decode invariants,
+preserve this mode and evidence, return S11 to REVISE, and record a replacement
+decision before changing timing or adding another variant.

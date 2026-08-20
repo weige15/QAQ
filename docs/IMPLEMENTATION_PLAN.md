@@ -32,6 +32,7 @@ Unresolved questions remain unresolved until a stage produces evidence.
 18. S10-H1 — Implement and validate the fail-closed broader-validation runner and non-executing plan.
 19. S10-H2-A — Implement the lazy, auditable real executor with explicit device selection and temporary noncanonical output.
 20. S10-H2-B — Separately authorize and execute the frozen broader-validation protocol.
+21. S11-A — Define and validate one-unit-lookahead attention routing semantics without running the quality pilot.
 
 No stage may begin automatically. A stage stops at its decision gate and updates `docs/STATUS.md` before handoff.
 

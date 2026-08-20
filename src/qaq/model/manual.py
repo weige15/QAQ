@@ -30,7 +30,12 @@ from ..router.features import (
 )
 from ..router.network import CANDIDATE_BITS, validate_probabilities
 from ..router.soft_linear import mix_packed_outputs
-from .request_state import QaqRequestState
+from .request_state import (
+    LOOKAHEAD_ATTENTION_ONE_UNIT,
+    POST_ATTENTION_PRE_FFN,
+    QaqRequestState,
+    RoutingProvenance,
+)
 from .static import assert_target_invariant, load_static_model
 
 LAYER_COUNT = 36
@@ -208,6 +213,11 @@ class RouteTraceEvent:
     phase: str
     event: str
     precision: int | None = None
+    source_layer: int | None = None
+    target_layer: int | None = None
+    target_unit_type: str | None = None
+    source_point: str | None = None
+    routing_timing: str | None = None
 
 
 class PrecisionTrace:
@@ -305,6 +315,7 @@ class PrecisionTrace:
         phase: str,
         event: str,
         precision: int | None = None,
+        provenance: RoutingProvenance | None = None,
     ) -> None:
         self._events.append(
             RouteTraceEvent(
@@ -314,6 +325,13 @@ class PrecisionTrace:
                 phase=phase,
                 event=event,
                 precision=precision,
+                source_layer=None if provenance is None else provenance.source_layer,
+                target_layer=None if provenance is None else provenance.target_layer,
+                target_unit_type=(
+                    None if provenance is None else provenance.target_unit_type
+                ),
+                source_point=None if provenance is None else provenance.source_point,
+                routing_timing=None if provenance is None else provenance.routing_timing,
             )
         )
 
@@ -392,6 +410,113 @@ def _select_soft_request_route(
         event="route_available",
     )
     return probabilities
+
+
+def _lookahead_attention_provenance(source_layer: int) -> RoutingProvenance:
+    return RoutingProvenance(
+        source_layer=source_layer,
+        target_layer=source_layer + 1,
+        target_unit_type="attention",
+        source_point=POST_ATTENTION_PRE_FFN,
+        routing_timing=LOOKAHEAD_ATTENTION_ONE_UNIT,
+    )
+
+
+def _predict_soft_lookahead_attention_route(
+    *,
+    request_state: QaqRequestState,
+    source_layer: int,
+    incoming_hidden: torch.Tensor,
+    prompt_attention_mask: torch.Tensor,
+    soft_router: Any,
+    trace: PrecisionTrace,
+) -> torch.Tensor:
+    provenance = _lookahead_attention_provenance(source_layer)
+    target_layer = provenance.target_layer
+    if target_layer >= request_state.layer_count:
+        raise ValueError("lookahead attention cannot predict beyond the final layer")
+    feature = masked_mean_pool(incoming_hidden, prompt_attention_mask)
+    request_state.store_feature(
+        "attention", target_layer, feature, provenance=provenance
+    )
+    trace.record_event(
+        request_id=request_state.request_id,
+        layer_index=target_layer,
+        unit_type="attention",
+        phase="prefill",
+        event="lookahead_target_feature_computed",
+        provenance=provenance,
+    )
+    probabilities = soft_router(target_layer, "attention", feature.detach())
+    validate_probabilities(
+        probabilities,
+        request_state.candidate_bits,
+        context="soft lookahead attention router probabilities",
+    )
+    request_state.store_probability("attention", target_layer, probabilities)
+    trace.record_event(
+        request_id=request_state.request_id,
+        layer_index=target_layer,
+        unit_type="attention",
+        phase="prefill",
+        event="lookahead_target_route_available",
+        provenance=provenance,
+    )
+    return probabilities
+
+
+def _predict_lookahead_attention_route(
+    *,
+    request_state: QaqRequestState,
+    source_layer: int,
+    incoming_hidden: torch.Tensor,
+    prompt_attention_mask: torch.Tensor,
+    routing_policy: Any,
+    trace: PrecisionTrace,
+) -> int:
+    if routing_policy is None:
+        raise ValueError("lookahead attention prefill requires a deterministic routing_policy")
+    provenance = _lookahead_attention_provenance(source_layer)
+    target_layer = provenance.target_layer
+    if target_layer >= request_state.layer_count:
+        raise ValueError("lookahead attention cannot predict beyond the final layer")
+    feature = masked_mean_pool(incoming_hidden, prompt_attention_mask)
+    request_state.store_feature(
+        "attention", target_layer, feature, provenance=provenance
+    )
+    trace.record_event(
+        request_id=request_state.request_id,
+        layer_index=target_layer,
+        unit_type="attention",
+        phase="prefill",
+        event="lookahead_target_feature_computed",
+        provenance=provenance,
+    )
+    policy = coerce_manual_policy(routing_policy)
+    precision = validate_policy_result(
+        policy(target_layer, "attention", feature),
+        candidate_bits=request_state.candidate_bits,
+    )
+    request_state.store_route("attention", target_layer, precision)
+    trace.record_route(
+        request_id=request_state.request_id,
+        layer_index=target_layer,
+        unit_type="attention",
+        phase="prefill",
+        feature_computed=True,
+        policy_invoked=True,
+        selected_precision=precision,
+    )
+    trace.record_event(
+        request_id=request_state.request_id,
+        layer_index=target_layer,
+        unit_type="attention",
+        phase="prefill",
+        event="lookahead_target_route_available",
+        precision=precision,
+        provenance=provenance,
+    )
+    return precision
 
 
 def _select_request_route(
@@ -755,6 +880,24 @@ class _ManualDecoderLayer(nn.Module):
         on_demand_context: SynchronousPackedRequest | None = None,
         **kwargs: Any,
     ) -> tuple[torch.Tensor, ...]:
+        lookahead_prefill = (
+            request_state is not None
+            and request_state.routing_timing == LOOKAHEAD_ATTENTION_ONE_UNIT
+            and phase == "prefill"
+        )
+        target_provenance = None
+        if lookahead_prefill and self.layer_index > 0:
+            target_provenance = request_state.attention_provenance[self.layer_index]
+            if target_provenance is not None:
+                trace.record_event(
+                    request_id=request_state.request_id,
+                    layer_index=self.layer_index,
+                    unit_type="attention",
+                    phase="prefill",
+                    event="target_layer_entry",
+                    provenance=target_provenance,
+                )
+
         residual = hidden_states
         hidden_states = self.input_layernorm(hidden_states)
         attention_probabilities = None
@@ -764,16 +907,42 @@ class _ManualDecoderLayer(nn.Module):
             if soft_router is not None:
                 if phase != "prefill" or prompt_attention_mask is None:
                     raise ValueError("S06 soft routing supports prefill only")
-                attention_probabilities = _select_soft_request_route(
-                    request_state=request_state,
+                if lookahead_prefill and self.layer_index > 0:
+                    attention_probabilities = (
+                        request_state.consume_early_attention_probability(self.layer_index)
+                    )
+                    target_provenance = request_state.attention_provenance[self.layer_index]
+                    trace.record_event(
+                        request_id=request_state.request_id,
+                        layer_index=self.layer_index,
+                        unit_type="attention",
+                        phase="prefill",
+                        event="target_route_consumed",
+                        provenance=target_provenance,
+                    )
+                else:
+                    attention_probabilities = _select_soft_request_route(
+                        request_state=request_state,
+                        layer_index=self.layer_index,
+                        unit_type="attention",
+                        incoming_hidden=hidden_states,
+                        prompt_attention_mask=prompt_attention_mask,
+                        soft_router=soft_router,
+                        trace=trace,
+                    )
+                attention_bits = None
+            elif lookahead_prefill and self.layer_index > 0:
+                attention_bits = request_state.consume_early_attention_route(self.layer_index)
+                target_provenance = request_state.attention_provenance[self.layer_index]
+                trace.record_event(
+                    request_id=request_state.request_id,
                     layer_index=self.layer_index,
                     unit_type="attention",
-                    incoming_hidden=hidden_states,
-                    prompt_attention_mask=prompt_attention_mask,
-                    soft_router=soft_router,
-                    trace=trace,
+                    phase="prefill",
+                    event="target_route_consumed",
+                    precision=attention_bits,
+                    provenance=target_provenance,
                 )
-                attention_bits = None
             else:
                 attention_bits = _select_request_route(
                     request_state=request_state,
@@ -790,6 +959,16 @@ class _ManualDecoderLayer(nn.Module):
                 raise ValueError("S04 execution requires precision_plan")
             attention_bits = precision_plan.attention_bits[self.layer_index]
         if request_state is not None:
+            if lookahead_prefill and self.layer_index > 0:
+                trace.record_event(
+                    request_id=request_state.request_id,
+                    layer_index=self.layer_index,
+                    unit_type="attention",
+                    phase="prefill",
+                    event="target_attention_execution",
+                    precision=attention_bits,
+                    provenance=target_provenance,
+                )
             trace.record_event(
                 request_id=request_state.request_id,
                 layer_index=self.layer_index,
@@ -814,10 +993,51 @@ class _ManualDecoderLayer(nn.Module):
             on_demand_context=on_demand_context,
             **kwargs,
         )
+        source_provenance = None
+        if lookahead_prefill and self.layer_index < LAYER_COUNT - 1:
+            source_provenance = _lookahead_attention_provenance(self.layer_index)
+            trace.record_event(
+                request_id=request_state.request_id,
+                layer_index=self.layer_index,
+                unit_type="attention",
+                phase="prefill",
+                event="source_attention_execution",
+                provenance=source_provenance,
+            )
         hidden_states = residual + hidden_states
+        if source_provenance is not None:
+            trace.record_event(
+                request_id=request_state.request_id,
+                layer_index=self.layer_index,
+                unit_type="attention",
+                phase="prefill",
+                event="source_attention_residual_completion",
+                provenance=source_provenance,
+            )
 
         residual = hidden_states
         hidden_states = self.post_attention_layernorm(hidden_states)
+        if source_provenance is not None:
+            if prompt_attention_mask is None:  # pragma: no cover - prefill validates this
+                raise ValueError("lookahead attention prefill requires a prompt attention mask")
+            if soft_router is not None:
+                _predict_soft_lookahead_attention_route(
+                    request_state=request_state,
+                    source_layer=self.layer_index,
+                    incoming_hidden=hidden_states,
+                    prompt_attention_mask=prompt_attention_mask,
+                    soft_router=soft_router,
+                    trace=trace,
+                )
+            else:
+                _predict_lookahead_attention_route(
+                    request_state=request_state,
+                    source_layer=self.layer_index,
+                    incoming_hidden=hidden_states,
+                    prompt_attention_mask=prompt_attention_mask,
+                    routing_policy=routing_policy,
+                    trace=trace,
+                )
         ffn_probabilities = None
         if request_state is not None:
             if soft_router is not None:
@@ -849,6 +1069,16 @@ class _ManualDecoderLayer(nn.Module):
                 raise ValueError("S04 execution requires precision_plan")
             ffn_bits = precision_plan.ffn_bits[self.layer_index]
         if request_state is not None:
+            if source_provenance is not None:
+                trace.record_event(
+                    request_id=request_state.request_id,
+                    layer_index=self.layer_index,
+                    unit_type="ffn",
+                    phase="prefill",
+                    event="source_ffn_execution",
+                    precision=ffn_bits,
+                    provenance=source_provenance,
+                )
             trace.record_event(
                 request_id=request_state.request_id,
                 layer_index=self.layer_index,
