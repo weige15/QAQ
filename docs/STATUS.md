@@ -1,5 +1,34 @@
-Current stage: S10-H2-B2
-Status: COMPLETE — REFINE
+Current stage: S11-A
+Status: COMPLETE — semantics only
+
+## S11-A one-unit-lookahead attention routing semantics
+
+S11-A adds explicit request-owned `same_unit` (unchanged default) and
+`lookahead_attention_one_unit` timing. In the lookahead mode, layer 0 attention
+remains same-layer; source layers 0–34 compute target attention decisions 1–35
+from the detached masked mean after source attention residual completion and
+post-attention normalization but before source FFN. Target ownership,
+provenance, one-time consumption before packed target attention, same-layer
+FFN routing, hard first-maximum behavior, soft autograd, and fixed-route decode
+reuse are validated. There is no target beyond layer 35.
+
+Evidence: focused S11/S05/S06 checks passed `15`; the required S05/S06/decode/
+isolation selection plus the new 36-layer tiny real pinned packed integration
+passed `14`; the full unit suite passed `314` with one established optimizer
+warning; Ruff passed on every changed Python path; and `git diff --check`
+passed. The real tiny integration executed 252 physically packed projections,
+observed 72 target-owned decisions, exact source-to-target event order, one
+call per target router, same-layer FFNs, and bitwise deterministic repeats.
+The soft test observed finite target-router gradients and a real optimizer
+update, no source-router gradient from the detached target feature, and
+unchanged frozen packed/base parameters.
+
+No Qwen3-4B model was loaded and no quality pilot, real training/evaluation,
+S10 rerun, production checkpoint/lambda selection, asynchronous transfer,
+prefetch, caching, scheduling, performance measurement, or historical evidence
+change occurred. Quality parity and any execution benefit remain unknown.
+
+Next action: Define and execute a separately scoped paired quality pilot comparing same-unit routing with one-unit-lookahead attention routing.
 
 ## S10-H2-B2 repaired canonical broader-validation retry
 

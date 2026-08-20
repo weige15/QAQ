@@ -9,13 +9,20 @@ feature update, or CPU-to-GPU loading.
 
 ## Feature sources and timing
 
-For layer `i` during prefill, the attention feature is computed from the
-hidden states entering that layer's attention unit: after `input_layernorm`
-and before `q_proj`, `k_proj`, `v_proj`, or any other attention-unit output.
-The FFN feature is computed from the hidden states entering the FFN unit:
-after the real attention operation, residual addition, and
+For the `same_unit` baseline, the attention feature for layer `i` during
+prefill is computed from the hidden states entering that layer's attention
+unit: after `input_layernorm` and before `q_proj`, `k_proj`, `v_proj`, or any
+other attention-unit output.
+The `same_unit` FFN feature is computed from the hidden states entering the
+FFN unit: after the real attention operation, residual addition, and
 `post_attention_layernorm`, but before `gate_proj`, `up_proj`, or `down_proj`.
-Thus neither routed unit's output can influence its own feature or route.
+Thus neither routed unit's output can influence its own feature or route in
+the `same_unit` baseline.
+
+The optional S11-A attention-only timing is documented, with its target
+ownership and provenance contract, in
+[`S11_LOOKAHEAD_ROUTING.md`](S11_LOOKAHEAD_ROUTING.md). This section remains
+the owner of the `same_unit` feature timing.
 
 The feature is a detached tensor of shape `[hidden_size]` (2560 for the pinned
 Qwen3-4B model). Pooling is explicitly
@@ -35,12 +42,13 @@ one model object; `request_id` is not a global registry key, so duplicate IDs
 are safe only when the state objects are independent.
 
 Prefill requires a state, an explicit prompt mask, and `phase="prefill"`.
-Each attention and FFN unit computes and stores its feature, invokes the
-deterministic policy exactly once, and stores the returned 4 or 8 route before
-executing the unit. The route trace records request ID, layer, unit, phase,
-feature-computed flag, policy-invoked flag, and selected precision. Auxiliary
-events record `incoming_hidden -> feature_computed -> route_available ->
-unit_execute`.
+In `same_unit`, each attention and FFN unit computes and stores its feature,
+invokes the deterministic policy exactly once, and stores the returned 4 or 8
+route before executing the unit. The route trace records request ID, layer,
+unit, phase, feature-computed flag, policy-invoked flag, and selected
+precision. Same-unit auxiliary events record
+`incoming_hidden -> feature_computed -> route_available -> unit_execute`.
+The S11-A lookahead event order is defined in its stage document.
 
 Decode requires the completed same state and `phase="decode"`. It does not
 pool hidden states, mutate stored features/routes, or invoke the policy. The

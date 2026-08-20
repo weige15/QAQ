@@ -47,7 +47,7 @@ Unspecified details must not be silently filled in.
 
 ### D006 — Route reuse
 
-**Choice:** During prefill, route each attention or FFN unit using its incoming prompt hidden states; store the selected route and reuse it during decoding.
+**Choice:** During `same_unit` prefill, route each attention or FFN unit using its incoming prompt hidden states; store the selected route and reuse it during decoding. The explicit `lookahead_attention_one_unit` exception is owned by D055.
 **Status:** Baseline scope.
 **Source basis:** Implementation choice; exact route timing and reuse are not established by this scaffold.
 
@@ -244,19 +244,22 @@ with mean/max error evidence.
 **Implementation choice:** Use the model hidden size as the feature dimension
 (2560 for the pinned Qwen3-4B model), accumulate masked prompt means in
 float32, and store detached cloned one-dimensional tensors of shape
-`[hidden_size]`. The attention feature is taken after the layer input RMS norm
-and before any attention projection. The FFN feature is taken after the real
+`[hidden_size]`. For the `same_unit` baseline, the attention feature is taken
+after the layer input RMS norm and before any attention projection. The
+`same_unit` FFN feature is taken after the real
 attention residual and post-attention RMS norm, before the first FFN
 projection. The valid-token count is the denominator; all-padding prompts are
 rejected.
 
 **Implementation choice:** Require an explicit `phase` of `prefill` or
 `decode`, and require an explicit batch-size-one 0/1 prompt mask for prefill.
-Prefill invokes only an S04 `PrecisionPlan` adapter or a callback with
-`(layer_index, unit_type, feature) -> 4|8`; decode ignores policy input and
-reuses the stored route. `request_id` is metadata rather than a global lookup
-key: duplicate IDs are allowed only across independent state objects, while a
-concrete state object binds to one model owner and cannot be reused by another.
+Same-unit prefill invokes only an S04 `PrecisionPlan` adapter or a callback
+with `(layer_index, unit_type, feature) -> 4|8`; decode ignores policy input
+and reuses the stored route. The S11-A lookahead timing and target-owned
+decision contract are defined by D055. `request_id` is metadata rather than a
+global lookup key: duplicate IDs are allowed only across independent state
+objects, while a concrete state object binds to one model owner and cannot be
+reused by another.
 
 **Source basis:** These are implementation choices for S05 details left
 unspecified by the reviewed sources. They do not assert a learned-router
@@ -1392,3 +1395,60 @@ next action is a later, separately frozen refinement protocol.
 identity, or any audit evidence is later disproven, preserve this result and
 return S10-H to REVISE rather than rewriting the JSON or rerunning the consumed
 retry. A future refinement requires a new protocol decision and authorization.
+
+### D055 — S11-A explicit one-unit-lookahead attention timing (2026-08-20)
+
+**Implementation choice:** Add an explicit request-owned `routing_timing` with
+exact values `same_unit` and `lookahead_attention_one_unit`; preserve
+`same_unit` as the default. The first lookahead variant applies only to
+attention. For each source layer `s=0..34`, use the representation after source
+attention execution, residual addition, and post-attention normalization but
+before source FFN, with `source_point=post_attention_pre_ffn`, to invoke target
+attention router `s+1`. Store the detached feature and hard route or attached
+soft probability under target layer `s+1`. Layer-0 attention remains
+same-layer, every FFN remains same-layer post-attention, and layer 35 predicts
+no target.
+
+**Ownership and execution:** Route/probability ownership is
+`(target_layer, target_unit_type)` while feature provenance is
+`(source_layer, source_point)`. Provenance records carry `source_layer`,
+`target_layer`, `target_unit_type`, `source_point`, and `routing_timing`.
+Target attention requires and consumes the early decision once before packed
+execution and never recomputes or overwrites it. Soft probabilities retain
+the target-router autograd graph while source features remain detached. Decode
+computes no decision and reuses the stored hard routes. Request end releases
+features, routes, probabilities, provenance, and registered loader state.
+
+**Established behavior preserved:** The model remains 36 layers with separate
+attention/FFN target-specific routers, explicit `(4,8)` or `(4,6,8)` candidate
+ordering, deterministic first-maximum argmax, prompt-only masked means, frozen
+packed state, and fixed prefill-route decode reuse. Router loss, masked KL,
+normalized cost, candidates, packed kernels, Any-Precision, loader semantics,
+and historical S10 evidence are unchanged.
+
+**Alternatives rejected for S11-A:** Boundary attention scheduling (A) offers
+nearer historical information but little lead time; full-layer lookahead (B)
+offers more lead time with older information and quality risk; early FFN
+prediction (C) removes same-layer attention information and changes another
+semantic. None is implemented or claimed superior. Asynchronous transfer,
+prefetch, caching, scheduling, and overlap are excluded; the implemented mode
+has only one source-FFN execution window of semantic lead time.
+
+**Evidence and unknowns:** Deterministic lightweight tests prove target-router
+identity, source-to-target provenance/order, layer-0/final-layer behavior,
+complete 72-decision ownership, duplicate/missing failures, hard/soft/decode
+semantics, request isolation/cleanup, finite target-router gradients and an
+optimizer update, source-router gradient isolation, frozen packed/base state,
+and a repeated tiny 36-layer real pinned packed execution. No full Qwen model,
+quality pilot, training/evaluation experiment, or hardware/resource
+measurement ran. Quality parity or superiority, useful overlap, and any
+latency/transfer benefit remain unknown.
+
+**Consequence:** S11-A closes semantics only. The next action is a separately
+scoped paired quality pilot comparing `same_unit` with
+`lookahead_attention_one_unit`; it does not begin automatically.
+
+**Reversal path:** If the paired pilot or a later ownership audit disproves the
+feature timing, target identity, one-time consumption, or decode invariants,
+preserve this mode and evidence, return S11 to REVISE, and record a replacement
+decision before changing timing or adding another variant.

@@ -4,8 +4,9 @@
 
 **Status: COMPLETE — CONTINUE.** The S06 routers produce finite two-way
 probabilities, execute both verified packed precision paths, preserve the S05
-prompt-only feature timing, and receive gradients while the packed model stays
-frozen.
+`same_unit` prompt-only feature timing, and receive gradients while the packed
+model stays frozen. S11-A documents the separate attention-only lookahead
+timing.
 
 ## Router architecture
 
@@ -26,9 +27,10 @@ frozen.
   output index `1` is 8-bit.
 - Full Qwen3-4B router parameter count: `23,620,752`.
 
-The S05 `masked_mean_pool` feature is detached at the router boundary. It is
-still computed from the incoming attention or FFN hidden states using only the
-prompt mask; no completion-token feature or changed timing was introduced.
+For `same_unit`, the S05 `masked_mean_pool` feature is detached at the router
+boundary and computed from the incoming attention or FFN hidden states using
+only the prompt mask. The optional S11-A attention-only timing is documented
+in [`S11_LOOKAHEAD_ROUTING.md`](S11_LOOKAHEAD_ROUTING.md).
 
 ## Soft packed execution
 

@@ -10,7 +10,12 @@ from qaq.model.manual import (
     PrecisionTrace,
     _RoutedPackedLinear,
 )
-from qaq.model.request_state import QaqRequestState
+from qaq.model.request_state import (
+    LOOKAHEAD_ATTENTION_ONE_UNIT,
+    SAME_UNIT,
+    QaqRequestState,
+)
+from qaq.router.distillation import request_state_expected_bit_cost
 from qaq.router.network import S10_CANDIDATE_BITS
 from qaq.router.soft_model import SoftRoutedQwen3ForCausalLM
 
@@ -105,9 +110,7 @@ def test_one_soft_probability_pair_is_shared_within_attention_and_ffn():
 
 def test_three_way_soft_router_propagates_explicit_ordering():
     model = _soft_tiny_model(S10_CANDIDATE_BITS)
-    state = QaqRequestState(
-        "s10b-soft", prompt_length=3, candidate_bits=S10_CANDIDATE_BITS
-    )
+    state = QaqRequestState("s10b-soft", prompt_length=3, candidate_bits=S10_CANDIDATE_BITS)
     trace = PrecisionTrace()
     model(
         input_ids=torch.tensor([[1, 2, 3]]),
@@ -145,10 +148,18 @@ def test_only_router_parameters_receive_gradients_and_change_on_one_step():
     assert audit["trainable_parameter_count"] == model.router_parameter_count
     assert audit["frozen_parameter_count"] > 0
     assert all(name.startswith("routers.") for name in audit["trainable_names"])
-    router_grads = [parameter.grad for name, parameter in model.named_parameters() if name.startswith("routers.")]
+    router_grads = [
+        parameter.grad
+        for name, parameter in model.named_parameters()
+        if name.startswith("routers.")
+    ]
     assert all(gradient is not None and torch.isfinite(gradient).all() for gradient in router_grads)
     assert any(torch.count_nonzero(gradient).item() > 0 for gradient in router_grads)
-    assert all(parameter.grad is None for name, parameter in model.named_parameters() if not name.startswith("routers."))
+    assert all(
+        parameter.grad is None
+        for name, parameter in model.named_parameters()
+        if not name.startswith("routers.")
+    )
 
     optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
     optimizer.step()
@@ -156,6 +167,104 @@ def test_only_router_parameters_receive_gradients_and_change_on_one_step():
         not torch.equal(router_before[name], parameter)
         for name, parameter in model.named_parameters()
         if name.startswith("routers.")
+    )
+    assert all(
+        torch.equal(frozen_before[name], parameter)
+        for name, parameter in model.named_parameters()
+        if not name.startswith("routers.")
+    )
+
+
+def test_explicit_same_unit_soft_mode_matches_the_default_numerics_and_trace():
+    model = _soft_tiny_model().eval()
+    kwargs = {
+        "input_ids": torch.tensor([[1, 2, 3]]),
+        "attention_mask": torch.ones(1, 3, dtype=torch.long),
+        "use_cache": False,
+    }
+    default_state = QaqRequestState("same-soft", prompt_length=3)
+    explicit_state = QaqRequestState("same-soft", prompt_length=3, routing_timing=SAME_UNIT)
+    default_trace = PrecisionTrace()
+    explicit_trace = PrecisionTrace()
+    default = model(request_state=default_state, trace=default_trace, **kwargs)
+    explicit = model(request_state=explicit_state, trace=explicit_trace, **kwargs)
+
+    assert torch.equal(default.logits, explicit.logits)
+    assert default_trace.events == explicit_trace.events
+    assert default_trace.route_records == explicit_trace.route_records
+    assert all(
+        torch.equal(left, right)
+        for left, right in zip(
+            default_state.attention_probabilities + default_state.ffn_probabilities,
+            explicit_state.attention_probabilities + explicit_state.ffn_probabilities,
+            strict=True,
+        )
+    )
+
+
+def test_soft_lookahead_updates_only_the_target_router_and_keeps_packed_base_frozen():
+    model = _soft_tiny_model().train()
+    state = QaqRequestState(
+        "s11-soft",
+        prompt_length=3,
+        routing_timing=LOOKAHEAD_ATTENTION_ONE_UNIT,
+    )
+    trace = PrecisionTrace()
+    calls = {"attention_0": 0, "attention_1": 0}
+    hooks = [
+        model.routers[name].register_forward_hook(
+            lambda module, inputs, output, key=name: calls.__setitem__(key, calls[key] + 1)
+        )
+        for name in calls
+    ]
+    frozen_before = {
+        name: parameter.detach().clone()
+        for name, parameter in model.named_parameters()
+        if not name.startswith("routers.")
+    }
+    output = model(
+        input_ids=torch.tensor([[1, 2, 3]]),
+        attention_mask=torch.ones(1, 3, dtype=torch.long),
+        use_cache=False,
+        request_state=state,
+        trace=trace,
+    )
+    for hook in hooks:
+        hook.remove()
+
+    assert torch.isfinite(output.logits).all()
+    assert calls == {"attention_0": 1, "attention_1": 1}
+    assert sum(value is not None for value in state.attention_probabilities) == 36
+    assert sum(value is not None for value in state.ffn_probabilities) == 36
+    assert state.attention_provenance[0] is None
+    assert all(value is not None for value in state.attention_provenance[1:])
+    assert state.early_attention_probability_consumed == (False,) + (True,) * 35
+    assert torch.isfinite(request_state_expected_bit_cost(state))
+
+    model.zero_grad(set_to_none=True)
+    target_router = model.routers["attention_1"]
+    target_before = {
+        name: parameter.detach().clone() for name, parameter in target_router.named_parameters()
+    }
+    target_probability = state.attention_probabilities[1]
+    target_probability[0].backward()
+    target_gradients = [parameter.grad for parameter in target_router.parameters()]
+    assert all(
+        gradient is not None and torch.isfinite(gradient).all() for gradient in target_gradients
+    )
+    assert any(torch.count_nonzero(gradient).item() for gradient in target_gradients)
+    assert all(parameter.grad is None for parameter in model.routers["attention_0"].parameters())
+    assert all(
+        parameter.grad is None
+        for name, parameter in model.named_parameters()
+        if not name.startswith("routers.")
+    )
+
+    optimizer = torch.optim.SGD(target_router.parameters(), lr=1e-3)
+    optimizer.step()
+    assert any(
+        not torch.equal(target_before[name], parameter)
+        for name, parameter in target_router.named_parameters()
     )
     assert all(
         torch.equal(frozen_before[name], parameter)
