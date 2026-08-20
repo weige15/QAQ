@@ -1,7 +1,43 @@
-Current stage: S11-A
-Status: COMPLETE — semantics only
+Current stage: S11-B1
+Status: COMPLETE - protocol frozen
+
+## S11-B1 deterministic paired quality-pilot protocol freeze
+
+The frozen machine-readable protocol is
+`configs/s11b_quality_pilot.json`, schema `qaq-s11b-quality-pilot-v1`,
+SHA-256 `21a664424debe4892c3577c490158228dd5399bb4b425611db728070d23a5051`.
+It compares exactly `same_unit_control` then
+`lookahead_attention_one_unit_treatment` on the two fixed 64-token S07
+validation requests using the exact S09 model/tokenizer/packed/backend and S07
+4/8 checkpoint identities. It freezes resident hard packed execution, two
+repeats, completion-only temperature-2 KL, full-logit mean/maximum error,
+complete target-owned routes/provenance, freeze audits, and the
+`INVALID_EVIDENCE`/`PAUSE`/`ADVANCE_TO_BROADER_QUALITY_CHECK`/
+`CHECKPOINT_REUSE_DEGRADES` interpretation contract before results.
+
+The canonical standard-library validator passed. Focused S11-B1 tests passed
+`50`; S11-A/request-state/router regressions passed `24`; the full unit suite
+passed `364` with one established optimizer warning; Ruff passed on the two
+new Python paths; and `git diff --check` passed. The tested repository base and
+required S11-A ancestry are
+`ea335d57635ed8b38051169b8f0e770b3fe46459`. The planned result paths were
+absent before and after deterministic repeated validator smoke checks.
+
+S11-B1 created no executor, output directory, placeholder, candidate, or result
+artifact. It ran no pilot or production model/router/teacher/packed-artifact
+inference, training, evaluation, generation, decode, perplexity, CUDA workload,
+benchmark, or performance measurement. Required CPU unit fixtures were
+structural regression evidence only. Quality transfer remains unknown;
+structural tests are not quality evidence, and two future requests cannot
+establish general quality.
+
+Next action: begin S11-B2 implementation of the fail-closed executor and
+non-executing plan from frozen B1, while explicitly not running the real
+Qwen3-4B pilot in B2.
 
 ## S11-A one-unit-lookahead attention routing semantics
+
+Historical status: COMPLETE — semantics only.
 
 S11-A adds explicit request-owned `same_unit` (unchanged default) and
 `lookahead_attention_one_unit` timing. In the lookahead mode, layer 0 attention
@@ -28,7 +64,7 @@ S10 rerun, production checkpoint/lambda selection, asynchronous transfer,
 prefetch, caching, scheduling, performance measurement, or historical evidence
 change occurred. Quality parity and any execution benefit remain unknown.
 
-Next action: Define and execute a separately scoped paired quality pilot comparing same-unit routing with one-unit-lookahead attention routing.
+Historical next action at the S11-A gate: define a separately scoped paired quality pilot comparing same-unit routing with one-unit-lookahead attention routing.
 
 ## S10-H2-B2 repaired canonical broader-validation retry
 

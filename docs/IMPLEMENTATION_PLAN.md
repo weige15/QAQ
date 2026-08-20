@@ -33,8 +33,10 @@ Unresolved questions remain unresolved until a stage produces evidence.
 19. S10-H2-A — Implement the lazy, auditable real executor with explicit device selection and temporary noncanonical output.
 20. S10-H2-B — Separately authorize and execute the frozen broader-validation protocol.
 21. S11-A — Define and validate one-unit-lookahead attention routing semantics without running the quality pilot.
+22. S11-B1 - Freeze the paired lookahead quality-pilot protocol before execution.
 
 No stage may begin automatically. A stage stops at its decision gate and updates `docs/STATUS.md` before handoff.
+The immediate next action is to begin S11-B2 implementation of the fail-closed executor and non-executing plan from frozen B1, while explicitly not running the real Qwen3-4B pilot in B2.
 
 ## Initial implementation choices
 

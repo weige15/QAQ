@@ -1,0 +1,281 @@
+{
+  "schema": "qaq-s11b-quality-pilot-v1",
+  "stage": "S11-B1",
+  "protocol_status": "FROZEN_BEFORE_RESULTS",
+  "protocol_frozen_before_results": true,
+  "scope": {
+    "purpose": "paired quality-only pilot for same_unit control versus one-unit-lookahead attention treatment",
+    "structural_validation_only_in_s11b1": true,
+    "executor_implemented_in_s11b1": false,
+    "pilot_executed_in_s11b1": false
+  },
+  "modes": [
+    {
+      "id": "same_unit_control",
+      "routing_timing": "same_unit",
+      "execution": "resident_physically_packed_hard_4_8",
+      "candidate_order": [4, 8],
+      "packed_weight_state": "resident",
+      "hard_query_level_routes": true,
+      "training_or_retraining": false,
+      "on_demand_loading": false,
+      "generation_or_decode": false,
+      "perplexity": false,
+      "performance_or_resource_measurement": false
+    },
+    {
+      "id": "lookahead_attention_one_unit_treatment",
+      "routing_timing": "lookahead_attention_one_unit",
+      "execution": "resident_physically_packed_hard_4_8",
+      "candidate_order": [4, 8],
+      "packed_weight_state": "resident",
+      "hard_query_level_routes": true,
+      "training_or_retraining": false,
+      "on_demand_loading": false,
+      "generation_or_decode": false,
+      "perplexity": false,
+      "performance_or_resource_measurement": false
+    }
+  ],
+  "identities": {
+    "model": {
+      "repository": "Qwen/Qwen3-4B",
+      "revision": "1cfa9a7208912126459214e8b04321603b3df60c"
+    },
+    "tokenizer": {
+      "repository": "Qwen/Qwen3-4B",
+      "revision": "1cfa9a7208912126459214e8b04321603b3df60c"
+    },
+    "packed_artifact": {
+      "manifest_path": "docs/quantized_model_manifest.json",
+      "relative_path": "quantized/s03b_qwen3_4b/backend_cache/packed/anyprec-(1cfa9a7208912126459214e8b04321603b3df60c)-w8_orig4-gc1-c4_s1_blk64",
+      "checkpoint_file": "pytorch_model.bin",
+      "sha256": "29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee"
+    },
+    "any_precision": {
+      "submodule_path": "third_party/any-precision-llm",
+      "commit": "a3257d02740cc5757c78673da534b0630ff3a4ea"
+    },
+    "router_checkpoint": {
+      "path_env_override": "QAQ_S07_ROUTER_CHECKPOINT",
+      "recorded_external_path": "/nfs/home/s314511048/.cache/qaq/s07b/final_router.pt",
+      "sha256": "08bf646f19759c0d7949e159bdbe4f96bbea737204b96f8760d205c8d6fd1949",
+      "historical_result_path": "docs/results/s07_router_training.json",
+      "historical_result_format": "qaq-s07b-router-training-v1",
+      "candidate_order": [4, 8]
+    },
+    "fixed_inputs_path": "configs/s09_baseline_prompts.json"
+  },
+  "fixed_inputs": {
+    "source_path": "configs/s09_baseline_prompts.json",
+    "source_field": "full_input_ids",
+    "request_order": ["validation-3", "validation-1000"],
+    "requests": [
+      {
+        "source_record_id": "validation-3",
+        "token_count": 64,
+        "token_digest_sha256": "bbd7a25c172570f90d29d6fff0efc65975139ab7d65bb22409e87d10094f404b",
+        "prompt_token_range": [0, 32],
+        "completion_token_range": [32, 64],
+        "causal_completion_loss_logit_range": [31, 63]
+      },
+      {
+        "source_record_id": "validation-1000",
+        "token_count": 64,
+        "token_digest_sha256": "99c0183a064c79daea4cb461de16ddeb2144dbbe2af64b375f6f2088bb6e659e",
+        "prompt_token_range": [0, 32],
+        "completion_token_range": [32, 64],
+        "causal_completion_loss_logit_range": [31, 63]
+      }
+    ],
+    "token_digest_encoding": "SHA-256 of source-order little-endian signed 64-bit token IDs",
+    "sequence_length": 64,
+    "prompt_tokens": 32,
+    "completion_tokens": 32,
+    "batch_size": 1,
+    "stable_order": true,
+    "padding": "none",
+    "runtime_tokenization": false,
+    "dataset_access": false,
+    "input_replacement": false
+  },
+  "execution_contract": {
+    "seed": 1729,
+    "fresh_child_processes_per_mode": 1,
+    "repeats_within_fresh_child": 2,
+    "identical_fresh_process_setup_across_modes": true,
+    "explicit_cuda_device_required": true,
+    "same_physical_gpu_identity_across_children": true,
+    "sequence_length": 64,
+    "prompt_tokens": 32,
+    "completion_tokens": 32,
+    "full_teacher_forced_forward": true,
+    "use_cache": false,
+    "sampling": false,
+    "generation": false,
+    "decode": false,
+    "perplexity": false,
+    "dataset_loading": false,
+    "runtime_tokenization": false,
+    "resident_hard_packed_execution": true,
+    "on_demand_loader": false,
+    "load_router_checkpoint_read_only": true
+  },
+  "quality_metrics": {
+    "teacher_student_kl": {
+      "authoritative_operation": "qaq.router.distillation.masked_kl_distillation_loss",
+      "formula": "T^2 * mean over completion causal logit positions [31,63) of KL(softmax(teacher/T) || softmax(student/T))",
+      "temperature": 2.0,
+      "completion_only": true,
+      "teacher_detached": true,
+      "vocabulary_reduction": "sum",
+      "token_reduction": "arithmetic mean over the 32 explicit completion targets"
+    },
+    "mean_absolute_logit_error": {
+      "formula": "mean(abs(student_logits - teacher_logits))",
+      "positions": "all 64 logit positions and the complete vocabulary",
+      "completion_masked": false
+    },
+    "maximum_absolute_logit_error": {
+      "formula": "max(abs(student_logits - teacher_logits))",
+      "positions": "all 64 logit positions and the complete vocabulary",
+      "completion_masked": false
+    },
+    "finite_checks": ["teacher_logits", "student_logits", "per_request_metrics", "aggregate_metrics"],
+    "request_aggregation": "unweighted arithmetic mean of each per-request metric across validation-3 then validation-1000",
+    "width_combined_quality_scalar": false,
+    "route_distance_is_quality_metric": false
+  },
+  "route_comparison": {
+    "route_key": ["request_id", "target_layer", "unit_type"],
+    "serialization_order": "layer-major: target_layer 0..35, attention then ffn",
+    "routes_per_request": 72,
+    "attention_routes_per_request": 36,
+    "ffn_routes_per_request": 36,
+    "unique_keys_required": true,
+    "allowed_selected_bits": [4, 8],
+    "fraction_summaries": ["overall_4_8", "attention_4_8", "ffn_4_8"],
+    "mean_selected_bit_width": "unweighted arithmetic mean across the 72 target-owned selected bits",
+    "paired_distance_formula": "normalized Hamming distance between control and treatment selected bits over matching target-owned keys",
+    "paired_distance_scopes": ["overall", "attention", "ffn"],
+    "changed_target_unit_records": true,
+    "historical_same_unit_control": {
+      "source_path": "docs/results/s07_router_training.json",
+      "source_field": "evaluation.hard.route_logs",
+      "keyed_equality_required": true,
+      "canonical_digest_encoding": "SHA-256 of compact sort-key JSON records in layer-major attention-then-ffn order",
+      "request_route_digests": {
+        "validation-3": "0b6c319dc15d41008e3810f991f706d3343826549d47ac88920c6b908e6d6aae",
+        "validation-1000": "8e04d8e2e8e0bb9306dfdd5595176a019992bcd0be5712c9e90625a4d406b101"
+      }
+    },
+    "cross_mode_equality": {
+      "required_keys_per_request": [
+        {"target_layer": 0, "unit_type": "attention"},
+        {"target_layer": 0, "unit_type": "ffn"}
+      ],
+      "later_differences": "record without normalization or rejection",
+      "ffn_equality_beyond_layer_0_required": false
+    }
+  },
+  "treatment_provenance": {
+    "layer_0_attention": "same_unit",
+    "lookahead_target_attention_layers": [1, 35],
+    "lookahead_source_attention_layers": [0, 34],
+    "mapping": "target_layer = source_layer + 1",
+    "source_point": "post_attention_pre_ffn",
+    "target_unit_identity": "attention_i remains owned by target layer i",
+    "ffn_timing": "same_layer",
+    "request_state_ownership": "concrete target-owned QaqRequestState",
+    "provenance_fields": ["source_layer", "target_layer", "target_unit_type", "source_point", "routing_timing"],
+    "candidate_order_preserved": [4, 8]
+  },
+  "determinism_audit": {
+    "repeats_per_mode": 2,
+    "identical_input_digests": true,
+    "bitwise_equal_logits": true,
+    "identical_72_unit_routes": true,
+    "identical_provenance": true,
+    "finite_logits_and_metrics": true
+  },
+  "freeze_audit": {
+    "hash_scope": "complete named parameters and persistent buffers",
+    "hash_encoding": "SHA-256 over ordered name, dtype, shape, and contiguous CPU value bytes",
+    "components": ["teacher", "packed_weights_and_buffers", "non_router_base", "router"],
+    "before_after_hash_equality_required": true,
+    "optimizer_absent": true,
+    "gradients_absent": true,
+    "state_changes_allowed": false
+  },
+  "interpretation": {
+    "precedence": ["INVALID_EVIDENCE", "PAUSE", "ADVANCE_TO_BROADER_QUALITY_CHECK", "CHECKPOINT_REUSE_DEGRADES"],
+    "invalid_evidence_when": "any integrity, control, determinism, freeze, coverage, provenance, result-schema, or prohibited-work check fails",
+    "pause_when": "a required external model, tokenizer, packed artifact, checkpoint, CUDA device, or identical physical GPU resource is unavailable",
+    "quality_thresholds": {
+      "treatment_aggregate_kl_max_control_factor": 1.10,
+      "treatment_each_request_kl_max_paired_control_factor": 1.25,
+      "treatment_aggregate_mean_absolute_logit_error_max_control_factor": 1.10,
+      "implementation_choices_not_paper_facts": true
+    },
+    "advance_when": "all integrity/control/determinism/freeze/coverage/provenance/result checks pass and every quality threshold passes",
+    "degrades_when": "complete valid evidence fails any quality threshold",
+    "advance_authorizes": "only a separately defined broader quality check",
+    "advance_never_authorizes": "asynchronous transfer or prefetch",
+    "degrades_meaning": "the historical same-unit-trained checkpoint did not transfer cleanly in this two-example pilot",
+    "degrades_does_not_mean": "lookahead is invalid after separately paired retraining"
+  },
+  "planned_results": {
+    "per_mode_schema": "qaq-s11b-quality-pilot-mode-result-v1",
+    "aggregation_schema": "qaq-s11b-quality-pilot-aggregation-v1",
+    "mode_outputs": [
+      {
+        "mode_id": "same_unit_control",
+        "path": "docs/results/s11b_quality_pilot/same_unit_control.json"
+      },
+      {
+        "mode_id": "lookahead_attention_one_unit_treatment",
+        "path": "docs/results/s11b_quality_pilot/lookahead_attention_one_unit_treatment.json"
+      }
+    ],
+    "aggregation_output": "docs/results/s11b_quality_pilot/aggregation.json",
+    "create_in_s11b1": false,
+    "overwrite_allowed": false
+  },
+  "result_schema_contracts": {
+    "per_mode": {
+      "schema": "qaq-s11b-quality-pilot-mode-result-v1",
+      "required_top_level_fields": ["schema", "mode_id", "protocol_config_sha256", "identities", "hardware", "seed", "inputs", "repeats", "quality", "routes", "provenance", "freeze_audit", "prohibited_work_audit"],
+      "input_record_fields": ["request_id", "full_input_ids_sha256", "token_count", "prompt_token_range", "completion_token_range", "causal_completion_loss_logit_range"],
+      "repeat_record_fields": ["repeat_index", "input_digests", "logits_digest", "route_map_digest", "provenance_digest", "finite_logits", "finite_metrics"],
+      "quality_fields": ["per_request", "aggregate_kl", "aggregate_mean_absolute_logit_error", "aggregate_maximum_absolute_logit_error", "all_finite"],
+      "route_fields": ["target_owned_route_maps", "fractions_overall", "fractions_attention", "fractions_ffn", "mean_selected_bit_width", "historical_control_equality"],
+      "freeze_fields": ["before_hashes", "after_hashes", "hashes_equal", "optimizer_absent", "gradients_absent"]
+    },
+    "aggregation": {
+      "schema": "qaq-s11b-quality-pilot-aggregation-v1",
+      "required_top_level_fields": ["schema", "protocol_config_sha256", "mode_result_paths", "paired_inputs", "paired_quality", "route_comparison", "determinism", "freeze_audits", "result_checks", "classification", "errors"],
+      "paired_quality_fields": ["control_aggregate_kl", "treatment_aggregate_kl", "paired_request_kl", "control_aggregate_mean_absolute_logit_error", "treatment_aggregate_mean_absolute_logit_error", "threshold_checks"],
+      "route_comparison_fields": ["paired_distances_overall", "paired_distances_attention", "paired_distances_ffn", "changed_target_units", "layer_0_equal", "later_differences_recorded"],
+      "classification_values": ["INVALID_EVIDENCE", "PAUSE", "ADVANCE_TO_BROADER_QUALITY_CHECK", "CHECKPOINT_REUSE_DEGRADES"]
+    }
+  },
+  "prohibited_work": [
+    "training or retraining",
+    "optimizer, learning-rate, scheduler, or gradient work",
+    "checkpoint creation or output",
+    "on-demand loading",
+    "generation or decode",
+    "perplexity",
+    "latency, memory, transfer, throughput, or other performance measurement",
+    "asynchronous transfer, prefetching, caching, batching, or scheduling"
+  ],
+  "validation": {
+    "validator": "scripts/validate_s11b_protocol.py",
+    "canonical_command": "PYTHONPATH=src:. python scripts/validate_s11b_protocol.py --config configs/s11b_quality_pilot.json",
+    "read_only": true,
+    "standard_library_only": true,
+    "loads_model_checkpoint_or_artifact_bytes": false,
+    "imports_ml_runtime": false,
+    "refuses_existing_planned_results": true
+  }
+}

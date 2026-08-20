@@ -1452,3 +1452,60 @@ scoped paired quality pilot comparing `same_unit` with
 feature timing, target identity, one-time consumption, or decode invariants,
 preserve this mode and evidence, return S11 to REVISE, and record a replacement
 decision before changing timing or adding another variant.
+
+### D056 — S11-B1 paired quality-pilot protocol freeze (2026-08-20)
+
+**Project-established facts:** S11-A is complete for semantics only and keeps
+`same_unit` as the default. Its treatment maps source attention layers 0–34 to
+target attention layers 1–35 at `post_attention_pre_ffn`, keeps layer-0
+attention and all FFNs same-layer, and preserves target-owned request state.
+S07 establishes the historical router-only 4/8 checkpoint, `[4,8]` candidate
+order, completion-only masked KL operation, and two validation requests. S09
+establishes the exact model, tokenizer, packed artifact, Any-Precision,
+checkpoint, and fixed-input identities. None establishes an S11-B quality
+result.
+
+**Implementation choices:** Freeze schema `qaq-s11b-quality-pilot-v1` before
+results, SHA-256
+`21a664424debe4892c3577c490158228dd5399bb4b425611db728070d23a5051`.
+Compare exactly `same_unit_control` then
+`lookahead_attention_one_unit_treatment` using the unchanged historical S07
+checkpoint without retraining. Use only `validation-3` and
+`validation-1000`, their committed 64-token `full_input_ids`, batch size one,
+resident physically packed hard 4/8 execution, one fresh child per mode, two
+repeated forwards within each fresh child, seed 1729, and `use_cache=false`.
+No optimizer, gradients, on-demand loading, generation, decode, perplexity, or
+performance work is allowed.
+
+Record completion-only masked KL at temperature 2.0, full-logit mean and
+maximum absolute error, complete target-owned 72-unit route maps, 4/8
+fractions and mean width, paired overall/attention/FFN route distances,
+changed units, repeat determinism, S11-A provenance, and complete
+parameter/buffer before/after hashes. Route distance is descriptive, not
+quality, and no width-combined scalar exists. The control must equal historical
+S07 keyed routes. Cross-mode equality is required only for layer-0 attention
+and FFN; later differences, including FFN differences, are recorded rather
+than normalized.
+
+**Classification choice:** Integrity/prohibited-work failure is
+`INVALID_EVIDENCE`; unavailable required external resources are `PAUSE`; both
+precede quality classification. Valid evidence advances only when treatment
+aggregate KL is at most `1.10` times control, every treatment request KL is at
+most `1.25` times paired control, and treatment aggregate mean absolute logit
+error is at most `1.10` times control. Otherwise it is
+`CHECKPOINT_REUSE_DEGRADES`. The `1.10` and `1.25` margins, pilot size,
+checkpoint reuse, process/repeat structure, and classification names are
+implementation choices, not paper facts.
+
+**Consequence:** S11-B1 freezes only the protocol, versioned future result
+schemas, output paths, read-only validator, and structural tests. It creates no
+executor or result and provides no quality evidence. A pass later permits only
+a separately defined broader quality check, never asynchronous transfer or
+prefetch. A fail would show only that the historical same-unit-trained
+checkpoint did not transfer cleanly in this two-example pilot; it would not
+invalidate lookahead after paired retraining.
+
+**Reversal path:** If a pre-execution review finds a protocol, identity, input,
+metric, route, provenance, freeze, schema, or classification defect, preserve
+this frozen config, mark S11-B1 REVISE, and record a replacement decision
+before any pilot execution or result creation.
