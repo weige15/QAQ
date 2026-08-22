@@ -10,6 +10,18 @@ Record `<STAGE_BASE>` when the stage starts and keep it fixed for that implement
 
 Preserve committed work. Never reset, overwrite, delete, or recreate a valid current-stage branch or worktree merely to make commit ancestry look linear.
 
+## Controller root and stage worktree
+
+Keep control state separate from stage code:
+
+- `<CONTROLLER_ROOT>` is the physical worktree that has the destination branch checked out. Its current `.pi/prompts/` and `.pi/rules/` files are authoritative for controller behavior.
+- `<STAGE_WORKTREE>` is the physical worktree that has the feature branch checked out. Its source, tests, stage documents, and stage changes are authoritative for implementation.
+- Copies of `.pi/` inside an older feature branch are snapshots, not the active controller source.
+
+At the start of every operation and after every worker recovery, read the controller prompt and rules from `<CONTROLLER_ROOT>`, then execute project commands in `<STAGE_WORKTREE>` when the operation is implementation or revision.
+
+Do not merge, rebase, recreate, or modify the feature branch merely to obtain newer controller files. Controller updates on the destination branch change how the work is managed; they do not change the stage's code base.
+
 ## Authorization boundaries
 
 Implementation or revision authorization permits only the current stage's feature-worktree operations:
