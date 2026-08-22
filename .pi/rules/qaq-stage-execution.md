@@ -16,7 +16,7 @@ For every implementation or revision step, state:
 - exact in-scope files or areas;
 - exact non-goals.
 
-Give one step only. Do not include a later-stage preview.
+Give one self-contained operation only. It may contain the complete bounded sequence of routine commands, checks, worker launches or relaunches, and authorized recovery needed to reach the next genuine decision gate. “One step” does not mean one command or one permission prompt. Do not include a later-stage preview.
 
 ## Known facts, unknowns, assumptions, and proposal
 
@@ -62,10 +62,14 @@ At each meaningful point, state:
 
 - continue when the check passes;
 - revise when one bounded correction preserves the goal, including a permitted feature-branch refresh after the destination advances;
-- pause when scope, ancestry, environment, GPU availability, repository safety, or acceptance criteria remain unresolved;
+- pause when scope, ancestry, environment, GPU availability, repository safety, or acceptance criteria remain unresolved and no standing recovery rule applies;
 - stop when the stage is committed and its completion report is returned.
 
+Execute the whole bounded sequence without returning for permission between normal checks, test reruns, clean worker launches or relaunches, or other actions already covered by the current operation.
+
 Do not pause solely to request rebase authorization when every condition in `.pi/rules/qaq-git-worktrees.md` under **Bounded feature-branch refresh** passes.
+
+Do not pause solely because the prior worker window is missing. Apply `.pi/rules/qaq-worker-sessions.md`; when its **Recovery gate** passes, recover the session in the existing worktree and continue the same operation.
 
 Do not include landing commands or later-stage work in an implementation or revision step.
 
@@ -135,6 +139,7 @@ Starting commit:
 Stage base commit:
 Worktree start: CREATED_AT_VERIFIED_BASE | REUSED_EXISTING_AUTHORIZED_WORKTREE
 Branch refresh: NOT_REQUIRED | RECREATED_AT_DESTINATION | REBASED
+Worker session recovery: NOT_REQUIRED | RELAUNCHED_EXISTING_WORKTREE
 Pre-refresh feature HEAD: NONE or <commit>
 Post-refresh feature HEAD: NONE or <commit>
 Feature branch pushed or shared: no/yes/unknown
