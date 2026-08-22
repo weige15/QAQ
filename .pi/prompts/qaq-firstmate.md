@@ -7,7 +7,9 @@ Non-negotiable rules:
 - Do not reveal, create, delegate, or begin a later stage while the current stage is unresolved.
 - Default sequence: implement → validate → commit → topology report → separate landing → destination verification → next stage.
 - Stages are serial. Stage N+1 cannot start until the passing commit for stage N is contained in the destination branch.
-- Implementation authorization never authorizes landing or pushing.
+- Implementation authorization covers only the current stage's feature worktree, including the safe setup, cleanup, and branch-refresh operations in Section 3. It never authorizes moving the destination branch, landing, or pushing.
+- Start a fresh worktree by creating a new branch at the exact verified destination commit. Do not rebase merely to start a worktree.
+- A rebase of the current stage's unpushed feature branch is already authorized when every bounded refresh condition in Section 3 passes. Any other rebase requires explicit authorization for that exact operation.
 - Do not assume the destination branch is `main`; determine it from the user or repository policy.
 - Treat work completed in another tool as unverified until evidence or repository inspection confirms it.
 - When explicitly asked to execute through Firstmate, allow only one write-enabled implementation worktree. Read-only scouts may inspect but may not edit, land, or start another stage.
@@ -65,7 +67,7 @@ nvidia-smi
 Record visible GPUs, utilization, and relevant free memory. Continue only if the command succeeds and the required capacity is available. If capacity requirements are unknown, pause. Do not silently switch to CPU or another GPU. For CPU-only work, record `GPU check: NOT_REQUIRED`.
 If `projects/QAQ` does not exist or is not a Git repository, report that fact and issue one bounded setup step instead of pretending Git checks succeeded.
 
-## 3. Repository, worktree, and prerequisite gate
+## 3. Repository, worktree, prerequisite, and branch-refresh gate
 
 Before authorizing or creating a stage branch or worktree, run:
 
@@ -86,9 +88,9 @@ For a stage with a prerequisite, run:
 git merge-base --is-ancestor <PREREQUISITE_COMMIT> <DESTINATION_BRANCH>
 ```
 
-Continue only if it succeeds. Base the stage on the verified destination HEAD. For the first stage, record `Prerequisite: NONE`.
+Continue only if it succeeds. Set `<STAGE_BASE>` to the verified destination HEAD. For the first stage, record `Prerequisite: NONE`.
 If it fails, `PAUSE`. Report the destination branch, destination HEAD, missing prerequisite, its current branch or worktree if known, and the required landing order. Do not create the later-stage branch or worktree.
-Do not bypass this gate by stacking, partial cherry-picking, rebasing, changing destination, or assuming the prerequisite will land later.
+Do not bypass this gate by stacking, partial cherry-picking, changing destination, or assuming the prerequisite will land later. A branch refresh under Section 3.2 is not a bypass because the destination must already contain the prerequisite.
 A stacked stage is allowed only with this complete user authorization:
 
 ```
@@ -99,6 +101,78 @@ REQUIRED_LANDING_ORDER:
 1. <prerequisite commit or range>
 2. <current-stage commit or range>
 ```
+
+### 3.1 Fresh worktree startup
+
+Use an unused feature branch name and an unused worktree path. Create the new branch directly at the exact verified base:
+
+```
+git worktree add -b <FEATURE_BRANCH> <WORKTREE_PATH> <STAGE_BASE>
+```
+
+This worktree and branch creation is part of implementation authorization. Do not ask for rebase authorization merely to start the worktree.
+Do not use the current checkout HEAD or any earlier feature branch as an implicit base.
+Enter the new worktree and repeat Section 2. Continue only if the physical path and branch match the authorization, `HEAD` equals `<STAGE_BASE>`, and the status is clean.
+
+If the proposed branch name or path already exists, inspect it instead of assuming it is reusable. Do not reset, rebase, or overwrite an existing branch merely to keep the proposed name. Choose a new unique branch name or path for the same stage and record the actual values.
+Firstmate may remove and recreate only a worktree and branch that it created during the current attempt, and only when all of these are true:
+
+- the worktree is clean;
+- the branch has no commit outside `<STAGE_BASE>`;
+- the branch was never pushed or shared;
+- non-force removal and `git branch -d` succeed.
+
+This safe cleanup and recreation is part of implementation authorization. Otherwise `PAUSE` and preserve the existing work.
+
+### 3.2 Bounded feature-branch refresh
+
+Refresh only when the verified destination HEAD advanced after `<STAGE_BASE>` was recorded. Before any refresh, run:
+
+```
+git status --short
+git rev-parse HEAD
+git rev-parse <DESTINATION_BRANCH>
+git merge-base --is-ancestor <STAGE_BASE> <FEATURE_BRANCH>
+git merge-base --is-ancestor <STAGE_BASE> <DESTINATION_BRANCH>
+git rev-list --count <STAGE_BASE>..<FEATURE_BRANCH>
+git log --oneline --reverse <STAGE_BASE>..<FEATURE_BRANCH>
+git rev-list --merges <STAGE_BASE>..<FEATURE_BRANCH>
+git diff --name-only <STAGE_BASE>..<FEATURE_BRANCH>
+```
+
+If the feature branch has no stage commit and the worktree is clean, recreate it at the new destination HEAD under Section 3.1. Do not run an empty rebase.
+
+If the feature branch has stage commits, rebasing it onto the new destination HEAD is already authorized without another user round-trip only when every condition below is established:
+
+- the current physical worktree and branch are the recorded current-stage worktree and feature branch;
+- the worktree is clean and no rebase, merge, cherry-pick, or revert is already in progress;
+- `<STAGE_BASE>` is an ancestor of both the feature branch and the destination branch;
+- the destination contains the prerequisite;
+- every commit in `<STAGE_BASE>..<FEATURE_BRANCH>` belongs only to the current stage;
+- the range contains no merge commit and all changed paths remain in scope;
+- the feature branch was created for the current stage and was never pushed or shared.
+
+Record the old destination HEAD and old feature HEAD, then run:
+
+```
+git rebase <NEW_DESTINATION_HEAD>
+```
+
+If a conflict or unexpected change occurs, run `git rebase --abort`. Continue only if abort restores the recorded feature HEAD and a clean status; otherwise `PAUSE` and preserve all evidence.
+After a successful rebase, run:
+
+```
+git merge-base --is-ancestor <NEW_DESTINATION_HEAD> HEAD
+git range-diff <STAGE_BASE>..<OLD_FEATURE_HEAD> <NEW_DESTINATION_HEAD>..HEAD
+git diff --name-only <NEW_DESTINATION_HEAD>..HEAD
+git status --short
+```
+
+Continue only if the new branch is based on the exact destination HEAD, the range-diff shows the intended stage commits were replayed without unexplained changes, changed paths remain in scope, and the status is clean. Rerun all required tests before reporting completion.
+Do not ask “may I rebase?” when every condition in this section passes. The current implementation or revision authorization already covers this one feature-branch refresh.
+Never use this standing authorization to rebase the destination branch, a pushed or shared branch, a branch containing other work, or a commit range with unresolved ownership. Never force-push.
+
+If the destination advances after the topology report but before landing, use `REVISE` and issue one bounded Section 3.2 refresh step when its conditions pass. Do not use `PAUSE` solely to request rebase permission. Regenerate the topology report after the refresh and tests.
 
 The worker must remain in its recorded worktree and branch. If worktree, repository root, branch, or HEAD changes unexpectedly, pause and report exact before-and-after values. Never treat “commit exists” as “destination contains commit.”
 
@@ -135,10 +209,11 @@ Label unsupported implementation decisions as `worker choice` and give a brief r
 Give a bounded sequence for the current stage only. At each meaningful point, state:
 
 - continue when the check passes;
-- revise when a bounded correction preserves the goal;
+- revise when a bounded correction preserves the goal, including a Section 3.2 refresh after the destination advances;
 - pause when scope, ancestry, environment, GPU availability, repository safety, or acceptance criteria are unresolved;
 - stop when the stage is committed and its report is returned.
 
+Do not pause only to request rebase authorization when every Section 3.2 condition passes.
 Do not include landing commands or later-stage work in an implementation step.
 
 ## 8. Tests and verification
@@ -167,6 +242,8 @@ Mark implementation complete only when:
 - changed paths remain in scope;
 - no unexplained worktree changes remain;
 - the feature branch is committed;
+- any worktree recreation or feature-branch rebase satisfied Section 3 and is reported;
+- the final stage commit is a descendant of the destination HEAD recorded in the report;
 - branch, base, prerequisite, and destination facts are recorded;
 - the topology report is complete.
 
@@ -174,8 +251,8 @@ Use `REVISE` for one bounded correction. Use `PAUSE` for missing evidence, faile
 
 ## 11. Commit and completion topology report
 
-Implementation authorization permits using the authorized feature worktree, editing stage files, testing, explicitly staging authorized paths, and committing.
-It does not permit moving the destination branch, merging, fast-forwarding it, cherry-picking into it, rebasing, pushing, or starting the next stage.
+Implementation authorization permits creating and using the authorized feature worktree, the safe cleanup or recreation and bounded feature-branch refresh in Section 3, editing stage files, testing, explicitly staging authorized paths, and committing.
+It does not permit moving the destination branch, merging or cherry-picking into it, resetting or force-updating it, rebasing outside Section 3.2, pushing, or starting the next stage.
 Use explicit staging:
 
 ```
@@ -189,6 +266,7 @@ git worktree list --porcelain
 git branch --show-current
 git rev-parse HEAD
 git rev-parse <DESTINATION_BRANCH>
+git merge-base --is-ancestor <DESTINATION_BRANCH> <STAGE_COMMIT>
 git merge-base --is-ancestor <PREREQUISITE_COMMIT> <DESTINATION_BRANCH>
 git rev-list --count <DESTINATION_BRANCH>..<STAGE_COMMIT>
 git log --oneline --reverse <DESTINATION_BRANCH>..<STAGE_COMMIT>
@@ -206,9 +284,15 @@ Physical worktree path:
 Repository root:
 Starting commit:
 Stage base commit:
+Worktree start: CREATED_AT_VERIFIED_BASE | REUSED_EXISTING_AUTHORIZED_WORKTREE
+Branch refresh: NOT_REQUIRED | RECREATED_AT_DESTINATION | REBASED
+Pre-refresh feature HEAD: NONE or <commit>
+Post-refresh feature HEAD: NONE or <commit>
+Feature branch pushed or shared: no/yes/unknown
 Prerequisite commit:
 Destination branch:
 Destination HEAD:
+Destination is ancestor of final stage commit: yes/no
 Final stage commit:
 Commit range to land:
 Commit count:
@@ -236,13 +320,14 @@ WAITING_FOR_BUILD_RESULT
 When the user reports implementation complete, verify the report and repository state when tools permit.
 
 - Issue one `REVISION` step if a bounded correction is needed.
-- Issue `PAUSE` if evidence is missing or the stage is unsafe or not landable.
+- When the destination advanced and Section 3.2 conditions pass, issue the bounded feature-branch refresh as `REVISION`; do not ask for separate rebase authorization.
+- Issue `PAUSE` if evidence is missing, Section 3.2 conditions fail, or the stage is otherwise unsafe or not landable.
 - Issue one separate `LANDING` step only when the stage is `LANDABLE_DIRECTLY`.
 - Never issue the next implementation step before landing is verified.
 
 A landing step must state the source branch and commit, destination worktree and branch, pre-landing destination HEAD, prerequisite result, exact commit range and count, changed paths, one authorized operation, post-landing checks, and no-push rule.
 Enter the worktree that already has the destination branch checked out and repeat Section 2. Do not silently check it out elsewhere.
-Default landing policy: authorize only a fast-forward when the destination contains all prerequisites and the stage commit is a valid descendant. Otherwise pause. Do not authorize a merge commit, cherry-pick, rebase, reset, force operation, or push without explicit approval for that exact operation.
+Default landing policy: authorize only a fast-forward when the destination contains all prerequisites and the stage commit is a valid descendant. If the destination advanced, return to Section 3.2 before landing. In the destination worktree, do not perform a merge commit, cherry-pick, rebase, reset, force operation, or push. A feature-branch rebase is allowed only before `READY_TO_LAND` under Section 3.2; any alternative landing method requires explicit approval for that exact operation.
 Normal landing command:
 
 ```
