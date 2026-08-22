@@ -1,34 +1,42 @@
-# QAQ Git, worktree, branch-refresh, and landing rules
+# QAQ Git, worktree, and landing rules
 
-This file is authoritative for repository topology, worktrees, feature branches, prerequisites, rebasing, commits, landing, and pushing. No other controller file should redefine when a rebase, landing, or push is allowed.
+This file is authoritative for repository topology, worktrees, feature branches, prerequisites, commits, landing, and pushing.
+
+## Operating model
+
+A worktree is a temporary checkout. A feature branch is the record of the current stage. Neither becomes invalid merely because the destination branch moves.
+
+Record `<STAGE_BASE>` when the stage starts and keep it fixed for that implementation. Later destination commits do not change the stage goal, erase the feature branch, or require a rebase. Integration with the current destination is handled during the separate landing operation.
+
+Preserve committed work. Never reset, overwrite, delete, or recreate a valid current-stage branch or worktree merely to make commit ancestry look linear.
 
 ## Authorization boundaries
 
-Implementation authorization permits only the current stage's feature-worktree operations:
+Implementation or revision authorization permits only the current stage's feature-worktree operations:
 
-- create and use the authorized feature worktree;
-- perform the safe cleanup or recreation defined below;
-- perform one bounded feature-branch refresh when every condition below passes;
-- edit, test, explicitly stage, and commit authorized paths.
+- create or reuse the authorized feature worktree and branch;
+- inspect the destination branch read-only;
+- edit, test, explicitly stage, and commit authorized paths;
+- perform the worker-session recovery allowed by `.pi/rules/qaq-worker-sessions.md`;
+- perform a bounded feature-branch rebase only when the current stage actually needs destination changes to continue, as defined below.
 
 Implementation authorization does not permit:
 
 - moving the destination branch;
-- merging or cherry-picking into the destination branch;
+- landing into the destination branch;
 - resetting or force-updating any branch;
-- rebasing outside **Bounded feature-branch refresh**;
 - pushing;
 - starting the next stage.
+
+Landing and pushing remain separate operations. Never force-push. Never push without explicit authorization for that exact push.
 
 When explicitly asked to execute through Firstmate, allow only one write-enabled implementation worktree. Read-only scouts may inspect, but they may not edit, land, or start another stage.
 
 Never assume the destination branch is `main`; determine it from the user or repository policy.
 
-Never force-push. Never push without explicit authorization for that exact push.
-
 ## Repository and prerequisite gate
 
-Before authorizing or creating a stage branch or worktree, run:
+Before creating or authorizing a stage branch or worktree, run:
 
 ```bash
 git worktree list --porcelain
@@ -44,8 +52,7 @@ Record:
 
 - the physical worktree;
 - the repository root;
-- the current branch;
-- the starting `HEAD`;
+- the current branch and `HEAD`;
 - the destination branch and its `HEAD`;
 - the prerequisite commit, or `NONE`;
 - whether the destination contains the prerequisite.
@@ -62,9 +69,7 @@ For the first stage, record `Prerequisite: NONE`.
 
 If the prerequisite check fails, use `PAUSE`. Report the destination branch, destination `HEAD`, missing prerequisite, its current branch or worktree if known, and the required landing order. Do not create the later-stage branch or worktree.
 
-Do not bypass this gate by stacking, partial cherry-picking, changing destination, or assuming the prerequisite will land later. A bounded feature-branch refresh is not a bypass because the destination must already contain the prerequisite.
-
-A stacked stage is allowed only with this complete user authorization:
+Do not bypass this gate by stacking, partial landing, changing destination, or assuming the prerequisite will land later. A stacked stage is allowed only with this complete user authorization:
 
 ```text
 STACKED_STAGE_AUTHORIZATION: YES
@@ -75,45 +80,32 @@ REQUIRED_LANDING_ORDER:
 2. <current-stage commit or range>
 ```
 
-The worker must remain in its recorded physical worktree and branch. If the worktree, repository root, branch, or `HEAD` changes unexpectedly, use `PAUSE` and report the exact before-and-after values.
-
 Never treat “the commit exists” as “the destination contains the commit.”
 
-## Fresh worktree startup
+## Worktree startup and continuity
 
-Use an unused feature branch name and an unused worktree path. Create the new branch directly at the exact verified base:
+For a new stage, use an unused feature branch name and an unused worktree path:
 
 ```bash
 git worktree add -b <FEATURE_BRANCH> <WORKTREE_PATH> <STAGE_BASE>
 ```
 
-This creation is part of implementation authorization. Do not ask for rebase authorization merely to start the worktree.
+Enter the worktree and complete `.pi/rules/qaq-runtime.md`. Continue only if:
 
-Do not use the current checkout `HEAD` or an earlier feature branch as an implicit base.
-
-Enter the new worktree and run the complete preflight from `.pi/rules/qaq-runtime.md`. Continue only if:
-
-- the physical path and branch match the authorization;
+- the physical path and repository root match the authorization;
+- the checked-out branch is `<FEATURE_BRANCH>`;
 - `HEAD` equals `<STAGE_BASE>`;
 - the status is clean.
 
-If the proposed branch name or path already exists, inspect it instead of assuming it is reusable. Do not reset, rebase, or overwrite existing work merely to keep the proposed name. Choose a new unique branch name or path for the same stage and record the actual values.
+If a proposed branch name or worktree path already exists, inspect it. Reuse it when it is the recorded current-stage branch and worktree and its state is understood. Otherwise choose a new unused name or path. Do not reset, overwrite, or delete preserved work to keep a proposed name.
 
-Firstmate may remove and recreate only a worktree and branch that it created during the current attempt, and only when all of these are true:
+The worker must remain in its recorded physical worktree and branch. If either identity changes unexpectedly, use `PAUSE` and report the before-and-after values.
 
-- the worktree is clean;
-- the branch has no commit outside `<STAGE_BASE>`;
-- the branch was never pushed or shared;
-- non-force worktree removal succeeds;
-- `git branch -d` succeeds.
+A missing worker window is governed by `.pi/rules/qaq-worker-sessions.md`; it is not a reason to replace the branch or worktree.
 
-This safe cleanup and recreation is part of implementation authorization. Otherwise use `PAUSE` and preserve the existing work.
+## Destination movement during implementation
 
-## Bounded feature-branch refresh
-
-Refresh only when the verified destination `HEAD` advanced after `<STAGE_BASE>` was recorded.
-
-Before any refresh, run:
+The destination branch may advance after `<STAGE_BASE>` is recorded. Check it read-only when needed:
 
 ```bash
 git status --short
@@ -121,71 +113,46 @@ git rev-parse HEAD
 git rev-parse <DESTINATION_BRANCH>
 git merge-base --is-ancestor <STAGE_BASE> <FEATURE_BRANCH>
 git merge-base --is-ancestor <STAGE_BASE> <DESTINATION_BRANCH>
-git rev-list --count <STAGE_BASE>..<FEATURE_BRANCH>
-git log --oneline --reverse <STAGE_BASE>..<FEATURE_BRANCH>
-git rev-list --merges <STAGE_BASE>..<FEATURE_BRANCH>
 git diff --name-only <STAGE_BASE>..<FEATURE_BRANCH>
+git diff --name-only <STAGE_BASE>..<DESTINATION_BRANCH>
 ```
 
-If the feature branch has no stage commit and the worktree is clean, recreate it at the new destination `HEAD` under **Fresh worktree startup**. Do not run an empty rebase.
+Continue the current implementation without rebasing when:
 
-If the feature branch has stage commits, one rebase onto the new destination `HEAD` is already authorized without another user round-trip only when every condition below is established:
+- the current worktree and feature branch are the recorded current-stage ones;
+- `<STAGE_BASE>` remains an ancestor of the feature branch;
+- `<STAGE_BASE>` remains an ancestor of the destination branch;
+- the destination still contains the prerequisite;
+- current-stage changes remain inside authorized paths;
+- the worktree state is understood and safe.
 
-- the current physical worktree and branch are the recorded current-stage worktree and feature branch;
+Destination advancement by itself is not `REVISE`, `PAUSE`, or a reason to recreate the worktree. Record it and defer integration to landing.
+
+A feature-branch rebase is exceptional. Use one only when the current stage genuinely requires code or interfaces added to the destination after `<STAGE_BASE>`, or when destination changes make the stage impossible to validate in isolation. Do not rebase merely to recover fast-forward ancestry or keep history linear.
+
+When such a rebase is necessary, it is already authorized without another user round-trip only if:
+
+- the current worktree and branch are the recorded current-stage ones;
 - the worktree is clean;
-- no rebase, merge, cherry-pick, or revert is already in progress;
-- `<STAGE_BASE>` is an ancestor of both the feature branch and the destination branch;
+- no Git operation is in progress;
+- `<STAGE_BASE>` is an ancestor of both the feature branch and destination;
 - the destination contains the prerequisite;
 - every commit in `<STAGE_BASE>..<FEATURE_BRANCH>` belongs only to the current stage;
 - the range contains no merge commit;
 - all changed paths remain in scope;
-- the feature branch was created for the current stage;
 - the feature branch was never pushed or shared.
 
-Record the old destination `HEAD` and old feature `HEAD`, then run:
+Record the old feature `HEAD` and destination `HEAD`, then run:
 
 ```bash
-git rebase <NEW_DESTINATION_HEAD>
+git rebase <DESTINATION_HEAD>
 ```
 
-If a conflict or unexpected change occurs, run:
+If a conflict or unexpected change occurs, run `git rebase --abort`. Continue only if the abort restores the recorded feature `HEAD` and a clean status. After a successful rebase, rerun the required stage tests and record why the stage needed destination changes.
 
-```bash
-git rebase --abort
-```
+Never rebase the destination branch, a pushed or shared branch, a branch containing other work, or a range with unresolved ownership.
 
-Continue only if abort restores the recorded feature `HEAD` and a clean status. Otherwise use `PAUSE` and preserve all evidence.
-
-After a successful rebase, run:
-
-```bash
-git merge-base --is-ancestor <NEW_DESTINATION_HEAD> HEAD
-git range-diff <STAGE_BASE>..<OLD_FEATURE_HEAD> <NEW_DESTINATION_HEAD>..HEAD
-git diff --name-only <NEW_DESTINATION_HEAD>..HEAD
-git status --short
-```
-
-Continue only when:
-
-- the new branch is based on the exact destination `HEAD`;
-- the range-diff shows the intended stage commits were replayed without unexplained changes;
-- changed paths remain in scope;
-- the status is clean.
-
-Rerun all required stage tests before reporting completion.
-
-Do not ask “may I rebase?” when every condition in this section passes. The current implementation or revision authorization already covers this one feature-branch refresh.
-
-Never use this standing authorization to rebase:
-
-- the destination branch;
-- a pushed or shared branch;
-- a branch containing other work;
-- a commit range with unresolved ownership.
-
-If the destination advances after the topology report but before landing, use `REVISE` and issue one bounded refresh step when these conditions pass. Do not use `PAUSE` solely to request rebase permission. Regenerate the topology report after the refresh and tests.
-
-## Commit and topology checks
+## Commit and implementation completion checks
 
 Use explicit staging:
 
@@ -202,62 +169,99 @@ git worktree list --porcelain
 git branch --show-current
 git rev-parse HEAD
 git rev-parse <DESTINATION_BRANCH>
-git merge-base --is-ancestor <DESTINATION_BRANCH> <STAGE_COMMIT>
+git merge-base --is-ancestor <STAGE_BASE> <STAGE_COMMIT>
+git merge-base --is-ancestor <STAGE_BASE> <DESTINATION_BRANCH>
 git merge-base --is-ancestor <PREREQUISITE_COMMIT> <DESTINATION_BRANCH>
-git rev-list --count <DESTINATION_BRANCH>..<STAGE_COMMIT>
-git log --oneline --reverse <DESTINATION_BRANCH>..<STAGE_COMMIT>
-git diff --name-only <DESTINATION_BRANCH>..<STAGE_COMMIT>
+git rev-list --count <STAGE_BASE>..<STAGE_COMMIT>
+git log --oneline --reverse <STAGE_BASE>..<STAGE_COMMIT>
+git rev-list --merges <STAGE_BASE>..<STAGE_COMMIT>
+git diff --name-only <STAGE_BASE>..<STAGE_COMMIT>
+git diff --name-only <STAGE_BASE>..<DESTINATION_BRANCH>
 git status --short
 ```
 
 Skip only the prerequisite check when the prerequisite is `NONE`, and mark it not applicable.
 
-Return the collected topology facts through the implementation completion report in `.pi/rules/qaq-stage-execution.md`.
+Implementation is ready to land when:
+
+- the stage commit descends from `<STAGE_BASE>`;
+- the current destination also descends from `<STAGE_BASE>`;
+- the destination contains every prerequisite;
+- the stage commit range belongs only to the current stage and contains no merge commit;
+- changed paths remain in scope;
+- required tests passed;
+- no unexplained worktree change remains.
+
+The current destination does not need to be an ancestor of the stage commit.
+
+Choose the recommended landing method:
+
+- `FAST_FORWARD` when the current destination is an ancestor of the stage commit;
+- `MERGE_COMMIT` when both the destination and stage commit descend from `<STAGE_BASE>` but neither contains the other.
 
 Classify landing as follows:
 
-- `LANDABLE_DIRECTLY`: the destination contains every prerequisite, the destination `HEAD` is an ancestor of the final stage commit, the commit range and paths are understood, tests passed, and no unexplained change remains.
-- `PREREQUISITE_MUST_LAND_FIRST`: the required prerequisite is not contained in the destination.
-- `STACKED_LANDING_REQUIRED`: the user explicitly authorized a stacked stage and the required landing order must be preserved.
-- `NOT_LANDABLE`: any other safety, scope, ancestry, ownership, verification, or cleanliness condition fails.
+- `LANDABLE_DIRECTLY`: every readiness condition above passes;
+- `PREREQUISITE_MUST_LAND_FIRST`: the destination does not contain a required prerequisite;
+- `STACKED_LANDING_REQUIRED`: the user explicitly authorized a stacked stage and the required order must be preserved;
+- `NOT_LANDABLE`: any other safety, scope, ownership, verification, or cleanliness condition fails.
 
-## Separate landing step
+Return the collected facts through the implementation completion report in `.pi/rules/qaq-stage-execution.md`.
 
-When implementation is reported complete, verify the report and repository state when tools permit.
+## Separate landing operation
 
-- Use `REVISION` when one bounded correction is needed.
-- When the destination advanced and **Bounded feature-branch refresh** conditions pass, issue that refresh as `REVISION`; do not request separate rebase authorization.
-- Use `PAUSE` when evidence is missing, refresh conditions fail, or the stage is otherwise unsafe or not landable.
-- Issue one `LANDING` step only when the stage is `LANDABLE_DIRECTLY`.
-- Never issue the next implementation step before landing is verified.
+When implementation is complete, verify the report and current repository state.
 
-A landing step must state:
+Use `PAUSE` only when evidence is missing or the stage is not safely landable. Do not use `REVISE` or `PAUSE` merely because the destination advanced after `<STAGE_BASE>`.
 
-- the source branch and commit;
+A landing operation must state:
+
+- the source branch and final stage commit;
+- `<STAGE_BASE>`;
 - the destination worktree and branch;
-- the pre-landing destination `HEAD`;
+- the destination `HEAD` before landing;
 - the prerequisite result;
-- the exact commit range and count;
+- the exact stage commit range and count;
 - the changed paths;
-- the one authorized operation;
+- the selected landing method;
 - the post-landing checks;
 - the no-push boundary.
 
-Enter the worktree that already has the destination branch checked out and run the complete preflight from `.pi/rules/qaq-runtime.md`. Do not silently check the destination branch out elsewhere.
+Enter the worktree that already has the destination branch checked out and complete `.pi/rules/qaq-runtime.md`. Do not silently check the destination branch out elsewhere.
 
-Default landing policy: authorize only a fast-forward when the destination contains all prerequisites and the stage commit is a valid descendant.
+Recheck:
 
-If the destination advanced, return to **Bounded feature-branch refresh** before landing.
+```bash
+git status --short
+git rev-parse <DESTINATION_BRANCH>
+git merge-base --is-ancestor <STAGE_BASE> <STAGE_COMMIT>
+git merge-base --is-ancestor <STAGE_BASE> <DESTINATION_BRANCH>
+git merge-base --is-ancestor <PREREQUISITE_COMMIT> <DESTINATION_BRANCH>
+```
 
-In the destination worktree, do not perform a merge commit, cherry-pick, rebase, reset, force operation, or push. A feature-branch rebase is allowed only before `READY_TO_LAND` under **Bounded feature-branch refresh**. Any alternative landing method requires explicit approval for that exact operation and must not violate the entrypoint's non-negotiable restrictions.
+Skip the prerequisite check only when it is `NONE`.
 
-Normal landing command:
+If the destination is an ancestor of the stage commit, land with:
 
 ```bash
 git merge --ff-only <STAGE_COMMIT>
 ```
 
-Use it only after verifying the destination worktree, branch, expected `HEAD`, prerequisite containment, and fast-forward relationship.
+Otherwise, when both the destination and stage commit descend from `<STAGE_BASE>`, land with:
+
+```bash
+git merge --no-ff --no-edit <STAGE_COMMIT>
+```
+
+Do not rebase the feature branch merely to make the landing fast-forward.
+
+If the merge conflicts, run:
+
+```bash
+git merge --abort
+```
+
+Use `REVISE` only when one bounded source correction can resolve the conflict while preserving the stage goal. Otherwise use `PAUSE`. Preserve both branches and all evidence.
 
 After landing, run:
 
@@ -273,12 +277,15 @@ Return:
 
 ```text
 Stage:
+Source feature branch:
+Source stage commit:
+Stage base commit:
 Destination worktree:
 Destination branch:
 Destination HEAD before landing:
-Authorized operation:
+Landing method: FAST_FORWARD | MERGE_COMMIT
 Destination HEAD after landing:
-Stage commit contained in destination: yes/no
+Source stage commit contained in destination: yes/no
 Prerequisite contained in destination: yes/no/not-applicable
 Post-landing tests and exit statuses:
 GPU check: NOT_REQUIRED or result summary
@@ -287,14 +294,14 @@ Push performed: no
 Landing result: LANDED_AND_VERIFIED | REVISE | PAUSE
 ```
 
-End the landing step with:
+End the landing operation with:
 
 ```text
 HARD STOP: Perform only the authorized landing and its checks. Do not push, delete branches or worktrees, or begin the next stage. Return the landing result and wait for the user.
 WAITING_FOR_LANDING_RESULT
 ```
 
-Give the next implementation step only after post-landing checks pass and this succeeds:
+Give the next implementation operation only after post-landing checks pass and this succeeds:
 
 ```bash
 git merge-base --is-ancestor <PASSING_STAGE_COMMIT> <DESTINATION_BRANCH>
