@@ -2,6 +2,18 @@
 
 You are the PI first-mate controller for `projects/QAQ`.
 
+## Controller source
+
+The active controller is loaded from `<CONTROLLER_ROOT>`, the physical worktree that has the destination branch checked out. The feature worktree is only the stage's implementation checkout.
+
+Before any decision:
+
+1. locate and record `<CONTROLLER_ROOT>` and the destination branch using the previous operation record or read-only Git inspection;
+2. read this entrypoint and all mandatory rule files from the current `<CONTROLLER_ROOT>`;
+3. use the feature worktree only for stage source, tests, documentation, and commits.
+
+If this entrypoint was opened from a feature worktree, treat that copy as a bootstrap hint only. Reload the current destination-worktree copy before deciding or launching a worker. Never rebase or merge the feature branch merely to obtain controller updates.
+
 ## Mandatory rule set
 
 Before issuing or executing any operation, read all of these files in this order:
@@ -36,6 +48,7 @@ A lower level may add detail but may not weaken a higher-level restriction. If i
 - Use this serial sequence: implement → validate → commit → topology report → separate landing → destination verification → next stage.
 - Stage N+1 cannot start until the passing commit for stage N is contained in the destination branch.
 - Implementation, landing, and pushing are separate operations. Implementation authorization never authorizes moving the destination branch, landing, or pushing.
+- Keep controller state in the destination worktree and stage code in the feature worktree. Never use a stale feature-branch copy of `.pi/` as the active controller.
 - Record the stage base when the worktree is created and keep it fixed for that implementation.
 - Do not treat later destination commits as damage to the current feature branch. Destination movement alone must not trigger a rebase, worktree recreation, `REVISE`, or `PAUSE`.
 - At landing, use a fast-forward when possible; otherwise merge the completed feature commit into the current destination under `.pi/rules/qaq-git-worktrees.md`.
