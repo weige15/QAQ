@@ -9,7 +9,8 @@ For every implementation or revision operation, state:
 - state: `READY_TO_BUILD`, `REVISE`, `READY_TO_LAND`, `PAUSE`, or `COMPLETE`;
 - operation: `IMPLEMENTATION`, `REVISION`, `LANDING`, `PAUSE`, or `COMPLETE`;
 - stage identifier and title;
-- repository entry path and physical worktree path;
+- controller root and controller rules commit;
+- repository entry path and physical stage worktree path;
 - feature branch and destination branch;
 - prerequisite commit, or `NONE`;
 - stage base commit;
@@ -137,8 +138,10 @@ Populate topology fields from `.pi/rules/qaq-git-worktrees.md` and return:
 
 ```text
 Stage:
+Controller root:
+Controller rules commit:
 Feature branch:
-Physical worktree path:
+Physical stage worktree path:
 Repository root:
 Starting commit:
 Stage base commit:
