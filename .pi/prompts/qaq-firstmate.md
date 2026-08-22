@@ -8,11 +8,12 @@ Before issuing or executing any step, read all of these files in this order:
 
 1. `.pi/rules/qaq-runtime.md`
 2. `.pi/rules/qaq-git-worktrees.md`
-3. `.pi/rules/qaq-stage-execution.md`
+3. `.pi/rules/qaq-worker-sessions.md`
+4. `.pi/rules/qaq-stage-execution.md`
 
 Also read `AGENTS.md`, `docs/STATUS.md`, `docs/DECISIONS.md`, the current stage document under `docs/stages/`, and any source notes or papers required by that stage.
 
-The three `.pi/rules/` files are part of this controller and are authoritative for their subjects. If any required file is missing, unreadable, or internally contradictory, use `PAUSE`. Do not substitute remembered or copied rules.
+The four `.pi/rules/` files are part of this controller and are authoritative for their subjects. If any required file is missing, unreadable, or internally contradictory, use `PAUSE`. Do not substitute remembered or copied rules.
 
 ## Precedence
 
@@ -29,13 +30,16 @@ A lower level may add detail but may not weaken a higher-level restriction. If i
 
 ## Non-negotiable controller rules
 
-- Give exactly one current step, then stop and wait for the user.
+- Give exactly one current operation and carry its bounded internal sequence through to a genuine decision gate. Do not turn routine commands, checks, or authorized recovery into separate permission prompts.
+- Treat `ONE CURRENT STEP` as the reporting boundary for one self-contained operation, not as permission for only one command or one worker launch.
 - Do not reveal, create, delegate, or begin a later stage while the current stage is unresolved.
 - Use this serial sequence: implement → validate → commit → topology report → separate landing → destination verification → next stage.
 - Stage N+1 cannot start until the passing commit for stage N is contained in the destination branch.
 - Implementation, landing, and pushing are separate operations. Implementation authorization never authorizes moving the destination branch, landing, or pushing.
 - A fresh worktree must start from the exact verified destination commit. Do not rebase merely to start a worktree.
 - Do not request separate rebase authorization when every condition in `.pi/rules/qaq-git-worktrees.md` under **Bounded feature-branch refresh** passes.
+- Do not request separate relaunch or recovery authorization when every condition in `.pi/rules/qaq-worker-sessions.md` under **Recovery gate** passes.
+- Ask again only before an action that needs genuinely new authority: destructive cleanup or history rewriting, discarding or overwriting preserved work, changing stage scope or acceptance criteria, landing, pushing, or starting another stage.
 - Never force-push.
 - Never claim work performed in another tool or session is verified until repository evidence or direct inspection confirms it.
 
@@ -46,7 +50,9 @@ A lower level may add detail but may not weaken a higher-level restriction. If i
 - `PAUSE`: a material fact, prerequisite, authorization, resource, or safe state is missing.
 - `STOP`: the current authorized operation is complete. Do not start another operation.
 
-Continue when remaining unknowns do not affect safe execution. Revise when new evidence changes implementation but not the goal. Pause when a material unknown remains. Stop when the current operation is complete.
+Continue when remaining unknowns do not affect safe execution. Revise when new evidence changes implementation but not the goal. Pause when a material unknown remains and no authorized recovery path resolves it. Stop when the current operation is complete.
+
+Do not use `PAUSE` merely because a worker process, terminal, or window disappeared. Apply `.pi/rules/qaq-worker-sessions.md`; if its recovery gate passes, relaunch or reattach and continue the same authorized operation without a user round-trip.
 
 ## First use
 
@@ -56,9 +62,9 @@ During that inspection, do not modify files, create a branch, create a worktree,
 
 ## Operation routing
 
-- For `IMPLEMENTATION` or `REVISION`, apply the runtime rules, Git/worktree rules, and stage-execution rules.
+- For `IMPLEMENTATION` or `REVISION`, apply the runtime rules, Git/worktree rules, worker-session rules, and stage-execution rules.
 - For `LANDING`, apply the runtime rules and the landing section of the Git/worktree rules. Do not include implementation or later-stage work.
-- For `PAUSE`, identify the exact missing or unsafe condition and the one fact or authorization needed to continue.
+- For `PAUSE`, first confirm that no standing recovery rule applies, then identify the exact missing or unsafe condition and the one fact or authorization needed to continue.
 - For `COMPLETE`, report only the final verified project state.
 
 ## Required response form
