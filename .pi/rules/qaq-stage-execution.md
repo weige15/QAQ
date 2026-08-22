@@ -1,10 +1,10 @@
 # QAQ stage execution and verification rules
 
-This file is authoritative for stage identity, scope, evidence, implementation planning, tests, documentation, completion criteria, and the implementation completion report. It does not authorize Git history changes; those are governed by `.pi/rules/qaq-git-worktrees.md`.
+This file is authoritative for stage identity, scope, evidence, implementation planning, tests, documentation, completion criteria, and the implementation completion report. Git history and landing are governed by `.pi/rules/qaq-git-worktrees.md`.
 
 ## Stage identity and scope
 
-For every implementation or revision step, state:
+For every implementation or revision operation, state:
 
 - state: `READY_TO_BUILD`, `REVISE`, `READY_TO_LAND`, `PAUSE`, or `COMPLETE`;
 - operation: `IMPLEMENTATION`, `REVISION`, `LANDING`, `PAUSE`, or `COMPLETE`;
@@ -12,7 +12,7 @@ For every implementation or revision step, state:
 - repository entry path and physical worktree path;
 - feature branch and destination branch;
 - prerequisite commit, or `NONE`;
-- expected base commit;
+- stage base commit;
 - exact in-scope files or areas;
 - exact non-goals.
 
@@ -25,7 +25,7 @@ Separate:
 - `KNOWN`: facts established by the user or repository evidence;
 - `UNKNOWN`: facts not yet established that could change safety, scope, acceptance criteria, ancestry, or resources;
 - `ASSUMPTIONS`: minimal temporary choices, each labeled `controller assumption` with a reason;
-- `PROPOSED CURRENT STEP`: the one action now authorized, labeled `controller proposal`.
+- `PROPOSED CURRENT STEP`: the one operation now authorized, labeled `controller proposal`.
 
 Do not silently fill gaps or invent missing product requirements.
 
@@ -40,7 +40,7 @@ State:
 - behavior intentionally changed;
 - exact non-goals.
 
-Base the step on the user's instruction and repository evidence, including `AGENTS.md`, README files, design notes, stage records, source, tests, source notes, and papers required by the stage.
+Base the operation on the user's instruction and repository evidence, including `AGENTS.md`, README files, design notes, stage records, source, tests, source notes, and papers required by the stage.
 
 ## Design and critical rules
 
@@ -58,20 +58,22 @@ Label an unsupported implementation decision as `worker choice` and give a brief
 
 Give a bounded sequence for the current stage only.
 
-At each meaningful point, state:
+At each meaningful point:
 
 - continue when the check passes;
-- revise when one bounded correction preserves the goal, including a permitted feature-branch refresh after the destination advances;
-- pause when scope, ancestry, environment, GPU availability, repository safety, or acceptance criteria remain unresolved and no standing recovery rule applies;
+- revise when one bounded correction preserves the goal;
+- pause when scope, prerequisites, environment, GPU availability, repository safety, or acceptance criteria remain unresolved and no standing recovery rule applies;
 - stop when the stage is committed and its completion report is returned.
 
 Execute the whole bounded sequence without returning for permission between normal checks, test reruns, clean worker launches or relaunches, or other actions already covered by the current operation.
 
-Do not pause solely to request rebase authorization when every condition in `.pi/rules/qaq-git-worktrees.md` under **Bounded feature-branch refresh** passes.
+Do not revise, pause, recreate the worktree, or rebase solely because the destination branch advanced after the stage base was recorded. Continue the implementation on its existing branch and let the separate landing operation integrate it.
+
+Rebase only when the stage genuinely requires destination changes to continue under `.pi/rules/qaq-git-worktrees.md`.
 
 Do not pause solely because the prior worker window is missing. Apply `.pi/rules/qaq-worker-sessions.md`; when its **Recovery gate** passes, recover the session in the existing worktree and continue the same operation.
 
-Do not include landing commands or later-stage work in an implementation or revision step.
+Do not include landing commands or later-stage work in an implementation or revision operation.
 
 ## Tests and verification
 
@@ -115,14 +117,17 @@ Mark implementation complete only when:
 - changed paths remain in scope;
 - no unexplained worktree changes remain;
 - the feature branch is committed;
-- any worktree recreation or feature-branch refresh satisfied `.pi/rules/qaq-git-worktrees.md` and is reported;
-- the final stage commit is a descendant of the destination `HEAD` recorded in the report;
-- branch, base, prerequisite, and destination facts are recorded;
+- the final stage commit is a descendant of the recorded stage base;
+- the current destination is also a descendant of the recorded stage base;
+- the destination contains every prerequisite;
+- branch, base, prerequisite, destination, commit range, and landing method are recorded;
 - the topology report is complete.
 
-Use `REVISE` for one bounded correction.
+The current destination does not need to be an ancestor of the final stage commit. Destination movement is integrated during landing.
 
-Use `PAUSE` for missing evidence, a failed prerequisite, unsafe state, unavailable required GPU, unauthorized scope, failed refresh conditions, or uncertain landing.
+Use `REVISE` for one bounded correction to the stage work.
+
+Use `PAUSE` for missing evidence, a failed prerequisite, unsafe state, unavailable required GPU, unauthorized scope, or uncertain ownership. Do not use `PAUSE` merely for destination movement that the landing rules can handle.
 
 Use `STOP` after returning the required report.
 
@@ -138,25 +143,30 @@ Repository root:
 Starting commit:
 Stage base commit:
 Worktree start: CREATED_AT_VERIFIED_BASE | REUSED_EXISTING_AUTHORIZED_WORKTREE
-Branch refresh: NOT_REQUIRED | RECREATED_AT_DESTINATION | REBASED
 Worker session recovery: NOT_REQUIRED | RELAUNCHED_EXISTING_WORKTREE
-Pre-refresh feature HEAD: NONE or <commit>
-Post-refresh feature HEAD: NONE or <commit>
+Branch rebase: NOT_REQUIRED | REQUIRED_FOR_STAGE_DEPENDENCY
+Pre-rebase feature HEAD: NONE or <commit>
+Post-rebase feature HEAD: NONE or <commit>
 Feature branch pushed or shared: no/yes/unknown
 Prerequisite commit:
 Destination branch:
-Destination HEAD:
-Destination is ancestor of final stage commit: yes/no
+Destination HEAD at stage start:
+Destination HEAD at report:
+Destination advanced since stage start: yes/no
+Stage base is ancestor of final stage commit: yes/no
+Stage base is ancestor of destination HEAD: yes/no
+Destination HEAD is ancestor of final stage commit: yes/no
 Final stage commit:
 Commit range to land:
 Commit count:
 Ordered commits in range:
 Changed paths:
+Destination changes since stage base:
 Destination contains prerequisite: yes/no/not-applicable
 Tests and exit statuses:
 GPU check: NOT_REQUIRED or result summary
+Recommended landing method: FAST_FORWARD | MERGE_COMMIT
 Recommended landing order:
-Recommended landing method:
 Independently landable: yes/no
 Landing classification: LANDABLE_DIRECTLY | PREREQUISITE_MUST_LAND_FIRST | STACKED_LANDING_REQUIRED | NOT_LANDABLE
 Unexpected changes remaining:
