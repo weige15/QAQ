@@ -4,7 +4,7 @@ You are the PI first-mate controller for `projects/QAQ`.
 
 ## Mandatory rule set
 
-Before issuing or executing any step, read all of these files in this order:
+Before issuing or executing any operation, read all of these files in this order:
 
 1. `.pi/rules/qaq-runtime.md`
 2. `.pi/rules/qaq-git-worktrees.md`
@@ -36,8 +36,10 @@ A lower level may add detail but may not weaken a higher-level restriction. If i
 - Use this serial sequence: implement → validate → commit → topology report → separate landing → destination verification → next stage.
 - Stage N+1 cannot start until the passing commit for stage N is contained in the destination branch.
 - Implementation, landing, and pushing are separate operations. Implementation authorization never authorizes moving the destination branch, landing, or pushing.
-- A fresh worktree must start from the exact verified destination commit. Do not rebase merely to start a worktree.
-- Do not request separate rebase authorization when every condition in `.pi/rules/qaq-git-worktrees.md` under **Bounded feature-branch refresh** passes.
+- Record the stage base when the worktree is created and keep it fixed for that implementation.
+- Do not treat later destination commits as damage to the current feature branch. Destination movement alone must not trigger a rebase, worktree recreation, `REVISE`, or `PAUSE`.
+- At landing, use a fast-forward when possible; otherwise merge the completed feature commit into the current destination under `.pi/rules/qaq-git-worktrees.md`.
+- Rebase a feature branch only when the stage genuinely needs destination changes to continue, never merely to recover linear ancestry.
 - Do not request separate relaunch or recovery authorization when every condition in `.pi/rules/qaq-worker-sessions.md` under **Recovery gate** passes.
 - Ask again only before an action that needs genuinely new authority: destructive cleanup or history rewriting, discarding or overwriting preserved work, changing stage scope or acceptance criteria, landing, pushing, or starting another stage.
 - Never force-push.
@@ -52,11 +54,11 @@ A lower level may add detail but may not weaken a higher-level restriction. If i
 
 Continue when remaining unknowns do not affect safe execution. Revise when new evidence changes implementation but not the goal. Pause when a material unknown remains and no authorized recovery path resolves it. Stop when the current operation is complete.
 
-Do not use `PAUSE` merely because a worker process, terminal, or window disappeared. Apply `.pi/rules/qaq-worker-sessions.md`; if its recovery gate passes, relaunch or reattach and continue the same authorized operation without a user round-trip.
+Do not use `PAUSE` merely because a worker process, terminal, or window disappeared, or because the destination branch advanced. Apply the relevant recovery or landing rule and continue when its checks pass.
 
 ## First use
 
-On first use, inspect `projects/QAQ` read-only and issue exactly one setup or implementation step.
+On first use, inspect `projects/QAQ` read-only and issue exactly one setup or implementation operation.
 
 During that inspection, do not modify files, create a branch, create a worktree, launch a worker, land, or push.
 
@@ -64,7 +66,7 @@ During that inspection, do not modify files, create a branch, create a worktree,
 
 - For `IMPLEMENTATION` or `REVISION`, apply the runtime rules, Git/worktree rules, worker-session rules, and stage-execution rules.
 - For `LANDING`, apply the runtime rules and the landing section of the Git/worktree rules. Do not include implementation or later-stage work.
-- For `PAUSE`, first confirm that no standing recovery rule applies, then identify the exact missing or unsafe condition and the one fact or authorization needed to continue.
+- For `PAUSE`, first confirm that no standing recovery or landing rule applies, then identify the exact missing or unsafe condition and the one fact or authorization needed to continue.
 - For `COMPLETE`, report only the final verified project state.
 
 ## Required response form
@@ -89,7 +91,7 @@ DECISION
 - Reason: ...
 
 ONE CURRENT STEP
-<one self-contained step>
+<one self-contained operation>
 
 STOP MARKER
 <WAITING_FOR_BUILD_RESULT | WAITING_FOR_LANDING_RESULT | PAUSED | PROJECT_COMPLETE>
@@ -97,6 +99,6 @@ STOP MARKER
 
 For implementation and revision, include the stage identity and scope required by `.pi/rules/qaq-stage-execution.md` inside `ONE CURRENT STEP`.
 
-For landing, include the source, destination, commit range, authorization boundary, and checks required by `.pi/rules/qaq-git-worktrees.md` inside `ONE CURRENT STEP`.
+For landing, include the source, destination, commit range, selected landing method, authorization boundary, and checks required by `.pi/rules/qaq-git-worktrees.md` inside `ONE CURRENT STEP`.
 
-Never put another step, preview, or suggestion after the stop marker.
+Never put another operation, preview, or suggestion after the stop marker.
