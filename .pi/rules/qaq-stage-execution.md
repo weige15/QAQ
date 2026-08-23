@@ -1,183 +1,102 @@
 # QAQ stage execution and verification rules
 
-This file is authoritative for stage identity, scope, evidence, implementation planning, tests, documentation, completion criteria, and the implementation completion report. Git history and landing are governed by `.pi/rules/qaq-git-worktrees.md`.
+This file owns current-stage scope, evidence, implementation choices, testing,
+documentation, and completion. It intentionally does not create a second
+FirstMate lifecycle.
 
-## Stage identity and scope
+## Current-stage contract
 
-For every implementation or revision operation, state:
+For the current stage, establish from repository evidence:
 
-- state: `READY_TO_BUILD`, `REVISE`, `READY_TO_LAND`, `PAUSE`, or `COMPLETE`;
-- operation: `IMPLEMENTATION`, `REVISION`, `LANDING`, `PAUSE`, or `COMPLETE`;
-- stage identifier and title;
-- controller root and controller rules commit;
-- repository entry path and physical stage worktree path;
-- feature branch and destination branch;
-- prerequisite commit, or `NONE`;
-- stage base commit;
-- exact in-scope files or areas;
-- exact non-goals.
-
-Give one self-contained operation only. It may contain the complete bounded sequence of routine commands, checks, worker launches or relaunches, and authorized recovery needed to reach the next genuine decision gate. “One step” does not mean one command or one permission prompt. Do not include a later-stage preview.
-
-## Known facts, unknowns, assumptions, and proposal
-
-Separate:
-
-- `KNOWN`: facts established by the user or repository evidence;
-- `UNKNOWN`: facts not yet established that could change safety, scope, acceptance criteria, ancestry, or resources;
-- `ASSUMPTIONS`: minimal temporary choices, each labeled `controller assumption` with a reason;
-- `PROPOSED CURRENT STEP`: the one operation now authorized, labeled `controller proposal`.
-
-Do not silently fill gaps or invent missing product requirements.
-
-## Goal and preserved behavior
-
-Choose the smallest coherent change that advances the documented QAQ goal and can be checked independently.
-
-State:
-
-- the single intended outcome;
+- the stage identifier, intended outcome, and prerequisite;
+- the active worktree, feature branch, destination branch, and delivery mode;
+- exact in-scope areas and non-goals;
 - behavior that must remain unchanged;
-- behavior intentionally changed;
-- exact non-goals.
+- required tests, fixed inputs, seeds, identities, and result paths; and
+- whether a bounded real GPU or external-artifact run is part of the authorized
+  stage.
 
-Base the operation on the user's instruction and repository evidence, including `AGENTS.md`, README files, design notes, stage records, source, tests, source notes, and papers required by the stage.
+Then execute the whole bounded stage-delivery cycle. Do not begin a later stage.
 
-## Design and critical rules
+## Known facts and worker choices
 
-Describe only what the current stage needs:
+Separate known facts, material unknowns, and assumptions that can affect the
+scientific claim, scope, acceptance criteria, reproducibility, external cost, or
+safety. Escalate a material unknown only when repository inspection and one
+bounded reversible correction cannot resolve it.
 
-- affected components or files and their responsibilities;
-- inputs and outputs;
-- required error handling;
-- observable conditions that must remain true;
-- compatibility limits.
+Everything else is a worker choice. Prefer the smallest reversible design that
+matches existing code and stage documents. Cover it with tests and continue.
+Do not record routine mechanics in `docs/DECISIONS.md`; reserve that file for
+durable research, protocol, or interface decisions.
 
-Label an unsupported implementation decision as `worker choice` and give a brief reason.
+## Execution and correction
 
-## Implementation sequence and decision points
+Use this sequence without returning for routine permission:
 
-Give a bounded sequence for the current stage only.
+1. verify environment, worktree identity, destination, and prerequisites;
+2. implement the smallest coherent stage change;
+3. run focused tests;
+4. run relevant integration, smoke, audit, and regression checks;
+5. diagnose ordinary failures and make bounded in-scope corrections;
+6. rerun affected checks;
+7. update durable documentation when verified state changed;
+8. commit; and
+9. finish the active FirstMate delivery contract or the direct-Pi PR fallback.
 
-At each meaningful point:
+Continue while checks pass or a bounded correction preserves the stage goal.
+Revise automatically for ordinary code, test, formatting, documentation, or
+clean private-branch integration failures. Use a blocked or needs-decision
+status only at the material boundary in `AGENTS.md`.
 
-- continue when the check passes;
-- revise when one bounded correction preserves the goal;
-- pause when scope, prerequisites, environment, GPU availability, repository safety, or acceptance criteria remain unresolved and no standing recovery rule applies;
-- stop when the stage is committed and its completion report is returned.
+Do not stop after implementation, validation, commit, worker recovery,
+destination movement, branch refresh, feature-branch push, PR creation, or PR
+update. Those are internal phases of one authorized stage delivery.
 
-Execute the whole bounded sequence without returning for permission between normal checks, test reruns, clean worker launches or relaunches, or other actions already covered by the current operation.
+## Verification
 
-Do not revise, pause, recreate the worktree, or rebase solely because the destination branch advanced after the stage base was recorded. Continue the implementation on its existing branch and let the separate landing operation integrate it.
-
-Rebase only when the stage genuinely requires destination changes to continue under `.pi/rules/qaq-git-worktrees.md`.
-
-Do not pause solely because the prior worker window is missing. Apply `.pi/rules/qaq-worker-sessions.md`; when its **Recovery gate** passes, recover the session in the existing worktree and continue the same operation.
-
-Do not include landing commands or later-stage work in an implementation or revision operation.
-
-## Tests and verification
-
-Specify exact repository-supported commands in this order when applicable:
+Use repository-supported commands in this order when applicable:
 
 1. focused tests;
 2. relevant integration tests;
 3. smoke check;
 4. state or output audit;
-5. regression tests for preserved behavior.
+5. regression tests for preserved behavior; and
+6. formatting or static checks for changed code.
 
-In every fresh shell, complete `.pi/rules/qaq-runtime.md` before project commands. Run its GPU gate first for GPU-dependent checks.
+Run `.pi/rules/qaq-runtime.md` in each fresh shell. Report exact commands, exit
+statuses, and relevant evidence. Do not claim success for work merely reported
+by another process; verify it from repository or delivery-system evidence.
 
-Report each command, exit status, and relevant output.
+A failed check is not automatically a captain decision. Diagnose it, correct it
+within scope, and rerun. Escalate only when the correction would cross the
+material boundary, the required resource is unavailable, or repeated attempts
+produce no new evidence.
 
-If an expected command does not exist, use `REVISE` or `PAUSE` instead of claiming success.
+## Documentation and results
 
-Treat work completed in another tool, worker, or session as unverified until evidence or repository inspection confirms it.
+Update `docs/STATUS.md` when the verified durable stage state changes. Update
+`docs/DECISIONS.md` only for a material durable choice. Preserve exact result
+paths and never overwrite frozen or canonical evidence without explicit
+current authorization.
 
-## Documentation and result handling
+Structural tests are not experimental quality evidence. State remaining
+research unknowns without turning them into implementation blockers when the
+stage does not require resolving them.
 
-Update documentation only when the stage changes behavior, interfaces, setup, or recorded decisions.
+## Completion
 
-Record:
+The stage is ready to report only when:
 
-- implementation status;
-- decision sources;
-- experiments;
-- exact result paths;
-- reproducibility details;
-- whether generated output is safe to commit.
-
-Do not overwrite existing results without explicit authorization.
-
-## Stage completion gate
-
-Mark implementation complete only when:
-
-- the authorized goal is met;
-- required tests passed and are reported;
+- the authorized current-stage goal is met;
+- required tests and audits passed or an exact material blocker is preserved;
 - changed paths remain in scope;
 - no unexplained worktree changes remain;
-- the feature branch is committed;
-- the final stage commit is a descendant of the recorded stage base;
-- the current destination is also a descendant of the recorded stage base;
-- the destination contains every prerequisite;
-- branch, base, prerequisite, destination, commit range, and landing method are recorded;
-- the topology report is complete.
+- work is committed; and
+- the active delivery contract has reached PR-ready, checks-green, or
+  local-branch-ready completion.
 
-The current destination does not need to be an ancestor of the final stage commit. Destination movement is integrated during landing.
-
-Use `REVISE` for one bounded correction to the stage work.
-
-Use `PAUSE` for missing evidence, a failed prerequisite, unsafe state, unavailable required GPU, unauthorized scope, or uncertain ownership. Do not use `PAUSE` merely for destination movement that the landing rules can handle.
-
-Use `STOP` after returning the required report.
-
-## Implementation completion report
-
-Populate topology fields from `.pi/rules/qaq-git-worktrees.md` and return:
-
-```text
-Stage:
-Controller root:
-Controller rules commit:
-Feature branch:
-Physical stage worktree path:
-Repository root:
-Starting commit:
-Stage base commit:
-Worktree start: CREATED_AT_VERIFIED_BASE | REUSED_EXISTING_AUTHORIZED_WORKTREE
-Worker session recovery: NOT_REQUIRED | RELAUNCHED_EXISTING_WORKTREE
-Branch rebase: NOT_REQUIRED | REQUIRED_FOR_STAGE_DEPENDENCY
-Pre-rebase feature HEAD: NONE or <commit>
-Post-rebase feature HEAD: NONE or <commit>
-Feature branch pushed or shared: no/yes/unknown
-Prerequisite commit:
-Destination branch:
-Destination HEAD at stage start:
-Destination HEAD at report:
-Destination advanced since stage start: yes/no
-Stage base is ancestor of final stage commit: yes/no
-Stage base is ancestor of destination HEAD: yes/no
-Destination HEAD is ancestor of final stage commit: yes/no
-Final stage commit:
-Commit range to land:
-Commit count:
-Ordered commits in range:
-Changed paths:
-Destination changes since stage base:
-Destination contains prerequisite: yes/no/not-applicable
-Tests and exit statuses:
-GPU check: NOT_REQUIRED or result summary
-Recommended landing method: FAST_FORWARD | MERGE_COMMIT
-Recommended landing order:
-Independently landable: yes/no
-Landing classification: LANDABLE_DIRECTLY | PREREQUISITE_MUST_LAND_FIRST | STACKED_LANDING_REQUIRED | NOT_LANDABLE
-Unexpected changes remaining:
-```
-
-End implementation with:
-
-```text
-HARD STOP: Complete only this implementation stage. Do not land, push, create the next branch or worktree, or begin later work. Return the topology report and wait for the user.
-WAITING_FOR_BUILD_RESULT
-```
+Return a concise final report with the stage, final commit, PR or branch, changed
+paths, test evidence, GPU status, documentation changes, remaining unknowns,
+and any next captain-level decision. Do not append artificial build-result or
+landing-result stop markers.
