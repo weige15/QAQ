@@ -16,7 +16,7 @@ from qaq.model.request_state import (
     QaqRequestState,
 )
 from qaq.router.distillation import request_state_expected_bit_cost
-from qaq.router.network import S10_CANDIDATE_BITS
+from qaq.router.network import THREE_WAY_CANDIDATE_BITS
 from qaq.router.soft_model import SoftRoutedQwen3ForCausalLM
 
 
@@ -109,8 +109,8 @@ def test_one_soft_probability_pair_is_shared_within_attention_and_ffn():
 
 
 def test_three_way_soft_router_propagates_explicit_ordering():
-    model = _soft_tiny_model(S10_CANDIDATE_BITS)
-    state = QaqRequestState("s10b-soft", prompt_length=3, candidate_bits=S10_CANDIDATE_BITS)
+    model = _soft_tiny_model(THREE_WAY_CANDIDATE_BITS)
+    state = QaqRequestState("s10b-soft", prompt_length=3, candidate_bits=THREE_WAY_CANDIDATE_BITS)
     trace = PrecisionTrace()
     model(
         input_ids=torch.tensor([[1, 2, 3]]),
@@ -119,7 +119,7 @@ def test_three_way_soft_router_propagates_explicit_ordering():
         request_state=state,
         trace=trace,
     )
-    assert all(record.candidate_bits == S10_CANDIDATE_BITS for record in trace.soft_records)
+    assert all(record.candidate_bits == THREE_WAY_CANDIDATE_BITS for record in trace.soft_records)
     assert all(probability.shape == (3,) for probability in state.attention_probabilities)
     assert all(probability.shape == (3,) for probability in state.ffn_probabilities)
 

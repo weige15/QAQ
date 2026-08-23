@@ -18,7 +18,7 @@ from qaq.router.distillation import (
 )
 from qaq.router.network import (
     CANDIDATE_BITS,
-    S10_CANDIDATE_BITS,
+    THREE_WAY_CANDIDATE_BITS,
     SoftPrecisionRouter,
     validate_candidate_bits,
 )
@@ -38,7 +38,7 @@ def test_candidate_validation_and_router_shapes_counts():
             validate_candidate_bits(invalid)
 
     historical = SoftPrecisionRouter(8, hidden_width=4)
-    three_way = SoftPrecisionRouter(8, hidden_width=4, candidate_bits=S10_CANDIDATE_BITS)
+    three_way = SoftPrecisionRouter(8, hidden_width=4, candidate_bits=THREE_WAY_CANDIDATE_BITS)
     assert historical.candidate_bits == CANDIDATE_BITS
     assert historical(torch.ones(8)).shape == (2,)
     assert three_way(torch.ones(8)).shape == (3,)
@@ -48,9 +48,9 @@ def test_candidate_validation_and_router_shapes_counts():
 
 def test_three_way_soft_mixture_endpoints_and_gradients():
     packed = _ThreeWayPackedLinear()
-    soft = SoftPackedLinear(packed, candidate_bits=S10_CANDIDATE_BITS)
+    soft = SoftPackedLinear(packed, candidate_bits=THREE_WAY_CANDIDATE_BITS)
     inputs = torch.tensor([[1.0, 2.0]], requires_grad=False)
-    outputs = [packed(inputs, precision=bits) for bits in S10_CANDIDATE_BITS]
+    outputs = [packed(inputs, precision=bits) for bits in THREE_WAY_CANDIDATE_BITS]
     for index, expected in enumerate(outputs):
         probabilities = torch.nn.functional.one_hot(torch.tensor(index), 3).float().requires_grad_()
         assert torch.equal(soft(inputs, probabilities), expected)
@@ -68,7 +68,7 @@ def test_request_state_explicit_three_way_routes_and_probability_order():
         "s10b",
         prompt_length=2,
         layer_count=1,
-        candidate_bits=S10_CANDIDATE_BITS,
+        candidate_bits=THREE_WAY_CANDIDATE_BITS,
     )
     state.validate_for_model(layer_count=1, feature_dim=2)
     state.begin_prefill(prompt_length=2)
@@ -83,7 +83,7 @@ def test_request_state_explicit_three_way_routes_and_probability_order():
 
 def test_resident_hard_route_executes_explicit_six_bit_candidate():
     state = QaqRequestState(
-        "resident-s10b", prompt_length=1, layer_count=1, candidate_bits=S10_CANDIDATE_BITS
+        "resident-s10b", prompt_length=1, layer_count=1, candidate_bits=THREE_WAY_CANDIDATE_BITS
     )
     state.validate_for_model(layer_count=1, feature_dim=2)
     state.begin_prefill(prompt_length=1)
@@ -100,9 +100,9 @@ def test_resident_hard_route_executes_explicit_six_bit_candidate():
 
 
 def test_hard_route_mapping_and_historical_precision_plan():
-    assert hard_route(torch.tensor([0.5, 0.5, 0.0]), candidate_bits=S10_CANDIDATE_BITS) == 4
-    assert hard_route(torch.tensor([0.0, 0.5, 0.5]), candidate_bits=S10_CANDIDATE_BITS) == 6
-    assert hard_route(torch.tensor([1 / 3, 1 / 3, 1 / 3]), candidate_bits=S10_CANDIDATE_BITS) == 4
+    assert hard_route(torch.tensor([0.5, 0.5, 0.0]), candidate_bits=THREE_WAY_CANDIDATE_BITS) == 4
+    assert hard_route(torch.tensor([0.0, 0.5, 0.5]), candidate_bits=THREE_WAY_CANDIDATE_BITS) == 6
+    assert hard_route(torch.tensor([1 / 3, 1 / 3, 1 / 3]), candidate_bits=THREE_WAY_CANDIDATE_BITS) == 4
     assert hard_route(torch.tensor([0.5, 0.5])) == 4
     with pytest.raises(ValueError, match="4 or 8"):
         PrecisionPlan.uniform(6)
@@ -111,11 +111,11 @@ def test_hard_route_mapping_and_historical_precision_plan():
 def test_three_way_route_logs_and_statistics_are_explicit():
     records = [
         RouteLogRecord.from_probabilities(
-            "s10b", 0, unit, torch.tensor([0.1, 0.2, 0.7]), candidate_bits=S10_CANDIDATE_BITS
+            "s10b", 0, unit, torch.tensor([0.1, 0.2, 0.7]), candidate_bits=THREE_WAY_CANDIDATE_BITS
         )
         for unit in ("attention", "ffn")
     ]
-    assert all(record.candidate_bits == S10_CANDIDATE_BITS for record in records)
+    assert all(record.candidate_bits == THREE_WAY_CANDIDATE_BITS for record in records)
     assert records[0].p6 == pytest.approx(0.2)
     assert records[0].soft_average_width == pytest.approx(7.2)
     stats = route_statistics(records)
@@ -140,17 +140,17 @@ def _metadata(candidate_bits: tuple[int, ...]) -> RouterCheckpointMetadata:
 
 
 def test_three_way_checkpoint_roundtrip_and_mismatch_rejection(tmp_path):
-    router = SoftPrecisionRouter(4, hidden_width=4, candidate_bits=S10_CANDIDATE_BITS)
+    router = SoftPrecisionRouter(4, hidden_width=4, candidate_bits=THREE_WAY_CANDIDATE_BITS)
     restored = copy.deepcopy(router)
-    metadata = _metadata(S10_CANDIDATE_BITS)
+    metadata = _metadata(THREE_WAY_CANDIDATE_BITS)
     assert metadata.to_dict()["candidate_ordering"] == [4, 6, 8]
     path = tmp_path / "three-way.pt"
     save_router_checkpoint(path, router, metadata)
     load_router_checkpoint(path, restored, metadata)
     feature = torch.tensor([1.0, -2.0, 0.5, 3.0])
     assert torch.equal(router(feature), restored(feature))
-    assert int(hard_route(router(feature), candidate_bits=S10_CANDIDATE_BITS)) == int(
-        hard_route(restored(feature), candidate_bits=S10_CANDIDATE_BITS)
+    assert int(hard_route(router(feature), candidate_bits=THREE_WAY_CANDIDATE_BITS)) == int(
+        hard_route(restored(feature), candidate_bits=THREE_WAY_CANDIDATE_BITS)
     )
 
     old_router = SoftPrecisionRouter(4, hidden_width=4)

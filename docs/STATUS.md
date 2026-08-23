@@ -1,3 +1,21 @@
+Repository organization: semantic-module refactor COMPLETE
+
+Reusable Python implementation now lives in behavior-named modules under
+`src/qaq`; historical `scripts/run_*.py` commands are compatibility entry
+points into that implementation. Production dependency checks enforce
+`src/qaq -> src/qaq` and `scripts -> src/qaq`, rejecting either source imports
+from `scripts` or script-to-script imports. The reusable three-way precision
+ordering is named `THREE_WAY_CANDIDATE_BITS`, and broader validation,
+calibration, frontier confirmation, baseline training, and protocol validation
+have semantic module names.
+
+The refactor changes no calculations, frozen protocols, thresholds, seeds,
+hashes, dataset/model revisions, result semantics, historical documentation,
+or historical result names. Evidence: the full unit suite passed `371` with
+one established optimizer warning; affected integration regressions passed
+`14`; nine historical command entry points accepted `--help`; Ruff passed on
+all changed Python paths; and dependency-direction tests passed `4`.
+
 Current stage: S11-B1
 Status: COMPLETE - protocol frozen
 

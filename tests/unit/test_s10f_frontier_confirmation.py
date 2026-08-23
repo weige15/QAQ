@@ -227,10 +227,10 @@ def test_route_map_contract_is_exactly_72_layer_major_values():
 
 def test_state_hash_pairing_is_stable_and_seed_initializations_are_independent():
     torch.manual_seed(1729)
-    first = SoftPrecisionRouter(4, hidden_width=4, candidate_bits=runner.S10_CANDIDATE_BITS)
+    first = SoftPrecisionRouter(4, hidden_width=4, candidate_bits=runner.THREE_WAY_CANDIDATE_BITS)
     first_hash = runner.router_state_hash(runner.router_only_state(first))
     torch.manual_seed(1730)
-    second = SoftPrecisionRouter(4, hidden_width=4, candidate_bits=runner.S10_CANDIDATE_BITS)
+    second = SoftPrecisionRouter(4, hidden_width=4, candidate_bits=runner.THREE_WAY_CANDIDATE_BITS)
     second_hash = runner.router_state_hash(runner.router_only_state(second))
     assert first_hash != second_hash
     assert first_hash == runner.router_state_hash(runner.router_only_state(first))

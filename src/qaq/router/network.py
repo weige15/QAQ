@@ -6,8 +6,8 @@ import torch
 from torch import nn
 
 CANDIDATE_BITS = (4, 8)
-S10_CANDIDATE_BITS = (4, 6, 8)
-_ALLOWED_CANDIDATE_BITS = (CANDIDATE_BITS, S10_CANDIDATE_BITS)
+THREE_WAY_CANDIDATE_BITS = (4, 6, 8)
+_ALLOWED_CANDIDATE_BITS = (CANDIDATE_BITS, THREE_WAY_CANDIDATE_BITS)
 ROUTER_HIDDEN_WIDTH = 128
 ROUTER_TEMPERATURE = 1.0
 NORMALIZATION_EPSILON = 1e-6
@@ -190,7 +190,7 @@ def trainable_parameter_audit(
 
 __all__ = [
     "CANDIDATE_BITS",
-    "S10_CANDIDATE_BITS",
+    "THREE_WAY_CANDIDATE_BITS",
     "FeatureRMSNorm",
     "SoftPrecisionRouter",
     "probabilities_from_logits",

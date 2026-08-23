@@ -7,7 +7,7 @@ import torch
 from torch import nn
 
 from qaq.router.distillation import RouteLogRecord, cost_aware_distillation_loss, expected_bit_cost
-from qaq.router.network import S10_CANDIDATE_BITS, SoftPrecisionRouter
+from qaq.router.network import THREE_WAY_CANDIDATE_BITS, SoftPrecisionRouter
 from scripts.run_s10d import (
     _gradient_norm,
     _load_config,
@@ -25,7 +25,7 @@ from scripts.run_s10d import (
 
 def test_canonical_router_reset_restores_identical_hash():
     torch.manual_seed(1729)
-    router = SoftPrecisionRouter(4, hidden_width=4, candidate_bits=S10_CANDIDATE_BITS)
+    router = SoftPrecisionRouter(4, hidden_width=4, candidate_bits=THREE_WAY_CANDIDATE_BITS)
     canonical = router_only_state(router)
     expected = router_state_hash(canonical)
     with torch.no_grad():
@@ -42,7 +42,7 @@ def test_fresh_optimizer_has_no_lambda_state_leakage():
             self.routers = nn.ModuleDict(
                 {
                     "attention_0": SoftPrecisionRouter(
-                        4, hidden_width=4, candidate_bits=S10_CANDIDATE_BITS
+                        4, hidden_width=4, candidate_bits=THREE_WAY_CANDIDATE_BITS
                     )
                 }
             )
@@ -67,7 +67,7 @@ def test_fresh_optimizer_has_no_lambda_state_leakage():
 
 
 def test_explicit_order_lambda_zero_and_six_bit_mode():
-    assert S10_CANDIDATE_BITS == (4, 6, 8)
+    assert THREE_WAY_CANDIDATE_BITS == (4, 6, 8)
     kd = torch.tensor(2.0, requires_grad=True)
     cost = expected_bit_cost(torch.tensor([0.2, 0.3, 0.5]))
     assert cost_aware_distillation_loss(kd, cost, 0.0) is kd
@@ -84,7 +84,7 @@ def test_probability_metrics_hard_fractions_and_width_are_finite():
             layer,
             unit,
             torch.tensor(probabilities),
-            candidate_bits=S10_CANDIDATE_BITS,
+            candidate_bits=THREE_WAY_CANDIDATE_BITS,
         )
         for request, probabilities in (
             ("validation-3", [1.0, 0.0, 0.0]),
@@ -114,7 +114,7 @@ def test_route_summary_uses_requested_entropy_log_base():
             0,
             "attention",
             torch.tensor([0.25, 0.25, 0.5]),
-            candidate_bits=S10_CANDIDATE_BITS,
+            candidate_bits=THREE_WAY_CANDIDATE_BITS,
         )
     ]
     summary = summarize_route_records(

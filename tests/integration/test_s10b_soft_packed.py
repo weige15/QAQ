@@ -3,7 +3,7 @@ from __future__ import annotations
 import torch
 
 from qaq.quantization.backend import build_case
-from qaq.router.network import S10_CANDIDATE_BITS
+from qaq.router.network import THREE_WAY_CANDIDATE_BITS
 from qaq.router.soft_linear import SoftPackedLinear
 
 
@@ -28,8 +28,8 @@ def test_real_packed_three_way_endpoints_and_mixture():
         linear.lut8.copy_(case.linear.lut8)
         linear.lut5.copy_(case.linear.lut8[:, ::8].contiguous())
         linear.lut7.copy_(case.linear.lut8[:, ::2].contiguous())
-    soft = SoftPackedLinear(linear, candidate_bits=S10_CANDIDATE_BITS)
-    expected = [linear(case.inputs, precision=bits) for bits in S10_CANDIDATE_BITS]
+    soft = SoftPackedLinear(linear, candidate_bits=THREE_WAY_CANDIDATE_BITS)
+    expected = [linear(case.inputs, precision=bits) for bits in THREE_WAY_CANDIDATE_BITS]
     for index, output in enumerate(expected):
         probabilities = torch.nn.functional.one_hot(torch.tensor(index), 3).to(
             device=case.device, dtype=case.inputs.dtype

@@ -17,9 +17,9 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "src"))
 
-from scripts import run_s10h as runner
+from qaq.router import broader_validation_protocol as runner
 
 DESTINATION = ROOT / runner.PACKED_ARTIFACT
 SOURCE_ENV = "QAQ_S03_ARTIFACT_SOURCE"

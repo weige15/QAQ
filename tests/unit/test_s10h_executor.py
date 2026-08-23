@@ -9,17 +9,8 @@ import torch
 from torch import nn
 
 from qaq.model.request_state import QaqRequestState
-from qaq.router import s10h_executor as executor
-from qaq.router.distillation import (
-    DistillationBatch,
-    DistillationExample,
-    TokenRange,
-    cost_aware_distillation_loss,
-    masked_kl_distillation_loss,
-    request_state_expected_bit_cost,
-)
-from qaq.router.network import S10_CANDIDATE_BITS, SoftPrecisionRouter
-from qaq.router.s10h_executor import (
+from qaq.router import broader_validation_executor as executor
+from qaq.router.broader_validation_executor import (
     ExecutionOutcome,
     ExecutorError,
     QwenRuntime,
@@ -29,6 +20,15 @@ from qaq.router.s10h_executor import (
     execute_with_runtime,
     write_validated_result,
 )
+from qaq.router.distillation import (
+    DistillationBatch,
+    DistillationExample,
+    TokenRange,
+    cost_aware_distillation_loss,
+    masked_kl_distillation_loss,
+    request_state_expected_bit_cost,
+)
+from qaq.router.network import THREE_WAY_CANDIDATE_BITS, SoftPrecisionRouter
 from scripts import run_s07b
 from scripts import run_s10h as protocol
 
@@ -42,7 +42,7 @@ class _TinyModel(nn.Module):
         self.routers = nn.ModuleDict(
             {
                 f"{unit_type}_{layer}": SoftPrecisionRouter(
-                    1, hidden_width=1, candidate_bits=S10_CANDIDATE_BITS
+                    1, hidden_width=1, candidate_bits=THREE_WAY_CANDIDATE_BITS
                 )
                 for unit_type in ("attention", "ffn")
                 for layer in range(36)
@@ -188,7 +188,7 @@ class _TinyRuntime:
             2,
             layer_count=36,
             feature_dim=1,
-            candidate_bits=S10_CANDIDATE_BITS,
+            candidate_bits=THREE_WAY_CANDIDATE_BITS,
         )
         values = []
         offset = 0.01 if example.example_id.startswith("validation") else 0.02

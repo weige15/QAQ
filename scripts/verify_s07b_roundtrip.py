@@ -351,12 +351,12 @@ def main() -> int:
         raise SystemExit("PAUSE: CUDA is unavailable")
     torch.cuda.set_device(torch.device(args.device))
 
-    import run_s07b
     from datasets import load_dataset
     from transformers import AutoTokenizer
 
     from qaq.model.manual import PrecisionTrace
     from qaq.model.request_state import QaqRequestState
+    from qaq.router import baseline_training
     from qaq.router.distillation import RouterCheckpointMetadata, hard_route, load_router_checkpoint
     from qaq.router.soft_model import load_soft_model
 
@@ -366,7 +366,7 @@ def main() -> int:
     config = result["training_configuration"]
     artifact = ROOT / manifest["artifact"]["local_path"]
     tokenizer = AutoTokenizer.from_pretrained(
-        str(run_s07b.SNAPSHOT), revision=run_s07b.MODEL_REVISION, local_files_only=True
+        str(baseline_training.SNAPSHOT), revision=baseline_training.MODEL_REVISION, local_files_only=True
     )
     dataset = load_dataset(
         config["dataset"]["repository"],
@@ -375,7 +375,7 @@ def main() -> int:
         revision=config["dataset"]["revision"],
         trust_remote_code=False,
     )
-    examples_cpu, _ = run_s07b._select_examples(
+    examples_cpu, _ = baseline_training._select_examples(
         dataset,
         tokenizer,
         config["dataset"]["validation_offsets"],
@@ -383,7 +383,7 @@ def main() -> int:
         config=config,
         torch=torch,
     )
-    examples = [run_s07b._device_example(example, args.device, torch) for example in examples_cpu]
+    examples = [baseline_training._device_example(example, args.device, torch) for example in examples_cpu]
     student = load_soft_model(
         artifact,
         args.device,
@@ -406,13 +406,13 @@ def main() -> int:
         )
         with torch.no_grad():
             output = student(
-                **run_s07b._model_kwargs(example),
+                **baseline_training._model_kwargs(example),
                 request_state=state,
                 phase="prefill",
                 prompt_attention_mask=example.prompt_mask().unsqueeze(0),
                 trace=PrecisionTrace(),
             )
-        records = run_s07b._records_for_state(example.example_id, state, student, log_base=2.0)
+        records = baseline_training._records_for_state(example.example_id, state, student, log_base=2.0)
         return output.logits.detach(), records
 
     def hard_once(example):
@@ -425,14 +425,14 @@ def main() -> int:
 
         with torch.no_grad():
             output = student.base(
-                **run_s07b._model_kwargs(example),
+                **baseline_training._model_kwargs(example),
                 request_state=state,
                 phase="prefill",
                 prompt_attention_mask=example.prompt_mask().unsqueeze(0),
                 routing_policy=policy,
                 trace=PrecisionTrace(),
             )
-        records = run_s07b._records_for_state(example.example_id, state, student, log_base=2.0)
+        records = baseline_training._records_for_state(example.example_id, state, student, log_base=2.0)
         return output.logits.detach(), records, state
 
     probability_match = True

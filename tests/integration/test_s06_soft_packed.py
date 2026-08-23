@@ -6,7 +6,7 @@ from qaq.model.manual import PrecisionTrace
 from qaq.model.request_state import QaqRequestState
 from qaq.model.static import run_static_smoke
 from qaq.quantization.backend import build_case, packed_output
-from qaq.router.network import S10_CANDIDATE_BITS
+from qaq.router.network import THREE_WAY_CANDIDATE_BITS
 from qaq.router.soft_linear import SoftPackedLinear
 
 
@@ -52,11 +52,11 @@ def test_real_qwen3_soft_endpoints_match_s04_and_s03(manual_case, static_case):
 def test_real_qwen3_three_way_soft_endpoints_match_static(manual_case, static_case):
     manual_model, inputs, torch_module = manual_case
     static_model, static_inputs, _ = static_case
-    for index, bits in enumerate(S10_CANDIDATE_BITS):
+    for index, bits in enumerate(THREE_WAY_CANDIDATE_BITS):
         state = QaqRequestState(
             f"s10b-qwen3-endpoint-{bits}",
             prompt_length=int(inputs["attention_mask"].sum()),
-            candidate_bits=S10_CANDIDATE_BITS,
+            candidate_bits=THREE_WAY_CANDIDATE_BITS,
         )
 
         def fixed_router(layer_index, unit_type, feature, selected=index):

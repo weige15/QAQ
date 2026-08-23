@@ -22,8 +22,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Protocol
 
+from qaq.router import broader_validation_protocol as protocol
 from qaq.router.distillation import DistillationExample
-from scripts import run_s10h as protocol
 
 _OPTIMIZER_SERIALS = itertools.count(1)
 
@@ -42,7 +42,7 @@ class ExecutionOutcome:
     written: bool
 
 
-class S10HRuntime(Protocol):
+class BroaderValidationRuntime(Protocol):
     """Replaceable boundary for model/data execution.
 
     The scheduler owns trial order, optimizer construction, audits, aggregation,
@@ -89,7 +89,7 @@ class S10HRuntime(Protocol):
 
 @dataclass
 class _PreparedRuntime:
-    runtime: S10HRuntime
+    runtime: BroaderValidationRuntime
     config: Mapping[str, Any]
     device: str
 
@@ -702,7 +702,7 @@ def write_validated_result(result: dict[str, Any], destination: Path) -> None:
 
 
 def execute_with_runtime(
-    runtime: S10HRuntime,
+    runtime: BroaderValidationRuntime,
     *,
     config: dict[str, Any],
     device: str,
@@ -857,7 +857,11 @@ class QwenRuntime:
 
         self.torch = torch
         from qaq.evaluation.quality import load_full_precision_model
-        from scripts.run_s07b import _device_example, _precompute_teacher_logits, _select_examples
+        from qaq.router.baseline_training import (
+            _device_example,
+            _precompute_teacher_logits,
+            _select_examples,
+        )
 
         snapshot = protocol.MODEL_SNAPSHOT
         tokenizer = AutoTokenizer.from_pretrained(
@@ -918,7 +922,7 @@ class QwenRuntime:
         }
         # Keep the production packed backward seam local to H2; it does not
         # alter the pinned backend or the normal model implementation.
-        from scripts.run_s10d import install_memory_saving_packed_backward
+        from qaq.router.calibration import install_memory_saving_packed_backward
 
         install_memory_saving_packed_backward()
 
@@ -968,7 +972,7 @@ class QwenRuntime:
         import torch
 
         from qaq.model.manual import load_manual_model
-        from qaq.router.network import S10_CANDIDATE_BITS
+        from qaq.router.network import THREE_WAY_CANDIDATE_BITS
         from qaq.router.soft_model import SoftRoutedQwen3ForCausalLM
 
         random.seed(seed)
@@ -978,7 +982,7 @@ class QwenRuntime:
         model = SoftRoutedQwen3ForCausalLM(
             manual,
             temperature=float(self.config["protocol"]["training"]["routing_temperature"]),
-            candidate_bits=S10_CANDIDATE_BITS,
+            candidate_bits=THREE_WAY_CANDIDATE_BITS,
         ).to(device)
         from qaq.router.distillation import freeze_teacher_and_packed_student
 
@@ -1031,13 +1035,13 @@ class QwenRuntime:
         import torch
 
         from qaq.model.request_state import QaqRequestState
+        from qaq.router.baseline_training import _model_kwargs
         from qaq.router.distillation import (
             DistillationBatch,
             cost_aware_distillation_loss,
             masked_kl_distillation_loss,
             request_state_expected_bit_cost,
         )
-        from scripts.run_s07b import _model_kwargs
 
         batch = DistillationBatch.from_examples([example])
         optimizer.zero_grad(set_to_none=True)
@@ -1126,12 +1130,12 @@ class QwenRuntime:
         import torch
 
         from qaq.model.request_state import QaqRequestState
+        from qaq.router.baseline_training import _model_kwargs
         from qaq.router.distillation import (
             hard_route,
             masked_kl_distillation_loss,
             route_records_from_request_state,
         )
-        from scripts.run_s07b import _model_kwargs
 
         records: list[Any] = []
         per_example: list[dict[str, Any]] = []
@@ -1266,10 +1270,10 @@ class QwenRuntime:
 
 
 __all__ = [
+    "BroaderValidationRuntime",
     "ExecutionOutcome",
     "ExecutorError",
     "QwenRuntime",
-    "S10HRuntime",
     "execute_production",
     "execute_with_runtime",
     "write_validated_result",
