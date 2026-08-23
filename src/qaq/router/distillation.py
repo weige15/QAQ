@@ -23,7 +23,7 @@ from torch.nn import functional as F
 
 from .network import (
     CANDIDATE_BITS,
-    S10_CANDIDATE_BITS,
+    THREE_WAY_CANDIDATE_BITS,
     validate_candidate_bits,
     validate_probabilities,
 )
@@ -473,7 +473,7 @@ def masked_kl_distillation_loss(
 
 def expected_bit_cost(
     probabilities: torch.Tensor,
-    candidate_bits: tuple[int, ...] = S10_CANDIDATE_BITS,
+    candidate_bits: tuple[int, ...] = THREE_WAY_CANDIDATE_BITS,
 ) -> torch.Tensor:
     """Return normalized expected bit-plane cost in the explicit candidate order.
 
@@ -495,7 +495,7 @@ def expected_bit_cost(
 
 def mean_expected_bit_cost(
     probabilities: torch.Tensor,
-    candidate_bits: tuple[int, ...] = S10_CANDIDATE_BITS,
+    candidate_bits: tuple[int, ...] = THREE_WAY_CANDIDATE_BITS,
 ) -> torch.Tensor:
     """Return the unweighted arithmetic mean cost over routing decisions."""
 
@@ -544,7 +544,7 @@ def request_state_expected_bit_cost(
     bit_cost = mean_expected_bit_cost(stacked, candidate_bits)
     if not return_diagnostics:
         return bit_cost
-    expected_width = 4 + 4 * bit_cost if candidate_bits == S10_CANDIDATE_BITS else None
+    expected_width = 4 + 4 * bit_cost if candidate_bits == THREE_WAY_CANDIDATE_BITS else None
     return RequestStateCostDiagnostics(
         expected_bit_cost=bit_cost,
         expected_bit_width=expected_width,
@@ -760,7 +760,7 @@ class RouteLogRecord:
         candidate_bits = validate_candidate_bits(self.candidate_bits)
         if self.layer < 0 or self.hard_bit not in candidate_bits:
             raise ValueError("route log layer and hard_bit are invalid")
-        if candidate_bits == S10_CANDIDATE_BITS and self.p6 is None:
+        if candidate_bits == THREE_WAY_CANDIDATE_BITS and self.p6 is None:
             raise ValueError("three-way route logs require p6")
         values = self.probability_values()
         if not all(math.isfinite(value) for value in (*values, self.entropy)):
@@ -907,7 +907,7 @@ def route_statistics(
         raise ValueError("distillation_loss must be finite")
     count = len(values)
     candidates = tuple(
-        bit for bit in S10_CANDIDATE_BITS if any(bit in record.candidate_bits for record in values)
+        bit for bit in THREE_WAY_CANDIDATE_BITS if any(bit in record.candidate_bits for record in values)
     )
     hard_counts = {bit: sum(record.hard_bit == bit for record in values) for bit in candidates}
     by_layer: dict[str, dict[str, float]] = {}

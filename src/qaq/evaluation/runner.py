@@ -41,7 +41,7 @@ MODEL_REVISION = "1cfa9a7208912126459214e8b04321603b3df60c"
 ANY_PRECISION_REVISION = "a3257d02740cc5757c78673da534b0630ff3a4ea"
 
 
-class S09RunnerError(ValueError):
+class EvaluationRunnerError(ValueError):
     """A frozen protocol, result, or orchestration contract is invalid."""
 
 
@@ -49,9 +49,9 @@ def _json(path: Path) -> dict[str, Any]:
     try:
         payload = json.loads(path.read_text())
     except (OSError, json.JSONDecodeError) as exc:
-        raise S09RunnerError(f"cannot read JSON {path}: {exc}") from exc
+        raise EvaluationRunnerError(f"cannot read JSON {path}: {exc}") from exc
     if not isinstance(payload, dict):
-        raise S09RunnerError(f"JSON root must be an object: {path}")
+        raise EvaluationRunnerError(f"JSON root must be an object: {path}")
     return payload
 
 
@@ -87,12 +87,12 @@ def load_protocol(config_path: Path = DEFAULT_CONFIG) -> tuple[dict[str, Any], d
 def resolve_modes(config: dict[str, Any]) -> list[dict[str, Any]]:
     modes = config.get("modes")
     if not isinstance(modes, list):
-        raise S09RunnerError("frozen modes must be a list")
+        raise EvaluationRunnerError("frozen modes must be a list")
     ids = [mode.get("id") if isinstance(mode, dict) else None for mode in modes]
     if tuple(ids) != EXPECTED_MODE_IDS:
-        raise S09RunnerError(f"frozen mode IDs must be exactly {EXPECTED_MODE_IDS}; got {ids}")
+        raise EvaluationRunnerError(f"frozen mode IDs must be exactly {EXPECTED_MODE_IDS}; got {ids}")
     if len(set(ids)) != len(ids):
-        raise S09RunnerError("frozen mode IDs must be unique")
+        raise EvaluationRunnerError("frozen mode IDs must be unique")
     return [dict(mode) for mode in modes]
 
 
@@ -101,7 +101,7 @@ def frozen_perplexity_arguments(config: dict[str, Any]) -> dict[str, Any]:
     expected = {"sample_count": 32, "sequence_length": 128, "source_window_length": 129, "stride": 128, "evaluated_token_count": 4096, "labels": "window[1:] aligned with logits from window[:-1]", "evaluator": section["evaluator"]}
     for key, value in expected.items():
         if section.get(key) != value:
-            raise S09RunnerError(f"S09 perplexity adapter drift: {key}")
+            raise EvaluationRunnerError(f"S09 perplexity adapter drift: {key}")
     return expected
 
 
@@ -110,33 +110,33 @@ def frozen_generation_arguments(config: dict[str, Any]) -> dict[str, Any]:
     expected = {"batch_size": 1, "do_sample": False, "num_beams": 1, "max_new_tokens": 8}
     for key, value in expected.items():
         if section.get(key) != value:
-            raise S09RunnerError(f"S09 generation adapter drift: {key}")
+            raise EvaluationRunnerError(f"S09 generation adapter drift: {key}")
     return expected
 
 
 def frozen_latency_repeats(config: dict[str, Any]) -> int:
     repeats = config["latency"].get("repeats_per_fixed_latency_request")
     if repeats != 5:
-        raise S09RunnerError(f"S09 latency adapter drift: expected five repeats, got {repeats}")
+        raise EvaluationRunnerError(f"S09 latency adapter drift: expected five repeats, got {repeats}")
     return repeats
 
 
 def fixed_requests(prompts: dict[str, Any]) -> list[dict[str, Any]]:
     requests = prompts.get("requests")
     if not isinstance(requests, list) or not requests:
-        raise S09RunnerError("fixed prompt requests are missing")
+        raise EvaluationRunnerError("fixed prompt requests are missing")
     result = []
     seen: set[str] = set()
     for request in requests:
         if not isinstance(request, dict) or not isinstance(request.get("id"), str):
-            raise S09RunnerError("fixed prompt request is malformed")
+            raise EvaluationRunnerError("fixed prompt request is malformed")
         request_id = request["id"]
         if request_id in seen:
-            raise S09RunnerError(f"duplicate fixed request: {request_id}")
+            raise EvaluationRunnerError(f"duplicate fixed request: {request_id}")
         seen.add(request_id)
         ids = request.get("input_ids")
         if not isinstance(ids, list) or not all(isinstance(value, int) for value in ids):
-            raise S09RunnerError(f"fixed input IDs are malformed: {request_id}")
+            raise EvaluationRunnerError(f"fixed input IDs are malformed: {request_id}")
         result.append({**request, "input_ids_sha256": fixed_input_digest(ids)})
     return result
 
@@ -145,7 +145,7 @@ def _git(*args: str) -> str:
     try:
         return subprocess.check_output(["git", "-C", str(ROOT), *args], text=True).strip()
     except (OSError, subprocess.CalledProcessError) as exc:
-        raise S09RunnerError(f"git provenance unavailable: {args}") from exc
+        raise EvaluationRunnerError(f"git provenance unavailable: {args}") from exc
 
 
 def provenance() -> dict[str, Any]:
@@ -171,7 +171,7 @@ def plan(config_path: Path, output_dir: Path, device: str) -> dict[str, Any]:
     config, prompts, config_hash = load_protocol(config_path)
     # Importing the validator here keeps the plan's model path inert while
     # still making the committed validator the protocol authority.
-    from scripts.validate_s09_protocol import validate_protocol
+    from qaq.evaluation.protocol import validate_protocol
 
     validation = validate_protocol(config_path, check_external=True, verify_hashes=True)
     modes = resolve_modes(config)
@@ -213,7 +213,7 @@ def _require(mapping: dict[str, Any], path: str) -> Any:
     value: Any = mapping
     for part in path.split("."):
         if not isinstance(value, dict) or part not in value:
-            raise S09RunnerError(f"result missing required field: {path}")
+            raise EvaluationRunnerError(f"result missing required field: {path}")
         value = value[part]
     return value
 
@@ -221,13 +221,13 @@ def _require(mapping: dict[str, Any], path: str) -> Any:
 def _require_finite(mapping: dict[str, Any], path: str) -> None:
     value = _require(mapping, path)
     if not _finite(value):
-        raise S09RunnerError(f"result field is not finite: {path}")
+        raise EvaluationRunnerError(f"result field is not finite: {path}")
 
 
 def _validate_memory(result: dict[str, Any]) -> None:
     records = _require(result, "memory.records")
     if not isinstance(records, list) or not records:
-        raise S09RunnerError("memory.records must be non-empty")
+        raise EvaluationRunnerError("memory.records must be non-empty")
     fields = (
         "allocated_before",
         "reserved_before",
@@ -238,61 +238,61 @@ def _validate_memory(result: dict[str, Any]) -> None:
     )
     for record in records:
         if not isinstance(record, dict):
-            raise S09RunnerError("memory record is malformed")
+            raise EvaluationRunnerError("memory record is malformed")
         for field in fields:
             value = record.get(field)
             if not isinstance(value, int) or isinstance(value, bool) or value < 0:
-                raise S09RunnerError(f"memory field is invalid: {field}")
+                raise EvaluationRunnerError(f"memory field is invalid: {field}")
     for field in ("physically_resident_packed_weight_bytes", "request_owned_on_demand_bytes"):
         value = _require(result, f"memory.{field}")
         if not isinstance(value, int) or isinstance(value, bool) or value < 0:
-            raise S09RunnerError(f"memory physical evidence is invalid: {field}")
+            raise EvaluationRunnerError(f"memory physical evidence is invalid: {field}")
     method = _require(result, "memory.method")
     if (
         method.get("synchronize_before") != "torch.cuda.synchronize()"
         or method.get("reset_peak") != "torch.cuda.reset_peak_memory_stats()"
         or method.get("synchronize_after") != "torch.cuda.synchronize()"
     ):
-        raise S09RunnerError("memory measurement boundaries are incomplete")
+        raise EvaluationRunnerError("memory measurement boundaries are incomplete")
     if method.get("empty_cache_inside_interval") is not False:
-        raise S09RunnerError("empty_cache() is forbidden inside the memory interval")
+        raise EvaluationRunnerError("empty_cache() is forbidden inside the memory interval")
 
 
 def _validate_latency(result: dict[str, Any], repeats: int) -> None:
     latency = _require(result, "latency")
     if latency.get("warmup_requests") != 1 or latency.get("repeats_per_request") != repeats:
-        raise S09RunnerError("latency warm-up or repeat count does not match the frozen protocol")
+        raise EvaluationRunnerError("latency warm-up or repeat count does not match the frozen protocol")
     raw = latency.get("raw_records")
     request_ids = result.get("fixed_inputs", {}).get("request_ids")
     if not isinstance(raw, list) or not raw or not isinstance(request_ids, list):
-        raise S09RunnerError("latency raw records are missing")
+        raise EvaluationRunnerError("latency raw records are missing")
     counts = Counter(record.get("request_id") for record in raw if isinstance(record, dict))
     if set(counts) != set(request_ids) or any(count != repeats for count in counts.values()):
-        raise S09RunnerError("latency raw records do not retain exactly five repeats per request")
+        raise EvaluationRunnerError("latency raw records do not retain exactly five repeats per request")
     for record in raw:
         if not isinstance(record, dict):
-            raise S09RunnerError("latency raw record is malformed")
+            raise EvaluationRunnerError("latency raw record is malformed")
         for field in ("prefill_seconds", "decode_seconds", "end_to_end_seconds"):
             value = record.get(field)
             if not _finite(value) or value < 0:
-                raise S09RunnerError(f"latency field is invalid: {field}")
+                raise EvaluationRunnerError(f"latency field is invalid: {field}")
     headlines = latency.get("median_seconds")
     if not isinstance(headlines, dict) or set(headlines) != set(request_ids):
-        raise S09RunnerError("latency median headlines are missing")
+        raise EvaluationRunnerError("latency median headlines are missing")
     for request_id in request_ids:
         records = [record for record in raw if record.get("request_id") == request_id]
         headline = headlines.get(request_id)
         if not isinstance(headline, dict):
-            raise S09RunnerError(f"latency median headline is missing: {request_id}")
+            raise EvaluationRunnerError(f"latency median headline is missing: {request_id}")
         for field in ("prefill", "decode", "end_to_end"):
             value = headline.get(field)
             if not _finite(value) or value < 0:
-                raise S09RunnerError(f"latency median is invalid: {request_id}.{field}")
+                raise EvaluationRunnerError(f"latency median is invalid: {request_id}.{field}")
             expected = median(record[f"{field}_seconds"] for record in records)
             if value != expected:
-                raise S09RunnerError(f"latency median does not match raw repeats: {request_id}.{field}")
+                raise EvaluationRunnerError(f"latency median does not match raw repeats: {request_id}.{field}")
     if latency.get("outlier_removal") is not False or latency.get("subtract_transfer_time") is not False:
-        raise S09RunnerError("latency filtering or transfer subtraction is not allowed")
+        raise EvaluationRunnerError("latency filtering or transfer subtraction is not allowed")
 
 
 def _validate_generation(result: dict[str, Any], requests: list[dict[str, Any]], config: dict[str, Any]) -> None:
@@ -300,50 +300,50 @@ def _validate_generation(result: dict[str, Any], requests: list[dict[str, Any]],
     expected = config["generation"]
     for field in ("batch_size", "do_sample", "num_beams", "max_new_tokens"):
         if generation.get(field) != expected[field]:
-            raise S09RunnerError(f"generation setting mismatch: {field}")
+            raise EvaluationRunnerError(f"generation setting mismatch: {field}")
     records = generation.get("records")
     if not isinstance(records, list) or {item.get("request_id") for item in records if isinstance(item, dict)} != {item["id"] for item in requests}:
-        raise S09RunnerError("generation records do not cover the fixed requests")
+        raise EvaluationRunnerError("generation records do not cover the fixed requests")
     expected_inputs = {item["id"]: item["input_ids_sha256"] for item in requests}
     for record in records:
         if not isinstance(record, dict) or record.get("input_ids_sha256") != expected_inputs.get(record.get("request_id")):
-            raise S09RunnerError("generation record does not use the committed input IDs")
+            raise EvaluationRunnerError("generation record does not use the committed input IDs")
         if not isinstance(record.get("generated_token_ids"), list) or len(record["generated_token_ids"]) > expected["max_new_tokens"]:
-            raise S09RunnerError("generation token record is invalid")
+            raise EvaluationRunnerError("generation token record is invalid")
         if not isinstance(record.get("output_digest"), str) or not record["output_digest"]:
-            raise S09RunnerError("generation output digest is missing")
+            raise EvaluationRunnerError("generation output digest is missing")
         if not isinstance(record.get("logits_digest"), str) or not record["logits_digest"]:
-            raise S09RunnerError("generation logits digest is missing")
+            raise EvaluationRunnerError("generation logits digest is missing")
         if not isinstance(record.get("finite_value_check"), bool) or not isinstance(record.get("normal_termination"), bool):
-            raise S09RunnerError("generation deterministic checks are incomplete")
+            raise EvaluationRunnerError("generation deterministic checks are incomplete")
 
 
 def _validate_routed(result: dict[str, Any], requests: list[dict[str, Any]]) -> None:
     routed = _require(result, "routed")
     records = routed.get("requests")
     if not isinstance(records, list) or {item.get("request_id") for item in records if isinstance(item, dict)} != {item["id"] for item in requests}:
-        raise S09RunnerError("routed records do not cover the fixed requests")
+        raise EvaluationRunnerError("routed records do not cover the fixed requests")
     for record in records:
         route_map = record.get("route_map") if isinstance(record, dict) else None
         if not isinstance(route_map, list) or len(route_map) != 72:
-            raise S09RunnerError("routed result must contain complete 72-unit route maps")
+            raise EvaluationRunnerError("routed result must contain complete 72-unit route maps")
         keys = {(item.get("layer"), item.get("unit_type")) for item in route_map if isinstance(item, dict)}
         expected = {(layer, unit) for layer in range(36) for unit in ("attention", "ffn")}
         if keys != expected or any(item.get("selected_bits") not in (4, 8) for item in route_map):
-            raise S09RunnerError("routed route map is incomplete")
+            raise EvaluationRunnerError("routed route map is incomplete")
         for field in ("route_map_digest", "attention_fractions", "ffn_fractions", "overall_fractions"):
             if field not in record:
-                raise S09RunnerError(f"routed result missing {field}")
+                raise EvaluationRunnerError(f"routed result missing {field}")
         if record["route_map_digest"] != _route_digest(route_map):
-            raise S09RunnerError("routed route-map digest does not match the measured map")
+            raise EvaluationRunnerError("routed route-map digest does not match the measured map")
         for field, unit_type in (("attention_fractions", "attention"), ("ffn_fractions", "ffn"), ("overall_fractions", None)):
             values = record[field]
             selected = route_map if unit_type is None else [item for item in route_map if item["unit_type"] == unit_type]
             expected_fractions = {"4_bit": sum(item["selected_bits"] == 4 for item in selected) / len(selected), "8_bit": sum(item["selected_bits"] == 8 for item in selected) / len(selected)}
             if not isinstance(values, dict) or values != expected_fractions:
-                raise S09RunnerError(f"routed fractions are not measured: {field}")
+                raise EvaluationRunnerError(f"routed fractions are not measured: {field}")
     if not isinstance(routed.get("route_diversity"), dict):
-        raise S09RunnerError("route diversity summary is missing")
+        raise EvaluationRunnerError("route diversity summary is missing")
 
 
 def _validate_on_demand(result: dict[str, Any]) -> None:
@@ -362,12 +362,12 @@ def _validate_on_demand(result: dict[str, Any]) -> None:
     ):
         value = payload.get(field)
         if not isinstance(value, int) or isinstance(value, bool) or value < 0:
-            raise S09RunnerError(f"on-demand transfer field is invalid: {field}")
+            raise EvaluationRunnerError(f"on-demand transfer field is invalid: {field}")
     if payload.get("actual_equals_expected") is not True:
-        raise S09RunnerError("on-demand transfer equality evidence is missing")
+        raise EvaluationRunnerError("on-demand transfer equality evidence is missing")
     cleanup = payload.get("cleanup_records")
     if not isinstance(cleanup, list) or not cleanup:
-        raise S09RunnerError("on-demand cleanup audit records are missing")
+        raise EvaluationRunnerError("on-demand cleanup audit records are missing")
     cleanup_fields = (
         "retained_entries_before_cleanup",
         "retained_buffers_before_cleanup",
@@ -377,32 +377,32 @@ def _validate_on_demand(result: dict[str, Any]) -> None:
     )
     for record in cleanup:
         if not isinstance(record, dict) or not isinstance(record.get("request_id"), str):
-            raise S09RunnerError("on-demand cleanup audit record is malformed")
+            raise EvaluationRunnerError("on-demand cleanup audit record is malformed")
         for field in cleanup_fields:
             value = record.get(field)
             if not isinstance(value, int) or isinstance(value, bool) or value < 0:
-                raise S09RunnerError(f"on-demand cleanup field is invalid: {field}")
+                raise EvaluationRunnerError(f"on-demand cleanup field is invalid: {field}")
     for field in cleanup_fields:
         value = payload.get(field)
         expected = max(record[field] for record in cleanup)
         if value != expected:
-            raise S09RunnerError(f"on-demand cleanup summary is not measured: {field}")
+            raise EvaluationRunnerError(f"on-demand cleanup summary is not measured: {field}")
     if any(payload[field] for field in cleanup_fields[2:]):
-        raise S09RunnerError("on-demand request resources were not released")
+        raise EvaluationRunnerError("on-demand request resources were not released")
     audit = payload.get("hidden_copy_audit")
     if not isinstance(audit, dict):
-        raise S09RunnerError("on-demand hidden-copy audit evidence is missing")
+        raise EvaluationRunnerError("on-demand hidden-copy audit evidence is missing")
     for field in ("any_precision_module_count", "source_count"):
         if not isinstance(audit.get(field), int) or audit[field] < 0:
-            raise S09RunnerError(f"on-demand hidden-copy audit field is invalid: {field}")
+            raise EvaluationRunnerError(f"on-demand hidden-copy audit field is invalid: {field}")
     for field in ("all_source_qweights_cpu", "all_source_luts_cpu", "no_complete_packed_gpu_copy", "all_repeats_passed"):
         if not isinstance(audit.get(field), bool):
-            raise S09RunnerError(f"on-demand hidden-copy audit field is invalid: {field}")
+            raise EvaluationRunnerError(f"on-demand hidden-copy audit field is invalid: {field}")
     if audit["any_precision_module_count"] != 0 or not audit["all_source_qweights_cpu"] or not audit["all_source_luts_cpu"] or not audit["no_complete_packed_gpu_copy"] or not audit["all_repeats_passed"]:
-        raise S09RunnerError("on-demand hidden-copy audit failed")
-        raise S09RunnerError("on-demand hidden-copy audit failed")
+        raise EvaluationRunnerError("on-demand hidden-copy audit failed")
+        raise EvaluationRunnerError("on-demand hidden-copy audit failed")
     if payload.get("no_complete_packed_parent_on_gpu") is not audit["no_complete_packed_gpu_copy"]:
-        raise S09RunnerError("on-demand hidden-copy summary is not measured")
+        raise EvaluationRunnerError("on-demand hidden-copy summary is not measured")
 
 
 def _validate_hardware(result: dict[str, Any], config: dict[str, Any]) -> None:
@@ -410,7 +410,7 @@ def _validate_hardware(result: dict[str, Any], config: dict[str, Any]) -> None:
     expected_index = config["hardware"]["preferred_device_index"]
     expected_model = config["hardware"]["required_gpu_model"]
     if hardware.get("device_index") != expected_index or hardware.get("gpu_model") != expected_model:
-        raise S09RunnerError("hardware does not match the frozen CUDA device and GPU model")
+        raise EvaluationRunnerError("hardware does not match the frozen CUDA device and GPU model")
     comparability = hardware.get("comparability")
     if comparability != {
         "reference_device_index": expected_index,
@@ -418,87 +418,87 @@ def _validate_hardware(result: dict[str, Any], config: dict[str, Any]) -> None:
         "identity_recorded": True,
         "compatible": True,
     }:
-        raise S09RunnerError("hardware comparability evidence is missing or incompatible")
+        raise EvaluationRunnerError("hardware comparability evidence is missing or incompatible")
 
 
 def _validate_perplexity(result: dict[str, Any], config: dict[str, Any]) -> None:
     perplexity = _require(result, "perplexity")
     setup = perplexity.get("setup")
     if not isinstance(setup, dict):
-        raise S09RunnerError("perplexity setup evidence is missing")
+        raise EvaluationRunnerError("perplexity setup evidence is missing")
     expected = frozen_perplexity_arguments(config)
     for field, value in expected.items():
         if setup.get(field) != value:
-            raise S09RunnerError(f"perplexity evidence mismatch: {field}")
+            raise EvaluationRunnerError(f"perplexity evidence mismatch: {field}")
     for field in ("dataset", "config", "revision", "split", "tokenizer_revision"):
         if setup.get(field) != config["perplexity"].get(field):
-            raise S09RunnerError(f"perplexity identity mismatch: {field}")
+            raise EvaluationRunnerError(f"perplexity identity mismatch: {field}")
     if perplexity.get("evaluated_token_count") != expected["evaluated_token_count"]:
-        raise S09RunnerError("perplexity must evaluate exactly 4096 target tokens")
+        raise EvaluationRunnerError("perplexity must evaluate exactly 4096 target tokens")
 
 
 def _validate_deterministic_evidence(result: dict[str, Any]) -> None:
     checks = result.get("deterministic_checks")
     if not isinstance(checks, dict):
-        raise S09RunnerError("deterministic evidence is incomplete")
+        raise EvaluationRunnerError("deterministic evidence is incomplete")
     if checks.get("fixed_inputs_identical") is not True or checks.get("all_required_outputs_finite") is not True:
-        raise S09RunnerError("deterministic evidence is incomplete")
+        raise EvaluationRunnerError("deterministic evidence is incomplete")
     evidence = checks.get("repeat_evidence")
     request_ids = result.get("fixed_inputs", {}).get("request_ids")
     if not isinstance(evidence, list) or not isinstance(request_ids, list):
-        raise S09RunnerError("deterministic repeat evidence is missing")
+        raise EvaluationRunnerError("deterministic repeat evidence is missing")
     if {record.get("request_id") for record in evidence if isinstance(record, dict)} != set(request_ids):
-        raise S09RunnerError("deterministic repeat evidence does not cover fixed requests")
+        raise EvaluationRunnerError("deterministic repeat evidence does not cover fixed requests")
     for record in evidence:
         if not isinstance(record, dict) or record.get("repeat_count") != 5:
-            raise S09RunnerError("deterministic repeat evidence must retain five measured repeats")
+            raise EvaluationRunnerError("deterministic repeat evidence must retain five measured repeats")
         if record.get("input_ids_identical") is not True or record.get("all_outputs_finite") is not True or record.get("generated_outputs_agree") is not True:
-            raise S09RunnerError("deterministic repeat evidence is incomplete")
+            raise EvaluationRunnerError("deterministic repeat evidence is incomplete")
         if record.get("routed_hard_routes_agree") is not True:
-            raise S09RunnerError("deterministic routed-repeat evidence is incomplete")
+            raise EvaluationRunnerError("deterministic routed-repeat evidence is incomplete")
         if not isinstance(record.get("generated_token_ids"), list) or len(record["generated_token_ids"]) != 5:
-            raise S09RunnerError("deterministic generated-repeat evidence is missing")
+            raise EvaluationRunnerError("deterministic generated-repeat evidence is missing")
         if not isinstance(record.get("route_map_digests"), list) or len(record["route_map_digests"]) not in (0, 5):
-            raise S09RunnerError("deterministic route-repeat evidence is missing")
+            raise EvaluationRunnerError("deterministic route-repeat evidence is missing")
 
 
 def validate_result(result: dict[str, Any], config: dict[str, Any], prompts: dict[str, Any], config_hash: str) -> None:
     if result.get("schema") != RESULT_SCHEMA:
-        raise S09RunnerError("unsupported per-mode result schema")
+        raise EvaluationRunnerError("unsupported per-mode result schema")
     modes = resolve_modes(config)
     mode_id = result.get("mode_id")
     mode = next((item for item in modes if item["id"] == mode_id), None)
     if mode is None:
-        raise S09RunnerError(f"unknown result mode: {mode_id}")
+        raise EvaluationRunnerError(f"unknown result mode: {mode_id}")
     if result.get("protocol", {}).get("config_sha256") != config_hash:
-        raise S09RunnerError("result protocol/config SHA-256 mismatch")
+        raise EvaluationRunnerError("result protocol/config SHA-256 mismatch")
     if result.get("protocol", {}).get("frozen") is not True:
-        raise S09RunnerError("result does not identify the frozen protocol")
+        raise EvaluationRunnerError("result does not identify the frozen protocol")
     provenance_value = result.get("provenance")
     if not isinstance(provenance_value, dict) or not isinstance(provenance_value.get("git_commit"), str) or "worktree_status" not in provenance_value:
-        raise S09RunnerError("result provenance is incomplete")
+        raise EvaluationRunnerError("result provenance is incomplete")
     hardware = result.get("hardware")
     if not isinstance(hardware, dict) or any(key not in hardware for key in ("device_index", "gpu_model", "driver", "cuda_runtime", "pytorch", "transformers", "python")):
-        raise S09RunnerError("hardware identity is incomplete")
+        raise EvaluationRunnerError("hardware identity is incomplete")
     _validate_hardware(result, config)
     if not isinstance(result.get("seed"), int) or result["seed"] != config["seeds"]["global_reproducibility_seed"]:
-        raise S09RunnerError("seed identity is incomplete")
+        raise EvaluationRunnerError("seed identity is incomplete")
     fixed = result.get("fixed_inputs")
     expected_input_digests = {item["id"]: item["input_ids_sha256"] for item in fixed_requests(prompts)}
     if not isinstance(fixed, dict) or fixed.get("input_digests") != expected_input_digests:
-        raise S09RunnerError("fixed input digests are missing or changed")
+        raise EvaluationRunnerError("fixed input digests are missing or changed")
     identities = result.get("identities")
     if not isinstance(identities, dict) or identities.get("model_repository") != config["identities"]["model"]["repository"] or identities.get("model_revision") != MODEL_REVISION or identities.get("tokenizer_revision") != MODEL_REVISION:
-        raise S09RunnerError("model or tokenizer revision mismatch")
+        raise EvaluationRunnerError("model or tokenizer revision mismatch")
     if mode["packed_artifact"]:
         if identities.get("packed_checkpoint_sha256") != config["identities"]["packed_artifact"]["sha256"]:
-            raise S09RunnerError("packed checkpoint SHA-256 mismatch")
+            raise EvaluationRunnerError("packed checkpoint SHA-256 mismatch")
         if identities.get("any_precision_revision") != ANY_PRECISION_REVISION:
-            raise S09RunnerError("Any-Precision revision mismatch")
+            raise EvaluationRunnerError("Any-Precision revision mismatch")
     if mode_id in ROUTED_MODE_IDS and identities.get("router_checkpoint_sha256") != config["identities"]["router"]["sha256"]:
-        raise S09RunnerError("router checkpoint SHA-256 mismatch")
+        raise EvaluationRunnerError("router checkpoint SHA-256 mismatch")
     if result.get("fixed_inputs", {}).get("request_ids") != [item["id"] for item in fixed_requests(prompts)]:
-        raise S09RunnerError("fixed request identity mismatch")
+        raise EvaluationRunnerError("fixed request identity mismatch")
     _validate_finite_result(result)
     _validate_perplexity(result, config)
     _validate_generation(result, fixed_requests(prompts), config)
@@ -515,7 +515,7 @@ def _validate_finite_result(result: dict[str, Any]) -> None:
     for path in ("perplexity.mean_negative_log_likelihood", "perplexity.perplexity"):
         _require_finite(result, path)
     if _require(result, "perplexity.evaluated_token_count") != 4096:
-        raise S09RunnerError("perplexity token count must be exactly 4096")
+        raise EvaluationRunnerError("perplexity token count must be exactly 4096")
 
 
 def _route_digest(route_map: list[dict[str, Any]]) -> str:
@@ -529,7 +529,7 @@ def _route_record(state: Any, request_id: str) -> dict[str, Any]:
         *[{"layer": layer, "unit_type": "ffn", "selected_bits": int(bits)} for layer, bits in enumerate(state.ffn_routes)],
     ]
     if len(route_map) != 72 or any(item["selected_bits"] not in (4, 8) for item in route_map):
-        raise S09RunnerError("hard routing did not produce a complete 72-unit map")
+        raise EvaluationRunnerError("hard routing did not produce a complete 72-unit map")
     def fractions(items: list[dict[str, Any]]) -> dict[str, float]:
         count = len(items)
         return {"4_bit": sum(item["selected_bits"] == 4 for item in items) / count, "8_bit": sum(item["selected_bits"] == 8 for item in items) / count}
@@ -611,7 +611,7 @@ def _physical_residency_bytes(model: Any) -> int:
         for name in ("qweight", "lut4", "lut8"):
             tensor = getattr(module, name, None)
             if tensor is None or tensor.device.type != "cuda":
-                raise S09RunnerError(f"packed residency evidence is not physically measurable: {name}")
+                raise EvaluationRunnerError(f"packed residency evidence is not physically measurable: {name}")
             total += int(tensor.numel() * tensor.element_size())
     return total
 
@@ -655,8 +655,8 @@ def _routed_policy(student: Any) -> Callable[[int, str, Any], int]:
 
 
 def _routed_forward(student: Any, request_id: str, input_ids: Any, prompt_length: int, device: str, *, use_cache: bool = False, past_key_values: Any = None, phase: str = "prefill", context: Any = None, state: Any = None) -> tuple[Any, Any, Any]:
-    from qaq.model.request_state import QaqRequestState
     from qaq.model.manual import PrecisionTrace
+    from qaq.model.request_state import QaqRequestState
 
     if state is None:
         state = QaqRequestState(request_id, prompt_length=prompt_length, layer_count=36)
@@ -733,8 +733,8 @@ def _load_mode(mode: dict[str, Any], config: dict[str, Any], device: str) -> tup
         set_static_precision(model, int(mode["precision"][0]) if isinstance(mode["precision"], str) else int(mode["precision"]))
         return model, tokenizer, manifest
     from qaq.model.manual import load_on_demand_model
-    from qaq.router.soft_model import SoftRoutedQwen3ForCausalLM, load_soft_model
     from qaq.router.distillation import RouterCheckpointMetadata, load_router_checkpoint
+    from qaq.router.soft_model import SoftRoutedQwen3ForCausalLM, load_soft_model
     if mode["loader"] == "resident":
         student = load_soft_model(artifact, device)
     else:
@@ -846,9 +846,9 @@ def execute_mode(config_path: Path, mode_id: str, output_path: Path, device: str
     modes = resolve_modes(config)
     mode = next((item for item in modes if item["id"] == mode_id), None)
     if mode is None:
-        raise S09RunnerError(f"unknown mode: {mode_id}")
+        raise EvaluationRunnerError(f"unknown mode: {mode_id}")
     if not os.environ.get("VIRTUAL_ENV", "").startswith(str(Path.home() / ".venv")):
-        raise S09RunnerError("PAUSE: ~/.venv is not active")
+        raise EvaluationRunnerError("PAUSE: ~/.venv is not active")
     import torch
     import transformers
 
@@ -856,7 +856,7 @@ def execute_mode(config_path: Path, mode_id: str, output_path: Path, device: str
     from qaq.model.static import file_sha256, source_commit
 
     if not torch.cuda.is_available():
-        raise S09RunnerError("PAUSE: CUDA is unavailable")
+        raise EvaluationRunnerError("PAUSE: CUDA is unavailable")
     torch.cuda.set_device(torch.device(device))
     _seed(torch, int(config["seeds"]["global_reproducibility_seed"]))
     model, tokenizer, manifest = _load_mode(mode, config, device)
@@ -864,13 +864,13 @@ def execute_mode(config_path: Path, mode_id: str, output_path: Path, device: str
     artifact_path = ROOT / config["identities"]["packed_artifact"]["relative_path"] / config["identities"]["packed_artifact"]["checkpoint_file"]
     if mode["packed_artifact"]:
         if source_commit() != config["identities"]["any_precision"]["manifest_commit"]:
-            raise S09RunnerError("REVISE: Any-Precision revision changed")
+            raise EvaluationRunnerError("REVISE: Any-Precision revision changed")
         if file_sha256(artifact_path) != config["identities"]["packed_artifact"]["sha256"]:
-            raise S09RunnerError("REVISE: packed checkpoint SHA-256 changed")
+            raise EvaluationRunnerError("REVISE: packed checkpoint SHA-256 changed")
     router_path = Path(os.environ.get("QAQ_S07_ROUTER_CHECKPOINT", "~/.cache/qaq/s07b/final_router.pt")).expanduser()
     router_hash = file_sha256(router_path) if routed and router_path.is_file() else None
     if routed and router_hash != config["identities"]["router"]["sha256"]:
-        raise S09RunnerError("REVISE: router checkpoint SHA-256 changed")
+        raise EvaluationRunnerError("REVISE: router checkpoint SHA-256 changed")
     requests = fixed_requests(prompts)
     perplexity_args = frozen_perplexity_arguments(config)
     generation_args = frozen_generation_arguments(config)
@@ -1055,7 +1055,7 @@ def _persist_aggregation(results_dir: Path, payload: dict[str, Any]) -> dict[str
 def aggregate(config_path: Path, results_dir: Path) -> dict[str, Any]:
     config, prompts, config_hash = load_protocol(config_path)
     try:
-        from scripts.validate_s09_protocol import ProtocolValidationError, validate_protocol
+        from qaq.evaluation.protocol import ProtocolValidationError, validate_protocol
 
         validate_protocol(config_path, check_external=False, verify_hashes=False)
     except (KeyError, OSError, ProtocolValidationError, TypeError, ValueError) as exc:
@@ -1071,7 +1071,7 @@ def aggregate(config_path: Path, results_dir: Path) -> dict[str, Any]:
         try:
             result = _json(path)
             validate_result(result, config, prompts, config_hash)
-        except S09RunnerError as exc:
+        except EvaluationRunnerError as exc:
             return _persist_aggregation(results_dir, {"classification": "REVISE", "errors": [str(exc)], "results_dir": str(results_dir)})
         results[mode["id"]] = result
     if missing:
@@ -1085,7 +1085,7 @@ __all__ = [
     "DEFAULT_RESULTS",
     "EXPECTED_MODE_IDS",
     "RESULT_SCHEMA",
-    "S09RunnerError",
+    "EvaluationRunnerError",
     "aggregate",
     "child_command",
     "execute_mode",

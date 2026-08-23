@@ -11,19 +11,19 @@ from qaq.router.distillation import (
     expected_bit_cost,
     request_state_expected_bit_cost,
 )
-from qaq.router.network import CANDIDATE_BITS, S10_CANDIDATE_BITS
+from qaq.router.network import CANDIDATE_BITS, THREE_WAY_CANDIDATE_BITS
 
 
 def test_endpoint_and_mixed_costs_use_explicit_candidate_order():
     three_way = torch.eye(3)
     assert torch.equal(
-        expected_bit_cost(three_way, S10_CANDIDATE_BITS), torch.tensor([0.0, 0.5, 1.0])
+        expected_bit_cost(three_way, THREE_WAY_CANDIDATE_BITS), torch.tensor([0.0, 0.5, 1.0])
     )
     historical = torch.eye(2)
     assert torch.equal(expected_bit_cost(historical, CANDIDATE_BITS), torch.tensor([0.0, 1.0]))
     mixed = torch.tensor([0.2, 0.3, 0.5])
-    assert expected_bit_cost(mixed, S10_CANDIDATE_BITS).item() == pytest.approx(0.65)
-    assert expected_bit_cost(torch.full((3,), 1 / 3), S10_CANDIDATE_BITS).item() == pytest.approx(
+    assert expected_bit_cost(mixed, THREE_WAY_CANDIDATE_BITS).item() == pytest.approx(0.65)
+    assert expected_bit_cost(torch.full((3,), 1 / 3), THREE_WAY_CANDIDATE_BITS).item() == pytest.approx(
         0.5
     )
 
@@ -41,7 +41,7 @@ def test_cost_validation_is_explicit_and_bounded():
         torch.tensor([0.5, 0.5, 0.1]),
     ):
         with pytest.raises(ValueError):
-            expected_bit_cost(probabilities, S10_CANDIDATE_BITS)
+            expected_bit_cost(probabilities, THREE_WAY_CANDIDATE_BITS)
     values = expected_bit_cost(torch.tensor([[1.0, 0.0, 0.0], [0.0, 0.0, 1.0]]))
     assert torch.isfinite(values).all()
     assert bool(((values >= 0) & (values <= 1)).all())
@@ -49,7 +49,7 @@ def test_cost_validation_is_explicit_and_bounded():
 
 def test_expected_width_relationship_and_fixed_kd_positive_lambda_ordering():
     probabilities = torch.tensor([0.2, 0.3, 0.5])
-    bit_cost = expected_bit_cost(probabilities, S10_CANDIDATE_BITS)
+    bit_cost = expected_bit_cost(probabilities, THREE_WAY_CANDIDATE_BITS)
     expected_width = 4 + 4 * bit_cost
     assert expected_width.item() == pytest.approx(6.6)
     kd = torch.tensor(2.0)
@@ -62,7 +62,7 @@ def test_expected_width_relationship_and_fixed_kd_positive_lambda_ordering():
 
 def test_request_state_diagnostics_expose_three_way_expected_width():
     state = QaqRequestState(
-        "diagnostic-request", prompt_length=1, layer_count=1, candidate_bits=S10_CANDIDATE_BITS
+        "diagnostic-request", prompt_length=1, layer_count=1, candidate_bits=THREE_WAY_CANDIDATE_BITS
     )
     for unit_type in ("attention", "ffn"):
         state.store_feature(unit_type, 0, torch.ones(2))
@@ -77,7 +77,7 @@ def test_request_state_diagnostics_expose_three_way_expected_width():
 
 def test_request_state_rejects_leading_dimensions_and_empty_slots():
     state = QaqRequestState(
-        "shape-request", prompt_length=1, layer_count=1, candidate_bits=S10_CANDIDATE_BITS
+        "shape-request", prompt_length=1, layer_count=1, candidate_bits=THREE_WAY_CANDIDATE_BITS
     )
     state.store_feature("attention", 0, torch.ones(2))
     for probabilities in (torch.full((2, 3), 1 / 3), torch.empty((0, 3))):
@@ -118,7 +118,7 @@ def test_eight_dominant_softmax_gradient_pushes_toward_lower_cost():
 
 def test_request_state_aggregates_each_attention_and_ffn_unit_once_with_gradients():
     state = QaqRequestState(
-        "cost-request", prompt_length=2, layer_count=36, candidate_bits=S10_CANDIDATE_BITS
+        "cost-request", prompt_length=2, layer_count=36, candidate_bits=THREE_WAY_CANDIDATE_BITS
     )
     logits = [
         torch.tensor(
@@ -149,7 +149,7 @@ def test_request_state_cost_preserves_frozen_state():
     frozen = torch.nn.Parameter(torch.tensor([3.0, 4.0]), requires_grad=False)
     before = frozen.detach().clone()
     state = QaqRequestState(
-        "frozen-request", prompt_length=1, layer_count=1, candidate_bits=S10_CANDIDATE_BITS
+        "frozen-request", prompt_length=1, layer_count=1, candidate_bits=THREE_WAY_CANDIDATE_BITS
     )
     state.store_feature("attention", 0, frozen)
     state.store_feature("ffn", 0, frozen)

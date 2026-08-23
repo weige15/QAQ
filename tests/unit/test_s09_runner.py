@@ -196,15 +196,15 @@ def test_unknown_duplicate_or_missing_mode_is_rejected():
     config, _, _ = _protocol()
     changed = copy.deepcopy(config)
     changed["modes"][0]["id"] = "unknown"
-    with pytest.raises(runner.S09RunnerError, match="mode IDs"):
+    with pytest.raises(runner.EvaluationRunnerError, match="mode IDs"):
         runner.resolve_modes(changed)
     changed = copy.deepcopy(config)
     changed["modes"][4]["id"] = changed["modes"][3]["id"]
-    with pytest.raises(runner.S09RunnerError, match="mode IDs"):
+    with pytest.raises(runner.EvaluationRunnerError, match="mode IDs"):
         runner.resolve_modes(changed)
     changed = copy.deepcopy(config)
     changed["modes"].pop()
-    with pytest.raises(runner.S09RunnerError, match="mode IDs"):
+    with pytest.raises(runner.EvaluationRunnerError, match="mode IDs"):
         runner.resolve_modes(changed)
 
 
@@ -221,7 +221,7 @@ def test_result_contract_requires_protocol_generation_memory_and_latency():
     result = _fixture(runner.EXPECTED_MODE_IDS[0], config, prompts, config_hash)
     runner.validate_result(result, config, prompts, config_hash)
     del result["generation"]["records"]
-    with pytest.raises(runner.S09RunnerError, match="generation records"):
+    with pytest.raises(runner.EvaluationRunnerError, match="generation records"):
         runner.validate_result(result, config, prompts, config_hash)
 
 
@@ -230,12 +230,12 @@ def test_routed_and_on_demand_contracts_are_required():
     routed = _fixture(runner.ROUTED_MODE_IDS[0], config, prompts, config_hash)
     runner.validate_result(routed, config, prompts, config_hash)
     routed["routed"]["requests"][0]["route_map"].pop()
-    with pytest.raises(runner.S09RunnerError, match="72-unit"):
+    with pytest.raises(runner.EvaluationRunnerError, match="72-unit"):
         runner.validate_result(routed, config, prompts, config_hash)
     on_demand = _fixture(runner.ON_DEMAND_MODE_ID, config, prompts, config_hash)
     runner.validate_result(on_demand, config, prompts, config_hash)
     on_demand["on_demand"]["actual_equals_expected"] = False
-    with pytest.raises(runner.S09RunnerError, match="transfer equality"):
+    with pytest.raises(runner.EvaluationRunnerError, match="transfer equality"):
         runner.validate_result(on_demand, config, prompts, config_hash)
 
 

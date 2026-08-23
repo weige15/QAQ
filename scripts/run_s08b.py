@@ -19,7 +19,6 @@ import torch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-sys.path.insert(0, str(ROOT / "scripts"))
 
 MODEL_REVISION = "1cfa9a7208912126459214e8b04321603b3df60c"
 ANY_PRECISION_REVISION = "a3257d02740cc5757c78673da534b0630ff3a4ea"
@@ -79,8 +78,9 @@ def _tensor_sha256(value: torch.Tensor) -> str:
 
 def _load_examples() -> list[Any]:
     from datasets import load_dataset
-    from run_s07b import _load_config, _select_examples
     from transformers import AutoTokenizer
+
+    from qaq.router.baseline_training import _load_config, _select_examples
 
     config = _load_config()
     tokenizer = AutoTokenizer.from_pretrained(str(ARTIFACT), local_files_only=True)
@@ -134,8 +134,8 @@ def _checkpoint_metadata(manifest: dict[str, Any], router: Any) -> Any:
 
 def _load_student(mode: str) -> Any:
     from qaq.model.manual import load_on_demand_model
-    from qaq.router.soft_model import SoftRoutedQwen3ForCausalLM, load_soft_model
     from qaq.router.distillation import load_router_checkpoint
+    from qaq.router.soft_model import SoftRoutedQwen3ForCausalLM, load_soft_model
 
     manifest = json.loads((ROOT / "docs/quantized_model_manifest.json").read_text())
     if mode == "resident":

@@ -16,7 +16,7 @@ from qaq.model.request_state import (
     RoutingProvenance,
 )
 from qaq.router.distillation import hard_route
-from qaq.router.network import S10_CANDIDATE_BITS
+from qaq.router.network import THREE_WAY_CANDIDATE_BITS
 
 
 def _provenance(source_layer: int) -> RoutingProvenance:
@@ -48,7 +48,7 @@ def test_lookahead_prediction_is_target_owned_and_uses_target_router_identity():
         "mapping",
         2,
         layer_count=2,
-        candidate_bits=S10_CANDIDATE_BITS,
+        candidate_bits=THREE_WAY_CANDIDATE_BITS,
         routing_timing=LOOKAHEAD_ATTENTION_ONE_UNIT,
     )
     state.validate_for_model(layer_count=2, feature_dim=2)
@@ -56,7 +56,7 @@ def test_lookahead_prediction_is_target_owned_and_uses_target_router_identity():
 
     def policy(layer, unit_type, feature):
         calls.append((layer, unit_type, feature.detach().clone()))
-        return int(hard_route(torch.tensor([0.0, 0.5, 0.5]), candidate_bits=S10_CANDIDATE_BITS))
+        return int(hard_route(torch.tensor([0.0, 0.5, 0.5]), candidate_bits=THREE_WAY_CANDIDATE_BITS))
 
     precision = _predict_lookahead_attention_route(
         request_state=state,

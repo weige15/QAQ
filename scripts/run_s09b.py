@@ -16,7 +16,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from qaq.evaluation.runner import (
     DEFAULT_CONFIG,
     DEFAULT_RESULTS,
-    S09RunnerError,
+    EvaluationRunnerError,
     aggregate,
     execute_mode,
     plan,
@@ -57,7 +57,7 @@ def main(argv: list[str] | None = None) -> int:
         details = plan(args.config.resolve(), args.results_dir.resolve(), args.device)
         print(json.dumps(details, indent=2, sort_keys=True))
         return 0
-    except (S09RunnerError, OSError, subprocess.CalledProcessError) as exc:
+    except (EvaluationRunnerError, OSError, subprocess.CalledProcessError) as exc:
         print(str(exc), file=sys.stderr)
         return 1
 
