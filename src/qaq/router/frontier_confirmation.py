@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Execute the frozen S10-F three-seed frontier confirmation protocol."""
 
 from __future__ import annotations

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Validate the committed S09-A protocol without loading a model or running S09-B."""
 
 from __future__ import annotations

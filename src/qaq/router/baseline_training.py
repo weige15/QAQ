@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Run the single locked S07-B router-distillation baseline."""
 
 from __future__ import annotations

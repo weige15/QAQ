@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Calibrate the S10-D normalized bit-cost coefficient on the locked S07 run."""
 
 from __future__ import annotations

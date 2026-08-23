@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Validate and plan the protocol-locked S10-H broader-validation run.
 
 The default and ``--plan`` paths retain the S10-H1 standard-library-only
