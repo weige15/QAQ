@@ -46,8 +46,8 @@ from qaq.router.calibration import (
 from qaq.router.network import THREE_WAY_CANDIDATE_BITS
 from qaq.router.soft_model import SoftRoutedQwen3ForCausalLM
 
-CONFIG_PATH = ROOT / "configs/s10e_frontier_confirmation.json"
-CALIBRATION_CONFIG_PATH = ROOT / "configs/s10d_lambda_calibration.json"
+CONFIG_PATH = ROOT / "configs/router_frontier_confirmation.json"
+CALIBRATION_CONFIG_PATH = ROOT / "configs/router_cost_calibration.json"
 CALIBRATION_RESULT_PATH = ROOT / "docs/results/s10d_lambda_calibration.json"
 MANIFEST_PATH = ROOT / "docs/quantized_model_manifest.json"
 RESULT_PATH = ROOT / "docs/results/s10f_frontier_confirmation_rerun.json"
@@ -59,17 +59,19 @@ DATASET_REVISION = "b08601e04326c79dfdd32d625aee71d232d685c3"
 EXPECTED_IMPLEMENTATION_BASE = "7fc136eabdba302e199354ae001cd1e1cd42199f"
 HISTORICAL_PROTOCOL_BASE = "e718f27fe6b02082709d65665396640e251e602c"
 LOCKED_CONFIG_SHA256 = "fe5ff8826f17605ca8b2dc7d83555e858d3d9f5fa67d14b49bb09b7cbf66a879"
-LOCKED_S10D_CONFIG_SHA256 = "22649ec4cdafa7a8ff669f72c159c7fbfbaa33ecea50888a953301a8225bb5c1"
-LOCKED_S10D_RESULT_SHA256 = "6ecdf9d8e0d2899fca4650fed083b17734ef1cc2f531fdc7c42e1faf3f72a865"
+LOCKED_CALIBRATION_CONFIG_SHA256 = (
+    "22649ec4cdafa7a8ff669f72c159c7fbfbaa33ecea50888a953301a8225bb5c1"
+)
+LOCKED_CALIBRATION_RESULT_SHA256 = (
+    "6ecdf9d8e0d2899fca4650fed083b17734ef1cc2f531fdc7c42e1faf3f72a865"
+)
 VALIDATION_IDS = ("validation-3", "validation-1000")
 EXPECTED_SEEDS = (1729, 1730, 1731)
 EXPECTED_LAMBDAS = (0.0, 0.03, 0.1)
 EXPECTED_TRIAL_PAIRS = tuple(
     (seed, lambda_bit) for seed in EXPECTED_SEEDS for lambda_bit in EXPECTED_LAMBDAS
 )
-FORBIDDEN_RESULT_FIELDS = frozenset(
-    {"latency", "memory", "transfer", "throughput", "energy"}
-)
+FORBIDDEN_RESULT_FIELDS = frozenset({"latency", "memory", "transfer", "throughput", "energy"})
 
 
 def _sha256_bytes(value: bytes) -> str:
@@ -243,10 +245,10 @@ def _validate_starting_base() -> str:
     return head
 
 
-def _validate_s10d_evidence() -> tuple[dict[str, Any], dict[str, Any]]:
-    if _sha256_bytes(CALIBRATION_CONFIG_PATH.read_bytes()) != LOCKED_S10D_CONFIG_SHA256:
+def _validate_calibration_evidence() -> tuple[dict[str, Any], dict[str, Any]]:
+    if _sha256_bytes(CALIBRATION_CONFIG_PATH.read_bytes()) != LOCKED_CALIBRATION_CONFIG_SHA256:
         raise RuntimeError("PAUSE: canonical S10-D config identity is unavailable")
-    if _sha256_bytes(CALIBRATION_RESULT_PATH.read_bytes()) != LOCKED_S10D_RESULT_SHA256:
+    if _sha256_bytes(CALIBRATION_RESULT_PATH.read_bytes()) != LOCKED_CALIBRATION_RESULT_SHA256:
         raise RuntimeError("PAUSE: canonical S10-D result identity is unavailable")
     config = _load_calibration_config(CALIBRATION_CONFIG_PATH)
     result = json.loads(CALIBRATION_RESULT_PATH.read_text())
@@ -272,7 +274,9 @@ def _validate_s10d_evidence() -> tuple[dict[str, Any], dict[str, Any]]:
     return config, result
 
 
-def _execution_config(protocol: dict[str, Any], s10d_config: dict[str, Any]) -> dict[str, Any]:
+def _execution_config(
+    protocol: dict[str, Any], calibration_config: dict[str, Any]
+) -> dict[str, Any]:
     """Adapt locked nested S10-E fields to the existing S10-D execution seam."""
 
     inherited = protocol["inherited_s10d_contract"]
@@ -289,13 +293,13 @@ def _execution_config(protocol: dict[str, Any], s10d_config: dict[str, Any]) -> 
         "evaluation": {
             # S10-E does not restate this diagnostic base; S10-D's locked value
             # is reused and is recorded as an implementation choice.
-            "entropy_log_base": s10d_config["evaluation"]["entropy_log_base"],
+            "entropy_log_base": calibration_config["evaluation"]["entropy_log_base"],
         },
         "adaptive_extensions": {
             "low_lambda": {
-                "trigger_collapse_fraction": s10d_config["adaptive_extensions"]["low_lambda"][
-                    "trigger_collapse_fraction"
-                ]
+                "trigger_collapse_fraction": calibration_config["adaptive_extensions"][
+                    "low_lambda"
+                ]["trigger_collapse_fraction"]
             }
         },
     }
@@ -363,7 +367,9 @@ def _configure_any_precision_root() -> str:
     static_module.ANY_PRECISION_ROOT = source_path
     loader_module.ANY_PRECISION_ROOT = source_path
     backend_module.ANY_PRECISION_ROOT = source_path
-    return "QAQ_ANY_PRECISION_ROOT override" if source_path != logical_path else "repository submodule"
+    return (
+        "QAQ_ANY_PRECISION_ROOT override" if source_path != logical_path else "repository submodule"
+    )
 
 
 def _identity_for_artifact(manifest: dict[str, Any], artifact: Path) -> dict[str, Any]:
@@ -472,13 +478,16 @@ def _trial_record(
 ) -> dict[str, Any]:
     history = raw["history"]
     gradient = raw["gradient_diagnostic"]
-    finite_loss = all(
-        item["finite_kd_loss"]
-        and item["finite_bit_cost"]
-        and item["finite_weighted_cost"]
-        and item["finite_total_loss"]
-        for item in history
-    ) and len(history) == 4
+    finite_loss = (
+        all(
+            item["finite_kd_loss"]
+            and item["finite_bit_cost"]
+            and item["finite_weighted_cost"]
+            and item["finite_total_loss"]
+            for item in history
+        )
+        and len(history) == 4
+    )
     finite_gradient = bool(
         gradient["finite"]
         and math.isfinite(gradient["kd_gradient_norm"])
@@ -507,9 +516,7 @@ def _trial_record(
         "finite_loss_audit": finite_loss,
         "finite_gradient_audit": finite_gradient,
         "teacher_frozen_audit": bool(
-            teacher_frozen
-            and teacher_grads_absent
-            and teacher_hash_before == teacher_hash_after
+            teacher_frozen and teacher_grads_absent and teacher_hash_before == teacher_hash_after
         ),
         "packed_student_base_unchanged_audit": raw["frozen_packed_student_unchanged"],
         "router_only_optimizer_audit": router_only,
@@ -590,8 +597,7 @@ def _aggregate_trials(
         return aggregate
     hard_kd_medians = {
         str(lambda_bit): statistics.median(
-            by_seed[seed][lambda_bit]["hard_validation_kd"]
-            for seed in sorted(by_seed)
+            by_seed[seed][lambda_bit]["hard_validation_kd"] for seed in sorted(by_seed)
         )
         for lambda_bit in EXPECTED_LAMBDAS
     }
@@ -643,8 +649,10 @@ def _aggregate_trials(
             str(seed): value for seed, value in zip(sorted(by_seed), paired_width, strict=True)
         },
     }
-    complete = len(trials) == 9 and set(by_seed) == set(EXPECTED_SEEDS) and all(
-        set(by_seed[seed]) == set(EXPECTED_LAMBDAS) for seed in by_seed
+    complete = (
+        len(trials) == 9
+        and set(by_seed) == set(EXPECTED_SEEDS)
+        and all(set(by_seed[seed]) == set(EXPECTED_LAMBDAS) for seed in by_seed)
     )
     all_audits = complete and all(
         trial[key]
@@ -663,9 +671,7 @@ def _aggregate_trials(
         "all_nine_trials_complete": complete,
         "all_required_audits_pass": all_audits,
         "no_invalid_or_degenerate_collapse": no_collapse,
-        "lambda_0.03_frontier_seed_count_at_least_2": aggregate[
-            "lambda_0.03_frontier_seed_count"
-        ]
+        "lambda_0.03_frontier_seed_count_at_least_2": aggregate["lambda_0.03_frontier_seed_count"]
         >= 2,
         "paired_hard_kd_delta_non_positive": aggregate[
             "paired_control_hard_kd_delta_median_lambda_0.03_minus_lambda_0.0"
@@ -709,8 +715,8 @@ def _reject_forbidden_fields(value: Any, path: str = "result") -> None:
 
 def _make_result(
     protocol: dict[str, Any],
-    s10d_config: dict[str, Any],
-    s10d_result: dict[str, Any],
+    calibration_config: dict[str, Any],
+    calibration_result: dict[str, Any],
     *,
     base_head: str,
     environment: dict[str, Any],
@@ -736,10 +742,11 @@ def _make_result(
             "merged_s10e_implementation_base": EXPECTED_IMPLEMENTATION_BASE,
             "historical_protocol_required_starting_commit": HISTORICAL_PROTOCOL_BASE,
             "s10a_through_s10e_complete": True,
-            "canonical_s10d_config_sha256": LOCKED_S10D_CONFIG_SHA256,
-            "canonical_s10d_result_sha256": LOCKED_S10D_RESULT_SHA256,
-            "canonical_s10d_result_commit": s10d_result["commit"],
-            "inherited_s10d_config_format": s10d_config["format"],
+            # These serialized keys are part of the frozen historical result schema.
+            "canonical_s10d_config_sha256": LOCKED_CALIBRATION_CONFIG_SHA256,
+            "canonical_s10d_result_sha256": LOCKED_CALIBRATION_RESULT_SHA256,
+            "canonical_s10d_result_commit": calibration_result["commit"],
+            "inherited_s10d_config_format": calibration_config["format"],
             "historical_s07_two_way_checkpoint_loaded": False,
             "s08_on_demand_path_invoked": False,
         },
@@ -747,7 +754,7 @@ def _make_result(
             "paired_initialization": "one canonical initialization per seed, cloned by exact router state before each lambda",
             "lambda_order_per_seed": list(EXPECTED_LAMBDAS),
             "independent_seed_order": list(EXPECTED_SEEDS),
-            "entropy_log_base": s10d_config["evaluation"]["entropy_log_base"],
+            "entropy_log_base": calibration_config["evaluation"]["entropy_log_base"],
             "reproducibility_audit": "one immediate same-state hard validation repeat; exact route-map and hard-metric equality",
             "collapse_audit": "S10-D collapse labels COLLAPSED_TO_4/6/8 are invalid; prompt-invariant/adaptive/other are observational and valid",
             "frontier_membership": "lower-is-better KD and selected width; a point is on the frontier when no other lambda is no-worse on both with one strict improvement",
@@ -795,7 +802,16 @@ def _make_result(
 
 def _load_data_and_teacher(
     protocol: dict[str, Any], execution_config: dict[str, Any], device: str
-) -> tuple[Any, list[Any], list[Any], list[dict[str, Any]], list[dict[str, Any]], dict[str, torch.Tensor], str, bool]:
+) -> tuple[
+    Any,
+    list[Any],
+    list[Any],
+    list[dict[str, Any]],
+    list[dict[str, Any]],
+    dict[str, torch.Tensor],
+    str,
+    bool,
+]:
     import datasets
     from transformers import AutoTokenizer
 
@@ -845,7 +861,9 @@ def _load_data_and_teacher(
     )
     if [item["example_id"] for item in train_manifest] != dataset_config["train_example_ids"]:
         raise RuntimeError("REVISE: train example order differs from frozen S10-F protocol")
-    if [item["example_id"] for item in validation_manifest] != dataset_config["validation_example_ids"]:
+    if [item["example_id"] for item in validation_manifest] != dataset_config[
+        "validation_example_ids"
+    ]:
         raise RuntimeError("REVISE: validation example order differs from frozen S10-F protocol")
     train_examples = [_device_example(item, device, torch) for item in train_cpu]
     validation_examples = [_device_example(item, device, torch) for item in validation_cpu]
@@ -885,7 +903,7 @@ def main() -> int:
     args = parser.parse_args()
     protocol = _load_frozen_config(args.config)
     base_head = _validate_starting_base()
-    s10d_config, s10d_result = _validate_s10d_evidence()
+    calibration_config, calibration_result = _validate_calibration_evidence()
     environment = _check_runtime(args.device)
     any_precision_source = _configure_any_precision_root()
     manifest = json.loads(MANIFEST_PATH.read_text())
@@ -894,10 +912,17 @@ def main() -> int:
         raise SystemExit(f"PAUSE: identity-matched packed artifact is unavailable: {artifact}")
     identities = _identity_for_artifact(manifest, artifact)
     identities["any_precision_source"] = any_precision_source
-    execution_config = _execution_config(protocol, s10d_config)
-    teacher, train_examples, validation_examples, train_manifest, validation_manifest, teacher_targets, teacher_hash, teacher_frozen = _load_data_and_teacher(
-        protocol, execution_config, args.device
-    )
+    execution_config = _execution_config(protocol, calibration_config)
+    (
+        teacher,
+        train_examples,
+        validation_examples,
+        train_manifest,
+        validation_manifest,
+        teacher_targets,
+        teacher_hash,
+        teacher_frozen,
+    ) = _load_data_and_teacher(protocol, execution_config, args.device)
     if not teacher_frozen:
         raise RuntimeError("REVISE: teacher did not remain frozen before trials")
     install_memory_saving_packed_backward()
@@ -935,15 +960,35 @@ def main() -> int:
                 torch,
             )
             if raw["initial_router_state_sha256"] != canonical_hash:
-                raise RuntimeError("REVISE: paired trial did not start from its seed canonical state")
+                raise RuntimeError(
+                    "REVISE: paired trial did not start from its seed canonical state"
+                )
             soft = _evaluate_learned(
-                student, validation_examples, teacher_targets, args.device, "soft", execution_config, torch
+                student,
+                validation_examples,
+                teacher_targets,
+                args.device,
+                "soft",
+                execution_config,
+                torch,
             )
             hard = _evaluate_learned(
-                student, validation_examples, teacher_targets, args.device, "hard", execution_config, torch
+                student,
+                validation_examples,
+                teacher_targets,
+                args.device,
+                "hard",
+                execution_config,
+                torch,
             )
             hard_repeat = _evaluate_learned(
-                student, validation_examples, teacher_targets, args.device, "hard", execution_config, torch
+                student,
+                validation_examples,
+                teacher_targets,
+                args.device,
+                "hard",
+                execution_config,
+                torch,
             )
             trials.append(
                 _trial_record(
@@ -961,11 +1006,13 @@ def main() -> int:
         del student, manual_model
         torch.cuda.empty_cache()
     if len(canonical_hashes) != 3 or len(set(canonical_hashes.values())) != 3:
-        raise RuntimeError("REVISE: independent seeds did not produce distinct canonical router states")
+        raise RuntimeError(
+            "REVISE: independent seeds did not produce distinct canonical router states"
+        )
     result = _make_result(
         protocol,
-        s10d_config,
-        s10d_result,
+        calibration_config,
+        calibration_result,
         base_head=base_head,
         environment=environment,
         identities=identities,
@@ -973,9 +1020,7 @@ def main() -> int:
         train_manifest=train_manifest,
         validation_manifest=validation_manifest,
         trials=trials,
-        inherited_regressions_status=(
-            "passed" if args.inherited_regressions_passed else "missing"
-        ),
+        inherited_regressions_status=("passed" if args.inherited_regressions_passed else "missing"),
     )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")

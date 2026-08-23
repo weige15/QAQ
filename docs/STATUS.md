@@ -1,20 +1,28 @@
-Repository organization: semantic-module refactor COMPLETE
+Repository organization: semantic naming migration COMPLETE
 
-Reusable Python implementation now lives in behavior-named modules under
-`src/qaq`; historical `scripts/run_*.py` commands are compatibility entry
-points into that implementation. Production dependency checks enforce
-`src/qaq -> src/qaq` and `scripts -> src/qaq`, rejecting either source imports
-from `scripts` or script-to-script imports. The reusable three-way precision
-ordering is named `THREE_WAY_CANDIDATE_BITS`, and broader validation,
-calibration, frontier confirmation, baseline training, and protocol validation
-have semantic module names.
+Active scripts, configuration files, tests, and reusable Python implementation
+use behavior- or component-based names. Reusable implementation remains in the
+PR1 package structure under `src/qaq`; no module was relocated or redesigned.
+Former stage-numbered script commands are thin compatibility aliases for frozen
+protocol and result-provenance commands, with no duplicate implementation. The
+nine retained aliases are `run_s03b.py`, `run_s03c.py`, `run_s07b.py`,
+`run_s08b.py`, `run_s09b.py`, `run_s10d.py`, `run_s10h.py`,
+`validate_s09_protocol.py`, and `validate_s11b_protocol.py`; repository search
+found no internal command record requiring the removed `run_s10f.py`,
+`verify_s07b_roundtrip.py`, or `provision_s03_artifact.py` entry points.
+Production dependency checks continue to enforce `src/qaq -> src/qaq` and
+`scripts -> src/qaq`.
 
-The refactor changes no calculations, frozen protocols, thresholds, seeds,
-hashes, dataset/model revisions, result semantics, historical documentation,
-or historical result names. Evidence: the full unit suite passed `371` with
-one established optimizer warning; affected integration regressions passed
-`14`; nine historical command entry points accepted `--help`; Ruff passed on
-all changed Python paths; and dependency-direction tests passed `4`.
+The migration changes no calculations, frozen protocol bytes, thresholds,
+seeds, hashes, dataset/model revisions, result semantics, historical stage
+documents, or frozen result artifacts. Evidence: the full unit suite passed
+`372` with one established optimizer warning; the full integration suite
+passed `63` with three expected external-artifact skips; all 12 semantic and
+nine compatibility script entry points accepted `--help`; both protocol
+validators and both baseline-plan command forms passed; Ruff passed on all
+changed Python paths; and the final identifier audit found no stage-numbered
+Python identifiers or active filenames outside the documented compatibility
+aliases.
 
 Current stage: S11-B1
 Status: COMPLETE - protocol frozen
@@ -22,7 +30,7 @@ Status: COMPLETE - protocol frozen
 ## S11-B1 deterministic paired quality-pilot protocol freeze
 
 The frozen machine-readable protocol is
-`configs/s11b_quality_pilot.json`, schema `qaq-s11b-quality-pilot-v1`,
+`configs/lookahead_quality_pilot.json`, schema `qaq-s11b-quality-pilot-v1`,
 SHA-256 `21a664424debe4892c3577c490158228dd5399bb4b425611db728070d23a5051`.
 It compares exactly `same_unit_control` then
 `lookahead_attention_one_unit_treatment` on the two fixed 64-token S07
@@ -129,7 +137,7 @@ changed. The canonical full validator passed with hashes enabled:
 source ~/.venv/bin/activate
 which python
 python --version
-python scripts/validate_s09_protocol.py --config configs/s09_baseline_eval.json
+python scripts/validate_baseline_evaluation_protocol.py --config configs/baseline_evaluation.json
 ```
 
 The validator exited `0`, checked all five modes, seven fixed requests, and
@@ -146,7 +154,7 @@ checkout. The frozen protocol/config SHA-256 is
 The focused S09-A command passed `18 passed`:
 
 ```text
-PYTHONPATH=src:. pytest -q tests/unit/test_s09_protocol.py tests/integration/test_s09_protocol_inputs.py tests/integration/test_perplexity_evaluator.py
+PYTHONPATH=src:. pytest -q tests/unit/test_baseline_evaluation_protocol.py tests/integration/test_baseline_evaluation_protocol_inputs.py tests/integration/test_perplexity_evaluator.py
 ```
 
 Ruff passed for the validator and focused S09-A test files. At S09-A closeout, no S09-B benchmark, five-mode baseline evaluation, or
@@ -156,13 +164,13 @@ validator.
 
 ## S09-B1 runner implementation — CONTINUE
 
-S09-B1 adds `scripts/run_s09b.py` and `qaq.s09_runner`. The parent resolves the
+S09-B1 adds `scripts/run_baseline_evaluation.py` and `qaq.evaluation.runner`. The parent resolves the
 five frozen mode IDs and launches one explicit `--execute-mode` child per mode,
 so no process can retain models for a second mode. The default path is the
 non-executing plan, which invokes the canonical validator, prints child and
 aggregation commands, and writes no result.
 
-The runner consumes `configs/s09_baseline_prompts.json`, passes S09's explicit
+The runner consumes `configs/baseline_evaluation_prompts.json`, passes S09's explicit
 32-window, stride-128, 4096-target perplexity arguments to the S03 evaluator,
 records fixed-input generation, routed 72-unit maps, S08 physical transfer
 accounting, request cleanup, allocator boundaries, and five raw latency repeats.
@@ -175,7 +183,7 @@ CONTINUE.
 Non-benchmark evidence for S09-B1:
 
 - Canonical S09-A validator passed with hashes enabled.
-- `python scripts/run_s09b.py --plan --config configs/s09_baseline_eval.json`
+- `python scripts/run_baseline_evaluation.py --plan --config configs/baseline_evaluation.json`
   passed and resolved all five child commands plus the aggregation command.
 - Focused runner tests passed: `8 passed`.
 - No mode child was launched, no model evaluation ran, and no final S09 result
@@ -191,14 +199,14 @@ hardware and perplexity identities, validates packed identities for every
 packed mode, and persists the aggregation classification to `aggregation.json`.
 No S09-B mode was executed and no S09-B result artifact exists.
 Next action: Execute S09-B: run the frozen five-mode baseline evaluation using
-the corrected and verified S09-B runner and configs/s09_baseline_eval.json, then
+the corrected and verified S09-B runner and configs/baseline_evaluation.json, then
 evaluate the frozen release gates.
 
 ## S09-A protocol owner
 
 The authoritative machine-readable protocol is
-`configs/s09_baseline_eval.json`; its fixed inputs are
-`configs/s09_baseline_prompts.json`. The detailed human-readable procedure and
+`configs/baseline_evaluation.json`; its fixed inputs are
+`configs/baseline_evaluation_prompts.json`. The detailed human-readable procedure and
 validation gate are owned by `docs/stages/S09_BASELINE_FREEZE.md`. D031 records
 the freeze decision and D032 records the validator review follow-up; this
 status page records only the current state and evidence. No S09-B benchmark or
@@ -255,7 +263,7 @@ S07-B evidence:
   values unchanged.
 - D008-1 authorized exactly one corrected rerun with the unchanged locked
   configuration. The locked configuration remains in
-  `configs/s07_router_training.json`: four deterministic Wikitext training
+  `configs/baseline_router_training.json`: four deterministic Wikitext training
   examples, two validation examples, 32-token prompt/completion boundaries,
   sequence length 64, batch size 1, AdamW, four steps, KD temperature 2.0,
   routing temperature 1.0, and seed 1729.
@@ -313,7 +321,7 @@ source ~/.venv/bin/activate
 which python
 python --version
 nvidia-smi
-PYTHONPATH=src:third_party/any-precision-llm python scripts/verify_s07b_roundtrip.py --device cuda:3 --result docs/results/s07_router_training.json
+PYTHONPATH=src:third_party/any-precision-llm python scripts/verify_router_checkpoint_roundtrip.py --device cuda:3 --result docs/results/s07_router_training.json
 ```
 
 Measured result in `docs/results/s07_router_training.json`: checkpoint
@@ -399,7 +407,7 @@ The pinned kernel dispatch was source-verified: on non-Orin devices it uses
 atomic k-split accumulation exactly for effective `M == 1`, packed input width
 `K > 4096`, and `w_bits >= 7`. Under QAQ's locked 4/8-bit routes, the affected
 family is 8-bit one-row calls with `K > 4096`. The shared helper in
-`qaq.s08_loader` uses pinned `dequant_kbit` plus `torch.matmul` only for that
+`qaq.loading.loader` uses pinned `dequant_kbit` plus `torch.matmul` only for that
 family and preserves the existing packed path elsewhere. Resident
 `_RoutedPackedLinear` and synchronous on-demand loader calls share the helper.
 
@@ -605,7 +613,7 @@ Evidence:
   These are not a production selection.
 
 Canonical result: `docs/results/s10d_lambda_calibration.json`.
-Protocol/config: `configs/s10d_lambda_calibration.json`.
+Protocol/config: `configs/router_cost_calibration.json`.
 Stage procedure and limitations: `docs/stages/S10_6BIT_ROUTING.md`.
 No historical result, production checkpoint/lambda, S08 loader, packed
 artifact, Any-Precision source, or S07 runner was changed.
@@ -614,7 +622,7 @@ Review repair: the runner now rejects any config bytes other than the locked
 protocol, consumes configured KD/entropy/adaptive values, requires the exact
 pinned Hugging Face snapshot path, and rejects missing router gradients.
 Focused repair verification passed `11` tests in
-`tests/unit/test_s10d_lambda_calibration.py`.
+`tests/unit/test_router_cost_calibration.py`.
 
 Next action: firstmate/captain reviews the observed frontier and decides
 whether to refine, confirm, or begin full training.
@@ -626,8 +634,8 @@ Status: COMPLETE
 Gate outcome: CONTINUE.
 
 Passing commit: `7a3548973cbe784657a41c0c6192c155909027c5`.
-The frozen protocol is `configs/s10e_frontier_confirmation.json`; focused
-protocol tests are in `tests/unit/test_s10e_frontier_confirmation.py`. The
+The frozen protocol is `configs/router_frontier_confirmation.json`; focused
+protocol tests are in `tests/unit/test_router_frontier_protocol.py`. The
 protocol records the merged S10-D/PR #9 starting point, exact candidate bits
 `[4,6,8]`, lambdas `[0.0,0.03,0.1]`, captain-selected seeds
 `[1729,1730,1731]`, nine paired trials, inherited S10-D/S07 data and training
@@ -734,8 +742,8 @@ separately scoped broader-validation decision, not execution here.
 Status: CONTINUE (protocol freeze only; no S10-G experiment result exists).
 
 The authoritative machine-readable protocol is
-`configs/s10g_broader_validation.json`; focused tests are in
-`tests/unit/test_s10g_broader_validation_protocol.py`. S10-A through S10-F are
+`configs/broader_router_validation.json`; focused tests are in
+`tests/unit/test_broader_router_validation_protocol.py`. S10-A through S10-F are
 established complete. S10-F attempt 1 remains preserved and attempt 2 is
 present and classified CONTINUE; no production lambda was selected. Attempt 2
 authorized only this separately scoped broader-validation decision, and no
@@ -756,7 +764,7 @@ validation execution; do not select a production lambda.
 ## S10-H1 — Protocol-locked broader-validation runner (historical)
 
 Historical gate: CONTINUE for the H1 implementation and review repair. H1
-added the fail-closed validator and non-executing plan in `scripts/run_s10h.py`,
+added the fail-closed validator and non-executing plan in `scripts/run_broader_router_validation.py`,
 including frozen S10-G/provenance checks, future-result validation, and
 canonical-result overwrite refusal. Its detailed contract, provisioning
 procedure, and recorded evidence remain in

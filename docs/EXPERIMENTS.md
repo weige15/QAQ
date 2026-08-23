@@ -37,8 +37,8 @@ Every result must include the exact command, environment versions, model and dat
 ## S09-A protocol freeze and closeout (2026-08-12)
 
 S09-A freezes the final comparison protocol before any S09-B result. The
-machine-readable owner is `configs/s09_baseline_eval.json`, and fixed request
-inputs are in `configs/s09_baseline_prompts.json`. The detailed procedure and
+machine-readable owner is `configs/baseline_evaluation.json`, and fixed request
+inputs are in `configs/baseline_evaluation_prompts.json`. The detailed procedure and
 validation gate are maintained in
 `docs/stages/S09_BASELINE_FREEZE.md`.
 
@@ -50,7 +50,7 @@ inputs were unchanged during closeout. Its protocol/config SHA-256 is
 The canonical full validation command was:
 
 ```text
-source ~/.venv/bin/activate && which python && python --version && python scripts/validate_s09_protocol.py --config configs/s09_baseline_eval.json
+source ~/.venv/bin/activate && which python && python --version && python scripts/validate_baseline_evaluation_protocol.py --config configs/baseline_evaluation.json
 ```
 
 It exited `0` with hashes enabled. The packed artifact SHA-256 matched
@@ -64,13 +64,13 @@ matched `a3257d02740cc5757c78673da534b0630ff3a4ea`.
 The focused S09-A command was:
 
 ```text
-source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:. pytest -q tests/unit/test_s09_protocol.py tests/integration/test_s09_protocol_inputs.py tests/integration/test_perplexity_evaluator.py
+source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:. pytest -q tests/unit/test_baseline_evaluation_protocol.py tests/integration/test_baseline_evaluation_protocol_inputs.py tests/integration/test_perplexity_evaluator.py
 ```
 
 It passed `18 passed`. Ruff also passed with:
 
 ```text
-source ~/.venv/bin/activate && which python && python --version && ruff check scripts/validate_s09_protocol.py tests/unit/test_s09_protocol.py tests/integration/test_s09_protocol_inputs.py tests/integration/test_perplexity_evaluator.py
+source ~/.venv/bin/activate && which python && python --version && ruff check scripts/validate_baseline_evaluation_protocol.py tests/unit/test_baseline_evaluation_protocol.py tests/integration/test_baseline_evaluation_protocol_inputs.py tests/integration/test_perplexity_evaluator.py
 ```
 
 S09-A is **COMPLETE**. No S09-B benchmark, five-mode baseline evaluation,
@@ -79,23 +79,23 @@ execution machinery is **MISSING**: no complete executable S09-B runner exists
 in the repository beyond the non-benchmark protocol validator.
 
 Next action: Implement the minimal S09-B evaluation runner required to execute
-the frozen `configs/s09_baseline_eval.json` contract, without running the final
+the frozen `configs/baseline_evaluation.json` contract, without running the final
 evaluation yet.
 
 ## S09-B1 runner implementation (2026-08-12)
 
 This work unit implemented the non-benchmark S09-B runner without changing
-`configs/s09_baseline_eval.json` or `configs/s09_baseline_prompts.json`.
+`configs/baseline_evaluation.json` or `configs/baseline_evaluation_prompts.json`.
 The frozen protocol/config SHA-256 remained
 `01ca65c6b3b7e16d7af66f1533140b1c9f31749c90bc91e097d096d463bf2e1c`.
 
 Executed commands:
 
 ```text
-source ~/.venv/bin/activate && which python && python --version && python scripts/validate_s09_protocol.py --config configs/s09_baseline_eval.json
-source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:. pytest -q tests/unit/test_s09_runner.py tests/integration/test_s09_runner_plan.py
-source ~/.venv/bin/activate && which python && python --version && ruff check src/qaq/s09_runner.py scripts/run_s09b.py tests/unit/test_s09_runner.py tests/integration/test_s09_runner_plan.py
-source ~/.venv/bin/activate && which python && python --version && python scripts/run_s09b.py --plan --config configs/s09_baseline_eval.json --results-dir /tmp/qaq-s09b-plan
+source ~/.venv/bin/activate && which python && python --version && python scripts/validate_baseline_evaluation_protocol.py --config configs/baseline_evaluation.json
+source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:. pytest -q tests/unit/test_baseline_evaluation_runner.py tests/integration/test_baseline_evaluation_runner_plan.py
+source ~/.venv/bin/activate && which python && python --version && ruff check src/qaq/evaluation/runner.py scripts/run_baseline_evaluation.py tests/unit/test_baseline_evaluation_runner.py tests/integration/test_baseline_evaluation_runner_plan.py
+source ~/.venv/bin/activate && which python && python --version && python scripts/run_baseline_evaluation.py --plan --config configs/baseline_evaluation.json --results-dir /tmp/qaq-s09b-plan
 ```
 
 The validator passed with all five modes, seven fixed requests, 32 samples,
@@ -131,7 +131,7 @@ artifact exists.
 
 ## S03-B nested Qwen3 static baseline (2026-08-11)
 
-- Command: `source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:third_party/any-precision-llm python scripts/run_s03b.py --overwrite-artifact`.
+- Command: `source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:third_party/any-precision-llm python scripts/build_packed_model.py --overwrite-artifact`.
 - Model: `Qwen/Qwen3-4B`, immutable revision `1cfa9a7208912126459214e8b04321603b3df60c`; tokenizer uses the same revision. Any-Precision commit: `a3257d02740cc5757c78673da534b0630ff3a4ea`.
 - Mapping and targets: explicit `configs/qwen3_any_precision.yaml`; exact S03-A target-set check passed for 252 projections, with no omitted, unexpected, duplicate, or excluded targets.
 - Quantizer settings: seed `4`, parent `8`, group count `1`, random state `1729`; pinned C4 train shard, one 64-token sample, tokenizer first-64-token truncation.
@@ -147,8 +147,8 @@ artifact exists.
 ## S03-C broader static-quality evaluation (2026-08-11)
 
 - Scope: full-precision teacher, the one nested static 4/8-bit checkpoint, and no routing, training, or on-demand loading.
-- Fixed prompt file: `configs/s03_static_quality_prompts.txt`, five prompts. Tokenizer revision `1cfa9a7208912126459214e8b04321603b3df60c`; `add_special_tokens=true`, truncation `128`, no padding. Reference prompt remained `QAQ full-precision smoke test.`.
-- Quality command: `source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:third_party/any-precision-llm QAQ_MODEL_DEVICE=cuda:3 python scripts/run_s03c.py`.
+- Fixed prompt file: `configs/static_quality_prompts.txt`, five prompts. Tokenizer revision `1cfa9a7208912126459214e8b04321603b3df60c`; `add_special_tokens=true`, truncation `128`, no padding. Reference prompt remained `QAQ full-precision smoke test.`.
+- Quality command: `source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:third_party/any-precision-llm QAQ_MODEL_DEVICE=cuda:3 python scripts/evaluate_static_model_quality.py`.
 - Prompt metric: mean and maximum absolute logit error against FP, with deterministic repeats. Five prompts completed with finite outputs. Aggregate mean-of-prompt mean error: 4-bit `0.5141653061`, 8-bit `0.0578794084`; maximum prompt maximum error: 4-bit `7.7890625`, 8-bit `1.0078125`. Criterion was aggregate 8-bit error `<=` aggregate 4-bit error; passed.
 - Perplexity: `Salesforce/wikitext`, config `wikitext-2-raw-v1`, revision `b08601e04326c79dfdd32d625aee71d232d685c3`, split `test`; concatenate non-empty rows in source order, first four non-overlapping windows, sequence length `128`, window width/stride `129`, `512` evaluated tokens, tokenizer revision `1cfa9a7208912126459214e8b04321603b3df60c`, no random seed. FP `25.0522757118`, static 4-bit `27.1193805814`, static 8-bit `24.8803626466`; 8-bit <= 110% of 4-bit, passed.
 - Generation command is included in the quality command; two fixed prompts, greedy batch size 1, `max_new_tokens=8`. All modes generated finite-score deterministic repeats within the limit.
@@ -170,16 +170,16 @@ artifact exists.
   `23,620,752` trainable router parameters. All packed model parameters,
   embeddings, normalizations, output head, LUTs, and quantization metadata were
   frozen.
-- Focused command: `source ~/.venv/bin/activate && which python && python --version && pytest -q tests/unit/test_s06_router.py tests/integration/test_s06_soft_routing.py`; result `13 passed`.
-- Pinned backend command: `source ~/.venv/bin/activate && which python && python --version && pytest -q tests/integration/test_s06_soft_packed.py -k 'not qwen3'`; result `2 passed`.
-- Full artifact command: `source ~/.venv/bin/activate && which python && python --version && QAQ_S03_ARTIFACT=<S03-B artifact> QAQ_MODEL_DEVICE=cuda:3 pytest -q tests/integration/test_s06_soft_packed.py`; result `3 passed in 419.02s` on CUDA device 3, NVIDIA GeForce RTX 3090.
+- Focused command: `source ~/.venv/bin/activate && which python && python --version && pytest -q tests/unit/test_router_network.py tests/integration/test_soft_routing.py`; result `13 passed`.
+- Pinned backend command: `source ~/.venv/bin/activate && which python && python --version && pytest -q tests/integration/test_soft_routing_packed_endpoints.py -k 'not qwen3'`; result `2 passed`.
+- Full artifact command: `source ~/.venv/bin/activate && which python && python --version && QAQ_S03_ARTIFACT=<S03-B artifact> QAQ_MODEL_DEVICE=cuda:3 pytest -q tests/integration/test_soft_routing_packed_endpoints.py`; result `3 passed in 419.02s` on CUDA device 3, NVIDIA GeForce RTX 3090.
 - Endpoint result: forced `[1,0]` and `[0,1]` mixtures matched the real hard 4-bit and hard 8-bit Qwen3 paths within `atol=1e-3`, `rtol=1e-3`; the synthetic pinned-backend endpoint comparisons were bitwise equal.
 - Probability result: one and batched router outputs had shapes `[2]` and `[3,2]`; finite non-negative probabilities summed to one within `1e-6` in the router and `1e-5` at the packed boundary.
 - Temperature result: fixed logits `[2,0]` were more concentrated toward 4-bit at temperature `0.5` than at `2.0`.
 - Sharing result: each attention unit recorded one shared probability tensor across q/k/v/o; each FFN unit recorded one shared tensor across gate/up/down.
 - Gradient result: finite nonzero router gradients reached the soft mixture; a one-step SGD smoke check changed router parameters only. No real training or quality claim was made.
 - Regression command: `source ~/.venv/bin/activate && which python && python --version && pytest -q tests/unit`; result `67 passed`.
-- Artifact regression command: `source ~/.venv/bin/activate && which python && python --version && QAQ_S03_ARTIFACT=<S03-B artifact> QAQ_MODEL_DEVICE=cuda:3 pytest -q tests/integration/test_s04_manual_routing.py tests/integration/test_s05_manual_routing.py tests/integration/test_static4_forward.py tests/integration/test_static8_forward.py`; result `12 passed in 431.49s`.
+- Artifact regression command: `source ~/.venv/bin/activate && which python && python --version && QAQ_S03_ARTIFACT=<S03-B artifact> QAQ_MODEL_DEVICE=cuda:3 pytest -q tests/integration/test_manual_routing.py tests/integration/test_query_routing_manual_policy.py tests/integration/test_static4_forward.py tests/integration/test_static8_forward.py`; result `12 passed in 431.49s`.
 
 ## Boundaries before baseline freeze
 
@@ -192,7 +192,7 @@ Do not introduce asynchronous transfers, prefetching, transfer prediction, bit-w
   router-only optimizer, router-only checkpoint, deterministic hard routes,
   route logs, and observational statistics. No real dataset or baseline-scale
   training was run.
-- Command: `source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src pytest -q tests/unit/test_s07_distillation.py tests/integration/test_s07_distillation_smoke.py`.
+- Command: `source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src pytest -q tests/unit/test_router_distillation.py tests/integration/test_router_distillation_smoke.py`.
 - Fixture: seed `1729`, tiny 36-layer Qwen3-shaped teacher/student, sequence
   length `4`, prompt `[0,2)`, completion `[2,4)`, completion mask
   `[0,1,1,0]`, smoke temperature `2.0`, SGD `lr=1e-2`, two steps.
@@ -208,7 +208,7 @@ Do not introduce asynchronous transfers, prefetching, transfer prediction, bit-w
 
 ## S07-B first real router-distillation run (2026-08-11; D027 defect)
 
-- Locked configuration: `configs/s07_router_training.json`; implementation
+- Locked configuration: `configs/baseline_router_training.json`; implementation
   choices are also recorded as D026 in `docs/DECISIONS.md`.
 - Dataset: `Salesforce/wikitext`, `wikitext-2-raw-v1`, revision
   `b08601e04326c79dfdd32d625aee71d232d685c3`, train split offsets
@@ -224,7 +224,7 @@ Do not introduce asynchronous transfers, prefetching, transfer prediction, bit-w
   before optimization to fit the resident packed student; this does not add a
   loss term.
 - Command:
-  `source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:third_party/any-precision-llm QAQ_MODEL_DEVICE=cuda:3 python scripts/run_s07b.py`.
+  `source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:third_party/any-precision-llm QAQ_MODEL_DEVICE=cuda:3 python scripts/train_baseline_router.py`.
 - Training result: KD loss `0.1730574965` → `0.0317778103`; all four losses,
   router gradients, probabilities, and route logs were finite. The optimizer
   audit contained only 23,620,752 router scalars. Packed-student non-router
@@ -238,7 +238,7 @@ Do not introduce asynchronous transfers, prefetching, transfer prediction, bit-w
   4/8=`0.1666667`/`0.8333333`; FFN was 4/8=`0.2361111`/`0.7638889`.
   There were two unique hard maps and complete 72-unit logs per request.
 - Determinism command:
-  `source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:third_party/any-precision-llm python scripts/verify_s07b_roundtrip.py`.
+  `source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:third_party/any-precision-llm python scripts/verify_router_checkpoint_roundtrip.py`.
   Fresh-process probability/route reload and fixed-subset hard-route/logit
   repeats passed bitwise.
 - Gate: engineering is **REVISE**, because the completed run did not set
@@ -251,13 +251,13 @@ Do not introduce asynchronous transfers, prefetching, transfer prediction, bit-w
 ## S07-B corrected D008-1 router-distillation rerun (2026-08-11)
 
 - Authorization: exactly one corrected rerun using the unchanged D026 locked configuration; no S08 work and no new objective were introduced.
-- Production correction: `scripts/run_s07b.py` invokes the audited teacher/packed-student freeze seam before teacher-logit precomputation and records teacher before/after parameter hashes plus gradient absence. The first run's D027 defect remains documented above.
-- Command: `source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:third_party/any-precision-llm QAQ_MODEL_DEVICE=cuda:3 python scripts/run_s07b.py`.
+- Production correction: `scripts/train_baseline_router.py` invokes the audited teacher/packed-student freeze seam before teacher-logit precomputation and records teacher before/after parameter hashes plus gradient absence. The first run's D027 defect remains documented above.
+- Command: `source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:third_party/any-precision-llm QAQ_MODEL_DEVICE=cuda:3 python scripts/train_baseline_router.py`.
 - Freeze evidence: teacher `requires_grad=False`, no teacher gradients, matching teacher hashes, unchanged packed-student non-router hashes, router-only optimizer with 23,620,752 scalars, finite router gradients, and changed router parameters.
 - Training: four finite KD losses, `0.1730574965` → `0.0317778103`; the corrected values exactly matched the prior run, so no material numerical difference was found.
 - Evaluation: soft KD/error `0.0386699643`/`0.2430240735`; hard KD/error `0.0631424394`/`0.2928081304`; static 4/8-bit errors `0.7434162199`/`0.0910567641`; hard 4/8 fractions `20.1389%`/`79.8611%`; attention 4/8 `29.1667%`/`70.8333%`; FFN 4/8 `11.1111%`/`88.8889%`; two unique route maps; prompt distance `0.0138889`; classification `OTHER`; complete 72-unit logs for each of two validation requests.
 - Objective: exactly `T^2 * masked KL(teacher || student)` over completion targets; no width, cost, latency, transfer, entropy, sparsity, balance, or auxiliary routing term.
-- Fresh-process command: `source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:third_party/any-precision-llm python scripts/verify_s07b_roundtrip.py`; checkpoint reload and deterministic hard-route repeat passed bitwise.
+- Fresh-process command: `source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:third_party/any-precision-llm python scripts/verify_router_checkpoint_roundtrip.py`; checkpoint reload and deterministic hard-route repeat passed bitwise.
 - Result artifact: `docs/results/s07_router_training.json`; S07 engineering gate is **CONTINUE**. The repository-defined next action is S08, but it was not executed.
 
 ## S04 explicit manual routing (2026-08-11)
@@ -270,7 +270,7 @@ Do not introduce asynchronous transfers, prefetching, transfer prediction, bit-w
   `a3257d02740cc5757c78673da534b0630ff3a4ea`; artifact and complete hashes are
   recorded in `docs/quantized_model_manifest.json`.
 - Primary test command:
-  `source ~/.venv/bin/activate && which python && python --version && QAQ_S03_ARTIFACT=<artifact> QAQ_MODEL_DEVICE=cuda:3 pytest -q tests/integration/test_s04_manual_routing.py`.
+  `source ~/.venv/bin/activate && which python && python --version && QAQ_S03_ARTIFACT=<artifact> QAQ_MODEL_DEVICE=cuda:3 pytest -q tests/integration/test_manual_routing.py`.
   Result: `8 passed in 425.13s`; Ruff passed for the S04 files.
 - Measurement environment: CUDA `cuda:3`, NVIDIA GeForce RTX 3090, deterministic
   S03 smoke inputs, `use_cache=False`; manual and static models were loaded in
@@ -313,9 +313,9 @@ Do not introduce asynchronous transfers, prefetching, transfer prediction, bit-w
 - Commands:
   `source ~/.venv/bin/activate && which python && python --version &&`
   `PYTHONPATH=src:third_party/any-precision-llm pytest -q`
-  `tests/unit/test_s08_loader_contract.py`
-  `tests/integration/test_s08_sync_transfer.py`
-  `tests/integration/test_s08_request_lifetime.py`
+  `tests/unit/test_synchronous_loading_contract.py`
+  `tests/integration/test_synchronous_loading_transfer.py`
+  `tests/integration/test_synchronous_loading_request_lifetime.py`
   Result: `8 passed in 8.77s` on CUDA device `cuda:0`, NVIDIA GeForce RTX 3090.
   Ruff passed for the changed S08 source, request-state source, and focused
   tests.
@@ -362,14 +362,14 @@ Do not introduce asynchronous transfers, prefetching, transfer prediction, bit-w
 The actual S09-B2 runner execution command was:
 
 ```text
-source ~/.venv/bin/activate && which python && python --version && python scripts/run_s09b.py --execute --config configs/s09_baseline_eval.json
+source ~/.venv/bin/activate && which python && python --version && python scripts/run_baseline_evaluation.py --execute --config configs/baseline_evaluation.json
 ```
 
 It produced the historical five-mode evidence under `docs/results/s09b/`.
 The committed B2 aggregation command and result were:
 
 ```text
-source ~/.venv/bin/activate && which python && python --version && python scripts/run_s09b.py --aggregate --config configs/s09_baseline_eval.json --results-dir docs/results/s09b
+source ~/.venv/bin/activate && which python && python --version && python scripts/run_baseline_evaluation.py --aggregate --config configs/baseline_evaluation.json --results-dir docs/results/s09b
 ```
 
 The result was `REVISE` with `deterministic repeat evidence is incomplete`.
@@ -434,7 +434,7 @@ The routed latency changed after the deterministic fallback.
 The frozen protocol validation command was:
 
 ```text
-source ~/.venv/bin/activate && which python && python --version && python scripts/validate_s09_protocol.py --config configs/s09_baseline_eval.json
+source ~/.venv/bin/activate && which python && python --version && python scripts/validate_baseline_evaluation_protocol.py --config configs/baseline_evaluation.json
 ```
 
 It passed with the frozen protocol SHA-256
@@ -446,7 +446,7 @@ A new temporary copy was made at `/tmp/qaq-s09-closeout-verify`; copied JSON
 hashes matched before aggregation. The read-only closeout command was:
 
 ```text
-source ~/.venv/bin/activate && which python && python --version && python scripts/run_s09b.py --aggregate --config configs/s09_baseline_eval.json --results-dir /tmp/qaq-s09-closeout-verify
+source ~/.venv/bin/activate && which python && python --version && python scripts/run_baseline_evaluation.py --aggregate --config configs/baseline_evaluation.json --results-dir /tmp/qaq-s09-closeout-verify
 ```
 
 It returned `CONTINUE` with `errors: []`. Committed B2 and B5 JSON hashes were
@@ -454,7 +454,7 @@ rechecked afterward and were unchanged. The focused non-benchmark closeout
 command was:
 
 ```text
-source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:. pytest -q tests/unit/test_s09_runner.py tests/integration/test_s09_runner_plan.py tests/unit/test_s09_protocol.py tests/integration/test_s09_protocol_inputs.py tests/integration/test_perplexity_evaluator.py
+source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:. pytest -q tests/unit/test_baseline_evaluation_runner.py tests/integration/test_baseline_evaluation_runner_plan.py tests/unit/test_baseline_evaluation_protocol.py tests/integration/test_baseline_evaluation_protocol_inputs.py tests/integration/test_perplexity_evaluator.py
 ```
 
 Result: `28 passed in 3.71s`. No GPU benchmark, model mode, production code,
@@ -493,23 +493,23 @@ Executed repair-only checks, each after the mandatory environment/GPU
 preflight:
 
 ```text
-PYTHONPATH=src:. pytest -q tests/unit/test_s10h_executor.py -k 'example or prepare or selection or order'
+PYTHONPATH=src:. pytest -q tests/unit/test_broader_router_validation_executor.py -k 'example or prepare or selection or order'
 8 passed, 5 deselected
 
-PYTHONPATH=src:. pytest -q tests/unit/test_s10h_executor.py tests/unit/test_s10h_broader_validation.py
+PYTHONPATH=src:. pytest -q tests/unit/test_broader_router_validation_executor.py tests/unit/test_broader_router_validation.py
 46 passed
 
-PYTHONPATH=src:. pytest -q tests/unit/test_s07_distillation.py tests/unit/test_s10h_executor.py
+PYTHONPATH=src:. pytest -q tests/unit/test_router_distillation.py tests/unit/test_broader_router_validation_executor.py
 21 passed
 
-PYTHONPATH=src:. pytest -q tests/unit/test_s10g_broader_validation_protocol.py tests/unit/test_s10f_frontier_confirmation.py tests/unit/test_s10e_frontier_confirmation.py tests/unit/test_s10d_lambda_calibration.py
+PYTHONPATH=src:. pytest -q tests/unit/test_broader_router_validation_protocol.py tests/unit/test_router_frontier_confirmation.py tests/unit/test_router_frontier_protocol.py tests/unit/test_router_cost_calibration.py
 134 passed, 1 existing warning
 
 PYTHONPATH=src:. pytest -q tests/unit
 309 passed, 1 existing warning
 
-python scripts/run_s10h.py --plan --config configs/s10g_broader_validation.json
-ruff check src/qaq/router/s10h_executor.py tests/unit/test_s10h_executor.py
+python scripts/run_broader_router_validation.py --plan --config configs/broader_router_validation.json
+ruff check src/qaq/router/s10h_executor.py tests/unit/test_broader_router_validation_executor.py
 git diff --check
 ```
 
@@ -518,7 +518,7 @@ The plan and static checks passed without execution. This BR1 task ran no
 path. The frozen S10-G config, both historical S10-F results
 (`docs/results/s10f_frontier_confirmation.json` and
 `docs/results/s10f_frontier_confirmation_rerun.json`),
-`docs/quantized_model_manifest.json`, `scripts/run_s10h.py`, the distillation,
+`docs/quantized_model_manifest.json`, `scripts/run_broader_router_validation.py`, the distillation,
 router-network, soft-model, and request-state sources, the packed artifact
 bytes, and the clean pinned Any-Precision checkout were preserved byte-for-byte.
 S10-H quality remains unknown. No new implementation choice was introduced,
@@ -537,15 +537,15 @@ training**; the BR1 evidence above remains unchanged. The execution commit is
 The focused collection selected exactly these nine nodes and deselected five:
 
 ```text
-tests/unit/test_s10h_executor.py::test_selected_examples_accept_exact_train_and_validation_order_without_subscription
-tests/unit/test_s10h_executor.py::test_selected_examples_reject_reordered_frozen_ids[train]
-tests/unit/test_s10h_executor.py::test_selected_examples_reject_reordered_frozen_ids[validation]
-tests/unit/test_s10h_executor.py::test_ordered_example_ids_reject_invalid_attribute_contract[example0-not a DistillationExample]
-tests/unit/test_s10h_executor.py::test_ordered_example_ids_reject_invalid_attribute_contract[example1-not a DistillationExample]
-tests/unit/test_s10h_executor.py::test_ordered_example_ids_reject_invalid_attribute_contract[example2-not a DistillationExample]
-tests/unit/test_s10h_executor.py::test_ordered_example_ids_reject_invalid_attribute_contract[example3-not a DistillationExample]
-tests/unit/test_s10h_executor.py::test_ordered_example_ids_reject_invalid_attribute_contract[example4-dictionary substitute]
-tests/unit/test_s10h_executor.py::test_qwen_prepare_retains_real_selection_order_and_distillation_objects
+tests/unit/test_broader_router_validation_executor.py::test_selected_examples_accept_exact_train_and_validation_order_without_subscription
+tests/unit/test_broader_router_validation_executor.py::test_selected_examples_reject_reordered_frozen_ids[train]
+tests/unit/test_broader_router_validation_executor.py::test_selected_examples_reject_reordered_frozen_ids[validation]
+tests/unit/test_broader_router_validation_executor.py::test_ordered_example_ids_reject_invalid_attribute_contract[example0-not a DistillationExample]
+tests/unit/test_broader_router_validation_executor.py::test_ordered_example_ids_reject_invalid_attribute_contract[example1-not a DistillationExample]
+tests/unit/test_broader_router_validation_executor.py::test_ordered_example_ids_reject_invalid_attribute_contract[example2-not a DistillationExample]
+tests/unit/test_broader_router_validation_executor.py::test_ordered_example_ids_reject_invalid_attribute_contract[example3-not a DistillationExample]
+tests/unit/test_broader_router_validation_executor.py::test_ordered_example_ids_reject_invalid_attribute_contract[example4-dictionary substitute]
+tests/unit/test_broader_router_validation_executor.py::test_qwen_prepare_retains_real_selection_order_and_distillation_objects
 ```
 
 The captain-reconciled outcomes at exact `b1aca71...` were `9 passed, 5
@@ -583,10 +583,10 @@ was run once:
 ```text
 set -o pipefail
 PYTHONPATH=src:third_party/any-precision-llm:. \
-python scripts/run_s10h.py \
+python scripts/run_broader_router_validation.py \
   --execute \
   --device "${QAQ_S10H_DEVICE}" \
-  --config configs/s10g_broader_validation.json \
+  --config configs/broader_router_validation.json \
   --output "${QAQ_S10H_CANDIDATE}" \
   2>&1 | tee "${QAQ_S10H_LOG}"
 execution_status=$?

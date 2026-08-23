@@ -43,7 +43,7 @@ from qaq.router.distillation import (
 )
 from qaq.router.network import THREE_WAY_CANDIDATE_BITS
 
-CONFIG_PATH = ROOT / "configs/s10d_lambda_calibration.json"
+CONFIG_PATH = ROOT / "configs/router_cost_calibration.json"
 MANIFEST_PATH = ROOT / "docs/quantized_model_manifest.json"
 MODEL_REVISION = "1cfa9a7208912126459214e8b04321603b3df60c"
 MODEL_SNAPSHOT = Path(
@@ -167,7 +167,11 @@ def _optimizer_runtime_evidence(
     audit: Any,
     construction_serial: int,
 ) -> dict[str, Any]:
-    expected = [(name, parameter) for name, parameter in model.named_parameters() if name.startswith("routers.")]
+    expected = [
+        (name, parameter)
+        for name, parameter in model.named_parameters()
+        if name.startswith("routers.")
+    ]
     expected_ids = {id(parameter) for _, parameter in expected}
     actual_parameters = [
         parameter for group in optimizer.param_groups for parameter in group["params"]
