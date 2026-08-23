@@ -29,8 +29,9 @@ git submodule update --init --recursive -- third_party/any-precision-llm
 python scripts/provision_s03_artifact.py \
   --source "$artifact_source"
 
-# Small permanent identity check. The evidence agent will select any additional
-# tests needed for the particular change.
+# Small permanent identity and worker-autonomy checks. The evidence agent will
+# select any additional tests needed for the particular change.
 PYTHONPATH=src:third_party/any-precision-llm:. \
   python -m pytest -q \
+  tests/unit/test_firstmate_policy.py \
   tests/unit/test_s10h_broader_validation.py::test_frozen_protocol_and_pre_execution_identity_are_fail_closed

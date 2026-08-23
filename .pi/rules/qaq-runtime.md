@@ -1,10 +1,14 @@
 # QAQ runtime and environment rules
 
-This file is authoritative for shell setup, repository-entry checks, Python selection, and GPU availability. Other controller files must reference this file rather than repeat its commands.
+This file owns shell setup, repository identity checks, Python selection, and
+GPU availability for the direct-Pi fallback controller. An active FirstMate
+brief may add worktree-specific checks but does not weaken these project
+requirements.
 
 ## Fresh-shell preflight
 
-Before any project command in every fresh shell, enter the intended QAQ repository or worktree and run exactly:
+Before the first project command in every fresh shell, enter the intended QAQ
+worktree and run:
 
 ```bash
 source ~/.venv/bin/activate
@@ -17,54 +21,32 @@ git rev-parse HEAD
 git status --short
 ```
 
-Record:
+Continue when Python resolves inside `~/.venv`, the physical repository and
+branch match the assigned worktree, and no unexpected work would be overwritten.
+Record the exact identity in the normal task evidence.
 
-- the exact Python path;
-- the Python version;
-- the physical directory;
-- the repository root;
-- the current branch;
-- `HEAD`;
-- the short status.
-
-Continue only when all of these are true:
-
-- activation succeeds;
-- `which python` resolves inside `~/.venv`;
-- the physical path, repository root, branch, and `HEAD` match the current authorization;
-- the expected base and ancestry checks pass;
-- no unexpected change would be overwritten.
-
-Use `PAUSE` when any condition fails. Do not create another virtual environment and do not use system Python.
-
-Repeat the complete preflight:
-
-- in every new shell;
-- after entering a newly created or manually created worktree;
-- before project commands after changing to another authorized worktree.
-
-Do not assume shell state carries over between commands, workers, tools, or sessions.
+A missing shell, terminal, or process is temporary execution state. Relaunch a
+clean shell, repeat this preflight, and continue without captain permission.
+If activation or repository identity still fails after the clean retry, report
+the exact failed check as a real blocker. Do not create another environment,
+use system Python, reset the branch, or discard preserved work as a workaround.
 
 ## GPU gate
 
-For a GPU-dependent experiment, test, training run, inference run, or build, run this in the same shell before the first GPU command:
+Before a GPU-dependent command, run in the same shell:
 
 ```bash
 nvidia-smi
 ```
 
-Record the visible GPUs, utilization, and relevant free memory.
+A current-stage request authorizes the run when the stage document or active
+task brief fixes the run, inputs, and expected scope. Continue when the command
+succeeds and the documented capacity is available.
 
-Continue only when the command succeeds and the required capacity is available. If capacity requirements are unknown, use `PAUSE`. Do not silently switch to CPU, another GPU, or a different execution mode.
+When capacity is temporarily unavailable, use the active FirstMate wait or
+blocked status rather than asking for a new implementation decision. Escalate
+only when the required capacity is unknown, the run materially exceeds the
+stage's documented scope, or a different device or execution mode would change
+the evidence. Never silently switch to CPU or alter the experiment.
 
-For CPU-only work, record:
-
-```text
-GPU check: NOT_REQUIRED
-```
-
-## Missing repository or environment
-
-If `projects/QAQ` does not exist or is not a Git repository, report the exact failed check and issue one bounded setup step. Do not pretend the repository checks succeeded.
-
-If `~/.venv` is unavailable, activation fails, or Python resolves outside `~/.venv`, use `PAUSE`. Do not work around the required environment.
+For CPU-only work, record `GPU check: NOT_REQUIRED`.
