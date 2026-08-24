@@ -127,7 +127,7 @@ all agents and keep entries concise.
 ## Worktree artifact provisioning
 
 Before artifact-backed validation, provision the ignored S03 artifact with
-`scripts/provision_s03_artifact.py`.
+`scripts/provision_packed_model_artifact.py`.
 
 `QAQ_S03_ARTIFACT_SOURCE` must name the exact external directory containing the
 frozen `pytorch_model.bin`. The script is authorized to create only the ignored

@@ -10,7 +10,7 @@ def test_static_generation_is_finite_and_deterministic(static_case, artifact):
     from transformers import AutoTokenizer
 
     tokenizer = AutoTokenizer.from_pretrained(str(artifact), local_files_only=True)
-    prompts = read_prompt_file(ROOT / "configs/s03_static_generation_prompts.txt")
+    prompts = read_prompt_file(ROOT / "configs/static_generation_prompts.txt")
     for precision in (4, 8):
         result = generate_fixed(model, tokenizer, prompts, precision, "cuda:3")
         assert all(record["deterministic_repeat"] for record in result["records"])

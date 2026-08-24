@@ -29,7 +29,7 @@ class ActualModelInspectionEvidenceTest(unittest.TestCase):
         self.assertFalse(ACTUAL["target_paths_duplicate"])
         self.assertEqual(ACTUAL["layer_indices"], list(range(36)))
 
-    def test_actual_target_properties_match_s00(self):
+    def test_actual_target_properties_match_model_mapping(self):
         comparison = ACTUAL["s00_mapping_comparison"]
         self.assertEqual(comparison["result"], "MATCH")
         self.assertEqual(comparison["missing_expected_targets"], [])
@@ -55,7 +55,10 @@ class ActualModelInspectionEvidenceTest(unittest.TestCase):
             "kv_cache",
         ):
             self.assertIn(category, exclusions)
-            self.assertEqual(exclusions[category]["policy"], "excluded" if category != "kv_cache" else "runtime structure, not a model module")
+            self.assertEqual(
+                exclusions[category]["policy"],
+                "excluded" if category != "kv_cache" else "runtime structure, not a model module",
+            )
         unexpected = ACTUAL["unexpected_linear_modules"]
         self.assertEqual([item["path"] for item in unexpected], ["lm_head"])
         self.assertEqual(unexpected[0]["classification"], "excluded output head")

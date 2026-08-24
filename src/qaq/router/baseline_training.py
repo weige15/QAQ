@@ -29,7 +29,7 @@ from qaq.router.distillation import (
     route_statistics,
 )
 
-CONFIG_PATH = ROOT / "configs/s07_router_training.json"
+CONFIG_PATH = ROOT / "configs/baseline_router_training.json"
 MANIFEST_PATH = ROOT / "docs/quantized_model_manifest.json"
 SNAPSHOT = Path(
     os.environ.get(
@@ -83,7 +83,15 @@ def _check_environment() -> None:
         raise SystemExit(f"PAUSE: exact pinned model snapshot is unavailable: {SNAPSHOT}")
 
 
-def _select_examples(dataset: Any, tokenizer: Any, offsets: list[int], *, split: str, config: dict[str, Any], torch: Any):
+def _select_examples(
+    dataset: Any,
+    tokenizer: Any,
+    offsets: list[int],
+    *,
+    split: str,
+    config: dict[str, Any],
+    torch: Any,
+):
     sequence_length = int(config["dataset"]["sequence_length"])
     prompt_tokens = int(config["dataset"]["prompt_tokens"])
     completion_tokens = int(config["dataset"]["completion_tokens"])
@@ -216,7 +224,9 @@ def _route_map(records: Any) -> tuple[int, ...]:
 def _route_distance(maps: list[tuple[int, ...]]) -> float:
     if len(maps) < 2:
         return 0.0
-    distances = [sum(left != right for left, right in zip(a, b)) / len(a) for a, b in combinations(maps, 2)]
+    distances = [
+        sum(left != right for left, right in zip(a, b)) / len(a) for a, b in combinations(maps, 2)
+    ]
     return sum(distances) / len(distances)
 
 
@@ -231,14 +241,17 @@ def _route_summary(records: list[Any], *, distillation_loss: float | None = None
         {
             "probability_by_layer": _probabilities_by_layer(records),
             "unique_hard_route_map_count": len(set(maps_by_request.values())),
-            "mean_hard_selected_bit_width": sum(record.hard_bit for record in records) / len(records),
+            "mean_hard_selected_bit_width": sum(record.hard_bit for record in records)
+            / len(records),
             "parameter_weighted_mean_selected_bit_width": None,
             "prompt_to_prompt_route_distance": _route_distance(list(maps_by_request.values())),
             "fraction_prompts_routed_entirely_to_8": (
                 sum(all(bit == 8 for bit in route_map) for route_map in maps_by_request.values())
                 / len(maps_by_request)
             ),
-            "request_route_maps": {request_id: list(route_map) for request_id, route_map in maps_by_request.items()},
+            "request_route_maps": {
+                request_id: list(route_map) for request_id, route_map in maps_by_request.items()
+            },
         }
     )
     return stats
@@ -285,7 +298,11 @@ def _train(
         raise RuntimeError("REVISE: non-router parameter is trainable")
     frozen_hashes_before = {}
     frozen_hashes_before.update(
-        {f"student.{name}": digest for name, digest in _parameter_hashes(student).items() if not name.startswith("routers.")}
+        {
+            f"student.{name}": digest
+            for name, digest in _parameter_hashes(student).items()
+            if not name.startswith("routers.")
+        }
     )
     optimizer, optimizer_audit = build_router_optimizer(
         student,
@@ -303,7 +320,9 @@ def _train(
         execution = batch.execution_inputs()
         optimizer.zero_grad(set_to_none=True)
         teacher_logits = teacher_targets[example.example_id].to(device)
-        state = QaqRequestState(example.example_id, int(example.prompt_mask().sum()), layer_count=36)
+        state = QaqRequestState(
+            example.example_id, int(example.prompt_mask().sum()), layer_count=36
+        )
         student_logits = student(
             **_model_kwargs(example),
             request_state=state,
@@ -317,13 +336,28 @@ def _train(
             raise FloatingPointError("REVISE: NaN or Inf KD loss")
         _check_probabilities(state, torch)
         loss.backward()
-        router_parameters = [parameter for name, parameter in student.named_parameters() if name.startswith("routers.")]
+        router_parameters = [
+            parameter
+            for name, parameter in student.named_parameters()
+            if name.startswith("routers.")
+        ]
         gradients = [parameter.grad for parameter in router_parameters]
-        if any(gradient is None or not bool(torch.isfinite(gradient).all().item()) for gradient in gradients):
+        if any(
+            gradient is None or not bool(torch.isfinite(gradient).all().item())
+            for gradient in gradients
+        ):
             raise FloatingPointError("REVISE: missing, NaN, or Inf router gradient")
-        gradient_norm = float(torch.sqrt(sum(gradient.detach().float().square().sum() for gradient in gradients)).item())
+        gradient_norm = float(
+            torch.sqrt(
+                sum(gradient.detach().float().square().sum() for gradient in gradients)
+            ).item()
+        )
         optimizer.step()
-        if any(parameter.grad is not None for name, parameter in student.named_parameters() if not name.startswith("routers.")):
+        if any(
+            parameter.grad is not None
+            for name, parameter in student.named_parameters()
+            if not name.startswith("routers.")
+        ):
             raise RuntimeError("REVISE: frozen parameter received a gradient")
         records = list(_records_for_state(example.example_id, state, student, log_base=2.0))
         history.append(
@@ -331,14 +365,20 @@ def _train(
                 "step": step,
                 "training_kd_loss": float(loss.detach().item()),
                 "router_gradient_norm": gradient_norm,
-                "route_statistics": _route_summary(records, distillation_loss=float(loss.detach().item())),
+                "route_statistics": _route_summary(
+                    records, distillation_loss=float(loss.detach().item())
+                ),
             }
         )
         del teacher_logits, student_logits, loss, state, records, batch, execution
         torch.cuda.empty_cache()
     frozen_hashes_after = {}
     frozen_hashes_after.update(
-        {f"student.{name}": digest for name, digest in _parameter_hashes(student).items() if not name.startswith("routers.")}
+        {
+            f"student.{name}": digest
+            for name, digest in _parameter_hashes(student).items()
+            if not name.startswith("routers.")
+        }
     )
     if frozen_hashes_before != frozen_hashes_after:
         raise RuntimeError("REVISE: frozen teacher or packed-student parameter changed")
@@ -362,7 +402,9 @@ def _eval_mode(
         with torch.no_grad():
             teacher_logits = teacher_targets[example.example_id].to(kwargs["input_ids"].device)
             if mode == "soft":
-                state = QaqRequestState(example.example_id, int(example.prompt_mask().sum()), layer_count=36)
+                state = QaqRequestState(
+                    example.example_id, int(example.prompt_mask().sum()), layer_count=36
+                )
                 trace = PrecisionTrace()
                 output = student(
                     **kwargs,
@@ -372,9 +414,13 @@ def _eval_mode(
                     trace=trace,
                 )
                 logits = output.logits.detach()
-                example_records = list(_records_for_state(example.example_id, state, student, log_base=2.0))
+                example_records = list(
+                    _records_for_state(example.example_id, state, student, log_base=2.0)
+                )
             elif mode == "hard":
-                state = QaqRequestState(example.example_id, int(example.prompt_mask().sum()), layer_count=36)
+                state = QaqRequestState(
+                    example.example_id, int(example.prompt_mask().sum()), layer_count=36
+                )
                 trace = PrecisionTrace()
 
                 def policy(layer: int, unit_type: str, feature: Any) -> int:
@@ -389,7 +435,9 @@ def _eval_mode(
                     trace=trace,
                 )
                 logits = output.logits.detach()
-                example_records = list(_records_for_state(example.example_id, state, student, log_base=2.0))
+                example_records = list(
+                    _records_for_state(example.example_id, state, student, log_base=2.0)
+                )
             elif mode in ("static4", "static8"):
                 bits = int(mode[-1])
                 output = student.base(
@@ -411,7 +459,10 @@ def _eval_mode(
         if mode in ("soft", "hard"):
             kd = float(
                 masked_kl_distillation_loss(
-                    teacher_logits, logits, example.completion_loss_mask.unsqueeze(0), temperature=2.0
+                    teacher_logits,
+                    logits,
+                    example.completion_loss_mask.unsqueeze(0),
+                    temperature=2.0,
                 ).item()
             )
         per_example.append(
@@ -430,8 +481,11 @@ def _eval_mode(
     result = {
         "count": len(per_example),
         "quality_metric": "mean absolute logit error against full-precision teacher",
-        "mean_absolute_logit_error": sum(item["mean_absolute_logit_error"] for item in per_example) / len(per_example),
-        "maximum_absolute_logit_error": max(item["maximum_absolute_logit_error"] for item in per_example),
+        "mean_absolute_logit_error": sum(item["mean_absolute_logit_error"] for item in per_example)
+        / len(per_example),
+        "maximum_absolute_logit_error": max(
+            item["maximum_absolute_logit_error"] for item in per_example
+        ),
         "per_example": per_example,
     }
     if records:
@@ -469,11 +523,15 @@ def _classify_adaptivity(hard_result: dict[str, Any]) -> str:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--device", default=os.environ.get("QAQ_MODEL_DEVICE", "cuda:3"))
-    parser.add_argument("--output", type=Path, default=ROOT / "docs/results/s07_router_training.json")
+    parser.add_argument(
+        "--output", type=Path, default=ROOT / "docs/results/s07_router_training.json"
+    )
     parser.add_argument(
         "--checkpoint",
         type=Path,
-        default=Path(os.environ.get("QAQ_S07_CHECKPOINT", "~/.cache/qaq/s07b/final_router.pt")).expanduser(),
+        default=Path(
+            os.environ.get("QAQ_S07_CHECKPOINT", "~/.cache/qaq/s07b/final_router.pt")
+        ).expanduser(),
     )
     args = parser.parse_args()
     _check_environment()
@@ -498,25 +556,56 @@ def main() -> int:
     manifest = load_manifest(MANIFEST_PATH)
     if manifest["source_model"]["revision"] != MODEL_REVISION:
         raise SystemExit("REVISE: teacher model revision changed")
-    if manifest["any_precision"]["commit"] != ANY_PRECISION_REVISION or source_commit() != PINNED_ANY_PRECISION_COMMIT:
+    if (
+        manifest["any_precision"]["commit"] != ANY_PRECISION_REVISION
+        or source_commit() != PINNED_ANY_PRECISION_COMMIT
+    ):
         raise SystemExit("REVISE: Any-Precision revision changed")
     artifact = ROOT / manifest["artifact"]["local_path"]
     if not artifact.is_dir():
         raise SystemExit(f"PAUSE: packed student artifact is unavailable: {artifact}")
     artifact_hash = manifest["artifact"]["checkpoint_hashes"]["pytorch_model.bin"]
-    tokenizer = AutoTokenizer.from_pretrained(str(SNAPSHOT), revision=MODEL_REVISION, local_files_only=True)
+    tokenizer = AutoTokenizer.from_pretrained(
+        str(SNAPSHOT), revision=MODEL_REVISION, local_files_only=True
+    )
     dataset_name = config["dataset"]["repository"]
     dataset_config = config["dataset"]["config"]
-    train_dataset = load_dataset(dataset_name, dataset_config, split="train", revision=DATASET_REVISION, trust_remote_code=False)
-    validation_dataset = load_dataset(dataset_name, dataset_config, split="validation", revision=DATASET_REVISION, trust_remote_code=False)
+    train_dataset = load_dataset(
+        dataset_name,
+        dataset_config,
+        split="train",
+        revision=DATASET_REVISION,
+        trust_remote_code=False,
+    )
+    validation_dataset = load_dataset(
+        dataset_name,
+        dataset_config,
+        split="validation",
+        revision=DATASET_REVISION,
+        trust_remote_code=False,
+    )
     train_examples_cpu, train_manifest = _select_examples(
-        train_dataset, tokenizer, config["dataset"]["train_offsets"], split="train", config=config, torch=torch
+        train_dataset,
+        tokenizer,
+        config["dataset"]["train_offsets"],
+        split="train",
+        config=config,
+        torch=torch,
     )
     validation_examples_cpu, validation_manifest = _select_examples(
-        validation_dataset, tokenizer, config["dataset"]["validation_offsets"], split="validation", config=config, torch=torch
+        validation_dataset,
+        tokenizer,
+        config["dataset"]["validation_offsets"],
+        split="validation",
+        config=config,
+        torch=torch,
     )
-    train_examples = [_device_example(example, args.device, torch) for example in train_examples_cpu]
-    validation_examples = [_device_example(example, args.device, torch) for example in validation_examples_cpu]
+    train_examples = [
+        _device_example(example, args.device, torch) for example in train_examples_cpu
+    ]
+    validation_examples = [
+        _device_example(example, args.device, torch) for example in validation_examples_cpu
+    ]
 
     _seed_everything(int(config["dataset"]["seed"]), torch)
     print("S07-B: loading full-precision teacher", flush=True)
@@ -532,7 +621,9 @@ def main() -> int:
     freeze_teacher_and_packed_student(teacher, student)
     teacher_parameter_hash_before = _aggregate_hash(_parameter_hashes(teacher))
     teacher_frozen_before = all(not parameter.requires_grad for parameter in teacher.parameters())
-    teacher_targets = _precompute_teacher_logits(teacher, train_examples + validation_examples, torch)
+    teacher_targets = _precompute_teacher_logits(
+        teacher, train_examples + validation_examples, torch
+    )
     teacher_gradients_absent_after_precompute = all(
         parameter.grad is None for parameter in teacher.parameters()
     )
@@ -580,10 +671,17 @@ def main() -> int:
         training_step=len(history),
         training_step_metadata={"seed": config["dataset"]["seed"], "format": config["format"]},
     )
-    optimizer_for_checkpoint, _ = __import__("qaq.router.distillation", fromlist=["build_router_optimizer"]).build_router_optimizer(
-        student, lr=float(config["training"]["learning_rate"]), optimizer_cls=torch.optim.AdamW, weight_decay=0.0
+    optimizer_for_checkpoint, _ = __import__(
+        "qaq.router.distillation", fromlist=["build_router_optimizer"]
+    ).build_router_optimizer(
+        student,
+        lr=float(config["training"]["learning_rate"]),
+        optimizer_cls=torch.optim.AdamW,
+        weight_decay=0.0,
     )
-    save_router_checkpoint(args.checkpoint, student.routers, checkpoint_metadata, optimizer=optimizer_for_checkpoint)
+    save_router_checkpoint(
+        args.checkpoint, student.routers, checkpoint_metadata, optimizer=optimizer_for_checkpoint
+    )
     checkpoint_hash = hashlib.sha256(args.checkpoint.read_bytes()).hexdigest()
 
     print("S07-B: evaluating static, soft, and deterministic hard routes", flush=True)
@@ -592,11 +690,21 @@ def main() -> int:
     soft, _, _ = _eval_mode(teacher_targets, student, validation_examples, "soft", torch)
     hard, _, _ = _eval_mode(teacher_targets, student, validation_examples, "hard", torch)
     adaptivity = _classify_adaptivity(hard)
-    soft["final_validation_kd_loss"] = sum(item["kd_loss"] for item in soft["per_example"]) / len(soft["per_example"])
-    hard["final_validation_kd_loss"] = sum(item["kd_loss"] for item in hard["per_example"]) / len(hard["per_example"])
-    hard["soft_vs_hard_quality_difference"] = hard["mean_absolute_logit_error"] - soft["mean_absolute_logit_error"]
-    hard["static8_vs_hard_quality_difference"] = hard["mean_absolute_logit_error"] - static8["mean_absolute_logit_error"]
-    hard["static4_vs_hard_quality_difference"] = hard["mean_absolute_logit_error"] - static4["mean_absolute_logit_error"]
+    soft["final_validation_kd_loss"] = sum(item["kd_loss"] for item in soft["per_example"]) / len(
+        soft["per_example"]
+    )
+    hard["final_validation_kd_loss"] = sum(item["kd_loss"] for item in hard["per_example"]) / len(
+        hard["per_example"]
+    )
+    hard["soft_vs_hard_quality_difference"] = (
+        hard["mean_absolute_logit_error"] - soft["mean_absolute_logit_error"]
+    )
+    hard["static8_vs_hard_quality_difference"] = (
+        hard["mean_absolute_logit_error"] - static8["mean_absolute_logit_error"]
+    )
+    hard["static4_vs_hard_quality_difference"] = (
+        hard["mean_absolute_logit_error"] - static4["mean_absolute_logit_error"]
+    )
     hard["adaptivity_classification"] = adaptivity
 
     result = {
@@ -625,16 +733,21 @@ def main() -> int:
             "teacher_gradients_absent_after_training": teacher_gradients_absent_after_training,
             "teacher_parameter_hash_before": teacher_parameter_hash_before,
             "teacher_parameter_hash_after": teacher_parameter_hash_after,
-            "teacher_parameter_hashes_match": teacher_parameter_hash_before == teacher_parameter_hash_after,
+            "teacher_parameter_hashes_match": teacher_parameter_hash_before
+            == teacher_parameter_hash_after,
             "student_non_router_frozen": all(
-                not parameter.requires_grad for name, parameter in student.named_parameters() if not name.startswith("routers.")
+                not parameter.requires_grad
+                for name, parameter in student.named_parameters()
+                if not name.startswith("routers.")
             ),
             "student_non_router_gradients_absent": all(
                 parameter.grad is None
                 for name, parameter in student.named_parameters()
                 if not name.startswith("routers.")
             ),
-            "packed_buffers_non_trainable": all(not buffer.requires_grad for buffer in student.buffers()),
+            "packed_buffers_non_trainable": all(
+                not buffer.requires_grad for buffer in student.buffers()
+            ),
             "teacher_in_optimizer": False,
             "router_only": True,
         },
@@ -647,7 +760,9 @@ def main() -> int:
             "final_training_kd_loss": history[-1]["training_kd_loss"],
             "history": history,
             "all_losses_finite": all(math.isfinite(item["training_kd_loss"]) for item in history),
-            "all_router_gradients_finite": all(math.isfinite(item["router_gradient_norm"]) for item in history),
+            "all_router_gradients_finite": all(
+                math.isfinite(item["router_gradient_norm"]) for item in history
+            ),
         },
         "checkpoint": {
             "external_path": str(args.checkpoint),
@@ -677,7 +792,7 @@ def main() -> int:
             "next_action": "Begin S08: implement synchronous request-owned on-demand transfer of selected packed planes.",
         },
         "commands": {
-            "training": "source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:third_party/any-precision-llm python scripts/run_s07b.py",
+            "training": "source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:third_party/any-precision-llm python scripts/train_baseline_router.py",
             "checkpoint": str(args.checkpoint),
         },
     }

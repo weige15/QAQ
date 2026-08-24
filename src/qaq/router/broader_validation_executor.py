@@ -1,6 +1,6 @@
 """S10-H2-A execution seam and protocol-locked trial scheduler.
 
-This module is intentionally imported only by ``scripts/run_s10h.py`` after an
+This module is intentionally imported only by ``scripts/run_broader_router_validation.py`` after an
 explicit ``--execute --device`` request.  The scheduler is runtime-agnostic:
 production Qwen/data loading lives behind ``QwenRuntime`` while tests inject a
 small deterministic runtime implementing the same object-level audits and loss
@@ -945,7 +945,7 @@ class QwenRuntime:
         return dict(self._identities)
 
     def inherited_regressions_audit(self) -> dict[str, Any]:
-        selection = "tests/unit/test_s10d_lambda_calibration.py tests/unit/test_s10e_frontier_confirmation.py tests/unit/test_s10f_frontier_confirmation.py"
+        selection = "tests/unit/test_router_cost_calibration.py tests/unit/test_router_frontier_protocol.py tests/unit/test_router_frontier_confirmation.py"
         process = subprocess.run(
             [sys.executable, "-m", "pytest", "-q", *selection.split()],
             cwd=protocol.ROOT,

@@ -15,7 +15,10 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[3]
-DEFAULT_CONFIG = ROOT / "configs" / "s09_baseline_eval.json"
+DEFAULT_CONFIG = ROOT / "configs" / "baseline_evaluation.json"
+_FROZEN_PATH_ALIASES = {
+    "configs/s09_baseline_prompts.json": "configs/baseline_evaluation_prompts.json",
+}
 EXPECTED_MODE_IDS = (
     "full_precision_bf16_teacher",
     "static_packed_4bit",
@@ -644,6 +647,7 @@ def _validate_dataset(config: dict[str, Any], errors: list[str]) -> None:
 
 def _validate_fixed_input_contract(config: dict[str, Any], errors: list[str]) -> None:
     fixed = config.get("fixed_inputs", {})
+    # The value is part of the frozen protocol bytes; only its repository path moved.
     _check_equal(
         errors, fixed.get("path"), "configs/s09_baseline_prompts.json", "fixed input source"
     )
@@ -727,7 +731,9 @@ def _validate_prompts(
         "fixed input path must be repository-relative",
     )
     prompt_path = (
-        root / path_value if isinstance(path_value, str) else root / "missing-prompts.json"
+        root / _FROZEN_PATH_ALIASES.get(path_value, path_value)
+        if isinstance(path_value, str)
+        else root / "missing-prompts.json"
     )
     if prompt_payload is None:
         if not prompt_path.is_file():
@@ -808,9 +814,11 @@ def _validate_prompts(
         "runtime prompt generation",
     )
 
-    s03_file = root / "configs" / "s03_static_quality_prompts.txt"
-    if s03_file.is_file():
-        source_lines = [line for line in s03_file.read_text().splitlines() if line.strip()]
+    static_quality_prompt_file = root / "configs" / "static_quality_prompts.txt"
+    if static_quality_prompt_file.is_file():
+        source_lines = [
+            line for line in static_quality_prompt_file.read_text().splitlines() if line.strip()
+        ]
         for item in requests:
             if item.get("kind") != "s03_quality_prompt":
                 continue
@@ -828,9 +836,13 @@ def _validate_prompts(
                     f"{item.get('id')} prompt text agrees with S03 source",
                 )
 
-    s07 = root / "docs" / "results" / "s07_router_training.json"
-    if s07.is_file():
-        manifest = _load_json(s07).get("dataset_manifest", {}).get("validation", [])
+    router_training_result_path = root / "docs" / "results" / "s07_router_training.json"
+    if router_training_result_path.is_file():
+        manifest = (
+            _load_json(router_training_result_path)
+            .get("dataset_manifest", {})
+            .get("validation", [])
+        )
         by_id = {item.get("example_id"): item for item in manifest}
         for item in requests:
             if item.get("kind") != "s07_s08_validation_request":

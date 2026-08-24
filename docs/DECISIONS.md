@@ -317,9 +317,9 @@ training and query-conditioned routing, but does not establish these exact
 masking, optimizer-audit, hard-route, observation, or checkpoint details.
 They are S07-A implementation choices, not paper-established facts.
 
-**Evidence:** `src/qaq/s07_distillation.py`,
-`tests/unit/test_s07_distillation.py`,
-`tests/integration/test_s07_distillation_smoke.py`, and
+**Evidence:** `src/qaq/router/distillation.py`,
+`tests/unit/test_router_distillation.py`,
+`tests/integration/test_router_distillation_smoke.py`, and
 `docs/stages/S07_DISTILLATION.md`; the deterministic tiny fixture passed the
 focused S07-A unit/integration checks with finite loss and gradients, changed
 router parameters, preserved frozen teacher/student-base values, and passed
@@ -357,7 +357,7 @@ implementation choices, not QAQ-paper facts.
 **Alternatives rejected:** Generated completions were not used as targets. No
 random subset or hyperparameter search was used. The S07-A smoke optimizer,
 learning rate, and step count were not silently promoted; the baseline values
-are recorded here and in `configs/s07_router_training.json`.
+are recorded here and in `configs/baseline_router_training.json`.
 
 **Execution consequence:** Teacher logits are precomputed with the frozen
 teacher under `no_grad` and held on CPU before router optimization so the
@@ -475,11 +475,11 @@ The repository next action is S09, but S09 must not be started as part of this d
 ### D031 — S09-A final evaluation protocol freeze (2026-08-12)
 
 **Choice:** Freeze the machine-readable S09-A protocol in
-`configs/s09_baseline_eval.json` before any final S09-B result exists. The
+`configs/baseline_evaluation.json` before any final S09-B result exists. The
 comparison has exactly five modes: BF16 teacher, static packed 4-bit, static
 packed 8-bit, hard-routed resident packed, and hard-routed synchronous
 on-demand packed. The fixed request/input records are in
-`configs/s09_baseline_prompts.json`.
+`configs/baseline_evaluation_prompts.json`.
 
 The frozen protocol SHA-256 is
 `01ca65c6b3b7e16d7af66f1533140b1c9f31749c90bc91e097d096d463bf2e1c`.
@@ -576,8 +576,8 @@ frozen protocol to accommodate the runner.
 ### D033 — S09-B1 minimal runner structure (2026-08-12)
 
 **Choice:** Implement S09-B as one parent entry point,
-`scripts/run_s09b.py`, which launches itself as one explicit-mode child per
-frozen mode; keep result validation and aggregation in `qaq.s09_runner`.
+`scripts/run_baseline_evaluation.py`, which launches itself as one explicit-mode child per
+frozen mode; keep result validation and aggregation in `qaq.evaluation.runner`.
 The default and explicit `--plan` paths validate the frozen protocol, consume
 the committed fixed-input file for identity planning, print all five child
 commands and the aggregation command, and write no result.
@@ -677,8 +677,8 @@ in `docs/results/s09b/` as failed evidence. The routed deterministic fallback
 from `4a0dc702178fef0f84eb9ffd9bd6d1810e5dc564` is part of the frozen baseline
 implementation. FP/static reuse is justified because the execution-path diff
 from `a2e31188be952f97a1439ff7df46d9f43100bae5..4a0dc702178fef0f84eb9ffd9bd6d1810e5dc564`
-is empty for `scripts/run_s09b.py`, `src/qaq/s09_runner.py`,
-`src/qaq/s03_quality.py`, and `src/qaq/s03_static.py`; commit
+is empty for `scripts/run_baseline_evaluation.py`, `src/qaq/evaluation/runner.py`,
+`src/qaq/evaluation/quality.py`, and `src/qaq/model/static.py`; commit
 `443f6994582500857afca9bad6032cc285448a86` added only `docs/results/s09b_b5/`.
 The committed and temporary read-only aggregations returned `CONTINUE` with no
 errors, and all frozen release criteria passed.
@@ -1001,7 +1001,7 @@ missing, extra, reordered, or reintroduced seeds/lambdas, adaptive extension,
 data/order/training/candidate/router/selection drift, missing pairing
 semantics, and forbidden measurement drift. They execute no experiment.
 
-**Consequence:** S10-E freezes only `configs/s10e_frontier_confirmation.json`,
+**Consequence:** S10-E freezes only `configs/router_frontier_confirmation.json`,
 its focused tests, and this stage/decision documentation. No S10-E
 confirmation trial, full training, production selection, S10-D rewrite, or
 S10-F work is authorized here.
@@ -1132,9 +1132,9 @@ valid confirmation.
 
 ### D050 — S10-H1 protocol-locked broader-validation runner (2026-08-15)
 
-**Choice:** Implement `scripts/run_s10h.py` as a standard-library-only,
+**Choice:** Implement `scripts/run_broader_router_validation.py` as a standard-library-only,
 fail-closed S10-H1 validator and non-executing plan. It consumes the exact
-byte-frozen `configs/s10g_broader_validation.json` (SHA-256
+byte-frozen `configs/broader_router_validation.json` (SHA-256
 `fcb66902174558e5d3f9198f34a8430b685568fd4e21e1632b40f6870aa4aec7`), requires
 merged S10-G ancestry, verifies the recorded S10-F artifact hashes, manifest
 identity, pinned model/dataset/backend identities, and refuses to overwrite
@@ -1214,7 +1214,7 @@ fail-closed checks.
 ### D052 — Fresh-worktree provisioning for the frozen S03-B artifact (2026-08-18)
 
 **Choice:** Keep the multi-gigabyte S03-B packed artifact ignored and provision
-it into each validation worktree with `scripts/provision_s03_artifact.py` from
+it into each validation worktree with `scripts/provision_packed_model_artifact.py` from
 explicitly supplied existing artifact and pinned Any-Precision directories.
 The setup command creates worktree-local directory links only after hashing
 the source `pytorch_model.bin` to the frozen `ARTIFACT_SHA256` and checking the
@@ -1255,7 +1255,7 @@ training examples and 12 validation examples, six times the S10-F counts, from
 `[0,32)`, completion `[32,64)`, and the inherited first-qualifying-row
 selection rule. The exact ascending train offsets `[0,1000,...,23000]` and
 validation offsets `[0,250,...,2750]`, selected row indices, IDs, and ordering
-are in `configs/s10g_broader_validation.json`. The sixfold counts and 1000/250
+are in `configs/broader_router_validation.json`. The sixfold counts and 1000/250
 offset spacing are choices: they materially broaden coverage while keeping a
 bounded, deterministic, source-ordered protocol and avoiding random sampling.
 No row may be substituted after results.
@@ -1325,7 +1325,7 @@ before any execution.
 
 ### D053 — S10-H2-A executor boundary and output safety (2026-08-18)
 
-**Implementation choice — module placement:** Keep `scripts/run_s10h.py` as a
+**Implementation choice — module placement:** Keep `scripts/run_broader_router_validation.py` as a
 standard-library-only plan/validator and place the real scheduler, trial
 executor, audits, and atomic writer in `qaq.router.s10h_executor`. Import that
 module only inside the explicit execute dispatch so plan/default behavior stays

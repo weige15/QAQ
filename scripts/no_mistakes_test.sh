@@ -26,7 +26,7 @@ artifact_source="$(<"$config_file")"
 git submodule update --init --recursive -- third_party/any-precision-llm
 
 # Creates only an ignored, hash-verified worktree-local symlink.
-python scripts/provision_s03_artifact.py \
+python scripts/provision_packed_model_artifact.py \
   --source "$artifact_source"
 
 # Small permanent identity and worker-autonomy checks. The evidence agent will
@@ -34,4 +34,4 @@ python scripts/provision_s03_artifact.py \
 PYTHONPATH=src:third_party/any-precision-llm:. \
   python -m pytest -q \
   tests/unit/test_firstmate_policy.py \
-  tests/unit/test_s10h_broader_validation.py::test_frozen_protocol_and_pre_execution_identity_are_fail_closed
+  tests/unit/test_broader_router_validation.py::test_frozen_protocol_and_pre_execution_identity_are_fail_closed

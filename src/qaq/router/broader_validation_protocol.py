@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[3]
-CONFIG_PATH = ROOT / "configs/s10g_broader_validation.json"
+CONFIG_PATH = ROOT / "configs/broader_router_validation.json"
 RESULT_PATH = ROOT / "docs/results/s10h_broader_validation.json"
 MANIFEST_PATH = ROOT / "docs/quantized_model_manifest.json"
 ANY_PRECISION_PATH = ROOT / "third_party/any-precision-llm"
@@ -38,7 +38,7 @@ DATASET_REVISION = "b08601e04326c79dfdd32d625aee71d232d685c3"
 ANY_PRECISION_REVISION = "a3257d02740cc5757c78673da534b0630ff3a4ea"
 ARTIFACT_SHA256 = "29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee"
 PACKED_ARTIFACT = "quantized/s03b_qwen3_4b/backend_cache/packed/anyprec-(1cfa9a7208912126459214e8b04321603b3df60c)-w8_orig4-gc1-c4_s1_blk64"
-HISTORICAL_S07_CHECKPOINT_SHA256 = (
+HISTORICAL_ROUTER_CHECKPOINT_SHA256 = (
     "08bf646f19759c0d7949e159bdbe4f96bbea737204b96f8760d205c8d6fd1949"
 )
 HISTORICAL_ATTEMPT_1_SHA256 = "d68f041e0a3dc32c465e8b8068ca3ab230d39253757e30f3019ca7e681b14233"
@@ -466,7 +466,7 @@ def _validate_frozen_identity(config: dict[str, Any]) -> dict[str, Any]:
         "artifact_path_present": artifact_path.is_dir(),
         "manifest_sha256": LOCKED_MANIFEST_SHA256,
         "historical_s07_checkpoint_used": False,
-        "historical_s07_checkpoint_sha256": HISTORICAL_S07_CHECKPOINT_SHA256,
+        "historical_s07_checkpoint_sha256": HISTORICAL_ROUTER_CHECKPOINT_SHA256,
     }
 
 
@@ -828,7 +828,7 @@ def validate_result(result: dict[str, Any]) -> dict[str, Any]:
         "manifest_sha256": LOCKED_MANIFEST_SHA256,
         "packed_artifact_pytorch_model_sha256": ARTIFACT_SHA256,
         "historical_s07_checkpoint_used": False,
-        "historical_s07_checkpoint_sha256": HISTORICAL_S07_CHECKPOINT_SHA256,
+        "historical_s07_checkpoint_sha256": HISTORICAL_ROUTER_CHECKPOINT_SHA256,
     }
     if not isinstance(identities, dict) or any(
         identities.get(key) != value for key, value in expected_identity.items()
@@ -1083,7 +1083,7 @@ def _plan(context: dict[str, Any]) -> dict[str, Any]:
         "prohibited_measurements": list(FORBIDDEN_MEASUREMENTS),
         "thresholds": config["future_two_axis_gate"]["required_conditions"],
         "gate_precedence": ["PAUSE", "REVISE", "REFINE", "CONTINUE"],
-        "explicit_execute_command": "source ~/.venv/bin/activate && which python && python --version && nvidia-smi && PYTHONPATH=src:third_party/any-precision-llm:. python scripts/run_s10h.py --execute --device cuda:0 --config configs/s10g_broader_validation.json --output <temporary-destination-on-target-filesystem>",
+        "explicit_execute_command": "source ~/.venv/bin/activate && which python && python --version && nvidia-smi && PYTHONPATH=src:third_party/any-precision-llm:. python scripts/run_broader_router_validation.py --execute --device cuda:0 --config configs/broader_router_validation.json --output <temporary-destination-on-target-filesystem>",
         "execution_allowed_in_h1": False,
         "plan_loads_model": False,
         "plan_trains": False,
@@ -1228,7 +1228,7 @@ def synthetic_structural_fixture() -> dict[str, Any]:
             "manifest_sha256": LOCKED_MANIFEST_SHA256,
             "packed_artifact_pytorch_model_sha256": ARTIFACT_SHA256,
             "historical_s07_checkpoint_used": False,
-            "historical_s07_checkpoint_sha256": HISTORICAL_S07_CHECKPOINT_SHA256,
+            "historical_s07_checkpoint_sha256": HISTORICAL_ROUTER_CHECKPOINT_SHA256,
         },
         "dataset": {
             "repository": "Salesforce/wikitext",

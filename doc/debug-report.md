@@ -31,7 +31,7 @@ which python
 python --version
 PYTHONPATH=src:third_party/any-precision-llm:. \
   QAQ_S03_ARTIFACT=<identity-matched S03-B artifact> \
-  QAQ_MODEL_DEVICE=cuda:0 pytest -q tests/integration/test_s10a_static6.py
+  QAQ_MODEL_DEVICE=cuda:0 pytest -q tests/integration/test_static_six_bit_execution.py
 3 passed in 221.42s
 ```
 
@@ -135,7 +135,7 @@ git submodule status -- third_party/any-precision-llm
 PYTHONPATH=src:. pytest -q tests/unit/test_static_precision_validation.py
 PYTHONPATH=src:third_party/any-precision-llm:. \
   QAQ_S03_ARTIFACT=<identity-matched S03-B artifact> \
-  QAQ_MODEL_DEVICE=cuda:0 pytest -q tests/integration/test_s10a_static6.py
+  QAQ_MODEL_DEVICE=cuda:0 pytest -q tests/integration/test_static_six_bit_execution.py
 PYTHONPATH=src:. QAQ_S03_ARTIFACT=<identity-matched S03-B artifact> \
   QAQ_MODEL_DEVICE=cuda:0 pytest -q \
   tests/integration/test_static4_forward.py \
@@ -171,7 +171,7 @@ not find the ignored packed artifact in this fresh worktree.
 source ~/.venv/bin/activate
 which python
 python --version
-PYTHONPATH=src:. pytest -q tests/unit/test_s10h_broader_validation.py
+PYTHONPATH=src:. pytest -q tests/unit/test_broader_router_validation.py
 ```
 
 The first run failed 5 tests with:
@@ -191,7 +191,7 @@ PAUSE: pinned Any-Precision checkout is unavailable
 
 The fresh worktree omitted both the ignored S03-B artifact and the pinned
 Any-Precision submodule contents. The validator correctly failed closed. The
-new `scripts/provision_s03_artifact.py` hashes the source checkpoint before
+new `scripts/provision_packed_model_artifact.py` hashes the source checkpoint before
 creating a worktree-local link, verifies the backend revision, and is covered
 by a regression test that rejects unverified bytes.
 
