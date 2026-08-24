@@ -1573,3 +1573,77 @@ automatically.
 contract cannot be represented safely, return S11-B1 to REVISE rather than
 weakening a validator. If persistence or nested evidence changes, preserve
 this implementation and add a versioned decision before accepting any result.
+
+### D058 — S11-C1 broader lookahead quality protocol freeze (2026-08-24)
+
+**Exact research question:** Does the historical S07 4/8 checkpoint continue
+to preserve acceptable teacher-relative quality under one-layer-lookahead
+attention routing on a meaningfully broader fixed evaluation set than the
+two-request S11-B pilot?
+
+**Project-established facts:** S11-B3 is complete with
+`ADVANCE_TO_BROADER_QUALITY_CHECK` under its unchanged two-request protocol.
+S11-A owns one-unit-lookahead attention timing; S07 owns the historical 4/8
+checkpoint and completion-only temperature-2 KL operation; S09 owns model,
+tokenizer, packed-artifact, backend, checkpoint, and fixed-input identities.
+S10-G/H owns an already frozen and executed twelve-request deterministic
+validation manifest. S11-B3 changed one route, `validation-3` attention layer
+23, from 4 to 8 bits under treatment. That two-request observation did not
+reduce selected precision and is neither proof nor disproof of later
+precision-saving ability.
+
+**Implementation choice — smallest broader fixture:** Reuse exactly the twelve
+ordered S10 broader-validation requests `validation-3`, `validation-270`,
+`validation-500`, `validation-761`, `validation-1000`, `validation-1252`,
+`validation-1500`, `validation-1759`, `validation-2000`, `validation-2250`,
+`validation-2500`, and `validation-2755`. Preserve their frozen source rows,
+64-token digests, first-64-token preprocessing, `[0,32)` prompt,
+`[32,64)` completion, and `[31,63)` causal loss ranges as specified in
+`docs/stages/S11C_BROADER_QUALITY.md`. This is six times the pilot size, keeps
+both pilot requests, and uses existing source-fixed repository precedent
+instead of generated, random, or post-result-selected prompts.
+
+**Implementation choice — paired quality contract:** Compare
+`same_unit_control` then `lookahead_attention_one_unit_treatment` with the
+unchanged historical S07 checkpoint, candidates `[4,8]`, resident physically
+packed hard execution, and identical identities/settings. Each mode gets one
+fresh same-GPU process, seed 1729, and exactly two deterministic repeats. Record
+completion-only masked KL at temperature 2.0 plus full-logit mean and maximum
+absolute teacher error. Continue only when treatment aggregate KL is
+`<= 1.10 *` control, all twelve treatment per-request KL values are
+`<= 1.25 *` paired control, and treatment aggregate mean absolute logit error
+is `<= 1.10 *` control. These are inherited S11-B project margins, not paper
+facts. Maximum error and route/width diagnostics are descriptive.
+
+**Implementation choice — diagnostics and classification:** Require complete
+72-unit target-owned maps for every request, paired Hamming distances,
+directional 4-to-8 and 8-to-4 transitions, 4/8 fractions, and per-request,
+attention, FFN, and overall treatment-minus-control selected-width deltas.
+Selected precision cannot override quality. Classify unavailable prerequisites,
+incomplete interrupted evidence, or material interpretive ambiguity as PAUSE;
+invalid protocol/executor, identity, repeat, freeze, route, provenance, cleanup,
+or prohibited-work evidence as REVISE; complete valid evidence that misses any
+quality margin as STOP; and only complete valid evidence passing every margin
+as CONTINUE.
+
+**Consequence:** S11-C1 freezes protocol only. It creates no executor or result
+and runs no model, dataset selection, CUDA work, quality experiment, training,
+4/6/8 optimization, loader/performance mechanism, or performance measurement.
+A future CONTINUE result is sufficient to justify opening a separately scoped
+paired lookahead-specific 4/6/8 router-training stage aimed at testing lower
+average selected precision while preserving quality. That stage still requires
+its own pre-result protocol and execution authorization. REVISE, PAUSE, and
+STOP do not advance, and CONTINUE is not itself a precision-saving result.
+
+**Alternatives rejected:** Reusing only the five short S03 prompts would change
+the completion-only 32/32 quality contract; random sampling or a newly chosen
+fixture would add avoidable selection discretion; expanding directly to
+training would combine protocol, executor, execution, and 4/6/8 optimization;
+extra inference seeds add no training variability to deterministic checkpoint
+evaluation; and precision-aware scalar gates would conflate the immediate
+quality-generalization question with the later optimization question.
+
+**Reversal path:** Before any result, a proven fixture, metric, or
+classification defect requires a replacement pre-result decision. After any
+result exists, do not edit requests, order, metrics, margins, repeats, or
+classification; invalidate affected evidence and return REVISE instead.

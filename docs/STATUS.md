@@ -1,3 +1,48 @@
+Current stage: S11-C1
+Status: COMPLETE — BROADER QUALITY PROTOCOL FROZEN; EXECUTION NOT STARTED
+
+## S11-C1 broader lookahead quality protocol freeze
+
+The exact question is: **Does the historical S07 4/8 checkpoint continue to
+preserve acceptable teacher-relative quality under one-layer-lookahead
+attention routing on a meaningfully broader fixed evaluation set than the
+two-request S11-B pilot?**
+
+The protocol-only stage is frozen in
+[`docs/stages/S11C_BROADER_QUALITY.md`](stages/S11C_BROADER_QUALITY.md). It
+compares `same_unit_control` with
+`lookahead_attention_one_unit_treatment`, in that order, using the unchanged
+historical S07 4/8 checkpoint and twelve exact 64-token validation requests
+from the canonical S10 broader-validation manifest. The fixture retains both
+S11-B requests and adds ten source-fixed requests in deterministic order, for
+six times the pilot coverage. Model, tokenizer, packed artifact, backend,
+checkpoint, resident execution, seed `1729`, two exact repeats, metric
+operations, and all non-timing behavior are held equal.
+
+CONTINUE requires valid deterministic evidence plus treatment aggregate KL
+`<= 1.10 *` control, each of twelve treatment request KL values
+`<= 1.25 *` its paired control, and treatment aggregate mean absolute logit
+error `<= 1.10 *` control. PAUSE covers unavailable prerequisites or incomplete
+external evidence; REVISE covers invalid protocol/executor/integrity or repeat
+evidence; STOP covers complete valid evidence that misses any quality margin.
+Route transitions and treatment-minus-control selected-width deltas are
+required diagnostics but cannot change the quality classification.
+
+S11-B3's one changed decision—`validation-3` attention layer 23 changed from 4
+to 8 bits—did not reduce selected precision in the two-request pilot. That one
+transition is neither proof nor disproof that lookahead can save precision.
+Only a future CONTINUE result from this frozen broader 4/8 check is sufficient
+to justify opening a separately scoped paired lookahead-specific 4/6/8
+router-training stage; that stage still requires its own pre-result protocol
+and execution authorization, and CONTINUE is not itself evidence of savings.
+
+No executor, result schema, result artifact, model/dataset load, CUDA work,
+quality experiment, training, 4/6/8 optimization, prefetch, asynchronous
+loading, on-demand change, latency, memory, transfer, throughput, generation,
+decode, or perplexity work occurred. Next action: separately implement and
+structurally validate an executor and non-executing plan without changing this
+protocol; real execution remains a later authorization.
+
 Current stage: S11-B3
 Status: COMPLETE — ADVANCE_TO_BROADER_QUALITY_CHECK
 
