@@ -1647,3 +1647,31 @@ quality-generalization question with the later optimization question.
 classification defect requires a replacement pre-result decision. After any
 result exists, do not edit requests, order, metrics, margins, repeats, or
 classification; invalidate affected evidence and return REVISE instead.
+
+### D059 — S11-C2 executor and persistence boundary (2026-08-24)
+
+**Decision:** Represent the frozen S11-C1 protocol and exact twelve-request
+token fixture as separate byte-protected JSON inputs. Generalize the completed
+S11-B2 runtime boundary and shared atomic persistence primitive rather than
+creating another production runtime. Keep the default command inert and import
+the production runtime only after exact mode, device, config, destination, and
+no-overwrite validation.
+
+**Validation boundary:** Per-mode evidence must independently validate twelve
+ordered inputs, two bitwise-deterministic repeats, 864 target-owned routes,
+provenance, finite metrics, immutable state, cleanup, and prohibited-work
+audits. The two overlapping control requests must equal canonical S11-B3 routes
+and metrics; the ten added requests have no invented historical target. Paired
+aggregation recomputes all quality gates and descriptive route diagnostics from
+validated raw evidence. Missing external evidence is PAUSE, malformed complete
+evidence is REVISE, complete valid quality failure is STOP, and complete valid
+quality success is CONTINUE.
+
+**Persistence:** Canonical results remain absent until separately authorized
+execution. A future write is allowed only to the exact dedicated S11-C paths,
+through the existing same-directory validate-reread-hard-link no-overwrite
+boundary; the command never creates the destination parent.
+
+**Consequence:** S11-C2 establishes readiness only. It makes no broader-quality,
+selected-precision, or advancement claim and authorizes no experiment,
+training, 4/6/8 stage, loader mechanism, or performance work.

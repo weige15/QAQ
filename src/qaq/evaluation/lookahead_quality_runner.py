@@ -14,7 +14,7 @@ import re
 import struct
 import sys
 import tempfile
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Protocol
@@ -1366,28 +1366,17 @@ def _serialize_result(result: dict[str, Any]) -> bytes:
     return (json.dumps(result, indent=2, sort_keys=False, allow_nan=False) + "\n").encode()
 
 
-def persist_validated_result(
+def persist_atomically(
     result: dict[str, Any],
     destination: Path,
     *,
     policy: PersistencePolicy,
-    config: Mapping[str, Any],
-    kind: str,
-    paired_results: tuple[dict[str, Any], dict[str, Any]] | None = None,
+    validator: Callable[[dict[str, Any]], None],
 ) -> str:
-    """Persist complete validated bytes by same-filesystem no-overwrite hard link."""
+    """Persist validated JSON through the shared same-directory no-overwrite boundary."""
 
     destination = validate_destination(destination, policy)
-    if kind == "mode":
-        validate_mode_result(result, config)
-    elif kind == "aggregation":
-        if paired_results is None:
-            raise LookaheadQualityError(
-                "aggregation persistence requires both validated mode results"
-            )
-        validate_aggregation_result(result, paired_results[0], paired_results[1], config)
-    else:
-        raise LookaheadQualityError(f"unknown result kind: {kind}")
+    validator(result)
     temporary: Path | None = None
     try:
         descriptor, name = tempfile.mkstemp(
@@ -1402,12 +1391,7 @@ def persist_validated_result(
         reloaded, raw = _load_json_bytes(temporary)
         if raw != payload:
             raise LookaheadQualityError("serialized result bytes changed on reread")
-        if kind == "mode":
-            validate_mode_result(reloaded, config)
-        else:
-            if paired_results is None:  # pragma: no cover - guarded above
-                raise LookaheadQualityError("paired results disappeared")
-            validate_aggregation_result(reloaded, paired_results[0], paired_results[1], config)
+        validator(reloaded)
         validate_destination(destination, policy)
         os.link(temporary, destination)
         promoted = destination.read_bytes()
@@ -1436,6 +1420,37 @@ def persist_validated_result(
                 pass
 
 
+def persist_validated_result(
+    result: dict[str, Any],
+    destination: Path,
+    *,
+    policy: PersistencePolicy,
+    config: Mapping[str, Any],
+    kind: str,
+    paired_results: tuple[dict[str, Any], dict[str, Any]] | None = None,
+) -> str:
+    """Persist a validated S11-B result through the shared atomic boundary."""
+
+    if kind == "mode":
+        validator = lambda value: validate_mode_result(value, config)
+    elif kind == "aggregation":
+        if paired_results is None:
+            raise LookaheadQualityError(
+                "aggregation persistence requires both validated mode results"
+            )
+        validator = lambda value: validate_aggregation_result(
+            value, paired_results[0], paired_results[1], config
+        )
+    else:
+        raise LookaheadQualityError(f"unknown result kind: {kind}")
+    return persist_atomically(
+        result,
+        destination,
+        policy=policy,
+        validator=validator,
+    )
+
+
 __all__ = [
     "AGGREGATION_OUTPUT",
     "AGGREGATION_SCHEMA",
@@ -1456,6 +1471,7 @@ __all__ = [
     "execute_mode_with_runtime",
     "expected_mode_destination",
     "load_protocol",
+    "persist_atomically",
     "persist_validated_result",
     "plan",
     "validate_aggregation_result",

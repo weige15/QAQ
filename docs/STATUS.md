@@ -1,3 +1,41 @@
+Current stage: S11-C2
+Status: COMPLETE — EXECUTOR READY; BROADER EXPERIMENT NOT EXECUTED
+
+## S11-C2 fail-closed broader-quality executor readiness
+
+S11-C2 implements the frozen S11-C1 twelve-request 4/8 paired-quality contract
+without changing its research question, requests, modes, metrics, thresholds,
+route diagnostics, classifications, or advancement rule. The byte-protected
+machine contract is `configs/lookahead_broader_quality.json`; the byte-protected
+fixed fixture is `configs/lookahead_broader_quality_inputs.json`, containing all
+twelve exact 64-token arrays whose little-endian signed-64-bit SHA-256 digests
+match both S11-C1 and the canonical S10-H validation manifest.
+
+The thin default command is `scripts/run_lookahead_broader_quality.py`. Its
+standard-library-only plan prints two fresh-process mode commands in frozen
+order followed by aggregation and reports false model, dataset, tokenization,
+CUDA, experiment, training, benchmark, and write activity. Explicit execution
+reuses the S11-B2 `ProductionRuntime` only after exact config, mode, CUDA device,
+destination, parent, and no-overwrite checks. The scheduler, validators,
+aggregation, detailed route diagnostics, four-way classification, and shared
+same-directory atomic hard-link persistence all fail closed on incomplete,
+drifted, non-deterministic, mutable, prohibited, or unsafe evidence.
+
+CPU-only injected verification covered 12 requests, two repeats per mode, 864
+routes per mode, overlap equality with canonical S11-B3 control, all three
+quality-margin failures, PAUSE/REVISE/STOP/CONTINUE behavior, route transitions,
+selected-width deltas, dispatch-before-import, deterministic inert planning,
+and atomic no-overwrite persistence. Existing S11-B and S10 broader-validation
+regressions remain required readiness evidence.
+
+No Qwen3-4B model, packed artifact, production teacher/student inference, CUDA,
+training, retraining, optimizer, checkpoint creation, 6-bit route, loader or
+prefetch change, generation, decode, perplexity, benchmark, profiler, or
+performance measurement ran. No canonical `docs/results/s11c_broader_quality/`
+parent or result exists. Quality, selected-precision benefit, and advancement
+remain unknown. Next action: stop and obtain separate authorization before
+executing the two frozen real mode commands and aggregation.
+
 Current stage: S11-C1
 Status: COMPLETE — BROADER QUALITY PROTOCOL FROZEN; EXECUTION NOT STARTED
 

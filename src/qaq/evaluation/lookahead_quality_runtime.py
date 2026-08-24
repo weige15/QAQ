@@ -1,9 +1,8 @@
-"""Lazy production runtime for the frozen S11-B paired quality pilot.
+"""Lazy production runtime shared by the frozen S11-B and S11-C quality checks.
 
 Importing this module does not itself import an ML runtime.  ``prepare`` is the
 only path that imports Torch/Transformers and it is reachable only after the
 standard-library dispatcher validates one exact mode, CUDA device, and output.
-S11-B2 supplies this source but never executes it.
 """
 
 from __future__ import annotations
@@ -322,7 +321,12 @@ class ProductionRuntime:
         )
         self.student = student
         self._student_before = self._student_components(student)
-        self._identities = contract._expected_identities(protocol)
+        if protocol.get("schema") == "qaq-s11c-broader-quality-v1":
+            from qaq.evaluation import lookahead_broader_quality
+
+            self._identities = lookahead_broader_quality._expected_identities(protocol)
+        else:
+            self._identities = contract._expected_identities(protocol)
 
     def hardware_evidence(self) -> dict[str, Any]:
         return dict(self._hardware)
