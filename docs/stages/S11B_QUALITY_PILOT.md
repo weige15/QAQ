@@ -302,3 +302,51 @@ separate authorization, provision the frozen empty result parent, execute the
 two printed one-mode child commands on one explicit comparable GPU in frozen
 order, then run the printed aggregation command. Do not infer or execute S11-B3
 from S11-B2 readiness alone.
+
+## S11-B3 — frozen paired quality-pilot execution
+
+**COMPLETE — `ADVANCE_TO_BROADER_QUALITY_CHECK`.** S11-B3 used the unchanged
+frozen protocol SHA-256
+`21a664424debe4892c3577c490158228dd5399bb4b425611db728070d23a5051` and the
+S11-B2 executor. Preflight verified the pinned model/tokenizer snapshot, packed
+artifact SHA-256, S07 checkpoint SHA-256, clean pinned Any-Precision revision,
+mandatory `~/.venv`, absent result paths, and an empty non-symlink result
+parent. No frozen input, identity, threshold, schema, or implementation changed.
+
+The one authorized execution used this exact order: `same_unit_control`, then
+`lookahead_attention_one_unit_treatment`, then aggregation. Each mode ran once
+in its own fresh process and performed the frozen two repeats. Both used
+`cuda:2`, physical GPU `GPU-74d97f46-6284-1055-698a-e2db4e9c744b`, an NVIDIA
+GeForce RTX 3090 with driver `580.159.03`; their persisted hardware/software
+identity records are equal. The mode and aggregation commands exited zero and
+wrote through the executor's validated no-overwrite persistence path.
+
+Canonical evidence:
+
+- `docs/results/s11b_quality_pilot/same_unit_control.json`, SHA-256
+  `ba748dd09b8319c1ff395f65be130ecbb0bea1571c1afb76e0016a88b6e5a073`;
+- `docs/results/s11b_quality_pilot/lookahead_attention_one_unit_treatment.json`,
+  SHA-256 `742450cfe5dda791cbbbdc59adf1541a2d897f227b9be094909f36b7760c402c`;
+- `docs/results/s11b_quality_pilot/aggregation.json`, SHA-256
+  `2b1755345bb0a8bbae3110bbdca86bf7dc75edef9c3460e83e37b0297fe626a7`.
+
+Independent post-write validation reloaded all three files, validated each mode,
+and recomputed the aggregation byte-for-byte. Both repeats, freeze audits,
+historical control routes, complete route/provenance coverage, layer-0 pairing,
+teacher logits, cleanup, and prohibited-work checks passed. Aggregation errors
+are empty. Aggregate KL changed from `0.0631424393504858` to
+`0.06203574314713478` (ratio `0.9824730210816205`); per-request KL ratios are
+`0.9431116083999646` and `1.0`; aggregate mean absolute logit error changed
+from `0.2928081303834915` to `0.2907368540763855` (ratio
+`0.9929261653206376`). Every frozen quality margin passed.
+
+Route comparison found one change: `validation-3` target attention layer 23
+selected 8 bits under treatment instead of 4. Its overall and attention
+normalized distances are `1/72` and `1/36`; `validation-1000` and all FFN
+routes are unchanged. Required layer-0 attention and FFN equality passed.
+
+This is a valid completed two-request pilot, not general quality evidence and
+not a performance, overlap, transfer, or prefetch claim. It authorizes only the
+separate definition of a broader quality check. No broader evaluation,
+retraining, 6-bit routing, on-demand loading, asynchronous transfer, prefetch,
+generation, decode, perplexity, or performance measurement began.

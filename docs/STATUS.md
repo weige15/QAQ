@@ -1,3 +1,43 @@
+Current stage: S11-B3
+Status: COMPLETE — ADVANCE_TO_BROADER_QUALITY_CHECK
+
+## S11-B3 frozen paired quality pilot
+
+S11-B3 executed the unchanged frozen S11-B protocol, config SHA-256
+`21a664424debe4892c3577c490158228dd5399bb4b425611db728070d23a5051`,
+from the complete S11-B2 executor base. The exact order was
+`same_unit_control`, `lookahead_attention_one_unit_treatment`, then aggregation.
+Each mode ran once in a fresh process with two deterministic repeats on
+`cuda:2`, physical GPU
+`GPU-74d97f46-6284-1055-698a-e2db4e9c744b` (NVIDIA GeForce RTX 3090,
+driver `580.159.03`). Both mode records contain identical hardware/software
+identity evidence and passed independent schema, identity, input, finite-value,
+route, historical-control, provenance, cleanup, freeze, determinism, and
+prohibited-work validation.
+
+The aggregation is valid and has no errors. All three frozen quality checks
+passed: aggregate KL ratio `0.9824730210816205`; per-request KL ratios
+`0.9431116083999646` and `1.0`; aggregate mean absolute logit-error ratio
+`0.9929261653206376`. One target route changed: `validation-3` attention layer
+23 selected 8 bits under treatment instead of 4; all other target routes were
+equal, including every FFN and the required layer-0 units. The frozen
+classification is **ADVANCE_TO_BROADER_QUALITY_CHECK**.
+
+Canonical evidence:
+
+- `docs/results/s11b_quality_pilot/same_unit_control.json`, SHA-256
+  `ba748dd09b8319c1ff395f65be130ecbb0bea1571c1afb76e0016a88b6e5a073`;
+- `docs/results/s11b_quality_pilot/lookahead_attention_one_unit_treatment.json`,
+  SHA-256 `742450cfe5dda791cbbbdc59adf1541a2d897f227b9be094909f36b7760c402c`;
+- `docs/results/s11b_quality_pilot/aggregation.json`, SHA-256
+  `2b1755345bb0a8bbae3110bbdca86bf7dc75edef9c3460e83e37b0297fe626a7`.
+
+This two-request result establishes only that the historical same-unit-trained
+checkpoint passed the frozen pilot margins under one-unit-lookahead attention
+timing. It does not establish general quality, performance, overlap, transfer,
+or prefetch benefit. Next action: stop and separately define a broader quality
+check; do not execute that later stage from S11-B3.
+
 Current stage: S11-B2
 Status: COMPLETE — executor ready, pilot not executed
 

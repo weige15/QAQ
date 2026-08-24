@@ -1,0 +1,110 @@
+{
+  "schema": "qaq-s11b-quality-pilot-aggregation-v1",
+  "protocol_config_sha256": "21a664424debe4892c3577c490158228dd5399bb4b425611db728070d23a5051",
+  "mode_result_paths": [
+    "docs/results/s11b_quality_pilot/same_unit_control.json",
+    "docs/results/s11b_quality_pilot/lookahead_attention_one_unit_treatment.json"
+  ],
+  "paired_inputs": {
+    "request_order": [
+      "validation-3",
+      "validation-1000"
+    ],
+    "inputs_identical": true,
+    "device_and_software_identical": true,
+    "teacher_identity_and_logits_identical": true
+  },
+  "paired_quality": {
+    "control_aggregate_kl": 0.0631424393504858,
+    "treatment_aggregate_kl": 0.06203574314713478,
+    "aggregate_kl_ratio": 0.9824730210816205,
+    "paired_request_kl": [
+      {
+        "request_id": "validation-3",
+        "control_kl": 0.03890762850642204,
+        "treatment_kl": 0.03669423609972,
+        "ratio": 0.9431116083999646,
+        "limit": 0.048634535633027554,
+        "passed": true
+      },
+      {
+        "request_id": "validation-1000",
+        "control_kl": 0.08737725019454956,
+        "treatment_kl": 0.08737725019454956,
+        "ratio": 1.0,
+        "limit": 0.10922156274318695,
+        "passed": true
+      }
+    ],
+    "control_aggregate_mean_absolute_logit_error": 0.2928081303834915,
+    "treatment_aggregate_mean_absolute_logit_error": 0.2907368540763855,
+    "aggregate_mean_absolute_logit_error_ratio": 0.9929261653206376,
+    "threshold_checks": {
+      "aggregate_kl_passed": true,
+      "each_request_kl_passed": true,
+      "aggregate_mean_absolute_logit_error_passed": true,
+      "all_quality_thresholds_passed": true
+    }
+  },
+  "route_comparison": {
+    "paired_distances_overall": [
+      {
+        "request_id": "validation-3",
+        "distance": 0.013888888888888888
+      },
+      {
+        "request_id": "validation-1000",
+        "distance": 0.0
+      }
+    ],
+    "paired_distances_attention": [
+      {
+        "request_id": "validation-3",
+        "distance": 0.027777777777777776
+      },
+      {
+        "request_id": "validation-1000",
+        "distance": 0.0
+      }
+    ],
+    "paired_distances_ffn": [
+      {
+        "request_id": "validation-3",
+        "distance": 0.0
+      },
+      {
+        "request_id": "validation-1000",
+        "distance": 0.0
+      }
+    ],
+    "changed_target_units": [
+      {
+        "request_id": "validation-3",
+        "target_layer": 23,
+        "unit_type": "attention",
+        "control_bits": 4,
+        "treatment_bits": 8
+      }
+    ],
+    "changed_target_unit_count": 1,
+    "layer_0_equal": true,
+    "later_differences_recorded": true
+  },
+  "determinism": {
+    "control_repeats_validated": true,
+    "treatment_repeats_validated": true,
+    "teacher_logits_equal_across_modes": true
+  },
+  "freeze_audits": {
+    "control_passed": true,
+    "treatment_passed": true
+  },
+  "result_checks": {
+    "independent_per_mode_validation": true,
+    "raw_summaries_recomputed": true,
+    "prohibited_fields_absent": true,
+    "complete_evidence": true
+  },
+  "classification": "ADVANCE_TO_BROADER_QUALITY_CHECK",
+  "errors": []
+}
