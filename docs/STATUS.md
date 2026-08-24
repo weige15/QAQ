@@ -1,3 +1,70 @@
+Current stage: S11-C3
+Status: COMPLETE — CONTINUE; FROZEN BROADER QUALITY MARGINS PASS
+
+## S11-C3 frozen twelve-request broader-quality execution
+
+S11-C3 executed the unchanged S11-C1/D058 protocol with the verified S11-C2
+executor. Preflight passed before the result parent was created: the protected
+protocol and fixture SHA-256 values remained
+`320c42901046d26c310d97fe1d3331d8653ce7c913daf3bff0bab7df02e585b5` and
+`a33cb9a7373f6ed68216e31249317ee35f25dc86d1e095b6428843671e8f3a08`;
+the canonical S10-H result and S11-B3 control matched their protected hashes;
+and the pinned model/tokenizer, packed artifact, historical S07 checkpoint,
+and Any-Precision identities were present and exact. The inert plan was
+byte-identical across two invocations, named only the two frozen fresh-process
+modes followed by aggregation, and reported no execution or write activity.
+
+The exact execution order was `same_unit_control`,
+`lookahead_attention_one_unit_treatment`, then paired aggregation. Both fresh
+mode processes used `cuda:0`, physical GPU
+`GPU-384b6377-8f0c-e3d2-8b3a-b3408b54fd53` (NVIDIA GeForce RTX 3090,
+driver `580.159.03`), with identical recorded hardware/software identities,
+seed `1729`, all twelve frozen requests, and two immediate deterministic
+repeats. Independent validation passed both mode schemas and the aggregation;
+each mode contains 864 target-owned 4/8 routes, bitwise-equal repeat logits,
+identical repeat routes and provenance, finite quality evidence, exact S11-B3
+control overlap, immutable teacher/base/packed/router state, complete cleanup,
+and no prohibited work. Independent aggregation recomputation was byte-for-
+value equal to the canonical aggregation and reported no errors.
+
+The complete valid result is **CONTINUE**. Treatment aggregate KL was
+`0.053326172598948084` versus control `0.05696516142537197`, ratio
+`0.9361190465300235`, passing the frozen `<= 1.10` factor. All twelve paired
+request KL ratios passed the frozen `<= 1.25` factor, in request order:
+`0.9431116083999646`, `0.8171828196666195`, `0.8609327298114132`,
+`0.9519197144964956`, `1.0`, `1.0`, `0.9851409897234885`,
+`0.881359038358788`, `0.9528381087573128`, `1.0`, `0.8712474506479513`,
+and `0.8196586142853123`. Treatment aggregate mean absolute logit error was
+`0.2549600688119729` versus control `0.2632628021140893`, ratio
+`0.968462185939515`, passing the frozen `<= 1.10` factor. Aggregate maximum
+absolute error was diagnostic only: control `4.119384765625`, treatment
+`4.208902994791667`.
+
+Across 864 paired target decisions, 18 attention routes changed and no FFN
+route changed: 16 transitions were 4-to-8 and two were 8-to-4. Overall Hamming
+distance was `0.020833333333333332`; attention distance was
+`0.041666666666666664`; FFN distance was `0.0`. Treatment-minus-control mean
+selected width was `0.06481481481481488` bits overall,
+`0.12962962962962976` for attention, and `0.0` for FFN. These route and width
+diagnostics neither strengthen nor weaken the quality classification and do
+not establish selected-precision savings.
+
+Canonical evidence:
+
+- `docs/results/s11c_broader_quality/same_unit_control.json`, SHA-256
+  `df2035e67e780ee9fd148eba73846ce49cb906aab6c7213c67ca9fc79287aa9c`;
+- `docs/results/s11c_broader_quality/lookahead_attention_one_unit_treatment.json`,
+  SHA-256 `2a0acd8091473f1b9e60b07fa60e98f7b9918e7913cac061835722ad3c3a06f0`;
+- `docs/results/s11c_broader_quality/aggregation.json`, SHA-256
+  `49131444e8d25a884c15f1803b8f5d430158ee5142f2689cbffef2b193e532a2`.
+
+CONTINUE establishes only that the historical 4/8 checkpoint passed the frozen
+broader teacher-relative quality margins under one-unit-lookahead attention
+timing. It does not prove precision savings or authorize training. Next action:
+stop. A paired lookahead-specific 4/6/8 training stage may be defined only as a
+separate pre-result protocol and separately authorized execution; do not begin
+it automatically.
+
 Current stage: S11-C2
 Status: COMPLETE — EXECUTOR READY; BROADER EXPERIMENT NOT EXECUTED
 

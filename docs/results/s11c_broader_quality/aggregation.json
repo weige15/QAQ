@@ -1,0 +1,1331 @@
+{
+  "schema": "qaq-s11c-broader-quality-aggregation-v1",
+  "protocol_config_sha256": "320c42901046d26c310d97fe1d3331d8653ce7c913daf3bff0bab7df02e585b5",
+  "fixed_inputs_sha256": "a33cb9a7373f6ed68216e31249317ee35f25dc86d1e095b6428843671e8f3a08",
+  "mode_result_paths": [
+    "docs/results/s11c_broader_quality/same_unit_control.json",
+    "docs/results/s11c_broader_quality/lookahead_attention_one_unit_treatment.json"
+  ],
+  "paired_inputs": {
+    "request_order": [
+      "validation-3",
+      "validation-270",
+      "validation-500",
+      "validation-761",
+      "validation-1000",
+      "validation-1252",
+      "validation-1500",
+      "validation-1759",
+      "validation-2000",
+      "validation-2250",
+      "validation-2500",
+      "validation-2755"
+    ],
+    "inputs_identical": true,
+    "device_and_software_identical": true,
+    "teacher_identity_and_logits_identical": true
+  },
+  "paired_quality": {
+    "control_aggregate_kl": 0.05696516142537197,
+    "treatment_aggregate_kl": 0.053326172598948084,
+    "aggregate_kl_ratio": 0.9361190465300235,
+    "paired_request_kl": [
+      {
+        "request_id": "validation-3",
+        "control_kl": 0.03890762850642204,
+        "treatment_kl": 0.03669423609972,
+        "ratio": 0.9431116083999646,
+        "limit": 0.048634535633027554,
+        "passed": true
+      },
+      {
+        "request_id": "validation-270",
+        "control_kl": 0.046448394656181335,
+        "treatment_kl": 0.037956830114126205,
+        "ratio": 0.8171828196666195,
+        "limit": 0.05806049332022667,
+        "passed": true
+      },
+      {
+        "request_id": "validation-500",
+        "control_kl": 0.035025715827941895,
+        "treatment_kl": 0.03015478514134884,
+        "ratio": 0.8609327298114132,
+        "limit": 0.04378214478492737,
+        "passed": true
+      },
+      {
+        "request_id": "validation-761",
+        "control_kl": 0.15736685693264008,
+        "treatment_kl": 0.1498006135225296,
+        "ratio": 0.9519197144964956,
+        "limit": 0.1967085711658001,
+        "passed": true
+      },
+      {
+        "request_id": "validation-1000",
+        "control_kl": 0.08737725019454956,
+        "treatment_kl": 0.08737725019454956,
+        "ratio": 1.0,
+        "limit": 0.10922156274318695,
+        "passed": true
+      },
+      {
+        "request_id": "validation-1252",
+        "control_kl": 0.03573600947856903,
+        "treatment_kl": 0.03573600947856903,
+        "ratio": 1.0,
+        "limit": 0.04467001184821129,
+        "passed": true
+      },
+      {
+        "request_id": "validation-1500",
+        "control_kl": 0.05820965766906738,
+        "treatment_kl": 0.057344719767570496,
+        "ratio": 0.9851409897234885,
+        "limit": 0.07276207208633423,
+        "passed": true
+      },
+      {
+        "request_id": "validation-1759",
+        "control_kl": 0.04907069355249405,
+        "treatment_kl": 0.04324889928102493,
+        "ratio": 0.881359038358788,
+        "limit": 0.06133836694061756,
+        "passed": true
+      },
+      {
+        "request_id": "validation-2000",
+        "control_kl": 0.02953951433300972,
+        "treatment_kl": 0.028146374970674515,
+        "ratio": 0.9528381087573128,
+        "limit": 0.03692439291626215,
+        "passed": true
+      },
+      {
+        "request_id": "validation-2250",
+        "control_kl": 0.07050643861293793,
+        "treatment_kl": 0.07050643861293793,
+        "ratio": 1.0,
+        "limit": 0.08813304826617241,
+        "passed": true
+      },
+      {
+        "request_id": "validation-2500",
+        "control_kl": 0.022306278347969055,
+        "treatment_kl": 0.019434288144111633,
+        "ratio": 0.8712474506479513,
+        "limit": 0.02788284793496132,
+        "passed": true
+      },
+      {
+        "request_id": "validation-2755",
+        "control_kl": 0.0530874989926815,
+        "treatment_kl": 0.04351362586021423,
+        "ratio": 0.8196586142853123,
+        "limit": 0.06635937374085188,
+        "passed": true
+      }
+    ],
+    "control_aggregate_mean_absolute_logit_error": 0.2632628021140893,
+    "treatment_aggregate_mean_absolute_logit_error": 0.2549600688119729,
+    "aggregate_mean_absolute_logit_error_ratio": 0.968462185939515,
+    "control_aggregate_maximum_absolute_logit_error": 4.119384765625,
+    "treatment_aggregate_maximum_absolute_logit_error": 4.208902994791667,
+    "threshold_checks": {
+      "aggregate_kl_passed": true,
+      "each_request_kl_passed": true,
+      "aggregate_mean_absolute_logit_error_passed": true,
+      "all_quality_thresholds_passed": true
+    }
+  },
+  "route_diagnostics": {
+    "per_request": [
+      {
+        "request_id": "validation-3",
+        "scopes": {
+          "overall": {
+            "hamming_count": 1,
+            "hamming_distance": 0.013888888888888888,
+            "transition_4_to_8": 1,
+            "transition_8_to_4": 0
+          },
+          "attention": {
+            "hamming_count": 1,
+            "hamming_distance": 0.027777777777777776,
+            "transition_4_to_8": 1,
+            "transition_8_to_4": 0
+          },
+          "ffn": {
+            "hamming_count": 0,
+            "hamming_distance": 0.0,
+            "transition_4_to_8": 0,
+            "transition_8_to_4": 0
+          }
+        },
+        "treatment_minus_control_mean_selected_width": {
+          "overall": 0.05555555555555536,
+          "attention": 0.1111111111111116,
+          "ffn": 0.0
+        }
+      },
+      {
+        "request_id": "validation-270",
+        "scopes": {
+          "overall": {
+            "hamming_count": 3,
+            "hamming_distance": 0.041666666666666664,
+            "transition_4_to_8": 3,
+            "transition_8_to_4": 0
+          },
+          "attention": {
+            "hamming_count": 3,
+            "hamming_distance": 0.08333333333333333,
+            "transition_4_to_8": 3,
+            "transition_8_to_4": 0
+          },
+          "ffn": {
+            "hamming_count": 0,
+            "hamming_distance": 0.0,
+            "transition_4_to_8": 0,
+            "transition_8_to_4": 0
+          }
+        },
+        "treatment_minus_control_mean_selected_width": {
+          "overall": 0.16666666666666607,
+          "attention": 0.33333333333333304,
+          "ffn": 0.0
+        }
+      },
+      {
+        "request_id": "validation-500",
+        "scopes": {
+          "overall": {
+            "hamming_count": 3,
+            "hamming_distance": 0.041666666666666664,
+            "transition_4_to_8": 2,
+            "transition_8_to_4": 1
+          },
+          "attention": {
+            "hamming_count": 3,
+            "hamming_distance": 0.08333333333333333,
+            "transition_4_to_8": 2,
+            "transition_8_to_4": 1
+          },
+          "ffn": {
+            "hamming_count": 0,
+            "hamming_distance": 0.0,
+            "transition_4_to_8": 0,
+            "transition_8_to_4": 0
+          }
+        },
+        "treatment_minus_control_mean_selected_width": {
+          "overall": 0.055555555555556246,
+          "attention": 0.11111111111111072,
+          "ffn": 0.0
+        }
+      },
+      {
+        "request_id": "validation-761",
+        "scopes": {
+          "overall": {
+            "hamming_count": 1,
+            "hamming_distance": 0.013888888888888888,
+            "transition_4_to_8": 1,
+            "transition_8_to_4": 0
+          },
+          "attention": {
+            "hamming_count": 1,
+            "hamming_distance": 0.027777777777777776,
+            "transition_4_to_8": 1,
+            "transition_8_to_4": 0
+          },
+          "ffn": {
+            "hamming_count": 0,
+            "hamming_distance": 0.0,
+            "transition_4_to_8": 0,
+            "transition_8_to_4": 0
+          }
+        },
+        "treatment_minus_control_mean_selected_width": {
+          "overall": 0.05555555555555536,
+          "attention": 0.1111111111111116,
+          "ffn": 0.0
+        }
+      },
+      {
+        "request_id": "validation-1000",
+        "scopes": {
+          "overall": {
+            "hamming_count": 0,
+            "hamming_distance": 0.0,
+            "transition_4_to_8": 0,
+            "transition_8_to_4": 0
+          },
+          "attention": {
+            "hamming_count": 0,
+            "hamming_distance": 0.0,
+            "transition_4_to_8": 0,
+            "transition_8_to_4": 0
+          },
+          "ffn": {
+            "hamming_count": 0,
+            "hamming_distance": 0.0,
+            "transition_4_to_8": 0,
+            "transition_8_to_4": 0
+          }
+        },
+        "treatment_minus_control_mean_selected_width": {
+          "overall": 0.0,
+          "attention": 0.0,
+          "ffn": 0.0
+        }
+      },
+      {
+        "request_id": "validation-1252",
+        "scopes": {
+          "overall": {
+            "hamming_count": 0,
+            "hamming_distance": 0.0,
+            "transition_4_to_8": 0,
+            "transition_8_to_4": 0
+          },
+          "attention": {
+            "hamming_count": 0,
+            "hamming_distance": 0.0,
+            "transition_4_to_8": 0,
+            "transition_8_to_4": 0
+          },
+          "ffn": {
+            "hamming_count": 0,
+            "hamming_distance": 0.0,
+            "transition_4_to_8": 0,
+            "transition_8_to_4": 0
+          }
+        },
+        "treatment_minus_control_mean_selected_width": {
+          "overall": 0.0,
+          "attention": 0.0,
+          "ffn": 0.0
+        }
+      },
+      {
+        "request_id": "validation-1500",
+        "scopes": {
+          "overall": {
+            "hamming_count": 2,
+            "hamming_distance": 0.027777777777777776,
+            "transition_4_to_8": 2,
+            "transition_8_to_4": 0
+          },
+          "attention": {
+            "hamming_count": 2,
+            "hamming_distance": 0.05555555555555555,
+            "transition_4_to_8": 2,
+            "transition_8_to_4": 0
+          },
+          "ffn": {
+            "hamming_count": 0,
+            "hamming_distance": 0.0,
+            "transition_4_to_8": 0,
+            "transition_8_to_4": 0
+          }
+        },
+        "treatment_minus_control_mean_selected_width": {
+          "overall": 0.11111111111111072,
+          "attention": 0.22222222222222143,
+          "ffn": 0.0
+        }
+      },
+      {
+        "request_id": "validation-1759",
+        "scopes": {
+          "overall": {
+            "hamming_count": 2,
+            "hamming_distance": 0.027777777777777776,
+            "transition_4_to_8": 2,
+            "transition_8_to_4": 0
+          },
+          "attention": {
+            "hamming_count": 2,
+            "hamming_distance": 0.05555555555555555,
+            "transition_4_to_8": 2,
+            "transition_8_to_4": 0
+          },
+          "ffn": {
+            "hamming_count": 0,
+            "hamming_distance": 0.0,
+            "transition_4_to_8": 0,
+            "transition_8_to_4": 0
+          }
+        },
+        "treatment_minus_control_mean_selected_width": {
+          "overall": 0.1111111111111116,
+          "attention": 0.22222222222222232,
+          "ffn": 0.0
+        }
+      },
+      {
+        "request_id": "validation-2000",
+        "scopes": {
+          "overall": {
+            "hamming_count": 3,
+            "hamming_distance": 0.041666666666666664,
+            "transition_4_to_8": 2,
+            "transition_8_to_4": 1
+          },
+          "attention": {
+            "hamming_count": 3,
+            "hamming_distance": 0.08333333333333333,
+            "transition_4_to_8": 2,
+            "transition_8_to_4": 1
+          },
+          "ffn": {
+            "hamming_count": 0,
+            "hamming_distance": 0.0,
+            "transition_4_to_8": 0,
+            "transition_8_to_4": 0
+          }
+        },
+        "treatment_minus_control_mean_selected_width": {
+          "overall": 0.05555555555555536,
+          "attention": 0.11111111111111072,
+          "ffn": 0.0
+        }
+      },
+      {
+        "request_id": "validation-2250",
+        "scopes": {
+          "overall": {
+            "hamming_count": 0,
+            "hamming_distance": 0.0,
+            "transition_4_to_8": 0,
+            "transition_8_to_4": 0
+          },
+          "attention": {
+            "hamming_count": 0,
+            "hamming_distance": 0.0,
+            "transition_4_to_8": 0,
+            "transition_8_to_4": 0
+          },
+          "ffn": {
+            "hamming_count": 0,
+            "hamming_distance": 0.0,
+            "transition_4_to_8": 0,
+            "transition_8_to_4": 0
+          }
+        },
+        "treatment_minus_control_mean_selected_width": {
+          "overall": 0.0,
+          "attention": 0.0,
+          "ffn": 0.0
+        }
+      },
+      {
+        "request_id": "validation-2500",
+        "scopes": {
+          "overall": {
+            "hamming_count": 2,
+            "hamming_distance": 0.027777777777777776,
+            "transition_4_to_8": 2,
+            "transition_8_to_4": 0
+          },
+          "attention": {
+            "hamming_count": 2,
+            "hamming_distance": 0.05555555555555555,
+            "transition_4_to_8": 2,
+            "transition_8_to_4": 0
+          },
+          "ffn": {
+            "hamming_count": 0,
+            "hamming_distance": 0.0,
+            "transition_4_to_8": 0,
+            "transition_8_to_4": 0
+          }
+        },
+        "treatment_minus_control_mean_selected_width": {
+          "overall": 0.1111111111111116,
+          "attention": 0.22222222222222232,
+          "ffn": 0.0
+        }
+      },
+      {
+        "request_id": "validation-2755",
+        "scopes": {
+          "overall": {
+            "hamming_count": 1,
+            "hamming_distance": 0.013888888888888888,
+            "transition_4_to_8": 1,
+            "transition_8_to_4": 0
+          },
+          "attention": {
+            "hamming_count": 1,
+            "hamming_distance": 0.027777777777777776,
+            "transition_4_to_8": 1,
+            "transition_8_to_4": 0
+          },
+          "ffn": {
+            "hamming_count": 0,
+            "hamming_distance": 0.0,
+            "transition_4_to_8": 0,
+            "transition_8_to_4": 0
+          }
+        },
+        "treatment_minus_control_mean_selected_width": {
+          "overall": 0.05555555555555536,
+          "attention": 0.11111111111111072,
+          "ffn": 0.0
+        }
+      }
+    ],
+    "aggregate": {
+      "overall": {
+        "hamming_count": 18,
+        "hamming_distance": 0.020833333333333332,
+        "transition_4_to_8": 16,
+        "transition_8_to_4": 2,
+        "treatment_minus_control_mean_selected_width": 0.06481481481481488
+      },
+      "attention": {
+        "hamming_count": 18,
+        "hamming_distance": 0.041666666666666664,
+        "transition_4_to_8": 16,
+        "transition_8_to_4": 2,
+        "treatment_minus_control_mean_selected_width": 0.12962962962962976
+      },
+      "ffn": {
+        "hamming_count": 0,
+        "hamming_distance": 0.0,
+        "transition_4_to_8": 0,
+        "transition_8_to_4": 0,
+        "treatment_minus_control_mean_selected_width": 0.0
+      }
+    },
+    "changed_target_units": [
+      {
+        "request_id": "validation-3",
+        "target_layer": 23,
+        "unit_type": "attention",
+        "control_bits": 4,
+        "treatment_bits": 8,
+        "source_layer": 22,
+        "source_point": "post_attention_pre_ffn"
+      },
+      {
+        "request_id": "validation-270",
+        "target_layer": 21,
+        "unit_type": "attention",
+        "control_bits": 4,
+        "treatment_bits": 8,
+        "source_layer": 20,
+        "source_point": "post_attention_pre_ffn"
+      },
+      {
+        "request_id": "validation-270",
+        "target_layer": 22,
+        "unit_type": "attention",
+        "control_bits": 4,
+        "treatment_bits": 8,
+        "source_layer": 21,
+        "source_point": "post_attention_pre_ffn"
+      },
+      {
+        "request_id": "validation-270",
+        "target_layer": 33,
+        "unit_type": "attention",
+        "control_bits": 4,
+        "treatment_bits": 8,
+        "source_layer": 32,
+        "source_point": "post_attention_pre_ffn"
+      },
+      {
+        "request_id": "validation-500",
+        "target_layer": 1,
+        "unit_type": "attention",
+        "control_bits": 8,
+        "treatment_bits": 4,
+        "source_layer": 0,
+        "source_point": "post_attention_pre_ffn"
+      },
+      {
+        "request_id": "validation-500",
+        "target_layer": 22,
+        "unit_type": "attention",
+        "control_bits": 4,
+        "treatment_bits": 8,
+        "source_layer": 21,
+        "source_point": "post_attention_pre_ffn"
+      },
+      {
+        "request_id": "validation-500",
+        "target_layer": 33,
+        "unit_type": "attention",
+        "control_bits": 4,
+        "treatment_bits": 8,
+        "source_layer": 32,
+        "source_point": "post_attention_pre_ffn"
+      },
+      {
+        "request_id": "validation-761",
+        "target_layer": 23,
+        "unit_type": "attention",
+        "control_bits": 4,
+        "treatment_bits": 8,
+        "source_layer": 22,
+        "source_point": "post_attention_pre_ffn"
+      },
+      {
+        "request_id": "validation-1500",
+        "target_layer": 23,
+        "unit_type": "attention",
+        "control_bits": 4,
+        "treatment_bits": 8,
+        "source_layer": 22,
+        "source_point": "post_attention_pre_ffn"
+      },
+      {
+        "request_id": "validation-1500",
+        "target_layer": 33,
+        "unit_type": "attention",
+        "control_bits": 4,
+        "treatment_bits": 8,
+        "source_layer": 32,
+        "source_point": "post_attention_pre_ffn"
+      },
+      {
+        "request_id": "validation-1759",
+        "target_layer": 1,
+        "unit_type": "attention",
+        "control_bits": 4,
+        "treatment_bits": 8,
+        "source_layer": 0,
+        "source_point": "post_attention_pre_ffn"
+      },
+      {
+        "request_id": "validation-1759",
+        "target_layer": 20,
+        "unit_type": "attention",
+        "control_bits": 4,
+        "treatment_bits": 8,
+        "source_layer": 19,
+        "source_point": "post_attention_pre_ffn"
+      },
+      {
+        "request_id": "validation-2000",
+        "target_layer": 1,
+        "unit_type": "attention",
+        "control_bits": 8,
+        "treatment_bits": 4,
+        "source_layer": 0,
+        "source_point": "post_attention_pre_ffn"
+      },
+      {
+        "request_id": "validation-2000",
+        "target_layer": 22,
+        "unit_type": "attention",
+        "control_bits": 4,
+        "treatment_bits": 8,
+        "source_layer": 21,
+        "source_point": "post_attention_pre_ffn"
+      },
+      {
+        "request_id": "validation-2000",
+        "target_layer": 33,
+        "unit_type": "attention",
+        "control_bits": 4,
+        "treatment_bits": 8,
+        "source_layer": 32,
+        "source_point": "post_attention_pre_ffn"
+      },
+      {
+        "request_id": "validation-2500",
+        "target_layer": 22,
+        "unit_type": "attention",
+        "control_bits": 4,
+        "treatment_bits": 8,
+        "source_layer": 21,
+        "source_point": "post_attention_pre_ffn"
+      },
+      {
+        "request_id": "validation-2500",
+        "target_layer": 33,
+        "unit_type": "attention",
+        "control_bits": 4,
+        "treatment_bits": 8,
+        "source_layer": 32,
+        "source_point": "post_attention_pre_ffn"
+      },
+      {
+        "request_id": "validation-2755",
+        "target_layer": 33,
+        "unit_type": "attention",
+        "control_bits": 4,
+        "treatment_bits": 8,
+        "source_layer": 32,
+        "source_point": "post_attention_pre_ffn"
+      }
+    ],
+    "changed_target_unit_count": 18,
+    "control_route_summaries": {
+      "per_request": {
+        "overall": [
+          {
+            "request_id": "validation-3",
+            "count_4": 15,
+            "count_8": 57,
+            "fraction_4": 0.20833333333333334,
+            "fraction_8": 0.7916666666666666,
+            "mean_selected_bit_width": 7.166666666666667
+          },
+          {
+            "request_id": "validation-270",
+            "count_4": 11,
+            "count_8": 61,
+            "fraction_4": 0.1527777777777778,
+            "fraction_8": 0.8472222222222222,
+            "mean_selected_bit_width": 7.388888888888889
+          },
+          {
+            "request_id": "validation-500",
+            "count_4": 12,
+            "count_8": 60,
+            "fraction_4": 0.16666666666666666,
+            "fraction_8": 0.8333333333333334,
+            "mean_selected_bit_width": 7.333333333333333
+          },
+          {
+            "request_id": "validation-761",
+            "count_4": 15,
+            "count_8": 57,
+            "fraction_4": 0.20833333333333334,
+            "fraction_8": 0.7916666666666666,
+            "mean_selected_bit_width": 7.166666666666667
+          },
+          {
+            "request_id": "validation-1000",
+            "count_4": 14,
+            "count_8": 58,
+            "fraction_4": 0.19444444444444445,
+            "fraction_8": 0.8055555555555556,
+            "mean_selected_bit_width": 7.222222222222222
+          },
+          {
+            "request_id": "validation-1252",
+            "count_4": 13,
+            "count_8": 59,
+            "fraction_4": 0.18055555555555555,
+            "fraction_8": 0.8194444444444444,
+            "mean_selected_bit_width": 7.277777777777778
+          },
+          {
+            "request_id": "validation-1500",
+            "count_4": 14,
+            "count_8": 58,
+            "fraction_4": 0.19444444444444445,
+            "fraction_8": 0.8055555555555556,
+            "mean_selected_bit_width": 7.222222222222222
+          },
+          {
+            "request_id": "validation-1759",
+            "count_4": 17,
+            "count_8": 55,
+            "fraction_4": 0.2361111111111111,
+            "fraction_8": 0.7638888888888888,
+            "mean_selected_bit_width": 7.055555555555555
+          },
+          {
+            "request_id": "validation-2000",
+            "count_4": 11,
+            "count_8": 61,
+            "fraction_4": 0.1527777777777778,
+            "fraction_8": 0.8472222222222222,
+            "mean_selected_bit_width": 7.388888888888889
+          },
+          {
+            "request_id": "validation-2250",
+            "count_4": 15,
+            "count_8": 57,
+            "fraction_4": 0.20833333333333334,
+            "fraction_8": 0.7916666666666666,
+            "mean_selected_bit_width": 7.166666666666667
+          },
+          {
+            "request_id": "validation-2500",
+            "count_4": 12,
+            "count_8": 60,
+            "fraction_4": 0.16666666666666666,
+            "fraction_8": 0.8333333333333334,
+            "mean_selected_bit_width": 7.333333333333333
+          },
+          {
+            "request_id": "validation-2755",
+            "count_4": 13,
+            "count_8": 59,
+            "fraction_4": 0.18055555555555555,
+            "fraction_8": 0.8194444444444444,
+            "mean_selected_bit_width": 7.277777777777778
+          }
+        ],
+        "attention": [
+          {
+            "request_id": "validation-3",
+            "count_4": 11,
+            "count_8": 25,
+            "fraction_4": 0.3055555555555556,
+            "fraction_8": 0.6944444444444444,
+            "mean_selected_bit_width": 6.777777777777778
+          },
+          {
+            "request_id": "validation-270",
+            "count_4": 9,
+            "count_8": 27,
+            "fraction_4": 0.25,
+            "fraction_8": 0.75,
+            "mean_selected_bit_width": 7.0
+          },
+          {
+            "request_id": "validation-500",
+            "count_4": 10,
+            "count_8": 26,
+            "fraction_4": 0.2777777777777778,
+            "fraction_8": 0.7222222222222222,
+            "mean_selected_bit_width": 6.888888888888889
+          },
+          {
+            "request_id": "validation-761",
+            "count_4": 11,
+            "count_8": 25,
+            "fraction_4": 0.3055555555555556,
+            "fraction_8": 0.6944444444444444,
+            "mean_selected_bit_width": 6.777777777777778
+          },
+          {
+            "request_id": "validation-1000",
+            "count_4": 10,
+            "count_8": 26,
+            "fraction_4": 0.2777777777777778,
+            "fraction_8": 0.7222222222222222,
+            "mean_selected_bit_width": 6.888888888888889
+          },
+          {
+            "request_id": "validation-1252",
+            "count_4": 9,
+            "count_8": 27,
+            "fraction_4": 0.25,
+            "fraction_8": 0.75,
+            "mean_selected_bit_width": 7.0
+          },
+          {
+            "request_id": "validation-1500",
+            "count_4": 10,
+            "count_8": 26,
+            "fraction_4": 0.2777777777777778,
+            "fraction_8": 0.7222222222222222,
+            "mean_selected_bit_width": 6.888888888888889
+          },
+          {
+            "request_id": "validation-1759",
+            "count_4": 12,
+            "count_8": 24,
+            "fraction_4": 0.3333333333333333,
+            "fraction_8": 0.6666666666666666,
+            "mean_selected_bit_width": 6.666666666666667
+          },
+          {
+            "request_id": "validation-2000",
+            "count_4": 9,
+            "count_8": 27,
+            "fraction_4": 0.25,
+            "fraction_8": 0.75,
+            "mean_selected_bit_width": 7.0
+          },
+          {
+            "request_id": "validation-2250",
+            "count_4": 10,
+            "count_8": 26,
+            "fraction_4": 0.2777777777777778,
+            "fraction_8": 0.7222222222222222,
+            "mean_selected_bit_width": 6.888888888888889
+          },
+          {
+            "request_id": "validation-2500",
+            "count_4": 9,
+            "count_8": 27,
+            "fraction_4": 0.25,
+            "fraction_8": 0.75,
+            "mean_selected_bit_width": 7.0
+          },
+          {
+            "request_id": "validation-2755",
+            "count_4": 9,
+            "count_8": 27,
+            "fraction_4": 0.25,
+            "fraction_8": 0.75,
+            "mean_selected_bit_width": 7.0
+          }
+        ],
+        "ffn": [
+          {
+            "request_id": "validation-3",
+            "count_4": 4,
+            "count_8": 32,
+            "fraction_4": 0.1111111111111111,
+            "fraction_8": 0.8888888888888888,
+            "mean_selected_bit_width": 7.555555555555555
+          },
+          {
+            "request_id": "validation-270",
+            "count_4": 2,
+            "count_8": 34,
+            "fraction_4": 0.05555555555555555,
+            "fraction_8": 0.9444444444444444,
+            "mean_selected_bit_width": 7.777777777777778
+          },
+          {
+            "request_id": "validation-500",
+            "count_4": 2,
+            "count_8": 34,
+            "fraction_4": 0.05555555555555555,
+            "fraction_8": 0.9444444444444444,
+            "mean_selected_bit_width": 7.777777777777778
+          },
+          {
+            "request_id": "validation-761",
+            "count_4": 4,
+            "count_8": 32,
+            "fraction_4": 0.1111111111111111,
+            "fraction_8": 0.8888888888888888,
+            "mean_selected_bit_width": 7.555555555555555
+          },
+          {
+            "request_id": "validation-1000",
+            "count_4": 4,
+            "count_8": 32,
+            "fraction_4": 0.1111111111111111,
+            "fraction_8": 0.8888888888888888,
+            "mean_selected_bit_width": 7.555555555555555
+          },
+          {
+            "request_id": "validation-1252",
+            "count_4": 4,
+            "count_8": 32,
+            "fraction_4": 0.1111111111111111,
+            "fraction_8": 0.8888888888888888,
+            "mean_selected_bit_width": 7.555555555555555
+          },
+          {
+            "request_id": "validation-1500",
+            "count_4": 4,
+            "count_8": 32,
+            "fraction_4": 0.1111111111111111,
+            "fraction_8": 0.8888888888888888,
+            "mean_selected_bit_width": 7.555555555555555
+          },
+          {
+            "request_id": "validation-1759",
+            "count_4": 5,
+            "count_8": 31,
+            "fraction_4": 0.1388888888888889,
+            "fraction_8": 0.8611111111111112,
+            "mean_selected_bit_width": 7.444444444444445
+          },
+          {
+            "request_id": "validation-2000",
+            "count_4": 2,
+            "count_8": 34,
+            "fraction_4": 0.05555555555555555,
+            "fraction_8": 0.9444444444444444,
+            "mean_selected_bit_width": 7.777777777777778
+          },
+          {
+            "request_id": "validation-2250",
+            "count_4": 5,
+            "count_8": 31,
+            "fraction_4": 0.1388888888888889,
+            "fraction_8": 0.8611111111111112,
+            "mean_selected_bit_width": 7.444444444444445
+          },
+          {
+            "request_id": "validation-2500",
+            "count_4": 3,
+            "count_8": 33,
+            "fraction_4": 0.08333333333333333,
+            "fraction_8": 0.9166666666666666,
+            "mean_selected_bit_width": 7.666666666666667
+          },
+          {
+            "request_id": "validation-2755",
+            "count_4": 4,
+            "count_8": 32,
+            "fraction_4": 0.1111111111111111,
+            "fraction_8": 0.8888888888888888,
+            "mean_selected_bit_width": 7.555555555555555
+          }
+        ]
+      },
+      "aggregate": {
+        "overall": {
+          "count_4": 162,
+          "count_8": 702,
+          "fraction_4": 0.1875,
+          "fraction_8": 0.8125,
+          "mean_selected_bit_width": 7.25
+        },
+        "attention": {
+          "count_4": 119,
+          "count_8": 313,
+          "fraction_4": 0.27546296296296297,
+          "fraction_8": 0.7245370370370371,
+          "mean_selected_bit_width": 6.898148148148148
+        },
+        "ffn": {
+          "count_4": 43,
+          "count_8": 389,
+          "fraction_4": 0.09953703703703703,
+          "fraction_8": 0.9004629629629629,
+          "mean_selected_bit_width": 7.601851851851852
+        }
+      },
+      "distinct_route_map_count": 9
+    },
+    "treatment_route_summaries": {
+      "per_request": {
+        "overall": [
+          {
+            "request_id": "validation-3",
+            "count_4": 14,
+            "count_8": 58,
+            "fraction_4": 0.19444444444444445,
+            "fraction_8": 0.8055555555555556,
+            "mean_selected_bit_width": 7.222222222222222
+          },
+          {
+            "request_id": "validation-270",
+            "count_4": 8,
+            "count_8": 64,
+            "fraction_4": 0.1111111111111111,
+            "fraction_8": 0.8888888888888888,
+            "mean_selected_bit_width": 7.555555555555555
+          },
+          {
+            "request_id": "validation-500",
+            "count_4": 11,
+            "count_8": 61,
+            "fraction_4": 0.1527777777777778,
+            "fraction_8": 0.8472222222222222,
+            "mean_selected_bit_width": 7.388888888888889
+          },
+          {
+            "request_id": "validation-761",
+            "count_4": 14,
+            "count_8": 58,
+            "fraction_4": 0.19444444444444445,
+            "fraction_8": 0.8055555555555556,
+            "mean_selected_bit_width": 7.222222222222222
+          },
+          {
+            "request_id": "validation-1000",
+            "count_4": 14,
+            "count_8": 58,
+            "fraction_4": 0.19444444444444445,
+            "fraction_8": 0.8055555555555556,
+            "mean_selected_bit_width": 7.222222222222222
+          },
+          {
+            "request_id": "validation-1252",
+            "count_4": 13,
+            "count_8": 59,
+            "fraction_4": 0.18055555555555555,
+            "fraction_8": 0.8194444444444444,
+            "mean_selected_bit_width": 7.277777777777778
+          },
+          {
+            "request_id": "validation-1500",
+            "count_4": 12,
+            "count_8": 60,
+            "fraction_4": 0.16666666666666666,
+            "fraction_8": 0.8333333333333334,
+            "mean_selected_bit_width": 7.333333333333333
+          },
+          {
+            "request_id": "validation-1759",
+            "count_4": 15,
+            "count_8": 57,
+            "fraction_4": 0.20833333333333334,
+            "fraction_8": 0.7916666666666666,
+            "mean_selected_bit_width": 7.166666666666667
+          },
+          {
+            "request_id": "validation-2000",
+            "count_4": 10,
+            "count_8": 62,
+            "fraction_4": 0.1388888888888889,
+            "fraction_8": 0.8611111111111112,
+            "mean_selected_bit_width": 7.444444444444445
+          },
+          {
+            "request_id": "validation-2250",
+            "count_4": 15,
+            "count_8": 57,
+            "fraction_4": 0.20833333333333334,
+            "fraction_8": 0.7916666666666666,
+            "mean_selected_bit_width": 7.166666666666667
+          },
+          {
+            "request_id": "validation-2500",
+            "count_4": 10,
+            "count_8": 62,
+            "fraction_4": 0.1388888888888889,
+            "fraction_8": 0.8611111111111112,
+            "mean_selected_bit_width": 7.444444444444445
+          },
+          {
+            "request_id": "validation-2755",
+            "count_4": 12,
+            "count_8": 60,
+            "fraction_4": 0.16666666666666666,
+            "fraction_8": 0.8333333333333334,
+            "mean_selected_bit_width": 7.333333333333333
+          }
+        ],
+        "attention": [
+          {
+            "request_id": "validation-3",
+            "count_4": 10,
+            "count_8": 26,
+            "fraction_4": 0.2777777777777778,
+            "fraction_8": 0.7222222222222222,
+            "mean_selected_bit_width": 6.888888888888889
+          },
+          {
+            "request_id": "validation-270",
+            "count_4": 6,
+            "count_8": 30,
+            "fraction_4": 0.16666666666666666,
+            "fraction_8": 0.8333333333333334,
+            "mean_selected_bit_width": 7.333333333333333
+          },
+          {
+            "request_id": "validation-500",
+            "count_4": 9,
+            "count_8": 27,
+            "fraction_4": 0.25,
+            "fraction_8": 0.75,
+            "mean_selected_bit_width": 7.0
+          },
+          {
+            "request_id": "validation-761",
+            "count_4": 10,
+            "count_8": 26,
+            "fraction_4": 0.2777777777777778,
+            "fraction_8": 0.7222222222222222,
+            "mean_selected_bit_width": 6.888888888888889
+          },
+          {
+            "request_id": "validation-1000",
+            "count_4": 10,
+            "count_8": 26,
+            "fraction_4": 0.2777777777777778,
+            "fraction_8": 0.7222222222222222,
+            "mean_selected_bit_width": 6.888888888888889
+          },
+          {
+            "request_id": "validation-1252",
+            "count_4": 9,
+            "count_8": 27,
+            "fraction_4": 0.25,
+            "fraction_8": 0.75,
+            "mean_selected_bit_width": 7.0
+          },
+          {
+            "request_id": "validation-1500",
+            "count_4": 8,
+            "count_8": 28,
+            "fraction_4": 0.2222222222222222,
+            "fraction_8": 0.7777777777777778,
+            "mean_selected_bit_width": 7.111111111111111
+          },
+          {
+            "request_id": "validation-1759",
+            "count_4": 10,
+            "count_8": 26,
+            "fraction_4": 0.2777777777777778,
+            "fraction_8": 0.7222222222222222,
+            "mean_selected_bit_width": 6.888888888888889
+          },
+          {
+            "request_id": "validation-2000",
+            "count_4": 8,
+            "count_8": 28,
+            "fraction_4": 0.2222222222222222,
+            "fraction_8": 0.7777777777777778,
+            "mean_selected_bit_width": 7.111111111111111
+          },
+          {
+            "request_id": "validation-2250",
+            "count_4": 10,
+            "count_8": 26,
+            "fraction_4": 0.2777777777777778,
+            "fraction_8": 0.7222222222222222,
+            "mean_selected_bit_width": 6.888888888888889
+          },
+          {
+            "request_id": "validation-2500",
+            "count_4": 7,
+            "count_8": 29,
+            "fraction_4": 0.19444444444444445,
+            "fraction_8": 0.8055555555555556,
+            "mean_selected_bit_width": 7.222222222222222
+          },
+          {
+            "request_id": "validation-2755",
+            "count_4": 8,
+            "count_8": 28,
+            "fraction_4": 0.2222222222222222,
+            "fraction_8": 0.7777777777777778,
+            "mean_selected_bit_width": 7.111111111111111
+          }
+        ],
+        "ffn": [
+          {
+            "request_id": "validation-3",
+            "count_4": 4,
+            "count_8": 32,
+            "fraction_4": 0.1111111111111111,
+            "fraction_8": 0.8888888888888888,
+            "mean_selected_bit_width": 7.555555555555555
+          },
+          {
+            "request_id": "validation-270",
+            "count_4": 2,
+            "count_8": 34,
+            "fraction_4": 0.05555555555555555,
+            "fraction_8": 0.9444444444444444,
+            "mean_selected_bit_width": 7.777777777777778
+          },
+          {
+            "request_id": "validation-500",
+            "count_4": 2,
+            "count_8": 34,
+            "fraction_4": 0.05555555555555555,
+            "fraction_8": 0.9444444444444444,
+            "mean_selected_bit_width": 7.777777777777778
+          },
+          {
+            "request_id": "validation-761",
+            "count_4": 4,
+            "count_8": 32,
+            "fraction_4": 0.1111111111111111,
+            "fraction_8": 0.8888888888888888,
+            "mean_selected_bit_width": 7.555555555555555
+          },
+          {
+            "request_id": "validation-1000",
+            "count_4": 4,
+            "count_8": 32,
+            "fraction_4": 0.1111111111111111,
+            "fraction_8": 0.8888888888888888,
+            "mean_selected_bit_width": 7.555555555555555
+          },
+          {
+            "request_id": "validation-1252",
+            "count_4": 4,
+            "count_8": 32,
+            "fraction_4": 0.1111111111111111,
+            "fraction_8": 0.8888888888888888,
+            "mean_selected_bit_width": 7.555555555555555
+          },
+          {
+            "request_id": "validation-1500",
+            "count_4": 4,
+            "count_8": 32,
+            "fraction_4": 0.1111111111111111,
+            "fraction_8": 0.8888888888888888,
+            "mean_selected_bit_width": 7.555555555555555
+          },
+          {
+            "request_id": "validation-1759",
+            "count_4": 5,
+            "count_8": 31,
+            "fraction_4": 0.1388888888888889,
+            "fraction_8": 0.8611111111111112,
+            "mean_selected_bit_width": 7.444444444444445
+          },
+          {
+            "request_id": "validation-2000",
+            "count_4": 2,
+            "count_8": 34,
+            "fraction_4": 0.05555555555555555,
+            "fraction_8": 0.9444444444444444,
+            "mean_selected_bit_width": 7.777777777777778
+          },
+          {
+            "request_id": "validation-2250",
+            "count_4": 5,
+            "count_8": 31,
+            "fraction_4": 0.1388888888888889,
+            "fraction_8": 0.8611111111111112,
+            "mean_selected_bit_width": 7.444444444444445
+          },
+          {
+            "request_id": "validation-2500",
+            "count_4": 3,
+            "count_8": 33,
+            "fraction_4": 0.08333333333333333,
+            "fraction_8": 0.9166666666666666,
+            "mean_selected_bit_width": 7.666666666666667
+          },
+          {
+            "request_id": "validation-2755",
+            "count_4": 4,
+            "count_8": 32,
+            "fraction_4": 0.1111111111111111,
+            "fraction_8": 0.8888888888888888,
+            "mean_selected_bit_width": 7.555555555555555
+          }
+        ]
+      },
+      "aggregate": {
+        "overall": {
+          "count_4": 148,
+          "count_8": 716,
+          "fraction_4": 0.1712962962962963,
+          "fraction_8": 0.8287037037037037,
+          "mean_selected_bit_width": 7.314814814814815
+        },
+        "attention": {
+          "count_4": 105,
+          "count_8": 327,
+          "fraction_4": 0.24305555555555555,
+          "fraction_8": 0.7569444444444444,
+          "mean_selected_bit_width": 7.027777777777778
+        },
+        "ffn": {
+          "count_4": 43,
+          "count_8": 389,
+          "fraction_4": 0.09953703703703703,
+          "fraction_8": 0.9004629629629629,
+          "mean_selected_bit_width": 7.601851851851852
+        }
+      },
+      "distinct_route_map_count": 8
+    }
+  },
+  "determinism": {
+    "control_repeats_validated": true,
+    "treatment_repeats_validated": true,
+    "teacher_logits_equal_across_modes": true
+  },
+  "freeze_audits": {
+    "control_passed": true,
+    "treatment_passed": true
+  },
+  "result_checks": {
+    "independent_per_mode_validation": true,
+    "raw_summaries_recomputed": true,
+    "prohibited_fields_absent": true,
+    "complete_evidence": true
+  },
+  "classification": "CONTINUE",
+  "errors": []
+}

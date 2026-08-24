@@ -1675,3 +1675,67 @@ boundary; the command never creates the destination parent.
 **Consequence:** S11-C2 establishes readiness only. It makes no broader-quality,
 selected-precision, or advancement claim and authorizes no experiment,
 training, 4/6/8 stage, loader mechanism, or performance work.
+
+### D060 — S11-C3 canonical broader-quality execution (2026-08-24)
+
+**Authorization and execution:** Execute the frozen S11-C1/D058 twelve-request
+paired broader-quality experiment exactly once through the verified S11-C2
+executor. Preflight completed before creating the canonical result parent. All
+protected protocol, fixture, S10-H, S11-B3 control, model/tokenizer, packed
+artifact, S07 checkpoint, and Any-Precision identities matched. Two inert plans
+were byte-identical. The real order was `same_unit_control`, then
+`lookahead_attention_one_unit_treatment`, then paired aggregation. Each mode ran
+in one fresh process with two deterministic repeats on `cuda:0`, physical GPU
+`GPU-384b6377-8f0c-e3d2-8b3a-b3408b54fd53` (NVIDIA GeForce RTX 3090, driver
+`580.159.03`).
+
+**Integrity evidence:** Independent validators accepted twelve exact ordered
+inputs, two bitwise-equal repeats, 864 complete target-owned 4/8 routes per
+mode, exact overlapping S11-B3 control routes and metrics, same-device and
+software identities, S11-A treatment provenance, finite metrics, immutable
+teacher/base/packed/router state, cleanup, and prohibited-work audits. A
+separate recomputation reproduced the canonical aggregation exactly with no
+errors. No request, threshold, metric, repeat, identity, routing rule, or
+interpretation changed after observing results.
+
+**Quality result — CONTINUE:** Treatment aggregate KL was
+`0.053326172598948084` versus control `0.05696516142537197`, ratio
+`0.9361190465300235`. The twelve paired KL ratios, in frozen order, were
+`0.9431116083999646`, `0.8171828196666195`, `0.8609327298114132`,
+`0.9519197144964956`, `1.0`, `1.0`, `0.9851409897234885`,
+`0.881359038358788`, `0.9528381087573128`, `1.0`, `0.8712474506479513`,
+and `0.8196586142853123`; all passed the `1.25` factor. Treatment aggregate
+mean absolute logit error was `0.2549600688119729` versus control
+`0.2632628021140893`, ratio `0.968462185939515`. Both aggregate ratios passed
+the `1.10` factors. Maximum absolute error remained diagnostic: control
+`4.119384765625`, treatment `4.208902994791667`.
+
+**Route diagnostics:** Eighteen of 864 paired decisions changed, all attention:
+16 were 4-to-8 and two were 8-to-4. Hamming distances were
+`0.020833333333333332` overall, `0.041666666666666664` for attention, and
+`0.0` for FFN. Treatment-minus-control mean selected-width deltas were
+`0.06481481481481488` overall, `0.12962962962962976` for attention, and `0.0`
+for FFN. The observed width increase is descriptive and cannot override or
+qualify the frozen quality classification.
+
+**Canonical evidence:** `same_unit_control.json` SHA-256
+`df2035e67e780ee9fd148eba73846ce49cb906aab6c7213c67ca9fc79287aa9c`;
+`lookahead_attention_one_unit_treatment.json` SHA-256
+`2a0acd8091473f1b9e60b07fa60e98f7b9918e7913cac061835722ad3c3a06f0`;
+and `aggregation.json` SHA-256
+`49131444e8d25a884c15f1803b8f5d430158ee5142f2689cbffef2b193e532a2`,
+all under `docs/results/s11c_broader_quality/`.
+
+**Consequence and limitation:** This complete valid evidence passes the frozen
+broader teacher-relative quality margins, but does not prove selected-precision
+savings, performance benefit, or later training success. CONTINUE permits only
+defining a separately scoped paired lookahead-specific 4/6/8 training protocol
+with its own pre-result freeze and execution authorization. No training,
+6-bit route, checkpoint, loader change, generation, decode, perplexity, or
+performance/resource measurement occurred. Stop after this canonical result;
+do not begin the later stage automatically.
+
+**Reversal path:** Preserve these canonical bytes. A discovered executor,
+identity, schema, determinism, provenance, freeze, cleanup, or persistence
+defect invalidates affected evidence and returns REVISE; it does not authorize
+editing the frozen scientific contract or overwriting these results.
