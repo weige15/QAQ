@@ -1,3 +1,70 @@
+Current stage: S11-B2
+Status: COMPLETE — executor ready, pilot not executed
+
+## S11-B2 fail-closed paired quality-pilot executor
+
+S11-B2 implements the frozen S11-B1 protocol on the current semantic component
+layout. Commit `75ea036b826a534e940cc726b72268cf81f3bc08` was inspected only as
+prior implementation evidence; no unrelated change from its history was
+ported. The protocol config remains schema `qaq-s11b-quality-pilot-v1`, exact
+SHA-256 `21a664424debe4892c3577c490158228dd5399bb4b425611db728070d23a5051`.
+
+The exact planned result paths and their parent remained absent throughout:
+
+- `docs/results/s11b_quality_pilot/same_unit_control.json`;
+- `docs/results/s11b_quality_pilot/lookahead_attention_one_unit_treatment.json`;
+- `docs/results/s11b_quality_pilot/aggregation.json`.
+
+Implementation paths are `scripts/run_lookahead_quality_pilot.py`,
+`qaq.evaluation.lookahead_quality_protocol`,
+`qaq.evaluation.lookahead_quality_runner`, and
+`qaq.evaluation.lookahead_quality_runtime`. The existing compatibility
+validator remains a thin adapter. The default path is deterministic and
+standard-library-only, validates the canonical protocol, prints the exact two
+one-mode child commands and aggregation command, and reports false
+model/CUDA/pilot/write activity. Exact-mode execution is behind validated
+mode/device/output dispatch and a lazy production import. Per-mode validation,
+keyed historical control comparison, paired aggregation, classification,
+complete state audits, cleanup proof, and same-directory atomic no-overwrite
+hard-link persistence all reject incomplete or inconsistent evidence.
+
+CPU-only synthetic verification:
+
+1. canonical B1 validator passed;
+2. two inert plans were byte-identical, with normalized SHA-256
+   `c848870a429940efbc194838e929da543b66c7553e0abc0a71ac245b2d02461c`;
+3. focused B2 structural tests passed `107`, including direct heavy-import,
+   canonical dispatch/no-overwrite, exact environment/CUDA resource
+   classification, resident representation drift, resource-versus-identity
+   preflight, and result-identity mutation coverage;
+4. unchanged B1 protocol behavior plus the source-mode check passed `51`;
+5. S11-A/request-state/router regressions passed `24`;
+6. masked-KL/hard-route, result aggregation, and injected-runtime persistence
+   regressions passed `31`;
+7. dependency-direction and semantic-name checks passed `4`;
+8. the complete safe CPU unit selection passed `470`, with one established
+   duplicate-optimizer warning;
+9. Ruff and `git diff --check` passed.
+
+A deliberately CPU-forced invocation of the unfiltered unit directory reported
+`411` passing and `12` expected failures from nine legacy CUDA-required files;
+those GPU tests were not rerun because this stage explicitly forbids CUDA work.
+
+No artifact-backed test or CUDA operation ran. No Qwen3-4B model, packed artifact,
+S07 checkpoint, CUDA kernel, teacher/student inference, real metric, generation,
+decode, perplexity, training, evaluation, benchmark, profiler, production
+aggregation, or result path ran. Historical result/config/protocol bytes,
+`papers/`, and `third_party/` remain unchanged. Quality transfer and every real
+pilot classification remain unknown.
+
+Next action: S11-B3 requires separate authorization. Provision only the empty
+frozen result parent, execute the two printed one-mode child commands on one
+explicit comparable GPU in frozen order, then execute the printed aggregation
+command. Do not change the protocol, infer quality from structural tests, begin
+broader quality work, or add asynchronous transfer/prefetch.
+
+## Historical repository status
+
 Repository organization: semantic naming migration COMPLETE
 
 Active scripts, configuration files, tests, and reusable Python implementation

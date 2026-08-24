@@ -183,6 +183,11 @@ def test_interpretation_paths_and_result_schemas_are_explicit_and_unique():
     )
 
 
+def test_reusable_protocol_source_is_non_executable():
+    source = ROOT / "src" / "qaq" / "evaluation" / "lookahead_quality_protocol.py"
+    assert source.stat().st_mode & 0o111 == 0
+
+
 def test_validator_imports_without_ml_or_backend_packages():
     script = ROOT / "scripts" / "validate_lookahead_quality_protocol.py"
     code = f"""

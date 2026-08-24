@@ -217,3 +217,88 @@ or S11-B1 structural tests.
 Next action: begin S11-B2 implementation of the fail-closed executor and
 non-executing plan from frozen B1, while explicitly not running the real
 Qwen3-4B pilot in B2.
+
+## S11-B2 — fail-closed executor readiness
+
+**COMPLETE — executor ready, pilot not executed.** S11-B2 implements the
+frozen B1 protocol without changing its config, identities, inputs, timing
+semantics, margins, classifications, schemas, or output paths. Reusable code
+uses the semantic components `qaq.evaluation.lookahead_quality_protocol`,
+`qaq.evaluation.lookahead_quality_runner`, and
+`qaq.evaluation.lookahead_quality_runtime`; the CLI is
+`scripts/run_lookahead_quality_pilot.py`.
+
+### Established facts and implementation choices
+
+Established by B1 and preserved here: exact mode/request order, one fresh
+child per mode, two repeats in each child, seed 1729, full 64-token fixed
+inputs, prompt/completion/causal ranges, candidate order `[4,8]`, resident hard
+routing, S11-A target ownership, historical S07 control routes, completion-only
+temperature-2 KL, full-logit errors, state freeze requirements, quality
+margins, classification precedence, schemas, and planned paths.
+
+S11-B2 implementation choices are recorded in D057. The default path applies
+the canonical validator and prints deterministic one-mode child and
+aggregation commands. It imports no ML/backend package, opens no external
+model resource, creates no path, and explicitly reports false model, CUDA,
+pilot, and write activity. Unknown or ambiguous dispatch fails before the
+production runtime import. Explicit mode execution requires one exact frozen
+mode, an explicit `cuda:<index>`, its exact frozen output, and an already
+existing non-symlink frozen output parent.
+
+Each per-mode result uses schema `qaq-s11b-quality-pilot-mode-result-v1` and
+retains raw ordered request/repeat evidence, teacher/student logit digests,
+complete target-owned route maps and provenance, cleanup proof, recomputed
+quality and route summaries, and sorted value-hash entries for teacher,
+resident packed state, non-router base, and router parameters/persistent
+buffers. The validator requires dtype, shape, non-trainability, absent
+gradients, absent optimizer, per-component and aggregate before/after equality,
+and rejects prohibited result data.
+
+Aggregation validates both modes independently in frozen order, requires equal
+protocol/input/device/software/teacher identities, and recomputes paired
+quality margins, route distances, changed units, and layer-0 attention/FFN
+equality. Missing external results return `PAUSE`; malformed complete evidence
+returns `INVALID_EVIDENCE`; valid quality evidence alone can return
+`ADVANCE_TO_BROADER_QUALITY_CHECK` or `CHECKPOINT_REUSE_DEGRADES`.
+
+Persistence accepts only complete in-memory validated evidence. It checks the
+exact destination and parent before work and promotion, refuses every existing
+file/directory/symlink, writes and fsyncs a same-directory temporary file,
+rereads/reparses/revalidates it, promotes with atomic no-overwrite `os.link`,
+verifies promoted bytes and SHA-256, and cleans temporary files on safe failure.
+Tests exercise this only in temporary directories.
+
+### Structural verification boundary
+
+Focused tests use an explicit deterministic injected runtime through the same
+schedule/result construction boundary and label its output **test-only
+structural evidence**. They cover inert plans and forbidden imports, including
+direct import of the production runtime module; lazy dispatch; exact canonical
+absent-parent, existing-destination, destination-symlink, and immediate-linked-
+parent refusal before production imports; exact scheduling; per-mode identity,
+execution, metric, route, provenance, cleanup, state, and prohibited-work
+rejection; keyed historical control checks; both valid quality classifications
+and each independent quality margin; tokenizer, packed-artifact,
+Any-Precision, checkpoint metadata/order, fixed-input/range, and
+hardware/software identity mutations; resource-versus-identity preflight for
+model, packed and router checkpoints, backend checkout, architecture, and
+comparable GPU; missing/wrong environment and CUDA availability/index/driver
+resource classification; exact 72-router, 23,620,752-scalar, and 252 resident
+packed-target representation validation; malformed evidence; missing-result
+`PAUSE`; and atomic success, overwrite, race, malformed serialization, cleanup,
+byte/digest, parent, link, and unrelated-path safety. Focused B2 tests pass
+`107`; B1 protocol behavior and the reusable source-file mode check pass `51`;
+the safe CPU selection passes `470` with one established warning.
+
+No Qwen3-4B model, packed artifact, S07 checkpoint, CUDA kernel, teacher or
+student inference, metric, generation, decode, perplexity, training,
+evaluation, benchmark, profiler, production aggregation, or real result path
+ran. No quality or performance claim is made, and no file under
+`docs/results/`, `papers/`, or `third_party/` changed.
+
+The quality question remains unknown. The exact next action is S11-B3: under a
+separate authorization, provision the frozen empty result parent, execute the
+two printed one-mode child commands on one explicit comparable GPU in frozen
+order, then run the printed aggregation command. Do not infer or execute S11-B3
+from S11-B2 readiness alone.

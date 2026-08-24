@@ -1509,3 +1509,67 @@ invalidate lookahead after paired retraining.
 metric, route, provenance, freeze, schema, or classification defect, preserve
 this frozen config, mark S11-B1 REVISE, and record a replacement decision
 before any pilot execution or result creation.
+
+### D057 — S11-B2 executor, validation, and persistence boundary (2026-08-24)
+
+**Established facts:** D056 owns the frozen protocol, exact identities, two
+modes and requests, process/repeat rule, routes/provenance, quality operations,
+thresholds, classifications, schemas, and planned paths. S11-A owns routing
+timing and target state. S07/S09 own the historical checkpoint, fixed inputs,
+and model/packed/backend identities. S11-B2 does not reinterpret them.
+
+**Implementation choice — semantic lazy dispatch:** Keep protocol validation,
+planning, per-mode validation, paired aggregation, and persistence in
+standard-library-only, semantically named evaluation modules. The default CLI
+applies the unchanged B1 contract and prints one exact child per mode plus
+aggregation. Import the production runtime only after exact mode,
+`cuda:<index>`, and frozen destination checks. Keep the evaluation package's
+historical exports lazy so importing this plan surface or the production
+runtime module itself cannot import Torch indirectly. Reject unknown, mixed,
+incomplete, existing-destination, or linked-parent dispatch before that
+boundary. After dispatch, classify absent external files or unavailable
+inspection/GPU capability as `PAUSE`, but classify present wrong hashes,
+revisions, dirty backend state, or model architecture as `INVALID_EVIDENCE`,
+and complete those filesystem checks before importing Torch or Transformers.
+
+**Implementation choice — runtime evidence:** Construct fixed input tensors
+directly from committed 64-token arrays; use no tokenizer or dataset. In each
+mode process, run two inference-only teacher-forced repeats with fresh request
+state and trace per request, prompt-only routing masks, `phase="prefill"`, and
+`use_cache=false`. Use the exact historical router metadata and hard argmax.
+Capture routes/provenance before request end and prove release afterward. Hash
+complete named teacher/student parameters and persistent buffers as sorted
+name/kind/dtype/shape/value records, partitioning student state into physically
+packed, non-router base, and router components. Require every parameter
+non-trainable, every gradient absent, no optimizer, and exact before/after
+entry and aggregate equality.
+
+**Implementation choice — validation and pairing:** Keep the frozen top-level
+schema fields and make their nested evidence exact and fail-closed. Recompute
+input, repeat, finite metric, route order/coverage/summary, keyed historical
+control, mode-specific provenance, cleanup, and state audits. Reject prohibited
+result data. Independently validate both modes before recomputing all paired
+quality checks, Hamming distances, changed target units, and required layer-0
+equality. Missing external mode files are `PAUSE`; malformed complete evidence
+is `INVALID_EVIDENCE`; only valid evidence reaches the two quality outcomes.
+
+**Implementation choice — no-overwrite persistence:** Require the exact frozen
+output parent to exist and not be a symlink before runtime work; the executor
+never creates it implicitly. Recheck destination safety before promotion,
+write and fsync a same-directory temporary, reread/reparse/revalidate, promote
+only with same-filesystem no-overwrite `os.link`, verify bytes and SHA-256, and
+remove temporary files on safe failure. This avoids overwrite-capable rename,
+copy, or move behavior. Structural tests use temporary directories only.
+
+**Evidence boundary and consequence:** The injected deterministic runtime is
+explicitly labeled `test-only structural evidence`; it is not fake production
+routing and makes no Qwen claim. No real model, packed artifact, checkpoint,
+CUDA inference, metric, experiment, aggregation, or result ran. S11-B2 closes
+executor readiness only. S11-B3 requires separate authorization to create the
+empty frozen parent and execute the printed commands; it does not begin
+automatically.
+
+**Reversal path:** If pre-execution review finds that the frozen runtime
+contract cannot be represented safely, return S11-B1 to REVISE rather than
+weakening a validator. If persistence or nested evidence changes, preserve
+this implementation and add a versioned decision before accepting any result.
