@@ -1,6 +1,6 @@
 # QAQ bit-plane format contract v1
 
-This is the S02 contract for the pinned Any-Precision source at
+This is the physical bit-plane packing contract (legacy work item S02) for the pinned Any-Precision source at
 `a3257d02740cc5757c78673da534b0630ff3a4ea`.  It describes the physical
 `qweight` payload and the row-wise LUTs used by that backend.  It is not a
 claim that QAQ reproduces the authors' complete quantization pipeline.

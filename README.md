@@ -7,14 +7,14 @@ The intended baseline combines genuinely packed nested multi-precision weights r
 
 ## Current state
 
-See [`docs/STATUS.md`](docs/STATUS.md) for the authoritative implementation
-stage, evidence, and next action.
-Read `docs/STATUS.md`, `docs/DECISIONS.md`, and the current stage document before doing any work.
-Workers complete only the current stage, but a request for that stage covers the
+See [`docs/STATUS.md`](docs/STATUS.md) for the authoritative current objective,
+evidence, and next action.
+Read `docs/STATUS.md`, `docs/DECISIONS.md`, and the current work-item document before doing any work.
+Workers complete only the current objective, but a request for that objective covers the
 full bounded cycle through implementation, validation, correction, commit, and
 PR-ready delivery. Internal checks are worker decision points, not separate
 permission prompts. Workers escalate only material research, scope, resource,
-destructive, or merge decisions and never begin the next stage automatically.
+destructive, or merge decisions and never begin a follow-up objective automatically.
 
 For the intended supervisor workflow, see [`docs/FIRSTMATE.md`](docs/FIRSTMATE.md).
 
@@ -23,12 +23,12 @@ The source PDFs under `papers/` are preserved project material and must not be m
 ## Project layout
 
 - `papers/` — source PDFs and their existing inventory.
-- `docs/` — plan, decisions, source inventory, bit-plane contract, experiment plan, and stage gates.
-- `.pi/prompts/` — reusable direct-Pi stage, review, and gate instructions; an active FirstMate task brief takes precedence over the direct-Pi fallback controller.
+- `docs/` — plan, decisions, source inventory, bit-plane contract, experiment plan, and work-item gates.
+- `.pi/prompts/` — reusable direct-Pi objective, review, and gate instructions; an active FirstMate task brief takes precedence over the direct-Pi fallback controller.
 - `configs/` — reserved for explicit, versioned configuration.
 - `src/qaq/` — implementation package, organized by reusable model, router, quantization, loading, and evaluation concerns.
 - `tests/` — unit, integration, and system test scaffolds.
-- Reusable implementation modules live under `qaq/model/`, `qaq/router/`, `qaq/quantization/`, `qaq/loading/`, and `qaq/evaluation/`; stage-era paths are not part of the active import surface.
+- Reusable implementation modules live under `qaq/model/`, `qaq/router/`, `qaq/quantization/`, `qaq/loading/`, and `qaq/evaluation/`; legacy work-item-coded paths are not part of the active import surface.
 - `scripts/` — reproducible project scripts.
 - `third_party/` — pinned external source or integration material.
 
@@ -47,7 +47,7 @@ A clean worker or shell relaunch is routine recovery and does not require anothe
 
 ## Scope boundary
 
-The authoritative current implementation stage, supported capabilities, and
-remaining work are tracked in [`docs/STATUS.md`](docs/STATUS.md). The physical
+The authoritative current objective, supported capabilities, and remaining
+work are tracked in [`docs/STATUS.md`](docs/STATUS.md). The physical
 format and its production-storage boundary are documented in
 `docs/BITPLANE_FORMAT.md`.

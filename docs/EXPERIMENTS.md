@@ -1,11 +1,12 @@
 # Experiments
 
-This file records experiment plans and links to completed stage evidence.
-S02's physical-format evidence is authoritative in
+This file records experiment plans and links to completed work-item evidence.
+Legacy identifiers remain only as historical cross-references to frozen evidence and machine-facing names.
+The physical-format specification and verification work item's evidence (legacy S02) is authoritative in
 [`docs/stages/S02_BITPACKING.md`](stages/S02_BITPACKING.md) and
 [`docs/BITPLANE_FORMAT.md`](BITPLANE_FORMAT.md).
 
-## S01 pinned backend evidence (2026-08-11)
+## Pinned backend evidence (2026-08-11; legacy work item S01)
 
 This is the only experiment recorded by S01. It uses no model, Qwen3 weight,
 dataset, or network-dependent input.
@@ -21,7 +22,7 @@ dataset, or network-dependent input.
 - Determinism: repeated 4-bit and 8-bit outputs were bitwise equal with the digests above.
 - Distinct paths: nonzero 8-bit qweight suffix, different LUT shapes, and different pinned-helper effective-weight digests; maximum effective-weight delta `0.04443359375`.
 
-## Required comparison at S09
+## Required five-mode baseline comparison (legacy work item S09)
 
 Compare:
 
@@ -34,9 +35,9 @@ Compare:
 Record quality, selected routes, GPU memory, actual packed transfer bytes, and latency.
 Every result must include the exact command, environment versions, model and data identifiers, deterministic seed, and relevant configuration.
 
-## S09-A protocol freeze and closeout (2026-08-12)
+## Five-mode protocol freeze and closeout (2026-08-12; legacy work item S09-A)
 
-S09-A freezes the final comparison protocol before any S09-B result. The
+The five-mode protocol freeze (legacy work item S09-A) freezes the final comparison protocol before any execution result (legacy work item S09-B). The
 machine-readable owner is `configs/baseline_evaluation.json`, and fixed request
 inputs are in `configs/baseline_evaluation_prompts.json`. The detailed procedure and
 validation gate are maintained in
@@ -73,16 +74,16 @@ It passed `18 passed`. Ruff also passed with:
 source ~/.venv/bin/activate && which python && python --version && ruff check scripts/validate_baseline_evaluation_protocol.py tests/unit/test_baseline_evaluation_protocol.py tests/integration/test_baseline_evaluation_protocol_inputs.py tests/integration/test_perplexity_evaluator.py
 ```
 
-S09-A is **COMPLETE**. No S09-B benchmark, five-mode baseline evaluation,
+The five-mode protocol freeze (legacy work item S09-A) is **COMPLETE**. No five-mode benchmark or baseline evaluation (legacy work item S09-B),
 final result artifact, or final comparison number was produced. S09-B
 execution machinery is **MISSING**: no complete executable S09-B runner exists
 in the repository beyond the non-benchmark protocol validator.
 
-Next action: Implement the minimal S09-B evaluation runner required to execute
+Next action: implement the minimal five-mode evaluation runner (legacy work item S09-B1) required to execute
 the frozen `configs/baseline_evaluation.json` contract, without running the final
 evaluation yet.
 
-## S09-B1 runner implementation (2026-08-12)
+## Five-mode runner implementation (2026-08-12; legacy work item S09-B1)
 
 This work unit implemented the non-benchmark S09-B runner without changing
 `configs/baseline_evaluation.json` or `configs/baseline_evaluation_prompts.json`.
@@ -104,12 +105,12 @@ passed, and the plan resolved five fresh-process child commands and one
 aggregation command while reporting no model loading, CUDA inference,
 benchmark, or final-result write.
 No S09-B mode child was launched and no final S09 result artifact was created.
-The next action is the frozen five-mode S09-B execution, which remains
+The next action is the frozen five-mode execution (legacy work item S09-B), which remains
 unexecuted.
 
-## S09-B1R runner correctness repair (2026-08-12)
+## Five-mode runner correctness repair (2026-08-12; legacy work item S09-B1R)
 
-S09-B1R corrected the pre-execution runner without changing either frozen JSON
+The pre-execution runner correction (legacy work item S09-B1R) corrected the runner without changing either frozen JSON
 file or creating any S09-B result. The on-demand result path now retains the
 measured cleanup records, derives cleanup summaries from those records, and
 records the S08 CPU-authority/hidden-copy audit. Every mode records actual
@@ -129,7 +130,7 @@ latency, hardware, perplexity, and deterministic evidence. No model was loaded,
 no CUDA benchmark ran, no real S09-B evaluation ran, and no S09-B result
 artifact exists.
 
-## S03-B nested Qwen3 static baseline (2026-08-11)
+## Nested Qwen3 static baseline (2026-08-11; legacy work item S03-B)
 
 - Command: `source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:third_party/any-precision-llm python scripts/build_packed_model.py --overwrite-artifact`.
 - Model: `Qwen/Qwen3-4B`, immutable revision `1cfa9a7208912126459214e8b04321603b3df60c`; tokenizer uses the same revision. Any-Precision commit: `a3257d02740cc5757c78673da534b0630ff3a4ea`.
@@ -144,7 +145,7 @@ artifact exists.
 - Artifact: `quantized/s03b_qwen3_4b/backend_cache/packed/anyprec-(1cfa9a7208912126459214e8b04321603b3df60c)-w8_orig4-gc1-c4_s1_blk64`; complete hashes are in `docs/quantized_model_manifest.json`.
 - Fresh-process round-trip and manifest integration tests: `9 passed`. Relevant S01/S02 regression tests: `27 passed`. Ruff: clean.
 
-## S03-C broader static-quality evaluation (2026-08-11)
+## Broader static-quality evaluation (2026-08-11; legacy work item S03-C)
 
 - Scope: full-precision teacher, the one nested static 4/8-bit checkpoint, and no routing, training, or on-demand loading.
 - Fixed prompt file: `configs/static_quality_prompts.txt`, five prompts. Tokenizer revision `1cfa9a7208912126459214e8b04321603b3df60c`; `add_special_tokens=true`, truncation `128`, no padding. Reference prompt remained `QAQ full-precision smoke test.`.
@@ -157,7 +158,7 @@ artifact exists.
 - Regression commands: full project suite `50 passed, 1 skipped`; resource-heavy S03-A model load `1 passed`. Target coverage remained 252/252 with no duplicate independent precision models.
 - Result file: `docs/results/s03_static_quality.json`. Limitations: this is a deliberately small development sample, not a final benchmark or paper-score reproduction.
 
-## S06 trainable soft router and packed mixture (2026-08-11)
+## Trainable soft router and packed mixture (2026-08-11; legacy work item S06)
 
 - Scope: 72 distinct prompt-feature routers, one for each attention or FFN
   unit; both real pinned 4-bit and 8-bit packed operations execute in the soft
@@ -185,7 +186,7 @@ artifact exists.
 
 Do not introduce asynchronous transfers, prefetching, transfer prediction, bit-width cost penalties, cross-request caching, multi-query batching, or unrelated research improvements.
 
-## S07-A router-distillation smoke (2026-08-11)
+## Router-distillation smoke (2026-08-11; legacy work item S07-A)
 
 - Scope: reusable masked teacher-student KD, explicit prompt/completion
   example and alignment contracts, frozen teacher/S06 packed base, explicit
@@ -206,7 +207,7 @@ Do not introduce asynchronous transfers, prefetching, transfer prediction, bit-w
 - Limitation: all values and settings are smoke-only evidence, not final
   router-training hyperparameters or routing-quality results.
 
-## S07-B first real router-distillation run (2026-08-11; D027 defect)
+## First real router-distillation run (2026-08-11; D027 defect; legacy work item S07-B)
 
 - Locked configuration: `configs/baseline_router_training.json`; implementation
   choices are also recorded as D026 in `docs/DECISIONS.md`.
@@ -248,7 +249,7 @@ Do not introduce asynchronous transfers, prefetching, transfer prediction, bit-w
   behavior was not demonstrated. No S08 work was started.
 - Result artifact: `docs/results/s07_router_training.json`.
 
-## S07-B corrected D008-1 router-distillation rerun (2026-08-11)
+## Corrected D008-1 router-distillation rerun (2026-08-11; legacy work item S07-B)
 
 - Authorization: exactly one corrected rerun using the unchanged D026 locked configuration; no S08 work and no new objective were introduced.
 - Production correction: `scripts/train_baseline_router.py` invokes the audited teacher/packed-student freeze seam before teacher-logit precomputation and records teacher before/after parameter hashes plus gradient absence. The first run's D027 defect remains documented above.
@@ -258,9 +259,9 @@ Do not introduce asynchronous transfers, prefetching, transfer prediction, bit-w
 - Evaluation: soft KD/error `0.0386699643`/`0.2430240735`; hard KD/error `0.0631424394`/`0.2928081304`; static 4/8-bit errors `0.7434162199`/`0.0910567641`; hard 4/8 fractions `20.1389%`/`79.8611%`; attention 4/8 `29.1667%`/`70.8333%`; FFN 4/8 `11.1111%`/`88.8889%`; two unique route maps; prompt distance `0.0138889`; classification `OTHER`; complete 72-unit logs for each of two validation requests.
 - Objective: exactly `T^2 * masked KL(teacher || student)` over completion targets; no width, cost, latency, transfer, entropy, sparsity, balance, or auxiliary routing term.
 - Fresh-process command: `source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=src:third_party/any-precision-llm python scripts/verify_router_checkpoint_roundtrip.py`; checkpoint reload and deterministic hard-route repeat passed bitwise.
-- Result artifact: `docs/results/s07_router_training.json`; S07 engineering gate is **CONTINUE**. The repository-defined next action is S08, but it was not executed.
+- Result artifact: `docs/results/s07_router_training.json`; the router-distillation engineering gate (legacy work item S07) is **CONTINUE**. The repository-defined next action is synchronous on-demand loading (legacy work item S08), but it was not executed.
 
-## S04 explicit manual routing (2026-08-11)
+## Explicit manual routing (2026-08-11; legacy work item S04)
 
 - Scope: one resident S03-B nested checkpoint, explicit immutable 36-layer
   attention/FFN plans, no query features, learned router, request-specific
@@ -301,7 +302,7 @@ Do not introduce asynchronous transfers, prefetching, transfer prediction, bit-w
   artifact-path skips when run without `QAQ_S03_ARTIFACT`. No production packed
   representation or pinned upstream source was changed.
 
-## S08-A synchronous packed-plane loader fixture (2026-08-11)
+## Synchronous packed-plane loader fixture (2026-08-11; legacy work item S08-A)
 
 - Scope: establish and test the request-scoped synchronous loader contract only.
   No Qwen3-4B on-demand evaluation, allocator/memory comparison, latency
@@ -338,7 +339,7 @@ Do not introduce asynchronous transfers, prefetching, transfer prediction, bit-w
 - Decision: implementation details are recorded as D029 in
   `docs/DECISIONS.md`. This evidence supports S08-A **CONTINUE** only.
 
-## S08-B real Qwen3 hard-routed on-demand integration (2026-08-11)
+## Real Qwen3 hard-routed on-demand integration (2026-08-11; legacy work item S08-B)
 
 - Scope: complete S08-B only; no S09 baseline comparison or execution.
 - Interruption handling: the prior worker ended with an external Codex service-overload error after three retries. This was not treated as a QAQ defect, and no completed S08-B evidence was discarded or rerun solely for reproduction.
@@ -355,9 +356,9 @@ Do not introduce asynchronous transfers, prefetching, transfer prediction, bit-w
 - Latency: resident median prefill/decode/end-to-end was `0.145354`/`0.187833`/`0.332110` seconds; on-demand was `5.815631`/`0.229669`/`6.031509` seconds.
 - Commands: the focused S08-B suite passed `3 tests in 438.03s`; the S08-A focused suite passed `8 tests in 8.55s`; Ruff passed for all changed S08 files. The previously recorded S08-B regression command remained valid at `8 passed in 651.74s` and was not rerun.
 - Result: `docs/results/s08_on_demand.json`, including code/worktree provenance, exact artifact identities, request identities, method, transfer records, allocator readings, cleanup evidence, and commands.
-- Gate: S08 **COMPLETE**; next action is S09, which was not executed.
+- Gate: synchronous on-demand loading (legacy work item S08) **COMPLETE**; next action is to evaluate and freeze the five-mode baseline (legacy work item S09), which was not executed.
 
-## S09-B2 failed five-mode evidence and diagnosis
+## Failed five-mode evidence and diagnosis (legacy work item S09-B2)
 
 The actual S09-B2 runner execution command was:
 
@@ -378,7 +379,7 @@ were otherwise sensible, but routed decode logits were not bitwise
 reproducible/equivalent. B3 isolated nondeterminism in the pinned atomic
 k-split `matmul_kbit` path at the real routed decode shape.
 
-## S09-B4 repair and S09-B5 targeted rerun
+## Routed-decode repair and targeted rerun (legacy work items S09-B4 and S09-B5)
 
 B4 changed only the routed packed execution family proven by B3: the exact
 non-Orin, one-row, packed `K > 4096`, precision-at-least-7 dispatch uses pinned
@@ -425,11 +426,11 @@ expected bytes were `134138675200`, and decode transfer was zero. Cleanup
 returned 252 entries, 504 buffers, and the request-owned bytes to zero; the
 hidden-copy audit passed.
 
-Exact final five-repeat latency medians are recorded in the S09 stage document;
+Exact final five-repeat latency medians are recorded in the five-mode baseline work-item document (legacy S09);
 they are retained directly from the B5 JSON without speed-gate interpretation.
 The routed latency changed after the deterministic fallback.
 
-## S09-C closeout validation
+## Baseline closeout validation (legacy work item S09-C)
 
 The frozen protocol validation command was:
 
@@ -459,11 +460,11 @@ source ~/.venv/bin/activate && which python && python --version && PYTHONPATH=sr
 
 Result: `28 passed in 3.71s`. No GPU benchmark, model mode, production code,
 test, config, frozen input, pinned dependency, or result JSON was changed.
-S09 status is **COMPLETE**. No later stage is defined; the next action is to
+The five-mode baseline evaluation and freeze (legacy work item S09) is **COMPLETE**. No follow-up objective is defined; the next action is to
 stop and define an explicit post-baseline stage and decision before any
 optimization or additional research mechanism.
 
-## S10-H2-B attempt 1 and S10-H2-BR1 repair evidence
+## Broader-validation attempt 1 and example-ID repair evidence (legacy work items S10-H2-B and S10-H2-BR1)
 
 The production contract and stage gate are owned by
 [`docs/stages/S10_6BIT_ROUTING.md`](stages/S10_6BIT_ROUTING.md). This section
@@ -521,11 +522,11 @@ path. The frozen S10-G config, both historical S10-F results
 `docs/quantized_model_manifest.json`, `scripts/run_broader_router_validation.py`, the distillation,
 router-network, soft-model, and request-state sources, the packed artifact
 bytes, and the clean pinned Any-Precision checkout were preserved byte-for-byte.
-S10-H quality remains unknown. No new implementation choice was introduced,
+Broader-validation quality (legacy work item S10-H) remains unknown. No new implementation choice was introduced,
 so `docs/DECISIONS.md` is unchanged. The next experiment action is separate
-S10-H2-B2 authorization from the repaired, reviewed, merged commit.
+authorization for the repaired canonical broader-validation retry (legacy work item S10-H2-B2) from the repaired, reviewed, merged commit.
 
-## S10-H2-B2 repaired canonical broader-validation retry (2026-08-19)
+## Repaired canonical broader-validation retry (2026-08-19; legacy work item S10-H2-B2)
 
 This is operational attempt 2 and the one consumed repaired B2 retry. Attempt 1
 at `87786fe6e549fdc279ab545be86c00745a144649` remains **REVISE before
@@ -609,7 +610,7 @@ The exact trial order was `(1729,0.0)`, `(1729,0.03)`, `(1729,0.1)`,
 24 ordered history records, passed finite-gradient/loss, optimizer, teacher/base
 freeze, twelve-map, reproducibility, collapse, inherited-regression, and
 prohibited-work audits. The complete per-trial measurements and aggregate
-interpretation are recorded in the S10 stage document and canonical JSON.
+interpretation are recorded in the 4/6/8 routing work-item document (legacy S10) and canonical JSON.
 
 The execution shell's expected-candidate clean-status PAUSE and the first
 closeout pane's wrong commit-path assertion PAUSE are preserved as

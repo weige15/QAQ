@@ -1,4 +1,8 @@
-# S03 — Static 4-bit and 8-bit model baselines
+# Build and evaluate static 4-bit and 8-bit model baselines
+
+_Legacy work-item reference: S03._
+
+Legacy identifiers elsewhere in this record are retained only for historical cross-reference to frozen decisions, evidence, paths, and machine-facing contracts.
 
 ## Goal
 
@@ -11,7 +15,7 @@ Quantize the target model into one nested representation and validate static 4-b
 - Keep embeddings, normalization, activations, KV cache, and output head in BF16/FP16 as specified by D005.
 - Run static 4-bit and static 8-bit inference with deterministic inputs.
 - Record quality, memory, latency, and serialization evidence with exact commands.
-- Keep quantized weights frozen; no router training occurs in this stage.
+- Keep quantized weights frozen; no router training occurs in this work item.
 
 ## Tests
 
@@ -49,9 +53,11 @@ A conversion or dtype assumption needs correction while preserving the S03 objec
 
 Static 4-bit or 8-bit inference cannot be made trustworthy, or the implementation would require fake packing or unfrozen quantized weights.
 
-## S03-A — Actual target-model verification
+## Verify the actual target model
 
-**Status: COMPLETE — CONTINUE evidence recorded for S03-B.**
+_Legacy work-item reference: S03-A._
+
+**Status: COMPLETE — CONTINUE evidence recorded for building the nested Qwen3 4/8-bit packed baseline (legacy work item S03-B).**
 
 ### Exact identity and acquisition
 
@@ -90,18 +96,20 @@ The deterministic full-precision smoke prompt was `QAQ full-precision smoke test
 
 ### Scope and gate
 
-At the S03-A gate, no Any-Precision quantizer, bitsandbytes, GPTQ, AWQ, fake
+At the actual target-model verification gate (legacy work item S03-A), no Any-Precision quantizer, bitsandbytes, GPTQ, AWQ, fake
 quantization, packed Qwen weight, 4-bit model, 8-bit model, routing work, or
-S04 work had been run. S03 was then `IN_PROGRESS`; the next action at that
+manual precision-plan work (legacy work item S04) had been run. The static-model-baseline objective (legacy work item S03) was then `IN_PROGRESS`; the next action at that
 gate was exactly:
 
-`S03-B: quantize the verified Qwen3 target modules into one nested 4-bit/8-bit packed representation.`
+`Quantize the verified Qwen3 target modules into one nested 4-bit/8-bit packed representation (legacy work item S03-B).`
 
-The S03-A gate is **CONTINUE**. The pinned model loaded and executed, the concrete module tree matches S00, exclusions and tied weights were verified, and no quantization was performed.
+The actual target-model verification gate (legacy work item S03-A) is **CONTINUE**. The pinned model loaded and executed, the concrete module tree matches S00, exclusions and tied weights were verified, and no quantization was performed.
 
-## S03-B — Nested Qwen3 4/8-bit packed baseline
+## Build the nested Qwen3 4/8-bit packed baseline
 
-**Status: COMPLETE — CONTINUE evidence recorded for S03-C.** S03-B produced and validated the static nested checkpoint.
+_Legacy work-item reference: S03-B._
+
+**Status: COMPLETE — CONTINUE evidence recorded for broader static-quality evaluation and closeout (legacy work item S03-C).** The nested packed-baseline work (legacy work item S03-B) produced and validated the static nested checkpoint.
 
 - Pinned quantizer entry point: `any_precision.quantization.any_precision_quantize`, with its `any_precision.quantization.pack.pack` packing stage.
 - Exact mapping: `configs/qwen3_any_precision.yaml`, checked against the S03-A records in `docs/actual_model_modules.json` by exact set and count equality before quantization.
@@ -123,15 +131,17 @@ The S03-A gate is **CONTINUE**. The pinned model loaded and executed, the concre
 - Limitations: calibration is intentionally a one-sample smoke baseline, and
   peak quantization RAM was not captured. S03 did not cover routing,
   CPU-to-GPU on-demand loading, training, or S04; those concerns are recorded
-  in their respective stage documents.
+  in their respective work-item documents.
 
-## S03-C — Broader static-quality evaluation and closeout
+## Evaluate broader static quality and close the baseline
 
-**Status: COMPLETE — CONTINUE.** Exact result evidence is in [`../results/s03_static_quality.json`](../results/s03_static_quality.json), using the unchanged S03-B checkpoint and unchanged pinned source revisions.
+_Legacy work-item reference: S03-C._
+
+**Status: COMPLETE — CONTINUE.** The broader static-quality evaluation and closeout (legacy work item S03-C) has exact result evidence in [`../results/s03_static_quality.json`](../results/s03_static_quality.json), using the unchanged nested packed checkpoint (legacy work item S03-B) and unchanged pinned source revisions.
 
 ### Fixed prompt set
 
-The committed prompt set is [`../../configs/s03_static_quality_prompts.txt`](../../configs/s03_static_quality_prompts.txt) and contains five materially different prompts. Every mode used tokenizer revision `1cfa9a7208912126459214e8b04321603b3df60c`, `add_special_tokens=true`, truncation at 128 tokens, and no padding. The reference prompt remained `QAQ full-precision smoke test.` from S03-B.
+The committed prompt set is [`../../configs/static_quality_prompts.txt`](../../configs/static_quality_prompts.txt) and contains five materially different prompts. Every mode used tokenizer revision `1cfa9a7208912126459214e8b04321603b3df60c`, `add_special_tokens=true`, truncation at 128 tokens, and no padding. The reference prompt remained `QAQ full-precision smoke test.` from S03-B.
 
 For every prompt, FP, static 4-bit, and static 8-bit logits were finite and repeatable. The comparison metric was mean absolute logit error plus maximum absolute logit error against FP logits. The aggregate criterion was: the mean of per-prompt mean absolute errors for 8-bit must be no greater than the corresponding 4-bit aggregate. Aggregate mean errors were `0.5141653061` for 4-bit and `0.0578794084` for 8-bit; aggregate maximum-per-prompt maxima were `7.7890625` and `1.0078125`.
 

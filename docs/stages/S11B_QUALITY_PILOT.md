@@ -1,12 +1,16 @@
-# S11-B1 — Paired lookahead quality-pilot protocol freeze
+# Freeze the paired lookahead quality-pilot protocol
+
+_Legacy work-item reference: S11-B1._
+
+Legacy identifiers elsewhere in this record are retained only for historical cross-reference to frozen decisions, evidence, paths, and machine-facing contracts.
 
 ## Gate result
 
-**COMPLETE — protocol frozen.** S11-B1 defines and structurally validates the
+**COMPLETE — protocol frozen.** The paired lookahead quality-pilot protocol freeze (legacy work item S11-B1) defines and structurally validates the
 paired quality-only comparison of `same_unit` and
 `lookahead_attention_one_unit`. It implements no executor and produces no
 quality evidence. The frozen config is
-[`configs/s11b_quality_pilot.json`](../../configs/s11b_quality_pilot.json),
+[`configs/lookahead_quality_pilot.json`](../../configs/lookahead_quality_pilot.json),
 schema `qaq-s11b-quality-pilot-v1`, SHA-256
 `21a664424debe4892c3577c490158228dd5399bb4b425611db728070d23a5051`.
 
@@ -43,7 +47,7 @@ never authorizes asynchronous transfer or prefetching.
   predicted from sources 0–34 at `post_attention_pre_ffn`, and every FFN
   remains same-layer and target-owned.
 - The required S11-A commit
-  `ea335d57635ed8b38051169b8f0e770b3fe46459` is an ancestor of this stage.
+  `ea335d57635ed8b38051169b8f0e770b3fe46459` is an ancestor of this work item.
 - No S11-B/lookahead-pilot result existed before the freeze.
 
 The reviewed sources do not establish this exact lookahead timing, pilot size,
@@ -177,7 +181,7 @@ after separately paired retraining.
 
 ## Frozen future outputs
 
-S11-B1 freezes but does not create:
+The paired quality-pilot protocol freeze (legacy work item S11-B1) does not create:
 
 - `docs/results/s11b_quality_pilot/same_unit_control.json`, schema
   `qaq-s11b-quality-pilot-mode-result-v1`;
@@ -211,17 +215,19 @@ passed. These structural checks are not pilot quality evidence.
 ## Limitations and exact next action
 
 The quality question remains unresolved. Two requests cannot establish
-lookahead quality generally, and no result may be inferred from S11-A semantic
-or S11-B1 structural tests.
+lookahead quality generally, and no result may be inferred from the lookahead-routing semantic checks (legacy work item S11-A)
+or the protocol-freeze structural tests (legacy work item S11-B1).
 
-Next action: begin S11-B2 implementation of the fail-closed executor and
-non-executing plan from frozen B1, while explicitly not running the real
-Qwen3-4B pilot in B2.
+Next action: implement the fail-closed paired quality-pilot executor and
+non-executing plan from the frozen protocol (legacy work item S11-B2), while explicitly not running the real
+Qwen3-4B pilot during that executor-readiness work (legacy work item S11-B2).
 
-## S11-B2 — fail-closed executor readiness
+## Make the paired quality-pilot executor ready
 
-**COMPLETE — executor ready, pilot not executed.** S11-B2 implements the
-frozen B1 protocol without changing its config, identities, inputs, timing
+_Legacy work-item reference: S11-B2._
+
+**COMPLETE — executor ready, pilot not executed.** The paired quality-pilot executor-readiness work (legacy work item S11-B2) implements the
+frozen protocol (legacy work item S11-B1) without changing its config, identities, inputs, timing
 semantics, margins, classifications, schemas, or output paths. Reusable code
 uses the semantic components `qaq.evaluation.lookahead_quality_protocol`,
 `qaq.evaluation.lookahead_quality_runner`, and
@@ -230,14 +236,14 @@ uses the semantic components `qaq.evaluation.lookahead_quality_protocol`,
 
 ### Established facts and implementation choices
 
-Established by B1 and preserved here: exact mode/request order, one fresh
+Established by the protocol freeze (legacy work item S11-B1) and preserved here: exact mode/request order, one fresh
 child per mode, two repeats in each child, seed 1729, full 64-token fixed
 inputs, prompt/completion/causal ranges, candidate order `[4,8]`, resident hard
 routing, S11-A target ownership, historical S07 control routes, completion-only
 temperature-2 KL, full-logit errors, state freeze requirements, quality
 margins, classification precedence, schemas, and planned paths.
 
-S11-B2 implementation choices are recorded in D057. The default path applies
+Implementation choices for the paired quality-pilot executor-readiness work (legacy work item S11-B2) are recorded in D057. The default path applies
 the canonical validator and prints deterministic one-mode child and
 aggregation commands. It imports no ML/backend package, opens no external
 model resource, creates no path, and explicitly reports false model, CUDA,
@@ -287,8 +293,8 @@ comparable GPU; missing/wrong environment and CUDA availability/index/driver
 resource classification; exact 72-router, 23,620,752-scalar, and 252 resident
 packed-target representation validation; malformed evidence; missing-result
 `PAUSE`; and atomic success, overwrite, race, malformed serialization, cleanup,
-byte/digest, parent, link, and unrelated-path safety. Focused B2 tests pass
-`107`; B1 protocol behavior and the reusable source-file mode check pass `51`;
+byte/digest, parent, link, and unrelated-path safety. Focused executor-readiness tests (legacy work item S11-B2) pass
+`107`; protocol-freeze behavior (legacy work item S11-B1) and the reusable source-file mode check pass `51`;
 the safe CPU selection passes `470` with one established warning.
 
 No Qwen3-4B model, packed artifact, S07 checkpoint, CUDA kernel, teacher or
@@ -297,18 +303,20 @@ evaluation, benchmark, profiler, production aggregation, or real result path
 ran. No quality or performance claim is made, and no file under
 `docs/results/`, `papers/`, or `third_party/` changed.
 
-The quality question remains unknown. The exact next action is S11-B3: under a
+The quality question remains unknown. The exact next action is to execute the frozen paired quality pilot (legacy work item S11-B3): under a
 separate authorization, provision the frozen empty result parent, execute the
 two printed one-mode child commands on one explicit comparable GPU in frozen
-order, then run the printed aggregation command. Do not infer or execute S11-B3
-from S11-B2 readiness alone.
+order, then run the printed aggregation command. Do not infer or execute that pilot
+from the paired-executor readiness evidence (legacy work item S11-B2) alone.
 
-## S11-B3 — frozen paired quality-pilot execution
+## Execute the frozen paired quality pilot
 
-**COMPLETE — `ADVANCE_TO_BROADER_QUALITY_CHECK`.** S11-B3 used the unchanged
+_Legacy work-item reference: S11-B3._
+
+**COMPLETE — `ADVANCE_TO_BROADER_QUALITY_CHECK`.** The frozen paired quality-pilot execution (legacy work item S11-B3) used the unchanged
 frozen protocol SHA-256
 `21a664424debe4892c3577c490158228dd5399bb4b425611db728070d23a5051` and the
-S11-B2 executor. Preflight verified the pinned model/tokenizer snapshot, packed
+paired quality-pilot executor (legacy work item S11-B2). Preflight verified the pinned model/tokenizer snapshot, packed
 artifact SHA-256, S07 checkpoint SHA-256, clean pinned Any-Precision revision,
 mandatory `~/.venv`, absent result paths, and an empty non-symlink result
 parent. No frozen input, identity, threshold, schema, or implementation changed.

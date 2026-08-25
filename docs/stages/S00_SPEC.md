@@ -1,4 +1,8 @@
-# S00 — Lock environment and specification
+# Lock the environment and specification
+
+_Legacy work-item reference: S00._
+
+Legacy identifiers elsewhere in this record are retained only for historical cross-reference to frozen decisions, evidence, paths, and machine-facing contracts.
 
 ## Goal
 
@@ -22,7 +26,7 @@ Do not quantize the full model.
 - Version and prerequisite probes complete with captured output.
 - Target model structure inspection is deterministic and reproducible.
 - The exact upstream revision is independently recoverable.
-- No full-model quantization or implementation-stage experiment is run.
+- No full-model quantization or implementation experiment is run.
 
 ## Required outputs
 
@@ -30,7 +34,7 @@ Do not quantize the full model.
 - Source-review notes with citations, unknowns, and assumptions.
 - Target model structure summary.
 - Exact Any-Precision revision and provenance record.
-- S00 viability report and a proposed next-stage command set.
+- S00 viability report and a proposed follow-up command set.
 - Updated `docs/DECISIONS.md` and `docs/STATUS.md`.
 
 ## Current evidence audit
@@ -46,14 +50,14 @@ Do not quantize the full model.
 | Clean-checkout reproducibility without untracked current-directory files | COMPLETE | `docs/SOURCE_NOTES.md`; clean recursive clone check recorded below | None once the documented recursive-clone check passes. |
 | Source-paper review separating supported claims from assumptions | COMPLETE | `docs/SOURCE_NOTES.md`, `S00 source review`; D001-D012 | The local `QAQ.pdf` remains a local artifact without independently verified public provenance. |
 | D001-D015 decision ledger and source-supported-versus-implementation distinction | COMPLETE | `docs/DECISIONS.md` | None; D003-D012 remain implementation choices and D015 records the architecture/runtime boundary. |
-| S00 proposed next-stage command set | COMPLETE | `S01_BACKEND.md`; command set below | Commands are a proposal only and must not be run in this task. |
+| S00 proposed follow-up command set | COMPLETE | `S01_BACKEND.md`; command set below | Commands are a proposal only and must not be run in this task. |
 | Target model repository and exact target-model revision | COMPLETE | `configs/model.yaml`; D014; `docs/SOURCE_NOTES.md` | The exact revision used by QAQ authors is not identified by the local paper; the pinned revision is our implementation choice. |
 | Target tokenizer, evaluation inputs, and reproducibility identifiers | PARTIAL | `configs/model.yaml`; D014; `docs/SOURCE_NOTES.md` | Tokenizer repository/revision and files are recorded; evaluation inputs remain for a later S00 step. |
 | Target architecture class and Transformer layer count | COMPLETE | `docs/model_structure.json`; `docs/QWEN3_MAPPING.md`; D015 | Established from pinned config and official Transformers 4.51.0 source without model instantiation. |
 | Target hidden size, attention projection names, and FFN projection names | COMPLETE | `docs/model_structure.json`; `docs/QWEN3_MAPPING.md`; D015 | All seven projections and dimensions are explicitly recorded. |
 | Target tied-weight, bias, embedding, and output-head behavior | COMPLETE | `docs/model_structure.json`; `docs/QWEN3_MAPPING.md`; D015 | Configuration and source markers establish tied embeddings/output head and bias behavior. |
-| Backend/model combination viability and target-model structure summary | COMPLETE_WITH_LIMITATION | `docs/model_structure.json`; `docs/QWEN3_MAPPING.md`; D015 | Structurally mappable, but current Transformers 4.39.3 lacks Qwen3 and Any-Precision has no explicit Qwen3 YAML; Qwen3 runtime integration remains a later-stage task. |
-| No full-model quantization, implementation-stage experiment, target-model artifact, or S01 code | COMPLETE | `docs/environment.json`; tracked-file audit; current tree | None. |
+| Backend/model combination viability and target-model structure summary | COMPLETE_WITH_LIMITATION | `docs/model_structure.json`; `docs/QWEN3_MAPPING.md`; D015 | Structurally mappable, but current Transformers 4.39.3 lacks Qwen3 and Any-Precision has no explicit Qwen3 YAML; Qwen3 runtime integration remains a follow-up work item. |
+| No full-model quantization, implementation experiment, target-model artifact, or S01 code | COMPLETE | `docs/environment.json`; tracked-file audit; current tree | None. |
 | Tracked repository cleanliness for generated caches, build artifacts, temporary files, and papers | COMPLETE | `.gitignore`; `git ls-files`; paper hashes; current Git status | Ignored build/cache files are not tracked; no cleanup was needed. |
 
 The proposed S01 command set is documentation only:

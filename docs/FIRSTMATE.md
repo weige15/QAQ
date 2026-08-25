@@ -28,15 +28,15 @@ escalations or the final outcome.
 
 ## Task wording
 
-A stage request should authorize a complete current-stage delivery rather than
+An objective request should authorize a complete current-objective delivery rather than
 a single command. For example:
 
 ```text
-Complete QAQ's current documented stage through a green no-mistakes PR. Make
+Complete QAQ's current documented objective through a green no-mistakes PR. Make
 routine reversible implementation decisions yourself. Escalate only if the
-scientific protocol, acceptance criteria, current-stage scope, external
+scientific protocol, acceptance criteria, current-objective scope, external
 resource authorization, destructive state, or merge authority must change. Do
-not begin the next stage.
+not begin a follow-up objective.
 ```
 
 The repository's `AGENTS.md` defines the same boundary for every worker.
@@ -51,7 +51,7 @@ A healthy task stops for one of these reasons:
   unavailable;
 - safe repository state cannot be established without discarding or rewriting
   work; or
-- the current stage is complete and starting the next stage needs a new request.
+- the current objective is complete and starting a follow-up objective needs a new request.
 
 It should not stop for naming, file placement, test selection, formatting,
 ordinary test repair, branch refresh, worker-window loss, feature-branch push,

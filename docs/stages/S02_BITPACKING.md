@@ -1,8 +1,12 @@
-# S02 — Specify and verify physical bit-plane packing
+# Specify and verify physical bit-plane packing
+
+_Legacy work-item reference: S02._
+
+Legacy identifiers elsewhere in this record are retained only for historical cross-reference to frozen decisions, evidence, paths, and machine-facing contracts.
 
 ## Outcome
 
-**Status: COMPLETE — CONTINUE to S03.**
+**Status: COMPLETE — CONTINUE to build and evaluate static 4-bit and 8-bit model baselines (legacy work item S03).**
 
 The pinned Any-Precision backend maintains genuinely packed `torch.int32`
 planes. Source inspection and deterministic CPU/CUDA experiments establish the
@@ -117,7 +121,7 @@ pytest -q tests/unit/test_backend_import.py tests/unit/test_single_linear_precis
 The full-model PyTorch archive member order and big-endian behavior remain
 outside the contract; consumers must use loaded tensors and the explicit
 little-endian v1 payload. Grouped LUTs are unsupported by the pinned packer.
-These do not block the supported 4/8-bit physical contract or the S02 gate.
+These do not block the supported 4/8-bit physical contract or the physical bit-plane packing gate (legacy work item S02).
 
-Next action after this commit: Begin S03 static 4-bit and 8-bit Qwen3 model
-baselines from one nested packed representation. S03 is not executed here.
+Next action after this commit: build static 4-bit and 8-bit Qwen3 model
+baselines from one nested packed representation (legacy work item S03). That follow-up work is not executed here.

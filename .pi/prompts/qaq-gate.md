@@ -1,9 +1,9 @@
 ---
-description: Evaluate one QAQ stage against its acceptance conditions
-argument-hint: "<stage>"
+description: Evaluate one QAQ work item against its acceptance conditions
+argument-hint: "<objective or work item>"
 ---
 
-Evaluate exactly QAQ stage `$1`.
+Evaluate exactly QAQ work item `$1`.
 
 This is an evidence gate, not an implementation task.
 
@@ -14,11 +14,11 @@ Read:
 
 - `docs/STATUS.md`;
 - `docs/DECISIONS.md`;
-- the document for stage `$1` under `docs/stages/`;
-- the source notes and papers required by that stage;
+- the document for work item `$1` under `docs/stages/`;
+- the source notes and papers required by that work item;
 - the exact changed code and configuration;
 - the exact required tests and commands; and
-- the exact result or evidence artifacts required by the stage.
+- the exact result or evidence artifacts required by the work item.
 
 Check every required:
 
@@ -30,7 +30,7 @@ Check every required:
 - output;
 - reproducibility requirement;
 - unresolved question; and
-- stage-specific continue, pause, revise, or stop condition.
+- work-item-specific continue, pause, revise, or stop condition.
 
 Distinguish:
 
@@ -47,11 +47,11 @@ Classify the gate as exactly one of:
 ### PASS
 
 Use `PASS` only when current authoritative evidence establishes every required
-condition for stage `$1` and no required stage work remains.
+condition for work item `$1` and no required work remains.
 
 ### PAUSE
 
-Use `PAUSE` when the stage remains valid but cannot currently proceed or be
+Use `PAUSE` when the work item remains valid but cannot currently proceed or be
 closed because required external material, resources, credentials, execution,
 or other evidence is unavailable.
 
@@ -59,7 +59,7 @@ State exactly what is missing and what evidence would allow work to continue.
 
 ### REVISE
 
-Use `REVISE` when current evidence shows that stage `$1` needs a bounded
+Use `REVISE` when current evidence shows that work item `$1` needs a bounded
 correction that remains inside its existing scientific meaning, frozen
 protocol, scope, and acceptance criteria.
 
@@ -72,11 +72,11 @@ protocol, threshold, scope, non-goal, preserved behavior, or other material
 boundary, or would otherwise require an unauthorized destructive or
 irreversible action.
 
-State the material decision that prevents further current-stage work.
+State the material decision that prevents further current-objective work.
 
 Do not implement corrections.
 
-Do not begin a later stage.
+Do not begin a follow-up objective.
 
 Do not modify PDFs under `papers/`.
 

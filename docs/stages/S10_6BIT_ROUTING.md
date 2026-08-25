@@ -1,4 +1,8 @@
-# S10-A — Enable static 6-bit execution
+# Enable static 6-bit execution
+
+_Legacy work-item reference: S10-A._
+
+Legacy identifiers elsewhere in this record are retained only for historical cross-reference to frozen decisions, evidence, paths, and machine-facing contracts.
 
 ## Gate result
 
@@ -138,16 +142,18 @@ All checks passed
 
 ## Limitations and boundary
 
-S10-A establishes static 6-bit execution only. It does not add 6-bit routing,
+Static 6-bit execution (legacy work item S10-A) establishes that capability only. It does not add 6-bit routing,
 change `CANDIDATE_BITS`, change hard-route choices, alter request loading or
 state ownership, retrain or reload router checkpoints, or assess quality,
 latency, transfer, or memory claims. Router semantics remain exactly 4/8
-after S10-A. A separate later stage and decision is required for any 6-bit
+after S10-A. A separate follow-up objective and decision is required for any 6-bit
 routing behavior.
 
-## S10-B — Three-Way Router Semantics
+## Define three-way 4/6/8 router semantics
 
-**Gate: CONTINUE.** S10-B adds explicit, backwards-compatible learned-router
+_Legacy work-item reference: S10-B._
+
+**Gate: CONTINUE.** Three-way 4/6/8 router semantics (legacy work item S10-B) add explicit, backwards-compatible learned-router
 candidate semantics for historical `(4, 8)` and new `(4, 6, 8)` routers. It does
 not train a router or add the cost-aware objective.
 
@@ -260,12 +266,13 @@ support is claimed. The packed artifact, Any-Precision source, S07/S09 results,
 and historical S07 checkpoint were not modified. No quality, latency, memory,
 transfer, or routing-quality evaluation was performed.
 
-**Historical next action:** Begin S10-C: define and validate the cost-aware
-4/6/8 router objective. The completed S10-C gate is recorded below.
+**Historical next action:** define and validate the cost-aware 4/6/8 router objective (legacy work item S10-C). The completed cost-aware-objective gate is recorded below.
 
-## S10-C — Cost-aware 4/6/8 router objective
+## Add the cost-aware 4/6/8 router objective
 
-**Gate: CONTINUE.** S10-C adds reusable objective composition primitives only;
+_Legacy work-item reference: S10-C._
+
+**Gate: CONTINUE.** The cost-aware 4/6/8 router objective (legacy work item S10-C) adds reusable objective composition primitives only;
 it does not train or retrain a router and does not select a production cost
 coefficient.
 
@@ -273,7 +280,7 @@ coefficient.
 
 S07's established training objective remains completion-only teacher-student
 `T^2 * masked KL(teacher || student)`. `masked_kl_distillation_loss()` is
-unchanged and remains the sole KD implementation. S10-B establishes explicit
+unchanged and remains the sole KD implementation. Three-way router semantics (legacy work item S10-B) establish explicit
 learned-router orderings `(4, 8)` and `(4, 6, 8)`, with the three-way order
 `[p4, p6, p8]`, and all 72 attention/FFN routing units expose differentiable
 probabilities. S10-C records the implementation choice to add a normalized
@@ -320,11 +327,13 @@ lambda-zero scalar and gradient compatibility, 8-bit-dominant softmax
 pressure, complete request-state aggregation with gradients, finite combined
 gradients, and frozen-state preservation. Existing S07 and S10-B regression
 suites remain required; no artifact-backed Qwen3 execution is needed for this
-objective-only stage.
+objective-only work item.
 
-## S10-D — Bit-cost coefficient calibration
+## Calibrate the bit-cost coefficient
 
-**Gate: CONTINUE.** S10-D calibrates observations for the S10-C coefficient; it
+_Legacy work-item reference: S10-D._
+
+**Gate: CONTINUE.** Bit-cost coefficient calibration (legacy work item S10-D) calibrates observations for the cost-aware router coefficient (legacy work item S10-C); it
 does not choose a production coefficient or start full router training. The
 machine-readable protocol is `configs/s10d_lambda_calibration.json`, the
 runner is `scripts/run_s10d.py`, and the complete measurements are in
@@ -413,10 +422,12 @@ extensions not authorized by the protocol were not run. The next decision is
 owned by firstmate/captain: refine, confirm, or begin full training after
 reviewing the observed frontier.
 
-## S10-E — Frontier Confirmation Protocol Freeze
+## Freeze the frontier-confirmation protocol
 
-**Gate: CONTINUE.** S10-E freezes the machine-readable confirmation protocol in
-`configs/s10e_frontier_confirmation.json`. This stage defines the future
+_Legacy work-item reference: S10-E._
+
+**Gate: CONTINUE.** The frontier-confirmation protocol freeze (legacy work item S10-E) freezes the machine-readable confirmation protocol in
+`configs/s10e_frontier_confirmation.json`. This work item defines the future
 confirmation trial only; it does not execute a trial, train a router, select a
 production lambda, or begin S10-F.
 
@@ -429,7 +440,7 @@ S10-A through S10-D are complete at the merged starting point
 `configs/s10d_lambda_calibration.json`. That evidence completed exactly
 `0.0, 0.003, 0.01, 0.03, 0.1`, performed no adaptive extension, selected no
 production lambda, and observed the hard KD/width frontier at `0.03` and
-`0.1`. S10-B establishes the explicit resident three-way `(4,6,8)` router,
+`0.1`. Three-way router semantics (legacy work item S10-B) establish the explicit resident three-way `(4,6,8)` router,
 72 request-routed attention/FFN units, and deterministic hard routing; S10-C
 establishes the unchanged completion-only KD composition with normalized
 bit-plane cost; S07 establishes the frozen teacher/packed-base and locked data
@@ -475,11 +486,12 @@ The focused protocol tests validate exact identities, ordering, counts,
 training values, paired-initialization semantics, measurement fields,
 prohibitions, and gate rules by rejecting missing, extra, reordered, or
 reintroduced values. They are lightweight configuration tests and execute no
-experiment. S10-E stops after this freeze; the next action after a passing
-commit is **Begin S10-F: execute the frozen three-seed frontier confirmation
-protocol.**
+experiment. The frontier-confirmation protocol work (legacy work item S10-E) stops after this freeze; the next action after a passing
+commit is to **execute the frozen three-seed frontier-confirmation protocol (legacy work item S10-F).**
 
-## S10-F — Frozen three-seed frontier confirmation
+## Execute the frozen three-seed frontier confirmation
+
+_Legacy work-item reference: S10-F._
 
 **Worker classification: REVISE.** The canonical matrix completed all nine
 ordered trials, but a runner audit defect invalidated the gate evidence after
@@ -546,7 +558,9 @@ select a production lambda or checkpoint and does not authorize broader
 validation. Firstmate must resolve the runner audit interpretation and decide
 what evidence policy applies; this task performs no repair or rerun.
 
-### S10-F audit repair and historical-evidence decision
+### Repair the frontier-confirmation audit and preserve historical evidence
+
+_Legacy work-item reference: S10-F._
 
 The repair preflight used `/nfs/home/s314511048/.venv/bin/python` with Python
 `3.12.3` and healthy RTX 3090 visibility. The original packed artifact hash
@@ -576,10 +590,12 @@ preserved optimizer-state snapshot. Neither audit therefore has sufficient
 preserved runtime evidence without inferring behavior from source/tests.
 The resulting primary outcome is **PAUSE / RERUN_REQUIRED**. No canonical
 training or evaluation rerun, extra trial, broader validation, production
-lambda selection, or success commit occurred; S10-F remains the current
-stage.
+lambda selection, or success commit occurred; the frozen three-seed frontier
+confirmation (legacy work item S10-F) remains the current objective.
 
-### S10-F canonical rerun — CONTINUE
+### Complete the canonical frontier-confirmation rerun
+
+_Legacy work-item reference: S10-F._
 
 Attempt 2 executed exactly the frozen nine ordered pairs on `cuda:0`, preserving
 attempt 1 at `docs/results/s10f_frontier_confirmation.json` with SHA-256
@@ -595,12 +611,14 @@ reproducibility audits passed. The frozen aggregates are `0.03` frontier `2/3`,
 paired hard KD median delta `-0.004020056687295437`, paired hard width median
 delta `-0.16666666666666696`, and zero reproducibility failures. Focused tests
 passed `65`, inherited regressions passed `46`, Ruff passed, and
-`git diff --check` passed. S10-F gate outcome: **CONTINUE**. No later stage,
+`git diff --check` passed. The frozen three-seed frontier-confirmation gate (legacy work item S10-F) outcome is **CONTINUE**. No follow-up objective,
 production lambda, or broader validation was started.
 
-## S10-G — Broader-validation protocol definition and freeze
+## Define and freeze the broader-validation protocol
 
-**Gate: CONTINUE (protocol freeze only; no S10-G experiment result exists).**
+_Legacy work-item reference: S10-G._
+
+**Gate: CONTINUE (protocol freeze only; no broader-validation experiment result exists; legacy work item S10-G).**
 
 The machine-readable protocol is `configs/s10g_broader_validation.json` and
 its focused, configuration-only tests are
@@ -616,7 +634,7 @@ The protocol inherits the pinned Qwen3-4B and tokenizer revision, Wikitext
 revision, clean Any-Precision revision, packed artifact identity, 72
 attention/FFN routers, explicit `[p4,p6,p8]` ordering, normalized cost vector
 `[0.0,0.5,1.0]`, completion-only KD objective, frozen teacher/packed base, and
-router-only optimization from the preceding stages. It also preserves the
+router-only optimization from the preceding work items. It also preserves the
 S10-F candidate/lambda/seed matrix, paired initialization semantics, fresh
 AdamW requirement, layer-major 72-unit route-map order, and two-axis hard
 KD/selected-width gate. These facts and the preserved attempt hashes are
@@ -660,7 +678,7 @@ failed audits, inherited regressions, invalid collapse, reproducibility, or
 prohibited work; CONTINUE requires every condition. No scalar combined score
 or production-lambda selection is permitted.
 
-S10-G itself created no runner, result JSON, or execution path, and performed
+The broader-validation protocol freeze (legacy work item S10-G) created no runner, result JSON, or execution path, and performed
 no training, model evaluation, CUDA evaluation, or hardware/resource
 measurement. Adaptive lambda search, post-result replacement, warm starts,
 S07 conversion, teacher/base training, non-router optimizer membership,
@@ -670,10 +688,12 @@ execution are explicitly prohibited.
 Verification after the freeze passed 53 focused S10-G tests, the S10-D/S10-E/
 S10-F predecessor regression selection passed 121 tests, Ruff passed for the
 changed Python test, and `git diff --check` passed. The next action is a
-separately authorized future execution decision; this stage claims no broader
+separately authorized follow-up execution decision; this work item claims no broader
 validation result and selects no production lambda.
 
-## S10-H1 — Protocol-locked broader-validation runner and pre-execution validation (historical)
+## Implement the protocol-locked broader-validation runner and pre-execution validation
+
+_Legacy work-item reference: S10-H1._
 
 **Historical gate: CONTINUE for H1 implementation only.** H1 added
 `scripts/run_s10h.py` and `tests/unit/test_s10h_broader_validation.py`. It does
@@ -714,13 +734,15 @@ selection passed `81`, and the full unit suite passed `291` tests with one
 existing duplicate-optimizer warning. Ruff and `git diff --check` passed. No
 model, real data, CUDA behavior, training, result JSON, or production lambda
 was used. At that historical gate, the next action was a separately authorized
-S10-H2 implementation/execution stage. H2-A is recorded below; do not infer an
-H2 result from the plan or synthetic fixture.
+broader-validation implementation and execution work item (legacy work item S10-H2). The real-executor implementation (legacy work item S10-H2-A) is recorded below; do not infer a
+broader-validation result from the plan or synthetic fixture.
 
-## S10-H2-A — Real executor seam (implementation only)
+## Implement the real broader-validation executor seam
 
-**Gate: COMPLETE for implementation only; no H2 experiment was run.** H2-A replaces the
-H1 `--execute` PAUSE seam with a lazy call to
+_Legacy work-item reference: S10-H2-A._
+
+**Gate: COMPLETE for implementation only; no broader-validation experiment was run (legacy work item S10-H2-A).** The real broader-validation executor seam (legacy work item S10-H2-A) replaces the
+earlier protocol runner's `--execute` PAUSE seam (legacy work item S10-H1) with a lazy call to
 `qaq.router.s10h_executor.execute_production`. `scripts/run_s10h.py` remains
 standard-library-only on its default and `--plan` paths: those paths do not
 import torch, Transformers, datasets, CUDA, Qwen, packed execution, or result
@@ -745,7 +767,7 @@ Output promotion validates the destination parent and refuses existing paths,
 creates a temporary file on that parent filesystem, flushes and closes it,
 re-validates the serialized bytes, then uses an atomic same-filesystem
 no-overwrite link. All temporary files are removed on failure or interruption.
-The canonical H2 path is deliberately refused during H2-A, so this stage did
+The canonical H2 path is deliberately refused during H2-A, so this work item did
 not invoke production output handling and
 `docs/results/s10h_broader_validation.json` remains absent.
 
@@ -754,7 +776,7 @@ The deterministic smoke covers all nine trials through the injected runtime,
 and distinct initialization, optimizer membership/freshness, frozen state,
 finite gradients, route/cost/order audits, validator propagation, output
 cleanup, and overwrite refusal. It writes only to a temporary test directory;
-it is not a Qwen/H2 result. Commands used for this stage are the mandated
+it is not a Qwen/H2 result. Commands used for this work item are the mandated
 `~/.venv`/`nvidia-smi` preflight, focused S10-H tests, the S10-G/S10-F/S10-E/
 S10-D regression selection, `PYTHONPATH=src:. pytest -q tests/unit`, the
 non-executing `python scripts/run_s10h.py --plan` smoke, Ruff on changed Python
@@ -762,10 +784,12 @@ files, and `git diff --check`. No canonical H2 experiment, real-Qwen trial,
 production lambda selection, resource measurement, or H2 result was run or
 created.
 
-## S10-H2-BR1 — production example-ID contract repair
+## Repair the production example-ID contract
 
-**Gate: COMPLETE — repair only.** The attempt-1 failure and all BR1 evidence
-are recorded in [`docs/EXPERIMENTS.md`](../EXPERIMENTS.md). This stage owns the
+_Legacy work-item reference: S10-H2-BR1._
+
+**Gate: COMPLETE — repair only.** The production example-ID contract repair (legacy work item S10-H2-BR1), including the failed first-attempt evidence,
+is recorded in [`docs/EXPERIMENTS.md`](../EXPERIMENTS.md). This work item owns the
 repaired production contract: `_select_examples()` supplies
 `DistillationExample` objects, while its separate manifest remains metadata.
 The order-validation boundary reads each selected ID only through
@@ -779,14 +803,16 @@ subscribe to examples, or pass non-`DistillationExample` selections to
 `_device_example()`. Valid selected objects retain their identity and type
 through device conversion. This repair changes no frozen protocol, model,
 training, loader, validator, result, or submodule behavior; the evidence
-record owns the exact preservation and non-execution claims. S10-H2-B2 remains
+record owns the exact preservation and non-execution claims. The repaired canonical broader-validation retry (legacy work item S10-H2-B2) remains
 outside this gate and requires separate authorization from the repaired,
 reviewed, merged commit.
 
-## S10-H2-B2 — Repaired canonical broader-validation retry
+## Complete the repaired canonical broader-validation retry
 
-**Gate: COMPLETE — REFINE.** Operational attempt 2 consumed the one authorized
-repaired B2 retry from exact commit
+_Legacy work-item reference: S10-H2-B2._
+
+**Gate: COMPLETE — REFINE.** The repaired canonical broader-validation retry (legacy work item S10-H2-B2) consumed the one authorized
+retry during operational attempt 2 from exact commit
 `b1aca71bcc584f0e3559e5fe7caf142c2f750db3`. The nine-trial result is complete,
 independently valid, and canonical, but it misses the frozen paired hard-KL
 condition. This outcome selects and recommends no production lambda.
@@ -925,7 +951,7 @@ is therefore **REFINE**, not REVISE or PAUSE.
 No latency, memory, transfer, throughput, energy, or hardware-cost measurement
 was recorded. No adaptive search, warm start, data/seed replacement, S07
 conversion, teacher/base training, non-router optimizer membership, S08
-change, six-bit on-demand loading, production-lambda selection, or later-stage
+change, six-bit on-demand loading, production-lambda selection, or follow-up objective
 work occurred. The next action is a later, separately frozen refinement
 protocol. Do not choose a production lambda or begin refinement execution from
 this closeout.

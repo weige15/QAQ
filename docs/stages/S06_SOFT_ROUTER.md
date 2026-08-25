@@ -1,8 +1,12 @@
-# S06 — Trainable soft router
+# Implement the trainable soft router
+
+_Legacy work-item reference: S06._
+
+Legacy identifiers elsewhere in this record are retained only for historical cross-reference to frozen decisions, evidence, paths, and machine-facing contracts.
 
 ## Gate result
 
-**Status: COMPLETE — CONTINUE.** The S06 routers produce finite two-way
+**Status: COMPLETE — CONTINUE.** The trainable soft routers (legacy work item S06) produce finite two-way
 probabilities, execute both verified packed precision paths, preserve the S05
 `same_unit` prompt-only feature timing, and receive gradients while the packed
 model stays frozen. S11-A documents the separate attention-only lookahead
@@ -132,11 +136,11 @@ distillation, S07 hard routing, or on-demand loading was performed.
 
 ## Limitations and next action
 
-This stage proves router structure, probability behavior, differentiable soft
+This work item proves router structure, probability behavior, differentiable soft
 execution, gradient flow, and frozen-model behavior only. It does not prove
 learned routing quality. The soft wrapper intentionally supports prefill
 training only; production hard argmax inference belongs to S07.
 
-The S06 gate is complete. The current repository stage and next action are
+The trainable-soft-router gate (legacy work item S06) is complete. The current repository objective and follow-up action are
 authoritative in [`docs/STATUS.md`](../STATUS.md); S07-A has since completed
 its reusable distillation smoke machinery, and S07-B remains.

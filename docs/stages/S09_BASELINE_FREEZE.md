@@ -1,17 +1,21 @@
-# S09 — Evaluate and freeze the baseline
+# Evaluate and freeze the five-mode baseline
+
+_Legacy work-item reference: S09._
+
+Legacy identifiers elsewhere in this record are retained only for historical cross-reference to frozen decisions, evidence, paths, and machine-facing contracts.
 
 ## Goal
 
-S09-A defines and freezes the reproducible five-mode evaluation protocol before
-any final S09-B comparison results. S09-B will later execute the frozen
+The five-mode evaluation protocol freeze (legacy work item S09-A) defines and freezes the reproducible protocol before
+any final comparison results. The five-mode evaluation execution (legacy work item S09-B) will later execute the frozen
 protocol and report quality, routing, memory, transfer, and latency results.
 
 ## Tasks
 
 - Define the final evaluation matrix, datasets, prompts, seeds, and environment.
-- S09-A: define the five required modes, identical applicable inputs, methods,
+- Freeze the five-mode protocol (legacy work item S09-A): define the five required modes, identical applicable inputs, methods,
   release criteria, and a clean validation command.
-- S09-B (not part of this work unit): run the five modes from the frozen config
+- Execute the frozen five-mode comparison (legacy work item S09-B; not part of this work unit): run the five modes from the frozen config
   without changing inputs, gates, or mechanisms.
 - Analyze failure cases and document limitations without broadening the baseline.
 - Freeze the exact source revisions, configuration, model artifact references, commands, and result artifacts.
@@ -24,7 +28,7 @@ protocol and report quality, routing, memory, transfer, and latency results.
 - Resource metrics distinguish packed storage from unpacked or fake references.
 - The protocol parses, resolves the locked artifacts, and rejects incomplete or
   ambiguous variants without loading the five models.
-- S09-B must later provide final quality and performance evidence against the
+- The frozen five-mode comparison (legacy work item S09-B) must later provide final quality and performance evidence against the
   frozen release criteria.
 
 ## Required outputs
@@ -36,30 +40,32 @@ protocol and report quality, routing, memory, transfer, and latency results.
 
 ## Known uncertainties
 
-- The final comparison values do not exist in S09-A by design.
-- Hardware availability during S09-B is unknown; a missing or incomparable GPU
+- The final comparison values do not exist during the protocol freeze (legacy work item S09-A) by design.
+- Hardware availability during the five-mode execution (legacy work item S09-B) is unknown; a missing or incomparable GPU
   is PAUSE, not a mixed-device result.
 - The S07 adaptivity classification remains OTHER and has no new diversity
   threshold in this protocol.
 
-## S09-A workflow subdivision — protocol freeze before results
+## Freeze the five-mode evaluation protocol before results
 
-**Status: COMPLETE — S09-A validation gate passed; protocol frozen before final results.** The machine-readable
-owner is [`configs/s09_baseline_eval.json`](../../configs/s09_baseline_eval.json),
+_Legacy work-item reference: S09-A._
+
+**Status: COMPLETE — the five-mode protocol-freeze validation gate (legacy work item S09-A) passed; protocol frozen before final results.** The machine-readable
+owner is [`configs/baseline_evaluation.json`](../../configs/baseline_evaluation.json),
 schema `qaq-s09-baseline-eval-v1`, with fixed inputs in
-[`configs/s09_baseline_prompts.json`](../../configs/s09_baseline_prompts.json).
+[`configs/baseline_evaluation_prompts.json`](../../configs/baseline_evaluation_prompts.json).
 The protocol records `protocol_frozen_before_final_results: true`. Its SHA-256
 is recorded in `docs/STATUS.md` and `docs/EXPERIMENTS.md` after each intentional
-protocol edit; S09-B must use the committed value without modification.
+protocol edit; the five-mode execution (legacy work item S09-B) must use the committed value without modification.
 
-S09-A closeout evidence: PR #5 merge commit
+Five-mode protocol-freeze closeout evidence (legacy work item S09-A): PR #5 merge commit
 `0f5802a777983c210b6f65ca26fd55368f49bf51` is present; the canonical validator
 passed with hashes enabled and exited `0`; the packed artifact, S07 router,
 Qwen3-4B model/tokenizer, and Any-Precision identities matched their frozen
 values; and the focused protocol/input/evaluator suite passed `18 passed`.
-No S09-B benchmark or final result artifact exists. S09-B execution machinery is
-**MISSING**, so the next action is: implement the minimal S09-B evaluation
-runner required to execute the frozen `configs/s09_baseline_eval.json`
+No five-mode benchmark or final result artifact exists. The five-mode execution machinery (legacy work item S09-B) is
+**MISSING**, so the next action is: implement the minimal five-mode evaluation
+runner (legacy work item S09-B1) required to execute the frozen `configs/s09_baseline_eval.json`
 contract, without running the final evaluation yet.
 
 ### Evaluation matrix and locked identities
@@ -184,7 +190,9 @@ are explicitly deferred. If a genuine defect is found after S09-B starts, the
 required outcome is REVISE with invalidation of affected results, never a silent
 protocol edit.
 
-### S09-A validation gate
+### Validate the frozen five-mode protocol
+
+_Legacy work-item reference: S09-A._
 
 The validator parses the config, checks exact five-mode completeness and
 identity agreement with manifests/results, validates the complete routed
@@ -203,9 +211,11 @@ python --version
 python scripts/validate_s09_protocol.py --config configs/s09_baseline_eval.json
 ```
 
-## S09-B1 runner implementation
+## Implement the five-mode evaluation runner
 
-S09-B1 is an implementation-only continuation of the frozen S09-A protocol.
+_Legacy work-item reference: S09-B1._
+
+The five-mode runner implementation (legacy work item S09-B1) is an implementation-only continuation of the frozen protocol (legacy work item S09-A).
 It does not modify either frozen JSON file and does not produce comparison
 results.
 
@@ -248,16 +258,16 @@ The later execution command shape is:
 source ~/.venv/bin/activate && which python && python --version && python scripts/run_s09b.py --execute --config configs/s09_baseline_eval.json
 ```
 
-The execution command is intentionally not run in S09-B1.
+The execution command is intentionally not run during the five-mode runner implementation (legacy work item S09-B1).
 Focused runner tests are in `tests/unit/test_s09_runner.py` and
 `tests/integration/test_s09_runner_plan.py`.
-No final S09-B five-mode evaluation, quality result, memory result, latency
+No final five-mode evaluation (legacy work item S09-B), quality result, memory result, latency
 result, routing result, transfer result, or final artifact was produced.
 
 ## CONTINUE condition
 
-S09-A continues to S09-B only after the protocol validator and focused tests
-pass. S09-B may freeze the baseline only after the five-mode comparison
+The protocol freeze (legacy work item S09-A) continues to five-mode execution (legacy work item S09-B) only after the protocol validator and focused tests
+pass. The five-mode execution may freeze the baseline only after the comparison
 provides all required evidence and passes the frozen release criteria.
 
 ## PAUSE condition
@@ -272,9 +282,11 @@ A comparison or reproducibility defect can be corrected without adding pre-freez
 
 The modes are not comparable, resource claims are not grounded in packed data, or the baseline cannot be frozen without unresolved critical assumptions.
 
-## S09-B4 — narrow routed decode repair
+## Repair routed decode determinism
 
-S09-B2's routed result files are preserved but invalidated because D035
+_Legacy work-item reference: S09-B4._
+
+The failed five-mode evaluation result files (legacy work item S09-B2) are preserved but invalidated because D035
 identified nondeterministic pinned `matmul_kbit` accumulation. D036 records the
 source-verified dispatch and repair gate. The repair uses a shared helper for
 resident and synchronous on-demand routed calls only: non-Orin, one effective
@@ -294,12 +306,14 @@ request cleanup, and the hidden-copy audit. Corrected routed quality and
 resource results remain unknown.
 
 The next action is only to rerun the invalidated routed resident and routed
-synchronous on-demand S09-B evidence. The five-mode final evaluation must not
+synchronous on-demand five-mode evidence (legacy work item S09-B). The five-mode final evaluation must not
 be rerun as part of this repair.
 
-## S09-C — final evidence review, baseline freeze, and completion
+## Review final evidence and freeze the baseline
 
-**Gate: CONTINUE.** The committed S09-B5 aggregation is `CONTINUE` with
+_Legacy work-item reference: S09-C._
+
+**Gate: CONTINUE.** The committed targeted five-mode rerun aggregation (legacy work item S09-B5) is `CONTINUE` with
 `errors: []`. A read-only aggregation against a new temporary copy also
 returned `CONTINUE` with `errors: []`. The closeout did not run another
 benchmark or model mode.
@@ -476,7 +490,7 @@ Routed latency changed after the deterministic fallback. The frozen protocol
 has no speed target, so the slower synchronous on-demand baseline is reported
 as a limitation rather than a failed gate.
 
-### B2 to B5 failure and correction history
+### Failed five-mode evaluation through corrected targeted rerun (legacy work items S09-B2 through S09-B5)
 
 S09-B2 returned `REVISE`. Quality, routes, transfers, cleanup, and generated-
 token parity were otherwise sensible, but routed decode logits were not
@@ -504,9 +518,9 @@ research mechanism was tested. There is no claim that synchronous on-demand
 loading is faster than the resident baseline, and no conclusion about later
 optimized-loader performance is permitted.
 
-No later authoritative stage is defined in `docs/stages/`; therefore the exact
-next action is: **Baseline frozen. Stop. Define an explicit post-baseline stage
+No follow-up objective is defined in `docs/stages/`; therefore the exact
+next action is: **Baseline frozen. Stop. Define an explicit post-baseline objective
 and decision before implementing any optimization or additional research
 mechanism.**
 
-S09 is **COMPLETE**.
+The five-mode baseline evaluation and freeze (legacy work item S09) is **COMPLETE**.

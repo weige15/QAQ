@@ -39,14 +39,14 @@ Before a GPU-dependent command, run in the same shell:
 nvidia-smi
 ```
 
-A current-stage request authorizes the run when the stage document or active
+A current-objective request authorizes the run when the work-item document or active
 task brief fixes the run, inputs, and expected scope. Continue when the command
 succeeds and the documented capacity is available.
 
 When capacity is temporarily unavailable, use the active FirstMate wait or
 blocked status rather than asking for a new implementation decision. Escalate
 only when the required capacity is unknown, the run materially exceeds the
-stage's documented scope, or a different device or execution mode would change
+work item's documented scope, or a different device or execution mode would change
 the evidence. Never silently switch to CPU or alter the experiment.
 
 For CPU-only work, record `GPU check: NOT_REQUIRED`.

@@ -6,7 +6,7 @@ session is not a captain decision and must not create a permission prompt.
 
 ## Automatic recovery
 
-An authorized current-stage operation already permits relaunching or replacing
+An authorized current-objective operation already permits relaunching or replacing
 a worker session when read-only checks establish that:
 
 - the recorded worktree still exists;
@@ -19,7 +19,7 @@ a worker session when read-only checks establish that:
 
 When those checks pass, reload the current controller or FirstMate brief,
 repeat `.pi/rules/qaq-runtime.md`, bind the replacement worker to the same
-worktree, and continue the same stage immediately. Report recovery in the next
+worktree, and continue the same objective immediately. Report recovery in the next
 normal material update rather than asking first.
 
 A clean relaunch, another test process, a replaced pane, reloading controller

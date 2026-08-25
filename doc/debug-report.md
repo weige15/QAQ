@@ -1,5 +1,7 @@
 # Debug Report
 
+Legacy work-item identifiers in this historical report are retained only to cross-reference frozen evidence, artifacts, and checks.
+
 ## Symptom
 
 The earlier S10-A integration rerun was blocked by an uninitialized pinned
@@ -97,7 +99,7 @@ Evidence for: the initial submodule status was `-a3257d02740cc5757c78673da534b06
 Evidence against: none for the original setup failure.
 How to verify: completed with `git submodule update --init --recursive third_party/any-precision-llm` and the exact commit/status checks.
 
-### Hypothesis 2: The S03-B artifact was unavailable in the isolated worktree
+### Hypothesis 2: The nested packed-model artifact was unavailable in the isolated worktree (legacy work item S03-B)
 
 Why it explained the earlier symptom: the integration fixtures skip before
 checkpoint loading whenever the manifest's local artifact path is absent.
@@ -158,7 +160,7 @@ S10-A integration passed `3 passed in 221.42s`; and the static 4/8-bit
 preservation suite passed `10 passed in 640.26s`. Direct imports of
 `any_precision` and `any_precision_ext` also passed.
 
-## S10-H1 Follow-up
+## Broader-validation runner follow-up (legacy work item S10-H1)
 
 ### Symptom
 

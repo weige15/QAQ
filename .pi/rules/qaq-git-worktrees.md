@@ -7,7 +7,7 @@ replace them with a second project-local landing controller.
 
 ## Standing authorization
 
-Authorization to implement the current stage includes, without another captain
+Authorization to implement the current objective includes, without another captain
 round-trip:
 
 - using the assigned isolated worktree and feature branch;
@@ -17,7 +17,7 @@ round-trip:
 - editing, testing, explicitly staging, and committing in-scope paths;
 - recovering the same preserved worktree after a worker/session failure;
 - rebasing an unshared, clean feature branch only when current destination code
-  is genuinely required to complete or validate the stage;
+  is genuinely required to complete or validate the work item;
 - pushing only the feature branch; and
 - opening or updating the PR required by the active delivery contract.
 
@@ -34,7 +34,7 @@ Never:
 - force-push or rewrite shared history;
 - reset, clean, stash, overwrite, or delete preserved work to make topology look
   simpler; or
-- begin a later stage from the current task.
+- begin a follow-up objective from the current task.
 
 A destructive recovery, default-branch merge, force operation, or discarded
 work is a material decision. Feature-branch push and PR update are not.
@@ -57,17 +57,17 @@ do not assume its name. Verify every documented prerequisite is contained in
 the destination before starting dependent implementation.
 
 If a prerequisite is missing, report one material blocker with the exact
-commits and required order. Do not invent a stacked stage. If all prerequisites
+commits and required order. Do not invent a stacked objective. If all prerequisites
 remain satisfied, continue without asking about routine topology details.
 
 ## Destination movement
 
 A destination branch advancing does not invalidate a valid feature worktree or
-stage base. Continue current-stage work when the feature branch, worktree,
+objective base. Continue current-objective work when the feature branch, worktree,
 prerequisites, and changed paths remain understood.
 
 Refresh the feature branch only when destination changes are actually needed by
-the stage. For an unshared clean branch, a safe rebase and required test rerun
+the work item. For an unshared clean branch, a safe rebase and required test rerun
 are routine. For a pushed/shared branch, conflicts, uncertain ownership, or a
 history rewrite requirement, preserve the work and escalate rather than force.
 

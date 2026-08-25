@@ -1,6 +1,5 @@
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[2]
 POLICY_PATHS = (
     ROOT / "AGENTS.md",
@@ -38,16 +37,16 @@ def test_firstmate_policy_authorizes_full_stage_delivery() -> None:
     prompt = (ROOT / ".pi/prompts/qaq-firstmate.md").read_text(encoding="utf-8")
 
     required_agents = (
-        "one complete\nstage-delivery cycle",
+        "one\ncomplete current-objective delivery cycle",
         "Do not request permission between those routine actions",
-        "push the feature branch and open or update its PR",
-        "Do not automatically begin a later stage",
+        "push or open/update a PR when required by the active delivery contract",
+        "Do not automatically begin a follow-up objective",
     )
     required_prompt = (
-        "whole\nbounded stage-delivery cycle",
-        "Do not turn any of those actions into a separate permission prompt",
-        "Merge authority remains with FirstMate and the captain",
-        "Do not emit legacy hard-stop",
+        "complete the whole authorized current-objective cycle",
+        "without asking for permission between those actions",
+        "material-decision boundary in `AGENTS.md`",
+        "Do not begin a follow-up objective automatically",
     )
 
     for marker in required_agents:
@@ -62,6 +61,6 @@ def test_firstmate_policy_limits_escalation_to_material_decisions() -> None:
         encoding="utf-8"
     )
 
-    assert "Escalate only when at least one of these conditions applies" in agents
+    assert "Escalate only when proceeding would require at least one" in agents
     assert "Everything else is a worker choice" in stage_rules
     assert "A failed check is not automatically a captain decision" in stage_rules

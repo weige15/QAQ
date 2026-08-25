@@ -1,12 +1,12 @@
 ---
-description: Review one QAQ stage for correctness and evidence
-argument-hint: "<stage>"
+description: Review one QAQ work item for correctness and evidence
+argument-hint: "<objective or work item>"
 ---
 
-Review exactly QAQ stage `$1`.
+Review exactly QAQ work item `$1`.
 
 This is a review task, not an implementation task and not authorization to
-begin another stage.
+begin a follow-up objective.
 
 Follow `AGENTS.md`, including its environment requirements.
 
@@ -14,17 +14,17 @@ Read:
 
 - `docs/STATUS.md`;
 - `docs/DECISIONS.md`;
-- the document for stage `$1` under `docs/stages/`;
+- the document for work item `$1` under `docs/stages/`;
 - the relevant source notes and papers;
 - the changed source, tests, configuration, and documentation; and
-- the evidence produced for the stage.
+- the evidence produced for the work item.
 
-Review the stage against what it actually claims to establish.
+Review the work item against what it actually claims to establish.
 
 Check:
 
 - source claims against the cited evidence;
-- implementation behavior against the stage requirements;
+- implementation behavior against the work-item requirements;
 - acceptance conditions against current test and result evidence;
 - unstated assumptions;
 - deterministic seeds and exact commands where required;
@@ -66,7 +66,7 @@ sources or frozen project decisions.
 Recommend exactly one:
 
 - `ACCEPT` — no material review issue remains;
-- `REVISE` — bounded current-stage corrections are required;
+- `REVISE` — bounded corrections to the current objective are required;
 - `PAUSE` — required evidence or external material is unavailable; or
 - `STOP` — proceeding would cross a material project boundary.
 
@@ -75,7 +75,7 @@ recommendation.
 
 Do not implement fixes.
 
-Do not begin a later stage.
+Do not begin a follow-up objective.
 
 Do not modify PDFs under `papers/`.
 

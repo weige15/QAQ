@@ -1,11 +1,17 @@
-# S07 — Router distillation
+# Distill and validate the router
 
-## S07-A — reusable distillation machinery and deterministic smoke gate
+_Legacy work-item reference: S07._
 
-**Status: COMPLETE — S07 gate passed; do not begin S08 in this task.** This section implements the
+Legacy identifiers elsewhere in this record are retained only for historical cross-reference to frozen decisions, evidence, paths, and machine-facing contracts.
+
+## Build reusable distillation machinery and a deterministic smoke gate
+
+_Legacy work-item reference: S07-A._
+
+**Status: COMPLETE — the router-distillation gate (legacy work item S07) passed; do not begin synchronous on-demand loading (legacy work item S08) in this task.** This section implements the
 teacher-student router-training seams and validates them on a deliberately tiny
 local fixture. It does not run real dataset-scale training, evaluate routing
-quality, add a width/latency/transfer/entropy penalty, or implement S07-B/S08.
+quality, add a width/latency/transfer/entropy penalty, run the locked router-distillation baseline (legacy work item S07-B), or implement synchronous on-demand loading (legacy work item S08).
 
 The S07-A implementation choices are recorded in
 [`docs/DECISIONS.md` — D025](../DECISIONS.md#d025--s07-a-distillation-seams-2026-08-11).
@@ -105,7 +111,9 @@ metadata for model repository/revision, packed checkpoint ID/hash,
 Any-Precision revision, router architecture, candidate ordering, and training
 step metadata. Teacher and packed student weights are never serialized.
 
-### S07-B locked baseline configuration
+### Lock the router-distillation baseline configuration
+
+_Legacy work-item reference: S07-B._
 
 The locked configuration is in `configs/s07_router_training.json` and is an
 implementation choice, not a QAQ-paper fact. It uses `Salesforce/wikitext`,
@@ -127,7 +135,9 @@ precomputed with the frozen teacher under `no_grad` and kept on CPU before
 optimization to fit the resident packed student on the 24-GiB GPU. This is
 an execution-memory measure, not a new objective.
 
-### S07-B first and corrected training runs
+### Run and correct the router-distillation baseline
+
+_Legacy work-item reference: S07-B._
 
 The first baseline run used the unchanged Qwen3-4B revision
 `1cfa9a7208912126459214e8b04321603b3df60c`, packed student artifact hash
@@ -156,7 +166,9 @@ Fresh-process reload matched probabilities and hard routes, and fixed-subset
 hard-route repeats matched route maps, selected precisions, and logits by
 bitwise comparison.
 
-### S07-B soft and hard routing observations
+### Record soft and hard routing observations
+
+_Legacy work-item reference: S07-B._
 
 On the two validation examples, soft routing had final validation KD loss
 `0.0386699643` and mean absolute logit error `0.2430240735` against the
@@ -178,10 +190,12 @@ threshold. Query-adaptive routing was **not demonstrated**; this is not by
 itself a router implementation failure.
 
 Engineering gate: **CONTINUE**. Query-adaptivity demonstrated: **NO**.
-The existing classification remains `OTHER` and is non-blocking under this
-S07 gate. No S08 work was started.
+The existing classification remains `OTHER` and is non-blocking under the
+router-distillation gate (legacy work item S07). No synchronous on-demand loading work (legacy work item S08) was started.
 
-## S07C-EVIDENCE-005 — hard-route checkpoint round-trip repair
+## Repair hard-route checkpoint round-trip behavior
+
+_Legacy evidence reference: S07C-EVIDENCE-005._
 
 This evidence repair is resolved with **CONTINUE**. The decision and exact
 direct actual-route comparison are owned by

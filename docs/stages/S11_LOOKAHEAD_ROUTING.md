@@ -1,4 +1,8 @@
-# S11-A — One-Unit-Lookahead Attention Routing Semantics
+# Define one-unit-lookahead attention routing semantics
+
+_Legacy work-item reference: S11-A._
+
+Legacy identifiers elsewhere in this record are retained only for historical cross-reference to frozen decisions, evidence, paths, and machine-facing contracts.
 
 ## Gate result
 
@@ -6,7 +10,7 @@
 mode with `same_unit` as the unchanged default and
 `lookahead_attention_one_unit` as the attention-only variant. No quality
 pilot, Qwen3-4B model load, training run, production checkpoint, lambda
-selection, or hardware/resource measurement is part of this stage.
+selection, or hardware/resource measurement is part of this work item.
 
 ## Hypothesis and evidence boundary
 
@@ -150,7 +154,7 @@ Python path, and `git diff --check`.
 
 ## Limitations and deferred alternatives
 
-S11-A makes no quality or resource claim. It changes no layer-0 semantics,
+The one-unit-lookahead routing-semantics work (legacy work item S11-A) makes no quality or resource claim. It changes no layer-0 semantics,
 FFN timing, decode reuse, router loss, masked KL, normalized bit cost,
 candidate bits/order, packed kernels, Any-Precision source, loader transfer
 policy, historical S10 evidence, or frozen model state.

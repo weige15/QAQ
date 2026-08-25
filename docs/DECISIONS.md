@@ -3,6 +3,7 @@
 This ledger separates source-supported behavior from implementation choices.
 Every entry below is an **implementation choice**, not a paper-established fact, unless a later source review adds direct evidence and cites the source explicitly.
 Unspecified details must not be silently filled in.
+Legacy Sxx labels are retained in this historical ledger only to cross-reference frozen work-item records, evidence, and machine-facing contracts; descriptive work-item titles are authoritative for human navigation.
 
 ## Initial implementation choices
 
@@ -113,7 +114,7 @@ Unspecified details must not be silently filled in.
 
 **Compatibility status:** The pinned backend's synthetic single-linear execution is validated in S01. Qwen3 runtime integration remains unproven; S01 intentionally uses no model or model weights.
 
-**Consequence:** S00 is complete. Qwen3 integration remains a later-stage task and must not be inferred from this S01 synthetic backend result.
+**Consequence:** The initial specification objective (legacy work item S00) is complete. Qwen3 integration remains a follow-up work item and must not be inferred from this synthetic backend result (legacy work item S01).
 
 **Reversal path:** Replace the target only after recording contradictory source evidence or a separately justified model decision with a new immutable repository revision and tokenizer identity.
 
@@ -269,7 +270,7 @@ design, routing probabilities, a loss, or a paper-defined feature shape.
 features, stores no model-global route state, and adds no learned-router or
 loading machinery.
 
-**Reversal path:** If a later stage needs gradients through features or a
+**Reversal path:** If a follow-up work item needs gradients through features or a
 different feature representation, reopen S05 and preserve this deterministic
 baseline as its own measured path.
 
@@ -957,7 +958,7 @@ threshold, and missing-gradient regressions.
 
 **Consequence:** `--config` can only select an exact copy of the locked
 protocol, and `QAQ_MODEL_SNAPSHOT` cannot redirect the run to another local
-snapshot. No production lambda or later-stage work is authorized by this
+snapshot. No production lambda or follow-up work is authorized by this
 repair.
 
 ### D044 — S10-E frontier confirmation protocol freeze (2026-08-14)
@@ -1123,7 +1124,7 @@ median delta `-0.004020056687295437`, paired hard width median delta
 `65`, inherited regressions passed `46`, Ruff and `git diff --check` passed.
 
 **Consequence:** S10-F is **CONTINUE**. This authorizes only a separately
-scoped broader-validation decision; no production lambda or later stage was
+scoped broader-validation decision; no production lambda or follow-up objective was
 started.
 
 **Reversal path:** If any implementation or runtime audit identity changes,
@@ -1733,7 +1734,7 @@ defining a separately scoped paired lookahead-specific 4/6/8 training protocol
 with its own pre-result freeze and execution authorization. No training,
 6-bit route, checkpoint, loader change, generation, decode, perplexity, or
 performance/resource measurement occurred. Stop after this canonical result;
-do not begin the later stage automatically.
+do not begin the follow-up objective automatically.
 
 **Reversal path:** Preserve these canonical bytes. A discovered executor,
 identity, schema, determinism, provenance, freeze, cleanup, or persistence

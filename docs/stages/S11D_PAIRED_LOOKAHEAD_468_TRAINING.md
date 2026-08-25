@@ -1,4 +1,8 @@
-# S11-D1 — Paired lookahead-specific 4/6/8 training protocol freeze
+# Freeze the paired lookahead-specific 4/6/8 training protocol
+
+_Legacy work-item reference: S11-D1._
+
+Legacy identifiers elsewhere in this record are retained only for historical cross-reference to frozen decisions, evidence, paths, and machine-facing contracts.
 
 ## Exact research question
 
@@ -15,7 +19,7 @@ while passing the frozen teacher-relative quality margins.
 
 Freeze, before any new result is observed, the smallest fair paired training
 experiment that can separate routing-timing effects from cost-pressure effects.
-S11-D1 defines the arms, fixed coefficient set, paired initialization and
+The paired lookahead-specific 4/6/8 training protocol freeze (legacy work item S11-D1) defines the arms, fixed coefficient set, paired initialization and
 training contract, evaluation metrics, separate quality and selected-precision
 gates, and outcome rules. It creates no executor, checkpoint, or result and
 runs no training, model evaluation, CUDA workload, or performance measurement.
@@ -25,8 +29,8 @@ The exact Goal for the next `/goal-driven` is:
 > Implement and structurally validate an S11-D2 executor and deterministic
 > non-executing plan that consumes this S11-D1 contract without changing its
 > arms, coefficient set, pairing, data, seeds, budget, metrics, thresholds, or
-> classifications. S11-D2 must not execute real training or evaluation; real
-> S11-D3 execution requires separate authorization.
+> classifications. The deterministic paired-training plan and dispatcher (legacy work item S11-D2) must not execute real training or evaluation; real
+> Real paired-training execution (legacy work item S11-D3) requires separate authorization.
 
 ## Paired control and treatment
 
@@ -58,7 +62,7 @@ sweep.
 
 ### Cost-coefficient rationale
 
-S10-H is canonical complete evidence, not a production-lambda selection. Its
+The canonical broader-validation result (legacy work item S10-H) is complete evidence, not a production-lambda selection. Its
 same-unit `lambda=0.03` trials were on the hard frontier in all three seeds and
 reduced paired median hard width by `0.4907407407407405` bits versus
 `lambda=0.0`, but increased paired median hard KL by
@@ -241,7 +245,7 @@ identity, pairing, initialization, ordering, optimizer, update-count, freeze,
 gradient, route/provenance, repeat, persistence, regression, or prohibited-work
 evidence. Correct only the bounded implementation defect and invalidate its
 affected evidence. Changing a scientific threshold or arm requires a new
-separately authorized pre-result stage.
+separately authorized pre-result work item.
 
 ### CONTINUE
 
@@ -277,7 +281,7 @@ impossible; it ends this bounded formulation without another automatic trial.
 
 ## Explicit exclusions
 
-S11-D1 excludes:
+The paired-training protocol freeze (legacy work item S11-D1) excludes:
 
 - real training, evaluation, model/dataset loading, CUDA work, executor code,
   checkpoint creation, result files, or output directories;
@@ -297,12 +301,12 @@ S11-D1 excludes:
 ## Evidence required before real 6-bit loading or prefetch work
 
 Only a valid S11-D3 **CONTINUE** result may justify defining the next bounded
-real-loading stage. To justify testing an actual 6-bit loader path, that result
+real-loading objective. To justify testing an actual 6-bit loader path, that result
 must also show at least one hard 6-bit selection in every treatment seed and
 complete reproducible target-owned route maps; otherwise the loading question
 has no observed treatment route to exercise.
 
-The first next stage would add and verify genuine synchronous on-demand
+The first follow-up objective would add and verify genuine synchronous on-demand
 `qweight[:6] + lut6` loading only: resident parity, packed-only transfer,
 physical byte accounting, request lifetime, reuse, cleanup, and deterministic
 hard-route execution. Reduced selected width is only a routing observation and

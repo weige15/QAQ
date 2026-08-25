@@ -1,8 +1,12 @@
-# S05 — Query features and request state
+# Add query features and request-owned routing state
+
+_Legacy work-item reference: S05._
+
+Legacy identifiers elsewhere in this record are retained only for historical cross-reference to frozen decisions, evidence, paths, and machine-facing contracts.
 
 ## Goal and scope
 
-S05 implements prompt-only query features and request-owned fixed routes using
+The query-feature and request-state work (legacy work item S05) implements prompt-only query features and request-owned fixed routes using
 the existing S04 manual policy. It remains batch-size one. There is no learned
 router, probability output, soft routing, training loss, completion-token
 feature update, or CPU-to-GPU loading.
@@ -48,7 +52,7 @@ route before executing the unit. The route trace records request ID, layer,
 unit, phase, feature-computed flag, policy-invoked flag, and selected
 precision. Same-unit auxiliary events record
 `incoming_hidden -> feature_computed -> route_available -> unit_execute`.
-The S11-A lookahead event order is defined in its stage document.
+The S11-A lookahead event order is defined in its work-item document.
 
 Decode requires the completed same state and `phase="decode"`. It does not
 pool hidden states, mutate stored features/routes, or invoke the policy. The

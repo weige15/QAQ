@@ -1,4 +1,8 @@
-# S11-C1 — Broader lookahead quality protocol freeze
+# Freeze the broader lookahead quality protocol
+
+_Legacy work-item reference: S11-C1._
+
+Legacy identifiers elsewhere in this record are retained only for historical cross-reference to frozen decisions, evidence, paths, and machine-facing contracts.
 
 ## Exact research question
 
@@ -9,15 +13,15 @@ meaningfully broader fixed evaluation set than the two-request S11-B pilot?**
 ## Goal
 
 Freeze the smallest defensible paired broader-quality protocol before any new
-result is observed. S11-C1 defines the evaluation set, control and treatment,
+result is observed. The broader lookahead quality protocol freeze (legacy work item S11-C1) defines the evaluation set, control and treatment,
 metrics, quality margins, repeats, route diagnostics, and classification rules.
 It creates no executor and runs no model, dataset selection, CUDA workload, or
 experiment.
 
-The next `/goal-driven` implementation goal, after this protocol-only stage is
+The next `/goal-driven` implementation goal, after this protocol-only work item is
 accepted, is a separately bounded S11-C2 executor and non-executing plan that
 must consume this contract without changing it. Real GPU execution remains a
-later, separately authorized stage.
+later, separately authorized work item.
 
 ## Authoritative established facts
 
@@ -251,12 +255,12 @@ S11-C1 and its future quality check exclude:
 
 A future **CONTINUE** classification from this exact broader 4/8 protocol is
 sufficient to justify opening the next separately scoped paired
-lookahead-specific 4/6/8 router-training stage. That later stage may ask
+lookahead-specific 4/6/8 router-training objective. That follow-up objective may ask
 whether a lookahead-trained 4/6/8 treatment reduces average selected precision
 relative to a paired same-unit 4/6/8 control while preserving teacher-relative
 quality.
 
-CONTINUE opens that later stage for its own pre-result protocol freeze and
+CONTINUE opens that follow-up objective for its own pre-result protocol freeze and
 separate execution authorization; it is not evidence that 4/6/8 will save
 precision and does not itself authorize training or execution. REVISE, PAUSE,
 and STOP are not sufficient to advance.

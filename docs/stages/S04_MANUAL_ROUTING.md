@@ -1,12 +1,16 @@
-# S04 — Manual attention/FFN precision plans
+# Implement manual attention and FFN precision plans
+
+_Legacy work-item reference: S04._
+
+Legacy identifiers elsewhere in this record are retained only for historical cross-reference to frozen decisions, evidence, paths, and machine-facing contracts.
 
 ## Gate result
 
-**Status: COMPLETE — CONTINUE.** The verified S03-B nested checkpoint executes
+**Status: COMPLETE — CONTINUE.** The verified nested 4/8-bit packed checkpoint (legacy work item S03-B) executes
 with immutable, explicit per-layer attention and FFN plans. All required route
 isolation, mixed-plan, serialization, parity, and state-leakage checks passed.
 
-This stage remains a resident packed-model baseline. It does not add query
+This work item remains a resident packed-model baseline. It does not add query
 features, a learned router, request-specific route generation, or CPU-to-GPU
 on-demand loading.
 
@@ -157,7 +161,7 @@ sequential plan state was observed.
 ## Commands and regression evidence
 
 All commands began with the required `~/.venv` activation block. The primary
-S04 command was:
+The primary manual precision-plan command (legacy work item S04) was:
 
 ```bash
 source ~/.venv/bin/activate && which python && python --version && \
@@ -181,7 +185,6 @@ prompts, train or invoke a router, maintain request-specific route state,
 transfer selected planes on demand, prefetch, batch multiple queries, or make
 latency/memory-transfer claims. The adapter is specialized to the verified
 Qwen3-4B 36-layer structure and the pinned Transformers/backend execution
-path. S05 is the next stage and is intentionally not implemented here.
+path. Adding query features and request-owned routing state (legacy work item S05) is the follow-up objective and is intentionally not implemented here.
 
-**Next action:** Begin S05: implement prompt-derived query features and
-request-specific route state using a deterministic manual route policy.
+**Next action:** implement prompt-derived query features and request-specific route state using a deterministic manual route policy (legacy work item S05).

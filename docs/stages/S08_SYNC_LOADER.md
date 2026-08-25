@@ -1,15 +1,21 @@
-# S08 — Synchronous on-demand loading
+# Implement synchronous on-demand loading
+
+_Legacy work-item reference: S08._
+
+Legacy identifiers elsewhere in this record are retained only for historical cross-reference to frozen decisions, evidence, paths, and machine-facing contracts.
 
 ## Goal
 
 Keep packed maximum-precision storage on CPU, transfer only selected packed planes synchronously, retain them for the request, and measure actual transfer bytes and GPU memory.
 
-## S08-A — synchronous request-scoped packed-plane loader contract
+## Define the synchronous request-scoped packed-plane loader contract
 
-**Status: COMPLETE — CONTINUE to a later S08 integration and measurement work unit.**
-S08-A is the implementation subdivision introduced by this work. It proves the
+_Legacy work-item reference: S08-A._
+
+**Status: COMPLETE — CONTINUE to integrate and measure real Qwen3 hard-routed loading (legacy work item S08-B).**
+The synchronous request-scoped loader-contract work (legacy work item S08-A) is the implementation subdivision introduced here. It proves the
 loader contract on a small real pinned-backend fixture only; it does not
-complete S08, run the Qwen3-4B on-demand evaluation, or make memory/latency
+complete the synchronous on-demand loading objective (legacy work item S08), run the Qwen3-4B on-demand evaluation, or make memory/latency
 comparisons.
 
 ### Verified representation and transfer granularity
@@ -91,9 +97,11 @@ Synchronous request-scoped loading transfers only selected packed planes, produc
 
 Required GPU instrumentation or runtime support is temporarily unavailable.
 
-## S08-B — real Qwen3 hard-routed integration and measurements
+## Integrate and measure real Qwen3 hard-routed loading
 
-**Status: COMPLETE — CONTINUE to S09.**
+_Legacy work-item reference: S08-B._
+
+**Status: COMPLETE — CONTINUE to evaluate and freeze the five-mode baseline (legacy work item S09).**
 
 The real Qwen3-4B integration used the two locked S07 validation requests and the pinned S03-B artifact.
 The on-demand model retained packed `qweight`, `lut4`, and `lut8` sources on CPU and replaced all 252 packed modules before moving the execution graph to CUDA.

@@ -1,10 +1,14 @@
-# S01 — Validate the Any-Precision backend
+# Validate the Any-Precision backend
+
+_Legacy work-item reference: S01._
+
+Legacy identifiers elsewhere in this record are retained only for historical cross-reference to frozen decisions, evidence, paths, and machine-facing contracts.
 
 ## Outcome
 
-**Status: COMPLETE — CONTINUE to S02.**
+**Status: COMPLETE — CONTINUE to specify and verify physical bit-plane packing (legacy work item S02).**
 
-S01 validates one small synthetic packed linear operation at exactly 4 and 8
+The Any-Precision backend validation (legacy work item S01) validates one small synthetic packed linear operation at exactly 4 and 8
 bits. It does not load Qwen3, model weights, a dataset, or any full model.
 
 ## Pinned source and actual API
@@ -130,8 +134,8 @@ ruff check src/qaq tests/unit/test_backend_import.py tests/unit/test_single_line
 - The CUDA extension was already built and installed during S00; S01 validates execution rather than rebuilding the upstream source.
 - Results are empirical for the recorded environment and RTX 3090. CUDA-unavailable environments must fail the tests explicitly and are not a pass.
 
-The S01 CONTINUE condition is satisfied: import, both packed precisions, both
+The Any-Precision backend validation CONTINUE condition (legacy work item S01) is satisfied: import, both packed precisions, both
 independent helper-based references, both determinism checks, distinct
 precision-path evidence, physical storage observations, and no-model scope all
-pass. S02 subsequently resolved the deferred physical-format questions; the
-current stage and next action are tracked in [`docs/STATUS.md`](../STATUS.md).
+pass. The physical bit-plane packing work (legacy work item S02) subsequently resolved the deferred physical-format questions; the
+current objective and next action are tracked in [`docs/STATUS.md`](../STATUS.md).

@@ -1,6 +1,6 @@
 # Qwen3-4B module mapping specification
 
-This is a S00 architecture specification, not an adapter implementation.
+This is the target-model architecture specification from the initial specification objective (legacy work item S00), not an adapter implementation.
 
 ## Locked evidence
 

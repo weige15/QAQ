@@ -1,7 +1,8 @@
 # Source notes
 
-This file records the preserved source inventory and the S00 source review.
+This file records the preserved source inventory and the initial source review (legacy work item S00).
 Any source-supported claim is kept separate from QAQ implementation assumptions.
+Legacy identifiers remain only as historical cross-references.
 
 ## Preserved source material
 
@@ -14,7 +15,7 @@ Any source-supported claim is kept separate from QAQ implementation assumptions.
 The PDFs under `papers/` are project source material and are unchanged by this scaffold.
 No claim about an unresolved paper detail is established here.
 
-## Any-Precision dependency provenance (S00 source-pinning pass)
+## Any-Precision dependency provenance (legacy S00 source-pinning pass)
 
 - **Dependency:** Any-Precision LLM.
 - **Upstream URL:** `https://github.com/SNU-ARC/any-precision-llm.git`.
@@ -47,7 +48,7 @@ No claim about an unresolved paper detail is established here.
   PY
   ```
 
-## S00 source review
+## Source review (legacy work item S00)
 
 The following claims are limited to the preserved local PDFs and their cited public metadata. They are source-supported observations, not endorsements of every implementation choice in `docs/DECISIONS.md`.
 
@@ -60,7 +61,7 @@ The following claims are limited to the preserved local PDFs and their cited pub
 
 The source review therefore supports the choice to investigate Any-Precision as a storage/backend substrate and to keep paper claims separate from QAQ implementation choices. D003–D012 remain implementation choices unless later evidence explicitly changes them.
 
-## Target-model provenance (S00 identity pass)
+## Target-model provenance (legacy S00 identity pass)
 
 - **Source-supported model fact:** `papers/QAQ.pdf` reports Qwen3-4B as one of the evaluated models. The QAQ implementation plan chooses this smaller reported model for the initial baseline.
 - **Selected repository:** `Qwen/Qwen3-4B`, the official Qwen repository. This exact repository identity is an implementation selection informed by the paper's `Qwen3-4B` name; the paper does not state the Hugging Face repository ID or revision.
@@ -87,7 +88,7 @@ The source review therefore supports the choice to investigate Any-Precision as 
 - **Implementation choices:** Pin the current `main` resolution as our reproducibility revision, use the same revision for the tokenizer, set `trust_remote_code: false`, and leave `local_weight_path` null. The exact revision used by QAQ authors remains unknown unless future source evidence states it.
 - **Compatibility boundary:** Any-Precision/Qwen3 compatibility remains unproven until architecture inspection and backend mapping; repository accessibility does not establish compatibility.
 
-## Qwen3 structure and backend-mapping evidence (S00 final pass)
+## Qwen3 structure and backend-mapping evidence (legacy S00 final pass)
 
 - **Pinned model-derived source:** `Qwen/Qwen3-4B` configuration at revision `1cfa9a7208912126459214e8b04321603b3df60c`; exact URL and captured output are represented in `docs/model_structure.json`.
 - **Configuration facts:** `Qwen3ForCausalLM`, `model_type: qwen3`, 36 layers, hidden size 2560, intermediate size 9728, vocabulary 151936, 32 attention heads, 8 key/value heads, head dimension 128, maximum position embeddings 40960, BF16 configured dtype, no attention bias, and tied word embeddings.
@@ -100,7 +101,7 @@ The source review therefore supports the choice to investigate Any-Precision as 
 - **Inspection artifacts:** `docs/model_structure.json`, `docs/QWEN3_MAPPING.md`, `scripts/inspect_model.py`, and `tests/unit/test_model_inspection.py`.
 - **Weight safety:** The inspection fetched only the pinned configuration and small source files. No model object, full-model tensor allocation, `.safetensors`, `.bin`, or snapshot was downloaded.
 
-## S00 reproducibility command record
+## Reproducibility command record (legacy work item S00)
 
 The environment snapshot was regenerated with:
 
