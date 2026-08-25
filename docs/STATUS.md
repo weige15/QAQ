@@ -1,3 +1,41 @@
+Current stage: S11-D2
+Status: COMPLETE — FAIL-CLOSED EXECUTION BOUNDARY AND DETERMINISTIC INERT PLAN STRUCTURALLY VALIDATED; NO TRAINING EXECUTED
+
+## S11-D2 paired lookahead-specific 4/6/8 executor boundary
+
+S11-D2 implements the standard-library-only command
+`scripts/run_lookahead_468_training.py` and byte-protected machine contract
+`configs/lookahead_468_training.json` (SHA-256
+`4a62aeb7d8ae90a6349dc9dc8aab6dda4196b54876c4d0546c05808936fefe92`).
+The default command validates the canonical S10-H manifest at exact SHA-256
+`7d9e0aff3b686570be0d1d57b5513ee921d60bd5470f275b0cd7cbb4fd63db20`
+and prints the frozen twelve trial commands plus aggregation without importing
+a model/data runtime or writing a result.
+
+The plan preserves exact per-seed order: zero-cost same-unit, zero-cost
+lookahead, `0.03` same-unit, then `0.03` lookahead for seeds
+`1729/1730/1731`. Stable trial identities bind every arm, timing, lambda, seed,
+and canonical initial-router hash; pairing links bind each same-timing
+zero-cost reference and same-cost timing comparator. The plan also carries the
+exact `[4,6,8]` / `[p4,p6,p8]` order, 24/12 ordered canonical data IDs,
+24-step AdamW budget, metric inventory, separate quality/precision thresholds,
+and `PAUSE`/`REVISE`/`CONTINUE`/`REFINE`/`STOP` precedence.
+
+Two plan invocations were byte-identical with SHA-256
+`487f084bf0e28a894694ef4ce3cc210474f4936d5c4023830be39a319462c37d`.
+Focused structural verification passed `15`, including exact count/order,
+deterministic identities and pairings, frozen config/data source validation,
+heavy-import exclusion, invalid/duplicate/reordered/additional input rejection,
+exact execution/output boundaries, and inert aggregation. Ruff and
+`git diff --check` passed.
+
+S11-D2 executed no model or dataset load, CUDA operation, training, evaluation,
+checkpoint creation, result write, measurement, or canonical artifact change.
+The future result parent remains absent and all scientific outcomes remain
+unknown. Exact execution requests stop before runtime import because real
+S11-D3 execution requires separate authorization. Next action: stop; authorize
+S11-D3 separately before running any of the twelve frozen trials.
+
 Current stage: S11-D1
 Status: COMPLETE — PAIRED 4/6/8 TRAINING PROTOCOL FROZEN; NO TRAINING EXECUTED
 

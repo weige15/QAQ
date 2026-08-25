@@ -1,0 +1,211 @@
+{
+  "schema": "qaq-s11d-paired-lookahead-468-v1",
+  "stage": "S11-D1",
+  "research_question": "Can a 4/6/8 router trained for one-layer-lookahead attention routing achieve meaningfully lower selected precision while preserving acceptable teacher-relative quality?",
+  "identities": {
+    "model_repository": "Qwen/Qwen3-4B",
+    "model_revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "tokenizer_revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "packed_artifact_pytorch_model_sha256": "29d9bc526b3da0bd39daf2f82afd141f82d005ca1232cabc75cfe9d9ecc1cfee",
+    "any_precision_revision": "a3257d02740cc5757c78673da534b0630ff3a4ea",
+    "dataset_repository": "Salesforce/wikitext",
+    "dataset_config": "wikitext-2-raw-v1",
+    "dataset_revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+    "historical_s07_checkpoint_used": false
+  },
+  "matrix": {
+    "arms": [
+      {
+        "id": "same_unit_468_control",
+        "routing_timing": "same_unit"
+      },
+      {
+        "id": "lookahead_attention_one_unit_468_treatment",
+        "routing_timing": "lookahead_attention_one_unit"
+      }
+    ],
+    "lambdas": [0.0, 0.03],
+    "seeds": [1729, 1730, 1731],
+    "initial_router_state_sha256_by_seed": {
+      "1729": "7b5b5bd2a1ed89b98c0c1358e6a38f5579d0919d0ffc980e06aa7ad09a434123",
+      "1730": "cca1b7cf3c06679fa4b2178ee2e8dfa4100a07738d0f1d4c9e928b4a08c0d55a",
+      "1731": "c96ce0f8da7541ecb13594458772d8a254bcb8c378d52096554dd53257b8baf1"
+    },
+    "candidate_bits": [4, 6, 8],
+    "probability_order": ["p4", "p6", "p8"],
+    "normalized_bit_costs": [0.0, 0.5, 1.0],
+    "trial_count": 12,
+    "within_seed_order": [
+      ["same_unit_468_control", 0.0],
+      ["lookahead_attention_one_unit_468_treatment", 0.0],
+      ["same_unit_468_control", 0.03],
+      ["lookahead_attention_one_unit_468_treatment", 0.03]
+    ],
+    "pairing": {
+      "one_fresh_canonical_initialization_per_seed": true,
+      "clone_initialization_byte_identically_across_four_cells": true,
+      "fresh_adamw_per_cell_with_empty_initial_state": true,
+      "warm_start_allowed": false
+    }
+  },
+  "data": {
+    "canonical_manifest_path": "docs/results/s10h_broader_validation.json",
+    "canonical_manifest_sha256": "7d9e0aff3b686570be0d1d57b5513ee921d60bd5470f275b0cd7cbb4fd63db20",
+    "train_ids": [
+      "train-3", "train-1003", "train-2002", "train-3037", "train-4005", "train-5002",
+      "train-6001", "train-7001", "train-8000", "train-9068", "train-10001", "train-11003",
+      "train-12003", "train-13000", "train-14000", "train-15000", "train-16002", "train-17002",
+      "train-18000", "train-19001", "train-20006", "train-21000", "train-22000", "train-23000"
+    ],
+    "validation_ids": [
+      "validation-3", "validation-270", "validation-500", "validation-761",
+      "validation-1000", "validation-1252", "validation-1500", "validation-1759",
+      "validation-2000", "validation-2250", "validation-2500", "validation-2755"
+    ],
+    "tokenization": {
+      "add_special_tokens": false,
+      "sequence_length": 64,
+      "prompt_token_range": [0, 32],
+      "completion_token_range": [32, 64],
+      "causal_completion_loss_logit_range": [31, 63],
+      "selection": "first 64 tokens; no resampling or replacement"
+    }
+  },
+  "training": {
+    "examples_seen": 24,
+    "batch_size": 1,
+    "gradient_accumulation_steps": 1,
+    "epochs": 1,
+    "optimizer_steps": 24,
+    "optimizer": "AdamW",
+    "learning_rate": 0.001,
+    "weight_decay": 0.0,
+    "betas": [0.9, 0.999],
+    "eps": 1e-08,
+    "amsgrad": false,
+    "scheduler": "none",
+    "routing_temperature": 1.0,
+    "distillation_temperature": 2.0,
+    "loss_formula": "L_total = L_KD + lambda_bit * L_bit",
+    "bit_cost_reduction": "unweighted mean across all 36 attention and 36 FFN decisions",
+    "teacher_frozen": true,
+    "packed_student_base_frozen": true,
+    "router_only_optimizer": true,
+    "router_count": 72,
+    "router_parameter_count": 23630040,
+    "final_state_only": true,
+    "production_checkpoint_created": false
+  },
+  "evaluation": {
+    "resident_physically_packed": true,
+    "batch_size": 1,
+    "teacher_forced_tokens": 64,
+    "use_cache": false,
+    "generation": false,
+    "decode": false,
+    "immediate_hard_repeat_count": 1,
+    "hard_repeat_must_be_identical": [
+      "logits", "routes", "metrics", "input_digests", "teacher_digests", "provenance"
+    ],
+    "request_metrics": [
+      "completion_only_temperature_2_masked_teacher_relative_kl",
+      "full_logit_mean_absolute_teacher_error",
+      "full_logit_maximum_absolute_teacher_error",
+      "soft_expected_width",
+      "hard_mean_selected_width",
+      "hard_4_6_8_counts_and_fractions",
+      "complete_72_unit_layer_major_route_map_attention_then_ffn",
+      "attention_ffn_overall_selected_width",
+      "paired_route_transitions"
+    ],
+    "aggregate_rule": "unweighted arithmetic mean of twelve request values for KL, mean absolute error, and selected width",
+    "maximum_absolute_error_diagnostic_only": true,
+    "route_decisions_per_trial": 864,
+    "per_seed_values_and_median_paired_seed_deltas_required": true,
+    "combined_quality_precision_score_allowed": false
+  },
+  "thresholds": {
+    "quality": {
+      "lookahead_positive_minus_zero_median_hard_kl_max": 0.0,
+      "lookahead_positive_each_request_hard_kl_max_zero_factor": 1.25,
+      "lookahead_positive_aggregate_hard_mean_error_max_zero_factor": 1.1,
+      "lookahead_positive_aggregate_hard_kl_max_same_unit_positive_factor": 1.1,
+      "lookahead_positive_aggregate_hard_mean_error_max_same_unit_positive_factor": 1.1,
+      "lookahead_positive_each_request_hard_kl_max_same_unit_positive_factor": 1.25
+    },
+    "precision": {
+      "lookahead_positive_minus_zero_median_hard_width_max": -0.4907407407407405,
+      "strictly_negative_seed_delta_minimum": 2
+    },
+    "refine": {
+      "quality_near_miss_hard_kl_delta_strict_max": 0.014972516723598044,
+      "precision_near_miss_median_reduction_minimum": 0.24537037037037025,
+      "precision_pass_reduction_minimum": 0.4907407407407405
+    }
+  },
+  "classifications": {
+    "precedence": ["PAUSE", "REVISE", "CONTINUE", "REFINE", "STOP"],
+    "outcomes": ["PAUSE", "REVISE", "CONTINUE", "REFINE", "STOP"],
+    "quality_and_precision_separate": true,
+    "rules": {
+      "PAUSE": {
+        "required_evidence_unavailable_or_incomplete": true,
+        "interrupted_trial_incomplete": true,
+        "material_scientific_ambiguity": true,
+        "substitution_allowed": false
+      },
+      "REVISE": {
+        "complete_evidence_identifies_invalid_protocol_or_execution_evidence": true,
+        "defect_classes": [
+          "protocol", "identity", "pairing", "initialization", "ordering", "optimizer",
+          "update_count", "freeze", "gradient", "route_or_provenance", "repeat",
+          "persistence", "regression", "prohibited_work"
+        ],
+        "scientific_threshold_or_arm_change_allowed": false
+      },
+      "CONTINUE": {
+        "all_evidence_and_audits_complete_and_valid": true,
+        "all_quality_criteria_pass": true,
+        "all_selected_precision_criteria_pass": true,
+        "production_lambda_selected": false
+      },
+      "REFINE": {
+        "all_other_scientific_criteria_must_pass": true,
+        "regions": [
+          {
+            "precision_passes": true,
+            "all_factor_safeguards_pass": true,
+            "lookahead_paired_median_hard_kl_delta_strict_min": 0.0,
+            "lookahead_paired_median_hard_kl_delta_strict_max": 0.014972516723598044
+          },
+          {
+            "quality_passes": true,
+            "all_three_seed_width_deltas_negative": true,
+            "median_width_reduction_inclusive_min": 0.24537037037037025,
+            "median_width_reduction_strict_max": 0.4907407407407405
+          }
+        ]
+      },
+      "STOP": {
+        "complete_valid_evidence": true,
+        "outside_continue_and_exact_refine_regions": true
+      }
+    }
+  },
+  "execution": {
+    "future_result_parent": "docs/results/s11d_paired_468",
+    "real_execution_authorized_in_s11_d2": false,
+    "aggregate_after_all_twelve_trials": true,
+    "no_overwrite": true
+  },
+  "prohibitions": [
+    "real_training", "real_evaluation", "model_loading", "dataset_loading", "cuda_work",
+    "checkpoint_creation", "result_artifact_creation", "adaptive_lambda_search", "lambda_0.1",
+    "extra_seeds", "extra_examples", "extra_epochs", "warm_start", "early_stopping",
+    "checkpoint_selection", "entropy_term", "combined_quality_precision_score",
+    "historical_s07_checkpoint_loading", "teacher_training", "packed_base_training",
+    "non_router_optimizer_membership", "candidate_change", "candidate_reorder", "cost_change",
+    "prefetch", "asynchronous_loading", "caching", "batching", "scheduling",
+    "latency_measurement", "transfer_measurement", "memory_measurement", "throughput_measurement"
+  ]
+}
