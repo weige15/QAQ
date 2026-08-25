@@ -10,6 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
+sys.dont_write_bytecode = True
 
 from qaq.evaluation import lookahead_468_executor as executor
 
@@ -32,16 +33,53 @@ def main(argv: list[str] | None = None) -> int:
         if args.execute_trial is not None:
             if args.device is None or args.output is None:
                 parser.error("--execute-trial requires --device and --output")
-            executor.validate_execution_request(
+            spec = executor.validate_execution_request(
                 trial_id=args.execute_trial,
                 device=args.device,
                 output=args.output,
                 config_path=args.config,
             )
+            # Keep heavy Torch/model/data imports strictly behind the validated
+            # frozen dispatcher boundary above.
+            from qaq.evaluation.lookahead_468_runtime import execute_production
+
+            config, _ = executor.load_protocol(args.config, require_results_absent=False)
+            outcome = execute_production(
+                config=config,
+                spec=spec,
+                device=args.device,
+                output=args.output,
+            )
+            _print(
+                {
+                    "classification": outcome.classification,
+                    "errors": list(outcome.errors),
+                    "executed": outcome.result is not None,
+                    "written": outcome.written,
+                    "output": outcome.output_path,
+                }
+            )
+            return 0 if outcome.written else (2 if outcome.classification == "PAUSE" else 1)
         elif args.aggregate:
             if args.device is not None or args.output is None:
                 parser.error("--aggregate requires --output and does not accept --device")
-            executor.validate_aggregation_request(output=args.output, config_path=args.config)
+            paths = executor.validate_aggregation_request(
+                output=args.output, config_path=args.config
+            )
+            from qaq.evaluation.lookahead_468_runtime import execute_aggregation
+
+            config, _ = executor.load_protocol(args.config, require_results_absent=False)
+            outcome = execute_aggregation(paths=paths, config=config, output=args.output)
+            _print(
+                {
+                    "classification": outcome.classification,
+                    "errors": list(outcome.errors),
+                    "evaluated": outcome.result is not None,
+                    "written": outcome.written,
+                    "output": outcome.output_path,
+                }
+            )
+            return 0 if outcome.written else (2 if outcome.classification == "PAUSE" else 1)
         else:
             if args.device is not None or args.output is not None:
                 parser.error("plan/default mode accepts neither --device nor --output")
@@ -57,7 +95,7 @@ def main(argv: list[str] | None = None) -> int:
             }
         )
         return 2 if exc.outcome == "PAUSE" else 1
-    raise AssertionError("execution validation must stop before runtime dispatch")
+    raise AssertionError("validated action must return or fail closed")
 
 
 if __name__ == "__main__":

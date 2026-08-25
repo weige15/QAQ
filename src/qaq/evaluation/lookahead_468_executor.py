@@ -1,8 +1,8 @@
-"""Fail-closed S11-D2 dispatcher and deterministic inert 12-trial plan.
+"""Fail-closed dispatcher and deterministic inert paired 12-trial plan.
 
-This module is standard-library-only.  S11-D2 deliberately has no production
-runtime: every execution request is validated against the frozen protocol and
-then refused until a separately authorized S11-D3 supplies that runtime.
+This module remains standard-library-only.  Execution requests cross into the
+separately imported production runtime only after this dispatcher validates the
+exact frozen protocol, trial, CUDA device, and destination.
 """
 
 from __future__ import annotations
@@ -487,9 +487,9 @@ def plan(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
 
 def validate_execution_request(
     *, trial_id: str, device: str, output: Path, config_path: Path = DEFAULT_CONFIG
-) -> None:
-    load_protocol(config_path)
-    known = {item["trial_id"] for item in trial_specs()}
+) -> dict[str, Any]:
+    load_protocol(config_path, require_results_absent=False)
+    known = {item["trial_id"]: item for item in trial_specs()}
     _require(trial_id in known, f"unknown, missing, or non-frozen trial ID: {trial_id!r}")
     _require(
         _CUDA_DEVICE.fullmatch(device or "") is not None,
@@ -497,25 +497,50 @@ def validate_execution_request(
     )
     expected = FUTURE_RESULT_PARENT / f"{trial_id}.json"
     _require(Path(output).resolve() == expected.resolve(), f"trial output must be {expected}")
+    if os.path.lexists(FUTURE_RESULT_PARENT):
+        _require(
+            FUTURE_RESULT_PARENT.is_dir() and not FUTURE_RESULT_PARENT.is_symlink(),
+            f"trial result parent must be a real directory: {FUTURE_RESULT_PARENT}",
+            outcome="PAUSE",
+        )
     _require(
         not os.path.lexists(expected), f"trial output already exists: {expected}", outcome="PAUSE"
     )
-    raise ProtocolError(
-        "PAUSE",
-        "real S11-D3 execution is not authorized in S11-D2; no runtime was imported or invoked",
-    )
+    return dict(known[trial_id])
 
 
-def validate_aggregation_request(*, output: Path, config_path: Path = DEFAULT_CONFIG) -> None:
-    load_protocol(config_path)
+def validate_aggregation_request(
+    *, output: Path, config_path: Path = DEFAULT_CONFIG
+) -> tuple[Path, ...]:
+    load_protocol(config_path, require_results_absent=False)
     _require(
         Path(output).resolve() == AGGREGATION_OUTPUT.resolve(),
         f"aggregation output must be {AGGREGATION_OUTPUT}",
     )
-    raise ProtocolError(
-        "PAUSE",
-        "S11-D aggregation requires twelve separately authorized S11-D3 trial results",
+    _require(
+        FUTURE_RESULT_PARENT.is_dir() and not FUTURE_RESULT_PARENT.is_symlink(),
+        "aggregation requires the real canonical result directory",
+        outcome="PAUSE",
     )
+    expected = tuple(FUTURE_RESULT_PARENT / f"{item['trial_id']}.json" for item in trial_specs())
+    for path in expected:
+        _require(
+            path.is_file() and not path.is_symlink(),
+            f"aggregation requires complete trial evidence: {path}",
+            outcome="PAUSE",
+        )
+    allowed = {path.name for path in expected}
+    _require(
+        {path.name for path in FUTURE_RESULT_PARENT.iterdir()} == allowed,
+        "aggregation result directory is incomplete or contains unexpected evidence",
+        outcome="PAUSE",
+    )
+    _require(
+        not os.path.lexists(AGGREGATION_OUTPUT),
+        f"aggregation output already exists: {AGGREGATION_OUTPUT}",
+        outcome="PAUSE",
+    )
+    return expected
 
 
 __all__ = [

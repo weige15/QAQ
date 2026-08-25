@@ -175,7 +175,7 @@ def test_noncanonical_config_path_is_rejected_before_use(tmp_path):
         executor.load_protocol(changed)
 
 
-def test_execution_dispatch_validates_boundaries_then_refuses_real_work():
+def test_execution_dispatch_validates_every_boundary_before_returning_exact_spec():
     spec = executor.trial_specs()[0]
     expected = executor.FUTURE_RESULT_PARENT / f"{spec['trial_id']}.json"
     with pytest.raises(executor.ProtocolError, match="explicit cuda"):
@@ -190,30 +190,91 @@ def test_execution_dispatch_validates_boundaries_then_refuses_real_work():
         executor.validate_execution_request(
             trial_id=spec["trial_id"], device="cuda:0", output=ROOT / "wrong.json"
         )
-    with pytest.raises(executor.ProtocolError, match="real S11-D3 execution is not authorized"):
+    assert (
         executor.validate_execution_request(
             trial_id=spec["trial_id"], device="cuda:0", output=expected
         )
+        == spec
+    )
     assert not os.path.lexists(executor.FUTURE_RESULT_PARENT)
 
 
-def test_exact_execute_command_imports_no_runtime_and_writes_nothing():
+def test_execution_dispatch_rejects_symlinked_result_parent(monkeypatch, tmp_path):
+    target = tmp_path / "target"
+    target.mkdir()
+    linked = tmp_path / "linked"
+    linked.symlink_to(target, target_is_directory=True)
+    monkeypatch.setattr(executor, "FUTURE_RESULT_PARENT", linked)
+    spec = executor.trial_specs()[0]
+    with pytest.raises(executor.ProtocolError, match="real directory"):
+        executor.validate_execution_request(
+            trial_id=spec["trial_id"],
+            device="cuda:0",
+            output=linked / f"{spec['trial_id']}.json",
+        )
+
+
+@pytest.mark.parametrize("defect", ["trial", "device", "config", "destination"])
+def test_invalid_execute_command_imports_no_runtime_and_writes_nothing(defect):
+    spec = executor.trial_specs()[0]
+    trial_id = "extra-trial" if defect == "trial" else spec["trial_id"]
+    device = "cpu" if defect == "device" else "cuda:0"
+    output = (
+        "wrong.json"
+        if defect == "destination"
+        else f"docs/results/s11d_paired_468/{spec['trial_id']}.json"
+    )
+    arguments = ["--execute-trial", trial_id, "--device", device, "--output", output]
+    if defect == "config":
+        arguments += ["--config", "configs/broader_router_validation.json"]
+    completed = _run_without_heavy_imports(arguments)
+    assert completed.returncode == 1
+    report = json.loads(completed.stdout)
+    assert report["classification"] == "REVISE"
+    assert report["executed"] is False
+    assert report["written"] is False
+    assert "torch" not in completed.stderr
+    assert not os.path.lexists(executor.FUTURE_RESULT_PARENT)
+
+
+def test_valid_execute_request_crosses_heavy_import_boundary_only_after_validation():
     spec = executor.trial_specs()[0]
     output = f"docs/results/s11d_paired_468/{spec['trial_id']}.json"
     completed = _run_without_heavy_imports(
         ["--execute-trial", spec["trial_id"], "--device", "cuda:0", "--output", output]
     )
-    assert completed.returncode == 2
-    report = json.loads(completed.stdout)
-    assert report["classification"] == "PAUSE"
-    assert report["executed"] is False
-    assert report["written"] is False
+    assert completed.returncode != 0
+    assert "AssertionError: torch" in completed.stderr
     assert not os.path.lexists(executor.FUTURE_RESULT_PARENT)
 
 
-def test_aggregation_is_inert_and_requires_exact_future_output():
+def test_aggregation_dispatch_is_inert_until_all_exact_trial_files_exist(monkeypatch, tmp_path):
     with pytest.raises(executor.ProtocolError, match="aggregation output must be"):
         executor.validate_aggregation_request(output=ROOT / "wrong.json")
-    with pytest.raises(executor.ProtocolError, match="requires twelve"):
+    with pytest.raises(executor.ProtocolError, match="canonical result directory"):
         executor.validate_aggregation_request(output=executor.AGGREGATION_OUTPUT)
+
+    parent = tmp_path / "results"
+    parent.mkdir()
+    output = parent / "aggregation.json"
+    monkeypatch.setattr(executor, "FUTURE_RESULT_PARENT", parent)
+    monkeypatch.setattr(executor, "AGGREGATION_OUTPUT", output)
+    paths = []
+    for spec in executor.trial_specs():
+        path = parent / f"{spec['trial_id']}.json"
+        path.write_text("{}")
+        paths.append(path)
+    assert executor.validate_aggregation_request(output=output) == tuple(paths)
+    (parent / "unexpected.json").write_text("{}")
+    with pytest.raises(executor.ProtocolError, match="unexpected evidence"):
+        executor.validate_aggregation_request(output=output)
+
+
+def test_invalid_aggregation_request_imports_no_heavy_runtime_and_writes_nothing():
+    completed = _run_without_heavy_imports(
+        ["--aggregate", "--output", "docs/results/s11d_paired_468/aggregation.json"]
+    )
+    assert completed.returncode == 2
+    assert json.loads(completed.stdout)["classification"] == "PAUSE"
+    assert "torch" not in completed.stderr
     assert not os.path.lexists(executor.FUTURE_RESULT_PARENT)
