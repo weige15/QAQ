@@ -256,3 +256,56 @@ timing, and cost pressure. It cannot determine which individual 8→6, 8→4, or
 bits, and cannot turn the failed S11-D `STOP` result into a production lambda or
 precision policy. The frozen S11-D protocol, thresholds, canonical evidence,
 and outcome remain unchanged.
+
+## Same-unit block-sensitivity executor readiness
+
+**COMPLETE — structurally ready, not executed.**
+`qaq.evaluation.block_sensitivity` validates this document's exact
+byte-identified definition against the canonical route evidence and emits a
+deterministic non-executing plan. The plan contains exactly the ordered 42
+candidate units, three existing seed contexts, twelve canonical requests, 36
+paired contexts per intervention, one target-forced-8 control for every
+treatment, precision 4 first, and precision 6 only after complete valid
+precision-4 failure. It preserves completion-only temperature-2 masked
+teacher-relative KL, full-logit mean and diagnostic maximum absolute teacher
+error, the per-seed aggregate factors `1.10`, per-request KL factor `1.25`,
+finiteness, exact immediate repeat, and target-only route-difference rules.
+
+A complete future unit/precision result is one independently valid atomic file.
+It binds the study, model/tokenizer/artifact, the established exact S11
+hardware/software fields on a compatible RTX 3090, unit, precision, all ordered
+source contexts, input and teacher digests, expected forced route
+maps, paired control/treatment logits and immediate repeats, metrics, three
+recomputed seed summaries, classification, and the no-training/no-retuning/
+no-lookahead audit. Missing, duplicate, reordered, non-finite, mismatched,
+partially repeated, cross-study, or route-inconsistent evidence is invalid.
+
+The dispatch boundary accepts only an exact known unit, precision 4 or 6, an
+explicit `cuda:<index>`, and the exact absent output. A precision-6 request also
+requires an already persisted complete valid failed precision-4 result and is
+rejected when precision 4 passed. Persistence validates before mutation, writes
+and fsyncs a same-directory temporary file, revalidates it, promotes with an
+atomic no-overwrite hard link, verifies promoted bytes and SHA-256, fsyncs the
+directory, and cleans its temporary file. Existing destinations are never
+overwritten; an interrupted temporary file never counts as complete. The
+non-mutating `--resume-plan` scan walks the authoritative target order and emits
+exactly one next action per unit: run precision 4, run precision 6 after complete
+valid failed 4, or complete. Absent result state deterministically means all 42
+precision-4 actions remain. Temporary, linked, wrongly named, malformed,
+mixed-study, or cross-execution-provenance state is rejected.
+
+Aggregation revalidates every canonical result path and accepts only all 42
+mandatory precision-4 results plus exactly those precision-6 fallbacks required
+by failed precision-4 results. Fallback forced-8 controls must match the first
+attempt.
+All files must use their exact unit/precision names and share one complete
+hardware/software execution identity. Missing, duplicate, orphaned, unexpected,
+or mixed-study evidence is rejected. Only then may aggregation assign 4 after a
+precision-4 pass, 6 after a failed 4 and passed 6, or conservative 8 after both
+fail.
+
+The command `scripts/run_s11d_block_sensitivity.py --plan` is inert and
+standard-library-only. Structural tests block imports of Torch, Transformers,
+datasets, Any-Precision, and CUDA extensions while validating deterministic
+plan bytes. No sensitivity result parent was created; no model/CUDA execution,
+router training, lambda retuning, S11-D rerun, or lookahead work occurred.

@@ -708,3 +708,28 @@ is `docs/results/s11d_paired_468/aggregation.json`, SHA-256
 `ad40dc13276b83aef5ea0d58d1920c4e472ba3f8817c691e5ea5fa5b1881ef04`.
 No production lambda is selected. No retuning, extra/selective rerun, protocol
 change, performance work, loader work, or follow-up objective was performed.
+
+## Same-unit block-sensitivity executor readiness (not executed)
+
+The standard-library-only executor contract and command derive the exact
+42-unit plan from `docs/results/s11d_route_policy_diagnostic.json` SHA-256
+`cbc8965e48e4b751d0497190d3ecbcbb996611a5dc6b38d8766e7a747763b064`
+and the three byte-identified canonical same-unit lambda-zero trials. Two plan
+builds serialize identically. Structural validation covers the 42 ordered
+units, 36 seed/request contexts per intervention, target-forced-8 pairing,
+4-first/6-fallback scheduling, unchanged S11 factors, complete result evidence,
+atomic no-overwrite persistence, deterministic non-mutating resumption, and
+exact complete aggregation. The resume command treats an absent result parent
+as all 42 precision-4 interventions pending, revalidates canonical existing
+files in target order, emits one next action per unit, and rejects temporary,
+linked, wrongly named, malformed, mixed-study, or execution-incompatible state.
+Aggregation requires canonical filenames and one exact shared S11
+hardware/software identity on the compatible RTX 3090 contract.
+
+Focused CPU-only tests pass and include malformed plans, changed counts/factors,
+missing and duplicate identities, broken pairings, incomplete/non-finite or
+repeat-mismatched evidence, unsafe destinations, no-overwrite races, required
+and forbidden fallback cases, mixed-study aggregation, and deterministic plan
+execution with heavy imports blocked. No sensitivity result directory was
+created. No model, dataset, Torch, Transformers, Any-Precision, CUDA,
+router-training, lambda-retuning, S11-D rerun, or lookahead execution ran.

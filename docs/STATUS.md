@@ -1,8 +1,8 @@
 # QAQ Status
 
-Current objective: **Diagnose request dependence in completed canonical S11-D routes**
-Source protocol/runtime references: **S11-D1 through S11-D3**
-Status: **COMPLETE — mostly static unit/layer policy; sensitivity study not executed**
+Current objective: **Make the defined same-unit block-sensitivity study structurally executable**
+Source protocol/runtime references: **S11-D1 through S11-D3 and the route-policy diagnostic**
+Status: **COMPLETE — deterministic executor ready; sensitivity study not executed**
 
 ## Completed route-policy diagnostic
 
@@ -24,9 +24,44 @@ observational associations and cannot identify which individual downgrade
 caused quality loss.
 
 A smallest future same-unit one-block-at-a-time sensitivity study is defined for
-the `42` units with observed same-unit cost downgrades. It was not executed and
-is not under way. No trial, training, retuning, lambda selection, lookahead
-experiment, or canonical result was created or changed.
+the `42` units with observed same-unit cost downgrades.
+
+## Completed executor readiness
+
+The standard-library-only contract in
+`src/qaq/evaluation/block_sensitivity.py` and command
+`scripts/run_s11d_block_sensitivity.py` now derive a byte-deterministic inert
+plan from the exact diagnostic and canonical same-unit lambda-zero route maps.
+The plan preserves all `42` ordered targets, seed contexts `[1729,1730,1731]`,
+twelve ordered requests, `36` paired contexts per intervention, target-forced-8
+controls, 4-first/6-only-after-failure scheduling, immediate repeats, and the
+existing per-seed `1.10` aggregate KL/mean-error and per-request `1.25` KL
+factors.
+
+Future evidence is complete only when one atomic unit/precision file contains
+all 36 ordered control/treatment pairs, exact source/input/teacher/route
+identities, the complete established S11 hardware/software fields on a
+compatible RTX 3090, finite metrics, repeated logits and metrics, three
+independently recomputed seed summaries, and passing route-isolation and
+prohibited-work audits. Precision 6 dispatch requires a complete valid failed
+precision 4 file; it is rejected after a precision 4 pass. Persistence validates
+before writing, uses a same-directory fsynced temporary file and atomic
+no-overwrite hard-link
+promotion, verifies promoted bytes, and never treats a temporary file as
+complete. The non-mutating resume command scans canonical paths in target order,
+classifies exactly one next action per unit, and rejects temporary, linked,
+wrongly named, malformed, mixed-study, or cross-execution-provenance evidence.
+Aggregation independently revalidates every consumed canonical file, requires
+one shared hardware/software identity, all 42 precision-4 results, and exactly
+the required fallbacks; it rejects mixed, missing, duplicate, orphaned, or extra
+evidence and emits one lowest-safe precision per target.
+
+Focused CPU-only structural tests pass without importing model, dataset, Torch,
+Transformers, Any-Precision, or CUDA runtime packages. The default command only
+prints the deterministic plan. The dispatcher validates a future explicit
+execution request but deliberately contains no production execution import.
+No sensitivity trial, model/CUDA execution, router training, lambda retuning,
+lookahead work, or canonical sensitivity result was performed or created.
 
 ## Frozen S11-D source state
 
@@ -74,10 +109,10 @@ select or recommend a production lambda.
 
 ## Decision gate
 
-Stop. The route-policy diagnostic is complete, and the frozen S11-D `STOP`
-outcome remains unchanged. No sensitivity execution, retuning, selective or
-additional S11-D run, performance work, loader work, or lookahead objective is
-authorized or under way.
+Stop. Executor readiness is complete, and the frozen S11-D `STOP` outcome
+remains unchanged. The sensitivity result directory remains absent. No
+sensitivity execution, retuning, selective or additional S11-D run, performance
+work, loader work, or lookahead objective is authorized or under way.
 
 ## Authoritative references
 
@@ -91,5 +126,8 @@ authorized or under way.
 * Route-policy diagnostic: `docs/stages/S11D_ROUTE_POLICY_DIAGNOSTIC.md`
 * Read-only analyzer: `scripts/analyze_s11d_route_policy.py`
 * Derived diagnostic artifact: `docs/results/s11d_route_policy_diagnostic.json`
+* Sensitivity executor/plan contract: `src/qaq/evaluation/block_sensitivity.py`
+* Sensitivity structural command: `scripts/run_s11d_block_sensitivity.py`
+* Sensitivity structural tests: `tests/unit/test_s11d_block_sensitivity.py`
 * Experiment record: `docs/EXPERIMENTS.md`
 * Durable decisions: `docs/DECISIONS.md`

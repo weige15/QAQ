@@ -1799,3 +1799,51 @@ combined score would hide which scientific requirement failed.
 threshold defect requires a new pre-result decision. After any result exists,
 preserve this protocol, invalidate affected evidence, and use REVISE rather
 than changing arms, lambdas, seeds, examples, budgets, references, or gates.
+
+### D062 — Same-unit block-sensitivity executor and evidence boundary
+
+**Established scientific contract:** The route-policy diagnostic defines exactly
+42 same-unit candidate blocks, one-block-at-a-time interventions, the three
+existing seed contexts and twelve canonical requests, paired target-forced-8
+controls, precision 4 first with precision 6 only after failure, one immediate
+repeat, and the existing S11 `1.10` aggregate and `1.25` per-request quality
+factors. This executor-readiness work does not change those choices.
+
+**Implementation choice — deterministic identity and evidence:** Derive the plan
+from the exact diagnostic bytes and byte-identified canonical same-unit
+lambda-zero trials. Bind each future result to the resulting study identity,
+exact target and precision, all 36 ordered source contexts, model/tokenizer/
+artifact identities, the established exact S11 device/index/GPU/driver/CUDA/
+PyTorch/Transformers/Python evidence with the compatible RTX 3090 contract,
+source input/teacher/route digests, paired forced route-map digests,
+primary/repeat logits and metrics, three independently recomputed seed
+summaries, and complete route-isolation,
+finiteness, repeat, and prohibited-work audits. Reject rather than infer or
+substitute any missing, duplicate, reordered, non-finite, mismatched, or
+conflicting evidence.
+
+**Implementation choice — persistence and resumption:** Persist one complete
+unit/precision file through same-directory fsync, strict reread and validation,
+atomic no-overwrite hard-link promotion, promoted-byte/digest verification, and
+directory fsync. Existing outputs, linked parents, unsafe destinations, and
+partial temporary files never count as resumable completion. A non-mutating
+resume scan walks targets in authoritative order, accepts only canonical paths,
+revalidates every existing file, and classifies exactly one next action per
+unit: run 4, run 6 after a valid failed 4, or complete. It rejects symlinks,
+temporary, wrongly named, malformed, mixed-study, and cross-execution-provenance
+evidence. Precision 6 may be dispatched only when the exact precision-4 file is
+complete, valid, and failed; it is forbidden after a precision-4 pass.
+
+**Implementation choice — aggregation:** Independently revalidate all inputs and
+require every precision-4 result plus exactly the fallback results demanded by
+failed 4-bit evidence. Require fallback forced-8 controls to equal their 4-bit
+attempt controls. Require exact canonical filenames and one shared complete
+hardware/software execution identity. Reject missing, extra, duplicate,
+orphaned, incompatible, or mixed-study evidence before assigning the lowest
+safe precision as 4, else 6, else conservative 8.
+
+**Boundary and consequence:** The default command is a deterministic inert plan
+and the dispatch command performs validation only. No production sensitivity
+runtime was imported or invoked, no result directory was created, and no model,
+CUDA, training, lambda-retuning, S11-D rerun, or lookahead work occurred. Real
+sensitivity execution remains a separate explicitly authorized action.

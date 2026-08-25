@@ -45,6 +45,7 @@ Legacy identifiers are retained in parentheses for links to frozen decisions, ev
 29. Implement the deterministic paired-training plan and fail-closed dispatcher (legacy work item S11-D2).
 30. Implement the production runtime for paired lookahead-specific 4/6/8 router training and evaluation (legacy work item S11-D3; complete with frozen `STOP`).
 31. Diagnose request dependence in the completed canonical S11-D hard routes and define, without executing, the smallest same-unit block-sensitivity study (complete).
+32. Implement and structurally validate the deterministic same-unit block-sensitivity executor, evidence contract, atomic persistence, resumption, and aggregation boundaries without running the study (complete).
 
 No objective may begin automatically. A work item stops at its decision gate and updates `docs/STATUS.md` before handoff.
 The authoritative current objective and its follow-up action are recorded in `docs/STATUS.md`; historical codes do not grant authority to begin either one.
