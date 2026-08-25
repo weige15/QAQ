@@ -1,10 +1,34 @@
 # QAQ Status
 
-Current objective: **Execute and classify the frozen paired lookahead-specific 4/6/8 router experiment**
-Legacy protocol/runtime references: **S11-D1 through S11-D3**
-Status: **COMPLETE — frozen outcome `STOP`**
+Current objective: **Diagnose request dependence in completed canonical S11-D routes**
+Source protocol/runtime references: **S11-D1 through S11-D3**
+Status: **COMPLETE — mostly static unit/layer policy; sensitivity study not executed**
 
-## Current state
+## Completed route-policy diagnostic
+
+The read-only diagnostic in
+`docs/stages/S11D_ROUTE_POLICY_DIAGNOSTIC.md` uses only the twelve byte-identified
+canonical S11-D trial files. Across `10,368` hard decisions, `86.11%` of the
+`864` fixed trial/unit cells are invariant across all twelve requests, a modal
+static unit policy explains `96.74%` of decisions, and unordered within-cell
+request pairs disagree `4.96%` of the time. The evidence therefore supports a
+mostly static unit/layer policy with real but secondary request variation.
+
+The reproducible derived artifact is
+`docs/results/s11d_route_policy_diagnostic.json`. It reports 4/6/8 use and route
+variation by layer, attention/FFN unit, request, seed, timing, and cost, plus
+matched directional transitions and explicit early/middle/late localization.
+Pooled lookahead choices are `0.03665` bits higher than same-unit, but the sign
+is not consistent across seeds, so conservatism is not systematic. These are
+observational associations and cannot identify which individual downgrade
+caused quality loss.
+
+A smallest future same-unit one-block-at-a-time sensitivity study is defined for
+the `42` units with observed same-unit cost downgrades. It was not executed and
+is not under way. No trial, training, retuning, lambda selection, lookahead
+experiment, or canonical result was created or changed.
+
+## Frozen S11-D source state
 
 The separately authorized real execution used the frozen protocol in
 `configs/lookahead_468_training.json` (SHA-256
@@ -50,9 +74,10 @@ select or recommend a production lambda.
 
 ## Decision gate
 
-Stop. The frozen `STOP` outcome ends this objective. No retuning, selective or
-additional run, performance work, protocol change, loader work, or follow-up
-objective is authorized or under way.
+Stop. The route-policy diagnostic is complete, and the frozen S11-D `STOP`
+outcome remains unchanged. No sensitivity execution, retuning, selective or
+additional S11-D run, performance work, loader work, or lookahead objective is
+authorized or under way.
 
 ## Authoritative references
 
@@ -63,5 +88,8 @@ objective is authorized or under way.
 * Production runtime: `src/qaq/evaluation/lookahead_468_runtime.py`
 * Command entry point: `scripts/run_lookahead_468_training.py`
 * Canonical trial and aggregate evidence: `docs/results/s11d_paired_468/`
+* Route-policy diagnostic: `docs/stages/S11D_ROUTE_POLICY_DIAGNOSTIC.md`
+* Read-only analyzer: `scripts/analyze_s11d_route_policy.py`
+* Derived diagnostic artifact: `docs/results/s11d_route_policy_diagnostic.json`
 * Experiment record: `docs/EXPERIMENTS.md`
 * Durable decisions: `docs/DECISIONS.md`
