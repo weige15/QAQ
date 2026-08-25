@@ -1739,3 +1739,62 @@ do not begin the later stage automatically.
 identity, schema, determinism, provenance, freeze, cleanup, or persistence
 defect invalidates affected evidence and returns REVISE; it does not authorize
 editing the frozen scientific contract or overwriting these results.
+
+### D061 — S11-D1 paired lookahead-specific 4/6/8 training protocol freeze (2026-08-24)
+
+**Exact research question:** Can a 4/6/8 router trained for
+one-layer-lookahead attention routing achieve meaningfully lower selected
+precision while preserving acceptable teacher-relative quality?
+
+**Evidence basis:** Canonical S11-C3 passed every frozen quality margin but
+increased historical 4/8 selected width by `0.06481481481481488` bits overall,
+so lookahead timing itself is not a savings assumption. Canonical S10-H showed
+that same-unit `lambda=0.03` reduced paired median hard width by
+`0.4907407407407405` bits versus zero cost but increased paired median hard KL
+by `0.014972516723598044`; `lambda=0.1` reduced width further with materially
+worse hard KL. S10-H selected no production coefficient.
+
+**Implementation choice — paired matrix:** Freeze exactly two timing arms,
+`same_unit_468_control` and
+`lookahead_attention_one_unit_468_treatment`, each at `lambda_bit=[0.0,0.03]`
+and seeds `[1729,1730,1731]`. Within each seed, clone one canonical fresh
+three-way initialization into all four cells and hold the exact S10-H 24/12
+ordered data manifests, candidates `[4,6,8]`, optimizer, 24-step budget,
+objective, teacher/base freeze, final-only checkpoint choice, and evaluation
+operations equal. The timing mode is the only arm difference and lambda is the
+only within-arm difference. The zero-cost cells provide same-timing quality
+and width references; `0.03` is an evidence-backed experimental probe, not a
+production selection. Excluding the known-unfavorable `0.1` point and any
+adaptive search makes this the smallest design that separates timing from cost
+pressure.
+
+**Implementation choice — separate gates:** Preserve S10's primary paired
+median hard-KL non-degradation rule for lookahead `0.03` versus lookahead zero
+cost, plus S11's per-request `1.25` KL and aggregate `1.10` mean-error timing
+safeguards. Define meaningful precision as a paired median hard selected-width
+reduction of at least `0.4907407407407405` bits versus the lookahead zero-cost
+reference, with at least two negative seed deltas. This uses the canonical S10
+reduction as an observed project scale and creates no quality/precision scalar.
+The same-unit `0.03` arm is a contemporaneous fixed-cost comparator, not an
+acceptable-quality substitute for zero cost.
+
+**Outcome and consequence:** The frozen protocol and exact CONTINUE, REFINE,
+REVISE, PAUSE, and STOP boundaries are owned by
+`docs/stages/S11D_PAIRED_LOOKAHEAD_468_TRAINING.md`. S11-D1 performs no real
+training or evaluation. A later valid CONTINUE may justify first testing real
+synchronous 6-bit on-demand loading only when every treatment seed actually
+selects 6-bit; prefetch/asynchronous execution and execution-benefit
+measurements remain separately frozen later questions after loader
+correctness.
+
+**Alternatives rejected:** A single `0.03` pair lacks a same-timing zero-cost
+quality reference; the full S10 grid repeats known unfavorable conditions;
+reusing only historical S10 control results would weaken contemporaneous
+pairing; judging quality only against the quality-failing same-unit `0.03`
+control could label degraded teacher-relative quality acceptable; and a
+combined score would hide which scientific requirement failed.
+
+**Reversal path:** Before any S11-D result, a proven pairing, metric, or
+threshold defect requires a new pre-result decision. After any result exists,
+preserve this protocol, invalidate affected evidence, and use REVISE rather
+than changing arms, lambdas, seeds, examples, budgets, references, or gates.

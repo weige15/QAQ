@@ -1,3 +1,46 @@
+Current stage: S11-D1
+Status: COMPLETE — PAIRED 4/6/8 TRAINING PROTOCOL FROZEN; NO TRAINING EXECUTED
+
+## S11-D1 paired lookahead-specific 4/6/8 training protocol freeze
+
+S11-D1 freezes the pre-result protocol in
+[`docs/stages/S11D_PAIRED_LOOKAHEAD_468_TRAINING.md`](stages/S11D_PAIRED_LOOKAHEAD_468_TRAINING.md).
+The exact question is: **Can a 4/6/8 router trained for one-layer-lookahead
+attention routing achieve meaningfully lower selected precision while
+preserving acceptable teacher-relative quality?** The protocol does not assume
+that lookahead reduces width; canonical S11-C3 instead observed a
+`+0.06481481481481488`-bit overall treatment delta for the historical 4/8
+checkpoint.
+
+The smallest fair experiment is a predeclared `2 timings × 2 lambdas × 3
+seeds` matrix: `same_unit_468_control` and
+`lookahead_attention_one_unit_468_treatment`, each at `lambda_bit=0.0` and
+`0.03`, for seeds `1729/1730/1731`. Within each seed all four cells clone the
+same canonical three-way initialization and hold exact S10-H 24-example
+training data, 12-example validation data, AdamW values, 24-step budget,
+`[p4,p6,p8]` order, teacher/base freeze, metric operations, and final-state
+selection equal. `0.03` is retained only as the smallest S10-supported
+positive-cost probe; S10-H showed a `-0.4907407407407405`-bit median hard-width
+change but a quality-failing `+0.014972516723598044` hard-KL delta. It is not a
+production selection, and the known-unfavorable `0.1` point is excluded.
+
+Quality and precision remain separate. Quality is judged primarily against the
+lookahead arm's paired zero-cost cells using S10's median hard-KL non-degradation
+rule, with S11's per-request `1.25` KL and aggregate `1.10` mean-error timing
+safeguards. Meaningful precision requires the lookahead `0.03` median hard
+selected width to be at least `0.4907407407407405` bits below its paired
+zero-cost reference, with negative deltas in at least two seeds. The
+contemporaneous same-unit `0.03` cells expose the fixed-cost timing contrast;
+no combined score is allowed. Frozen CONTINUE, REFINE, REVISE, PAUSE, and STOP
+rules prevent post-result changes.
+
+No executor, config, checkpoint, result artifact, model/dataset load, CUDA
+work, training, evaluation, loader change, prefetch, asynchronous transfer, or
+latency/transfer/memory/throughput measurement occurred. Next action: stop.
+A separate S11-D2 may implement and structurally validate an executor and
+non-executing plan without changing this protocol; real training remains a
+later, separately authorized S11-D3.
+
 Current stage: S11-C3
 Status: COMPLETE — CONTINUE; FROZEN BROADER QUALITY MARGINS PASS
 
