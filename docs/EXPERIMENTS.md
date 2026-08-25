@@ -643,3 +643,68 @@ Earlier PAUSE reports remain preserved at
 `/tmp/qaq-s10h2b2-authorized-lab-retry-completion-report.md`, and
 `/tmp/qaq-s10h2b2-closeout-completion-report.md`. The final additional-closeout
 report is `/tmp/qaq-s10h2b2-final-closeout-completion-report.md`.
+
+## Paired lookahead-specific 4/6/8 execution (2026-08-25)
+
+The separately authorized real experiment consumed the frozen S11-D protocol,
+validated dispatcher, and production runtime without changing the two arms,
+`lambda_bit` values, seeds, initialization hashes, data, 24-step training
+budget, metrics, thresholds, aggregation, or outcome rules. Preflight verified
+the frozen protocol SHA-256
+`4a62aeb7d8ae90a6349dc9dc8aab6dda4196b54876c4d0546c05808936fefe92`,
+the canonical S10-H manifest SHA-256
+`7d9e0aff3b686570be0d1d57b5513ee921d60bd5470f275b0cd7cbb4fd63db20`,
+the pinned local model/tokenizer snapshot, packed artifact files, cached pinned
+dataset revision, CUDA availability, and an explicit comparable NVIDIA GeForce
+RTX 3090 at `cuda:2`. Focused dispatcher/runtime tests passed `43 passed` before
+execution.
+
+Each of these frozen trial IDs was submitted exactly once through
+`scripts/run_lookahead_468_training.py --execute-trial`, in this order:
+
+1. `seed-1729__same_unit_468_control__lambda-0`
+2. `seed-1729__lookahead_attention_one_unit_468_treatment__lambda-0`
+3. `seed-1729__same_unit_468_control__lambda-0p03`
+4. `seed-1729__lookahead_attention_one_unit_468_treatment__lambda-0p03`
+5. `seed-1730__same_unit_468_control__lambda-0`
+6. `seed-1730__lookahead_attention_one_unit_468_treatment__lambda-0`
+7. `seed-1730__same_unit_468_control__lambda-0p03`
+8. `seed-1730__lookahead_attention_one_unit_468_treatment__lambda-0p03`
+9. `seed-1731__same_unit_468_control__lambda-0`
+10. `seed-1731__lookahead_attention_one_unit_468_treatment__lambda-0`
+11. `seed-1731__same_unit_468_control__lambda-0p03`
+12. `seed-1731__lookahead_attention_one_unit_468_treatment__lambda-0p03`
+
+All twelve commands returned `TRIAL_COMPLETE`, no errors, and `written=true`.
+Every canonical trial contains 24 ordered optimizer updates, twelve ordered
+soft and hard validations, 864 hard route decisions, a byte-identical immediate
+hard repeat, finite metrics and gradients, complete request-state/provenance
+evidence, unchanged teacher and packed base, exact paired initialization, and
+passing identity, order, optimizer, freeze, repeat, persistence, and
+prohibited-work audits. No trial was retried, substituted, resumed, or added,
+and no production checkpoint was created.
+
+After all twelve files existed, the frozen aggregation command ran once:
+
+```text
+PYTHONPATH=src:. python scripts/run_lookahead_468_training.py \
+  --aggregate \
+  --output docs/results/s11d_paired_468/aggregation.json \
+  --config configs/lookahead_468_training.json
+```
+
+The aggregate completeness, finiteness, and pairing audits pass. The per-seed
+lookahead `0.03 - 0.0` hard-KL deltas are
+`[0.010565421544015408, 0.010202943192174036, 0.010411208301472167]`; their
+median is `0.010411208301472167`, which fails the frozen `<= 0.0` quality gate.
+The corresponding hard selected-width deltas are
+`[-0.4884259259259247, -0.4375, -0.4120370370370363]` bits; all three are
+negative, but the `-0.4375` median fails the frozen
+`<= -0.4907407407407405` precision gate. The frozen factor safeguards do not
+all pass, and neither exact `REFINE` region applies.
+
+The rule-ordered classification is therefore **STOP**. The canonical aggregate
+is `docs/results/s11d_paired_468/aggregation.json`, SHA-256
+`ad40dc13276b83aef5ea0d58d1920c4e472ba3f8817c691e5ea5fa5b1881ef04`.
+No production lambda is selected. No retuning, extra/selective rerun, protocol
+change, performance work, loader work, or follow-up objective was performed.

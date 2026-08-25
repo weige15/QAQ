@@ -14,6 +14,15 @@ from qaq.evaluation import lookahead_468_executor as executor
 ROOT = Path(__file__).parents[2]
 
 
+@pytest.fixture(autouse=True)
+def _isolate_future_result_parent(monkeypatch, tmp_path):
+    """Keep pre-execution boundary tests hermetic after canonical results exist."""
+
+    result_parent = tmp_path / "s11d_paired_468"
+    monkeypatch.setattr(executor, "FUTURE_RESULT_PARENT", result_parent)
+    monkeypatch.setattr(executor, "AGGREGATION_OUTPUT", result_parent / "aggregation.json")
+
+
 def test_frozen_protocol_and_manifest_validate_exactly():
     config, digest = executor.load_protocol()
     assert digest == executor.EXPECTED_CONFIG_SHA256
@@ -104,12 +113,17 @@ def test_plan_preserves_metrics_thresholds_and_nonexecuting_boundaries():
 def _run_without_heavy_imports(arguments: list[str]) -> subprocess.CompletedProcess[str]:
     code = f"""
 import importlib.abc, runpy, sys
+from pathlib import Path
 blocked={{'torch','transformers','datasets','any_precision','any_precision_ext'}}
 class Blocker(importlib.abc.MetaPathFinder):
  def find_spec(self, fullname, path=None, target=None):
   if fullname.split('.')[0] in blocked: raise AssertionError(fullname)
   return None
 sys.meta_path.insert(0, Blocker())
+sys.path.insert(0, {str(ROOT / "src")!r})
+from qaq.evaluation import lookahead_468_executor as executor
+executor.FUTURE_RESULT_PARENT = Path({str(executor.FUTURE_RESULT_PARENT)!r})
+executor.AGGREGATION_OUTPUT = executor.FUTURE_RESULT_PARENT / 'aggregation.json'
 sys.argv={[str(ROOT / "scripts/run_lookahead_468_training.py"), *arguments]!r}
 runpy.run_path(sys.argv[0], run_name='__main__')
 """
@@ -222,7 +236,7 @@ def test_invalid_execute_command_imports_no_runtime_and_writes_nothing(defect):
     output = (
         "wrong.json"
         if defect == "destination"
-        else f"docs/results/s11d_paired_468/{spec['trial_id']}.json"
+        else str(executor.FUTURE_RESULT_PARENT / f"{spec['trial_id']}.json")
     )
     arguments = ["--execute-trial", trial_id, "--device", device, "--output", output]
     if defect == "config":
@@ -239,7 +253,7 @@ def test_invalid_execute_command_imports_no_runtime_and_writes_nothing(defect):
 
 def test_valid_execute_request_crosses_heavy_import_boundary_only_after_validation():
     spec = executor.trial_specs()[0]
-    output = f"docs/results/s11d_paired_468/{spec['trial_id']}.json"
+    output = str(executor.FUTURE_RESULT_PARENT / f"{spec['trial_id']}.json")
     completed = _run_without_heavy_imports(
         ["--execute-trial", spec["trial_id"], "--device", "cuda:0", "--output", output]
     )
@@ -272,7 +286,7 @@ def test_aggregation_dispatch_is_inert_until_all_exact_trial_files_exist(monkeyp
 
 def test_invalid_aggregation_request_imports_no_heavy_runtime_and_writes_nothing():
     completed = _run_without_heavy_imports(
-        ["--aggregate", "--output", "docs/results/s11d_paired_468/aggregation.json"]
+        ["--aggregate", "--output", str(executor.AGGREGATION_OUTPUT)]
     )
     assert completed.returncode == 2
     assert json.loads(completed.stdout)["classification"] == "PAUSE"

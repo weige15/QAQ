@@ -1,69 +1,67 @@
 # QAQ Status
 
-Current objective: **Structurally validate the production runtime for paired lookahead-specific 4/6/8 router training and evaluation**
-Legacy work-item reference: **S11-D3**
-Status: **READY — structural validation passed; no paired training trial has executed**
+Current objective: **Execute and classify the frozen paired lookahead-specific 4/6/8 router experiment**
+Legacy protocol/runtime references: **S11-D1 through S11-D3**
+Status: **COMPLETE — frozen outcome `STOP`**
 
 ## Current state
 
-The frozen paired lookahead-specific 4/6/8 training protocol (legacy work item S11-D1) and deterministic paired-training plan and dispatcher (legacy work item S11-D2) remain the execution authority.
+The separately authorized real execution used the frozen protocol in
+`configs/lookahead_468_training.json` (SHA-256
+`4a62aeb7d8ae90a6349dc9dc8aab6dda4196b54876c4d0546c05808936fefe92`),
+the validated dispatcher in `scripts/run_lookahead_468_training.py`, and the
+production runtime in `src/qaq/evaluation/lookahead_468_runtime.py` on
+`cuda:2`, an NVIDIA GeForce RTX 3090.
 
-A production runtime now exists at `src/qaq/evaluation/lookahead_468_runtime.py`. The standard-library dispatcher validates the exact frozen configuration, trial ID, explicit CUDA device, canonical destination, and complete aggregation inputs before the command imports that runtime. Default and `--plan` modes remain deterministic, standard-library-only, and inert.
+All twelve trials completed exactly once in the frozen order. Every trial
+persisted complete canonical evidence, completed the 24 ordered optimizer
+updates, evaluated the twelve frozen validation requests, retained 864 hard
+route decisions, passed identity/data-order/pairing/optimizer/freeze/gradient/
+route-provenance/repeat/prohibited-work audits, and created no production
+checkpoint. No trial was retried, substituted, reordered, or added.
 
-Deterministic tiny-object structural validation proves the runtime scheduler's required boundaries without loading the production model or dataset and without doing CUDA work:
+Only after all twelve canonical trial files existed did the validated
+aggregation command run. The canonical aggregate is
+`docs/results/s11d_paired_468/aggregation.json` (SHA-256
+`ad40dc13276b83aef5ea0d58d1920c4e472ba3f8817c691e5ea5fa5b1881ef04`).
+Its completeness, finiteness, and pairing audits all pass.
 
-* one deterministic seed initialization is restored byte-identically into every paired cell;
-* every cell receives a fresh router-only AdamW with empty initial state;
-* the teacher and packed base remain frozen;
-* every trial performs exactly 24 observed, ordered AdamW calls with finite losses and router gradients;
-* training, soft evaluation, and hard evaluation explicitly audit complete request state, one-time lookahead consumption, established layer-0 handling, and request cleanup;
-* same-unit and one-unit-lookahead target ownership and provenance cover all 72 units;
-* soft and hard evaluation cover all twelve fixed validation requests in order;
-* every hard evaluation contains 72 layer-major decisions, for 864 decisions per trial, with complete required metrics;
-* the immediate unchanged-state hard repeat is byte-identical;
-* the post-trial evaluator validates all twelve trial identities in frozen order, computes treatment/control and positive/zero-cost route transitions for every request, reports per-seed and median paired deltas, and applies the frozen `CONTINUE`/`REFINE`/`STOP` boundaries; and
-* injected identity, data/order, initialization, optimizer membership/freshness, update-count, freeze, gradient, request-state, route/provenance, repeat, aggregation, and persistence defects return `PAUSE` or `REVISE` without partial canonical evidence.
+## Frozen outcome
 
-The existing lookahead regression tests continue to prove detached features, one-time probability consumption, target-owned routing, provenance, and the soft-gradient path while keeping the packed base frozen.
+The aggregate applies the frozen outcome rules and returns **STOP**:
 
-Therefore:
+* median paired lookahead `0.03 - 0.0` hard KL delta:
+  `0.010411208301472167` (quality requires `<= 0.0`);
+* median paired lookahead `0.03 - 0.0` hard selected-width delta:
+  `-0.4375` bits (precision requires `<= -0.4907407407407405`);
+* all three seed width deltas are negative, but the frozen median-width gate
+  fails;
+* the frozen factor safeguards do not all pass; and
+* neither exact `REFINE` region applies.
 
-* zero of twelve real trials executed;
-* no model training or production evaluation occurred;
-* no production checkpoint exists;
-* no canonical trial evidence or aggregate exists;
-* `docs/results/s11d_paired_468/` remains absent; and
-* all scientific outcomes remain unknown.
+The per-seed paired hard-KL deltas are
+`[0.010565421544015408, 0.010202943192174036, 0.010411208301472167]` for
+seeds `[1729,1730,1731]`. The corresponding selected-width deltas are
+`[-0.4884259259259247, -0.4375, -0.4120370370370363]` bits.
+
+This valid complete result answers the bounded frozen formulation negatively.
+It does not prove all lookahead-specific training impossible and does not
+select or recommend a production lambda.
 
 ## Decision gate
 
-The bounded implementation and structural checks pass. The runtime is ready for a separately authorized real execution objective.
-
-Do not begin the frozen twelve-trial execution automatically. The next action, only after explicit authorization, is to submit the first frozen trial through the validated dispatcher and stop safely on any runtime prerequisite or evidence mismatch.
-
-## Frozen boundaries
-
-Do not:
-
-* change the two arms, `lambda_bit` values, seeds, candidate bits, pairing, trial order, data, training budget, metrics, thresholds, aggregation rules, or outcome definitions;
-* substitute another executor or bypass the dispatcher;
-* convert or reuse the historical two-way checkpoint;
-* alter synchronous on-demand loading or add prefetch, asynchronous loading or transfer, caching, batching, scheduling, or performance work;
-* manually construct missing evidence;
-* selectively execute or rerun cells;
-* interpret structural validation as scientific evidence; or
-* begin a follow-up objective automatically.
+Stop. The frozen `STOP` outcome ends this objective. No retuning, selective or
+additional run, performance work, protocol change, loader work, or follow-up
+objective is authorized or under way.
 
 ## Authoritative references
 
 * Repository rules: `AGENTS.md`
-* Frozen paired-training protocol: `docs/stages/S11D_PAIRED_LOOKAHEAD_468_TRAINING.md` (legacy work item S11-D1)
+* Frozen protocol: `docs/stages/S11D_PAIRED_LOOKAHEAD_468_TRAINING.md`
 * Frozen machine contract: `configs/lookahead_468_training.json`
-* Deterministic dispatcher/plan: `src/qaq/evaluation/lookahead_468_executor.py` (legacy work item S11-D2)
+* Validated dispatcher/plan: `src/qaq/evaluation/lookahead_468_executor.py`
 * Production runtime: `src/qaq/evaluation/lookahead_468_runtime.py`
 * Command entry point: `scripts/run_lookahead_468_training.py`
-* Structural tests: `tests/unit/test_lookahead_468_runtime.py`
-* Canonical prior data evidence: `docs/results/s10h_broader_validation.json`
+* Canonical trial and aggregate evidence: `docs/results/s11d_paired_468/`
+* Experiment record: `docs/EXPERIMENTS.md`
 * Durable decisions: `docs/DECISIONS.md`
-
-`docs/STATUS.md` records only the current handoff state. Historical work-item details and evidence belong in the work-item documents, decisions, results, experiments, and Git history.

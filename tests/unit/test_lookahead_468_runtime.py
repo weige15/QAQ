@@ -13,6 +13,15 @@ from qaq.evaluation import lookahead_468_runtime as runtime
 from qaq.model.request_state import QaqRequestState, RoutingProvenance
 
 
+@pytest.fixture(autouse=True)
+def _isolate_future_result_parent(monkeypatch, tmp_path):
+    """Keep structural runtime tests independent of canonical trial evidence."""
+
+    result_parent = tmp_path / "s11d_paired_468"
+    monkeypatch.setattr(contract, "FUTURE_RESULT_PARENT", result_parent)
+    monkeypatch.setattr(contract, "AGGREGATION_OUTPUT", result_parent / "aggregation.json")
+
+
 @dataclass(frozen=True)
 class TinyExample:
     example_id: str
